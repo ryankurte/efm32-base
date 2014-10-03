@@ -32,6 +32,7 @@ include(${CMAKE_CURRENT_LIST_DIR}/../cmsis/cmsis.cmake)
 add_definitions("-std=c99 -D${DEVICE} --specs=nano.specs -Wall -mcpu=cortex-${CPU_TYPE} -mthumb -fno-builtin -ffunction-sections -fdata-sections")
 set(CMAKE_EXE_LINKER_FLAGS "-Xlinker --gc-sections -Xlinker -Map=${TARGET}.map -T ${LINKER_SCRIPT}")
 
+#Set default inclusions
 set(LIBS ${LIBS} gcc c nosys)
 
 set(CMAKE_BUILD_TYPE DEBUG)
@@ -45,4 +46,6 @@ set(CMAKE_ASM_FLAGS_DEBUG "-O0 -g -gdwarf-2")
 set(CMAKE_C_FLAGS_RELEASE "-Os")
 set(CMAKE_CXX_FLAGS_RELEASE "-Os")
 set(CMAKE_ASM_FLAGS_RELEASE "-Os")
+
+
 

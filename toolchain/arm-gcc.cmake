@@ -14,8 +14,10 @@ CMAKE_FORCE_C_COMPILER(${COMPILER_PREFIX}arm-none-eabi-gcc GNU)
 CMAKE_FORCE_CXX_COMPILER(${COMPILER_PREFIX}arm-none-eabi-g++ GNU)
 set(CMAKE_ASM_COMPILER ${COMPILER_PREFIX}arm-none-eabi-g++)
 
-# Set other functions
+# Set other tools
 set(OBJSIZE ${COMPILER_PREFIX}arm-none-eabi-size)
+set(OBJCOPY ${COMPILER_PREFIX}arm-none-eabi-objcopy)
+set(OBJDUMP ${COMPILER_PREFIX}arm-none-eabi-objdump)
 
 # Remove preset linker flags
 set(CMAKE_SHARED_LIBRARY_LINK_C_FLAGS "") 

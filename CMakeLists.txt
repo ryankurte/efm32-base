@@ -23,3 +23,8 @@ set(SOURCES
 add_executable(${TARGET} ${SOURCES})
 target_link_libraries(${TARGET} ${LIBS})
 
+# Add post build commands
+include(${PROJECT_SOURCE_DIR}/toolchain/post-build.cmake)
+
+# Add JLink commands
+include(${PROJECT_SOURCE_DIR}/toolchain/jlink.cmake)
