@@ -29,23 +29,23 @@ include(${CMAKE_CURRENT_LIST_DIR}/../emlib/emlib.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/../cmsis/cmsis.cmake)
 
 # Set compiler flags
-add_definitions("-std=c99 -D${DEVICE} --specs=nano.specs -Wall -mcpu=cortex-${CPU_TYPE} -mthumb -fno-builtin -ffunction-sections -fdata-sections")
-set(CMAKE_EXE_LINKER_FLAGS "-Xlinker --gc-sections -Xlinker -Map=${TARGET}.map -T ${LINKER_SCRIPT}")
+set(CMAKE_C_FLAGS "-D${DEVICE} -mcpu=cortex-${CPU_TYPE} -mthumb -Wall -mno-sched-prolog -fno-builtin -ffunction-sections -fdata-sections -std=c99")
+#set(CMAKE_ASM_FLAGS "-D${DEVICE} -mcpu=cortex-${CPU_TYPE} -mthumb -Wall -mno-sched-prolog -fno-builtin -ffunction-sections -fdata-sections -std=c99")
+set(CMAKE_EXE_LINKER_FLAGS "-T ${LINKER_SCRIPT} -Xlinker --gc-sections -Xlinker -Map=${TARGET}.map --specs=nano.specs -Wl,--start-group -lgcc -lc -Wl,--end-group")
 
 #Set default inclusions
-set(LIBS ${LIBS} gcc c nosys)
+set(LIBS ${LIBS} nosys)
 
-set(CMAKE_BUILD_TYPE DEBUG)
+set(CMAKE_BUILD_TYPE RELEASE)
+
+SET(CMAKE_ASM_FLAGS ${CMAKE_ASM_FLAGS} "-x assembler-with-cpp")
 
 # Debug Flags
-set(CMAKE_C_FLAGS_DEBUG "-O0 -g -gdwarf-2")
-set(CMAKE_CXX_FLAGS_DEBUG "-O0 -g -gdwarf-2")
-set(CMAKE_ASM_FLAGS_DEBUG "-O0 -g -gdwarf-2")
+set(CMAKE_C_FLAGS_DEBUG "-O0 -g -gdwarf-2 '-DDEBUG_EFM=1' '-DDEBUG=1'")
+set(CMAKE_CXX_FLAGS_DEBUG "-O0 -g -gdwarf-2 '-DDEBUG_EFM=1' '-DDEBUG=1'")
+set(CMAKE_ASM_FLAGS_DEBUG "-O0 -g -gdwarf-2 '-DDEBUG_EFM=1' '-DDEBUG=1'")
 
 #Release Flags
 set(CMAKE_C_FLAGS_RELEASE "-Os")
 set(CMAKE_CXX_FLAGS_RELEASE "-Os")
 set(CMAKE_ASM_FLAGS_RELEASE "-Os")
-
-
-

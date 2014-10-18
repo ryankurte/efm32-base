@@ -13,7 +13,7 @@ include(${CMAKE_CURRENT_LIST_DIR}/toolchain/arm-gcc.cmake)
 project(efm32 C CXX ASM)
 
 # Set device and target configuration
-set(DEVICE EFM32GG230F1024)
+set(DEVICE EFM32GG990F1024)
 set(TARGET blink)
 
 include(${PROJECT_SOURCE_DIR}/toolchain/efm32-base.cmake)
