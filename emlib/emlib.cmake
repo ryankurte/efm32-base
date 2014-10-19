@@ -1,12 +1,19 @@
+# EFM32 Emlib CMake file
+#
+# Configures the emlib and adds it to the build
 
-#Include emlib headers
-include_directories("${CMAKE_CURRENT_LIST_DIR}/inc")
+##### Files #####
 
-#Collect emlib source files
-FILE(GLOB EMLIB_SOURCES "${CMAKE_CURRENT_LIST_DIR}/src/*.c")
+# Headers
+include_directories(${CMAKE_CURRENT_LIST_DIR}/inc)
 
-#Add library to build
+# Source files
+FILE(GLOB EMLIB_SOURCES ${CMAKE_CURRENT_LIST_DIR}/src/*.c)
+
+##### Outputs #####
+
+# Create emlib library
 add_library(emlib ${EMLIB_SOURCES})
 
-#Add to library list for convenience
+# Add library to build
 set(LIBS ${LIBS} emlib)

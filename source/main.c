@@ -1,6 +1,6 @@
 //EFM32 blink test
 
-#define LED_PIN     2
+#define LED_PIN     3
 #define LED_PORT    gpioPortE
 
 #include <stdint.h>

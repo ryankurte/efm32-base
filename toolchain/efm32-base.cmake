@@ -1,5 +1,6 @@
-
-enable_language(ASM)
+# EFM32 Base CMake file
+#
+# Configures the project files and environment for any EFM32 project
 
 if(NOT DEFINED DEVICE)
 message(FATAL_ERROR "No processor defined")
@@ -25,27 +26,31 @@ endif()
 
 # Include libraries
 include(${CMAKE_CURRENT_LIST_DIR}/../device/device.cmake)
-include(${CMAKE_CURRENT_LIST_DIR}/../emlib/emlib.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/../cmsis/cmsis.cmake)
+include(${CMAKE_CURRENT_LIST_DIR}/../emlib/emlib.cmake)
 
 # Set compiler flags
-set(CMAKE_C_FLAGS "-D${DEVICE} -mcpu=cortex-${CPU_TYPE} -mthumb -Wall -mno-sched-prolog -fno-builtin -ffunction-sections -fdata-sections -std=c99")
-#set(CMAKE_ASM_FLAGS "-D${DEVICE} -mcpu=cortex-${CPU_TYPE} -mthumb -Wall -mno-sched-prolog -fno-builtin -ffunction-sections -fdata-sections -std=c99")
+add_definitions(-D${DEVICE})
+set(CMAKE_C_FLAGS "-mcpu=cortex-${CPU_TYPE} -mthumb -Wall -Wextra -mno-sched-prolog -fno-builtin -ffunction-sections -fdata-sections -std=c99")
+set(CMAKE_CXX_FLAGS "-mcpu=cortex-${CPU_TYPE} -mthumb -Wall -Wextra -mno-sched-prolog -fno-builtin -ffunction-sections -fdata-sections -std=c99")
+SET(CMAKE_ASM_FLAGS "-x assembler-with-cpp")
 set(CMAKE_EXE_LINKER_FLAGS "-T ${LINKER_SCRIPT} -Xlinker --gc-sections -Xlinker -Map=${TARGET}.map --specs=nano.specs -Wl,--start-group -lgcc -lc -Wl,--end-group")
 
-#Set default inclusions
+# Set default inclusions
 set(LIBS ${LIBS} nosys)
-
-set(CMAKE_BUILD_TYPE RELEASE)
-
-SET(CMAKE_ASM_FLAGS ${CMAKE_ASM_FLAGS} "-x assembler-with-cpp")
 
 # Debug Flags
 set(CMAKE_C_FLAGS_DEBUG "-O0 -g -gdwarf-2 '-DDEBUG_EFM=1' '-DDEBUG=1'")
 set(CMAKE_CXX_FLAGS_DEBUG "-O0 -g -gdwarf-2 '-DDEBUG_EFM=1' '-DDEBUG=1'")
 set(CMAKE_ASM_FLAGS_DEBUG "-O0 -g -gdwarf-2 '-DDEBUG_EFM=1' '-DDEBUG=1'")
 
-#Release Flags
-set(CMAKE_C_FLAGS_RELEASE "-Os")
-set(CMAKE_CXX_FLAGS_RELEASE "-Os")
-set(CMAKE_ASM_FLAGS_RELEASE "-Os")
+# Release Flags
+set(CMAKE_C_FLAGS_RELEASE "-Os '-DNDEBUG=1'")
+set(CMAKE_CXX_FLAGS_RELEASE "-Os '-DNDEBUG=1'")
+set(CMAKE_ASM_FLAGS_RELEASE "-Os '-DNDEBUG=1'")
+
+# Add post build commands
+include(${CMAKE_CURRENT_LIST_DIR}/post-build.cmake)
+
+# Add JLink commands
+include(${CMAKE_CURRENT_LIST_DIR}/jlink.cmake)
