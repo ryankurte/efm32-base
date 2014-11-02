@@ -48,9 +48,3 @@ set(CMAKE_ASM_FLAGS_DEBUG "-O0 -g -gdwarf-2 '-DDEBUG_EFM=1' '-DDEBUG=1'")
 set(CMAKE_C_FLAGS_RELEASE "-Os '-DNDEBUG=1'")
 set(CMAKE_CXX_FLAGS_RELEASE "-Os '-DNDEBUG=1'")
 set(CMAKE_ASM_FLAGS_RELEASE "-Os '-DNDEBUG=1'")
-
-# Add post build commands
-include(${CMAKE_CURRENT_LIST_DIR}/post-build.cmake)
-
-# Add JLink commands
-include(${CMAKE_CURRENT_LIST_DIR}/jlink.cmake)

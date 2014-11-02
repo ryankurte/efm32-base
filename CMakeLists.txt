@@ -56,3 +56,11 @@ set(SOURCES
 # Generate executable and link
 add_executable(${TARGET} ${SOURCES})
 target_link_libraries(${TARGET} ${LIBS})
+
+##### Post build #####
+
+# Add post build commands
+include(${CMAKE_CURRENT_LIST_DIR}/${PROJECT_PREFIX}/toolchain/post-build.cmake)
+
+# Add JLink commands
+include(${CMAKE_CURRENT_LIST_DIR}/${PROJECT_PREFIX}/toolchain/jlink.cmake)
