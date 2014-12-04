@@ -40,9 +40,9 @@ set(CMAKE_EXE_LINKER_FLAGS "-T ${LINKER_SCRIPT} -Xlinker --gc-sections -Xlinker 
 set(LIBS ${LIBS} nosys)
 
 # Debug Flags
-set(CMAKE_C_FLAGS_DEBUG "-O0 -g -gdwarf-2 '-DDEBUG_EFM=1' '-DDEBUG=1'")
-set(CMAKE_CXX_FLAGS_DEBUG "-O0 -g -gdwarf-2 '-DDEBUG_EFM=1' '-DDEBUG=1'")
-set(CMAKE_ASM_FLAGS_DEBUG "-O0 -g -gdwarf-2 '-DDEBUG_EFM=1' '-DDEBUG=1'")
+set(CMAKE_C_FLAGS_DEBUG "-O0 -g -gdwarf-2 '-DDEBUG=1'")
+set(CMAKE_CXX_FLAGS_DEBUG "-O0 -g -gdwarf-2 '-DDEBUG=1'")
+set(CMAKE_ASM_FLAGS_DEBUG "-O0 -g -gdwarf-2 '-DDEBUG=1'")
 
 # Release Flags
 set(CMAKE_C_FLAGS_RELEASE "-Os '-DNDEBUG=1'")
