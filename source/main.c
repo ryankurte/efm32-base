@@ -54,8 +54,10 @@ int main(void)
     GPIO_PinOutSet(LED_PORT, LED_PIN);
 
     /* Infinite blink loop */
-    while (1) {
+    while (1)
+    {
         Delay(1000);
         GPIO_PinOutToggle(LED_PORT, LED_PIN);
     }
 }
+
