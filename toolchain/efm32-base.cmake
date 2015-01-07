@@ -34,7 +34,7 @@ add_definitions("-D${DEVICE} --specs=nano.specs -mcpu=cortex-${CPU_TYPE} -mthumb
 set(CMAKE_C_FLAGS " -std=c99")
 set(CMAKE_CXX_FLAGS "")
 SET(CMAKE_ASM_FLAGS "-x assembler-with-cpp")
-set(CMAKE_EXE_LINKER_FLAGS "-T ${LINKER_SCRIPT} -Xlinker --gc-sections -Xlinker -Map=${TARGET}.map --specs=nano.specs --specs=nosys.specs -Wl,--start-group -lgcc -lc -Wl,--end-group")
+set(CMAKE_EXE_LINKER_FLAGS "-T ${LINKER_SCRIPT} -mthumb -Xlinker --gc-sections -Xlinker -Map=${TARGET}.map --specs=nano.specs --specs=nosys.specs -Wl,--start-group -lgcc -lc -lnosys -Wl,--end-group")
 
 # Set default inclusions
 set(LIBS ${LIBS})
