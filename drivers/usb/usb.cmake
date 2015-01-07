@@ -13,7 +13,7 @@ FILE(GLOB EFM_USB_SOURCES ${CMAKE_CURRENT_LIST_DIR}/src/*.c)
 ##### Outputs #####
 
 # Create emlib library
-add_library(efm-usb ${EFM_USB_SOURCES})
+add_library(emusb ${EFM_USB_SOURCES})
 
 # Add library to build
-set(LIBS ${LIBS} efm-usb)
+set(LIBS ${LIBS} emusb)

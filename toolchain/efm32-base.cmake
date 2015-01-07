@@ -30,19 +30,19 @@ include(${CMAKE_CURRENT_LIST_DIR}/../cmsis/cmsis.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/../emlib/emlib.cmake)
 
 # Set compiler flags
-add_definitions(-D${DEVICE})
-set(CMAKE_C_FLAGS "-mcpu=cortex-${CPU_TYPE} -mthumb -Wall -Wextra -mno-sched-prolog -fno-builtin -ffunction-sections -fdata-sections -std=c99")
-set(CMAKE_CXX_FLAGS "-mcpu=cortex-${CPU_TYPE} -mthumb -Wall -Wextra -mno-sched-prolog -fno-builtin -ffunction-sections -fdata-sections -std=c99")
+add_definitions("-D${DEVICE} --specs=nano.specs -mcpu=cortex-${CPU_TYPE} -mthumb -Wall -Wextra -mno-sched-prolog -fno-builtin -ffunction-sections -fdata-sections")
+set(CMAKE_C_FLAGS " -std=c99")
+set(CMAKE_CXX_FLAGS "")
 SET(CMAKE_ASM_FLAGS "-x assembler-with-cpp")
-set(CMAKE_EXE_LINKER_FLAGS "-T ${LINKER_SCRIPT} -Xlinker --gc-sections -Xlinker -Map=${TARGET}.map --specs=nano.specs -Wl,--start-group -lgcc -lc -Wl,--end-group")
+set(CMAKE_EXE_LINKER_FLAGS "-T ${LINKER_SCRIPT} -Xlinker --gc-sections -Xlinker -Map=${TARGET}.map --specs=nano.specs --specs=nosys.specs -Wl,--start-group -lgcc -lc -Wl,--end-group")
 
 # Set default inclusions
-set(LIBS ${LIBS} nosys)
+set(LIBS ${LIBS})
 
 # Debug Flags
-set(CMAKE_C_FLAGS_DEBUG "-O0 -g -gdwarf-2 '-DDEBUG=1'")
-set(CMAKE_CXX_FLAGS_DEBUG "-O0 -g -gdwarf-2 '-DDEBUG=1'")
-set(CMAKE_ASM_FLAGS_DEBUG "-O0 -g -gdwarf-2 '-DDEBUG=1'")
+set(CMAKE_C_FLAGS_DEBUG "-O0 -g -gdwarf-2")
+set(CMAKE_CXX_FLAGS_DEBUG "-O0 -g -gdwarf-2")
+set(CMAKE_ASM_FLAGS_DEBUG "-O0 -g -gdwarf-2")
 
 # Release Flags
 set(CMAKE_C_FLAGS_RELEASE "-Os '-DNDEBUG=1'")
