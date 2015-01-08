@@ -18,10 +18,13 @@ message("Family: ${CPU_FAMILY_U}")
 # Determine core type
 if(CPU_FAMILY_U STREQUAL "EFM32ZG")
 set(CPU_TYPE "m0-plus")
+set(CPU_FIX "")
 elseif(CPU_FAMILY_U STREQUAL "EFM32WG")
 set(CPU_TYPE "m4")
+set(CPU_FIX "")
 else()
 set(CPU_TYPE "m3")
+set(CPU_FIX "-mfix-cortex-m3-ldrd")
 endif()
 
 # Include libraries
@@ -30,11 +33,13 @@ include(${CMAKE_CURRENT_LIST_DIR}/../cmsis/cmsis.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/../emlib/emlib.cmake)
 
 # Set compiler flags
-add_definitions("-D${DEVICE} --specs=nano.specs -mcpu=cortex-${CPU_TYPE} -mthumb -Wall -Wextra -mno-sched-prolog -fno-builtin -ffunction-sections -fdata-sections")
-set(CMAKE_C_FLAGS " -std=c99")
-set(CMAKE_CXX_FLAGS "")
-SET(CMAKE_ASM_FLAGS "-x assembler-with-cpp")
-set(CMAKE_EXE_LINKER_FLAGS "-T ${LINKER_SCRIPT} -mthumb -Xlinker --gc-sections -Xlinker -Map=${TARGET}.map --specs=nano.specs --specs=nosys.specs -Wl,--start-group -lgcc -lc -lnosys -Wl,--end-group")
+set(COMMON_FLAGS "-D${DEVICE} -mcpu=cortex-${CPU_TYPE} -mthumb -Wall -Wextra -mno-sched-prolog -fno-builtin -ffunction-sections -fdata-sections -fomit-frame-pointer")
+set(DEPENDENCY_FLAGS "-MMD -MP")
+
+set(CMAKE_C_FLAGS "${COMMON_FLAGS} ${CPU_FIX} -std=gnu99 --specs=nano.specs  ${DEPENDENCY_FLAGS}")
+set(CMAKE_CXX_FLAGS "${COMMON_FLAGS} ${CPU_FIX} --specs=nano.specs  ${DEPENDENCY_FLAGS}")
+SET(CMAKE_ASM_FLAGS "${COMMON_FLAGS} -x assembler-with-cpp -DLOOP_ADDR=0x8000")
+set(CMAKE_EXE_LINKER_FLAGS "${COMMON_FLAGS} -Xlinker -T${LINKER_SCRIPT} -Wl,--gc-sections -Wl,-Map=${TARGET}.map")
 
 # Set default inclusions
 set(LIBS ${LIBS})
