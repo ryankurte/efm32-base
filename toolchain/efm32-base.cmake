@@ -33,16 +33,25 @@ include(${CMAKE_CURRENT_LIST_DIR}/../cmsis/cmsis.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/../emlib/emlib.cmake)
 
 # Set compiler flags
-set(COMMON_FLAGS "-D${DEVICE} -mcpu=cortex-${CPU_TYPE} -mthumb -Wall -Wextra -mno-sched-prolog -fno-builtin -ffunction-sections -fdata-sections -fomit-frame-pointer")
-set(DEPENDENCY_FLAGS "-MMD -MP")
+# Common arguments
+set(COMMON_DEFINITIONS "-g -gdwarf-2 -Wextra -Wall -Wno-unused-parameter -mcpu=cortex-${CPU_TYPE} -mthumb -fno-builtin -ffunction-sections -fdata-sections -fomit-frame-pointer -D${DEVICE} ${OPTIONAL_DEBUG_SYMBOLS}")
+set(DEPFLAGS "-MMD -MP")
 
-set(CMAKE_C_FLAGS "${COMMON_FLAGS} ${CPU_FIX} -std=gnu99 --specs=nano.specs  ${DEPENDENCY_FLAGS}")
-set(CMAKE_CXX_FLAGS "${COMMON_FLAGS} ${CPU_FIX} --specs=nano.specs  ${DEPENDENCY_FLAGS}")
-SET(CMAKE_ASM_FLAGS "${COMMON_FLAGS} -x assembler-with-cpp -DLOOP_ADDR=0x8000")
-set(CMAKE_EXE_LINKER_FLAGS "${COMMON_FLAGS} -Xlinker -T${LINKER_SCRIPT} -Wl,--gc-sections -Wl,-Map=${TARGET}.map")
+# Enable FLTO optimization if required
+if(USE_FLTO)
+	set(OPTFLAGS "-Os -flto")
+else()
+	set(OPTFLAGS "-Os")
+endif()
+
+# Build flags
+set(CMAKE_C_FLAGS "-std=gnu99 ${COMMON_DEFINITIONS} ${CPU_FIX} --specs=nano.specs ${DEPFLAGS}")
+set(CMAKE_CXX_FLAGS "${COMMON_DEFINITIONS} ${CPU_FIX} --specs=nano.specs ${DEPFLAGS}")
+set(CMAKE_ASM_FLAGS "${COMMON_DEFINITIONS} -x assembler-with-cpp -DLOOP_ADDR=0x8000")
+set(CMAKE_EXE_LINKER_FLAGS "${COMMON_DEFINITIONS} -Xlinker -T${LINKER_SCRIPT} -Wl,-Map=${CMAKE_PROJECT_NAME}.map -Wl,--gc-sections")
 
 # Set default inclusions
-set(LIBS ${LIBS})
+set(LIBS -lgcc -lc -lnosys ${LIBS})
 
 # Debug Flags
 set(CMAKE_C_FLAGS_DEBUG "-O0 -g -gdwarf-2")

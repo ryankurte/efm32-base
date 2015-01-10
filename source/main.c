@@ -53,6 +53,8 @@ int main(void)
 
     GPIO_PinOutSet(LED_PORT, LED_PIN);
 
+    printf("test");
+
     /* Infinite blink loop */
     while (1)
     {
@@ -60,4 +62,6 @@ int main(void)
         GPIO_PinOutToggle(LED_PORT, LED_PIN);
     }
 }
+
+
 
