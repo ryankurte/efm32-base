@@ -10,6 +10,8 @@ include_directories(${CMAKE_CURRENT_LIST_DIR}/inc)
 # Source files
 FILE(GLOB EFM_USB_SOURCES ${CMAKE_CURRENT_LIST_DIR}/src/*.c)
 
+MESSAGE("WARNING: emusb module sources must be directly included")
+
 ##### Outputs #####
 
 # Create emlib library
