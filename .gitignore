@@ -7,3 +7,6 @@
 
 # Backup files
 *~
+
+# Misc
+*.DS_Store
