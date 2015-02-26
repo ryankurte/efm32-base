@@ -1,6 +1,19 @@
-build/
+# Build directories
+/build
+
+# Generated Files
 *.o
 *.so
 *.lib
 *.a
+
+# CTags
+*tags
+*tags_sorted_by_file
+
+# Backup files
+*~
+
+# Misc
+*.DS_Store
 

@@ -45,15 +45,27 @@ void Delay(uint32_t dlyTicks)
  *****************************************************************************/
 int main(void)
 {
+    CHIP_Init();
+
+    CMU_ClockEnable(cmuClock_GPIO, true);
+
     /* Setup SysTick Timer for 1 msec interrupts  */
     if (SysTick_Config(CMU_ClockFreqGet(cmuClock_CORE) / 1000)) while (1) ;
 
     /* Initialize LED driver */
-    GPIO_PinModeSet(LED_PORT, LED_PIN, gpioModePushPull, 1);
+    GPIO_PinModeSet(LED_PORT, LED_PIN, gpioModePushPull, 0);
+
+    GPIO_PinOutSet(LED_PORT, LED_PIN);
+
+    printf("test");
 
     /* Infinite blink loop */
-    while (1) {
-        GPIO_PinOutToggle(LED_PORT, LED_PIN);
+    while (1)
+    {
         Delay(1000);
+        GPIO_PinOutToggle(LED_PORT, LED_PIN);
     }
 }
+
+
+

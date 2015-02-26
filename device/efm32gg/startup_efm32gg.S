@@ -1,7 +1,7 @@
 /* @file startup_efm32gg.S
  * @brief startup file for Silicon Labs EFM32GG devices.
  *        For use with GCC for ARM Embedded Processors
- * @version 3.20.6
+ * @version 3.20.7
  * Date: 08 Feb 2012
  *
  * Copyright (c) 2012, ARM Limited

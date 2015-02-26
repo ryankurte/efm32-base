@@ -1,7 +1,7 @@
 /***************************************************************************//**
  * @file system_efm32gg.c
  * @brief CMSIS Cortex-M3 System Layer for EFM32GG devices.
- * @version 3.20.6
+ * @version 3.20.7
  ******************************************************************************
  * @section License
  * <b>(C) Copyright 2014 Silicon Laboratories, Inc. http://www.silabs.com</b>
@@ -20,12 +20,12 @@
  * DISCLAIMER OF WARRANTY/LIMITATION OF REMEDIES: Silicon Laboratories, Inc.
  * has no obligation to support this Software. Silicon Laboratories, Inc. is
  * providing the Software "AS IS", with no express or implied warranties of any
- * kind, including, but not limited to, any implied warranties of 
+ * kind, including, but not limited to, any implied warranties of
  * merchantability or fitness for any particular purpose or warranties against
  * infringement of any proprietary rights of a third party.
  *
- * Silicon Laboratories, Inc. will not be liable for any consequential, 
- * incidental, or special damages, or any other relief, or for any claim by 
+ * Silicon Laboratories, Inc. will not be liable for any consequential,
+ * incidental, or special damages, or any other relief, or for any claim by
  * any third party, arising from your use of this Software.
  *
  *****************************************************************************/
