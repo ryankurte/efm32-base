@@ -17,7 +17,7 @@ message("Family: ${CPU_FAMILY_U}")
 
 # Determine core type
 if(CPU_FAMILY_U STREQUAL "EFM32ZG")
-set(CPU_TYPE "m0-plus")
+set(CPU_TYPE "m0plus")
 set(CPU_FIX "")
 elseif(CPU_FAMILY_U STREQUAL "EFM32WG")
 set(CPU_TYPE "m4")

@@ -1,7 +1,7 @@
 /**************************************************************************//**
  * @file efm32gg_letimer.h
  * @brief EFM32GG_LETIMER register and bit field definitions
- * @version 3.20.6
+ * @version 3.20.7
  ******************************************************************************
  * @section License
  * <b>(C) Copyright 2014 Silicon Laboratories, Inc. http://www.silabs.com</b>

@@ -1,7 +1,7 @@
 /**************************************************************************//**
  * @file efm32gg_burtc.h
  * @brief EFM32GG_BURTC register and bit field definitions
- * @version 3.20.6
+ * @version 3.20.7
  ******************************************************************************
  * @section License
  * <b>(C) Copyright 2014 Silicon Laboratories, Inc. http://www.silabs.com</b>
@@ -55,7 +55,6 @@ typedef struct
   __I uint32_t      SYNCBUSY;      /**< Synchronization Busy Register  */
 
   uint32_t          RESERVED0[48]; /**< Reserved registers */
-
   BURTC_RET_TypeDef RET[128];      /**< RetentionReg */
 } BURTC_TypeDef;                   /** @} */
 

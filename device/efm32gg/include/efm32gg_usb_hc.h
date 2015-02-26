@@ -1,7 +1,7 @@
 /**************************************************************************//**
  * @file efm32gg_usb_hc.h
  * @brief EFM32GG_USB_HC register and bit field definitions
- * @version 3.20.6
+ * @version 3.20.7
  ******************************************************************************
  * @section License
  * <b>(C) Copyright 2014 Silicon Laboratories, Inc. http://www.silabs.com</b>
@@ -40,7 +40,6 @@ typedef struct
   __IO uint32_t INTMSK;       /**< Host Channel x Interrupt Mask Register  */
   __IO uint32_t TSIZ;         /**< Host Channel x Transfer Size Register  */
   __IO uint32_t DMAADDR;      /**< Host Channel x DMA Address Register  */
-
   uint32_t      RESERVED1[2]; /**< Reserved future */
 } USB_HC_TypeDef;
 

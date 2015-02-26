@@ -10,7 +10,7 @@
  * Example: Add "-DEFM32G890F128" to your build options, to define part
  *          Add "#include "em_device.h" to your source files
  * @endverbatim
- * @version 3.20.6
+ * @version 3.20.7
  ******************************************************************************
  * @section License
  * <b>(C) Copyright 2014 Silicon Laboratories, Inc. http://www.silabs.com</b>
@@ -29,12 +29,12 @@
  * DISCLAIMER OF WARRANTY/LIMITATION OF REMEDIES: Silicon Laboratories, Inc.
  * has no obligation to support this Software. Silicon Laboratories, Inc. is
  * providing the Software "AS IS", with no express or implied warranties of any
- * kind, including, but not limited to, any implied warranties of 
+ * kind, including, but not limited to, any implied warranties of
  * merchantability or fitness for any particular purpose or warranties against
  * infringement of any proprietary rights of a third party.
  *
- * Silicon Laboratories, Inc. will not be liable for any consequential, 
- * incidental, or special damages, or any other relief, or for any claim by 
+ * Silicon Laboratories, Inc. will not be liable for any consequential,
+ * incidental, or special damages, or any other relief, or for any claim by
  * any third party, arising from your use of this Software.
  *
  *****************************************************************************/
@@ -132,6 +132,12 @@
 
 #elif defined(EFM32GG895F512)
 #include "efm32gg895f512.h"
+
+#elif defined(EFM32GG900F1024)
+#include "efm32gg900f1024.h"
+
+#elif defined(EFM32GG900F512)
+#include "efm32gg900f512.h"
 
 #elif defined(EFM32GG940F1024)
 #include "efm32gg940f1024.h"

@@ -1,7 +1,7 @@
 /**************************************************************************//**
  * @file efm32gg_usb.h
  * @brief EFM32GG_USB register and bit field definitions
- * @version 3.20.6
+ * @version 3.20.7
  ******************************************************************************
  * @section License
  * <b>(C) Copyright 2014 Silicon Laboratories, Inc. http://www.silabs.com</b>
@@ -81,7 +81,6 @@ typedef struct
   __IO uint32_t    HPRT;              /**< Host Port Control and Status Register  */
 
   uint32_t         RESERVED6[47];     /**< Reserved registers */
-
   USB_HC_TypeDef   HC[14];            /**< Host Channel Registers */
 
   uint32_t         RESERVED7[80];     /**< Reserved for future use **/
@@ -110,7 +109,6 @@ typedef struct
   __I uint32_t     DIEP0TXFSTS;       /**< Device IN Endpoint 0 Transmit FIFO Status Register  */
 
   uint32_t         RESERVED14[1];     /**< Reserved registers */
-
   USB_DIEP_TypeDef DIEP[6];           /**< Device IN Endpoint x+1 Registers */
 
   uint32_t         RESERVED15[72];    /**< Reserved for future use **/
@@ -122,70 +120,54 @@ typedef struct
   __IO uint32_t    DOEP0DMAADDR;      /**< Device OUT Endpoint 0 DMA Address Register  */
 
   uint32_t         RESERVED18[2];     /**< Reserved registers */
-
   USB_DOEP_TypeDef DOEP[6];           /**< Device OUT Endpoint x+1 Registers */
 
   uint32_t         RESERVED19[136];   /**< Reserved for future use **/
   __IO uint32_t    PCGCCTL;           /**< Power and Clock Gating Control Register  */
 
   uint32_t         RESERVED20[127];   /**< Reserved registers */
-
   __IO uint32_t    FIFO0D[512];       /**< Device EP 0/Host Channel 0 FIFO  */
 
   uint32_t         RESERVED21[512];   /**< Reserved registers */
-
   __IO uint32_t    FIFO1D[512];       /**< Device EP 1/Host Channel 1 FIFO  */
 
   uint32_t         RESERVED22[512];   /**< Reserved registers */
-
   __IO uint32_t    FIFO2D[512];       /**< Device EP 2/Host Channel 2 FIFO  */
 
   uint32_t         RESERVED23[512];   /**< Reserved registers */
-
   __IO uint32_t    FIFO3D[512];       /**< Device EP 3/Host Channel 3 FIFO  */
 
   uint32_t         RESERVED24[512];   /**< Reserved registers */
-
   __IO uint32_t    FIFO4D[512];       /**< Device EP 4/Host Channel 4 FIFO  */
 
   uint32_t         RESERVED25[512];   /**< Reserved registers */
-
   __IO uint32_t    FIFO5D[512];       /**< Device EP 5/Host Channel 5 FIFO  */
 
   uint32_t         RESERVED26[512];   /**< Reserved registers */
-
   __IO uint32_t    FIFO6D[512];       /**< Device EP 6/Host Channel 6 FIFO  */
 
   uint32_t         RESERVED27[512];   /**< Reserved registers */
-
   __IO uint32_t    FIFO7D[512];       /**< Host Channel 7 FIFO  */
 
   uint32_t         RESERVED28[512];   /**< Reserved registers */
-
   __IO uint32_t    FIFO8D[512];       /**< Host Channel 8 FIFO  */
 
   uint32_t         RESERVED29[512];   /**< Reserved registers */
-
   __IO uint32_t    FIFO9D[512];       /**< Host Channel 9 FIFO  */
 
   uint32_t         RESERVED30[512];   /**< Reserved registers */
-
   __IO uint32_t    FIFO10D[512];      /**< Host Channel 10 FIFO  */
 
   uint32_t         RESERVED31[512];   /**< Reserved registers */
-
   __IO uint32_t    FIFO11D[512];      /**< Host Channel 11 FIFO  */
 
   uint32_t         RESERVED32[512];   /**< Reserved registers */
-
   __IO uint32_t    FIFO12D[512];      /**< Host Channel 12 FIFO  */
 
   uint32_t         RESERVED33[512];   /**< Reserved registers */
-
   __IO uint32_t    FIFO13D[512];      /**< Host Channel 13 FIFO  */
 
   uint32_t         RESERVED34[17920]; /**< Reserved registers */
-
   __IO uint32_t    FIFORAM[512];      /**< Direct Access to Data FIFO RAM for Debugging (2 KB)  */
 } USB_TypeDef;                        /** @} */
 

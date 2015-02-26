@@ -1,7 +1,7 @@
 /**************************************************************************//**
  * @file efm32gg_lesense_buf.h
  * @brief EFM32GG_LESENSE_BUF register and bit field definitions
- * @version 3.20.6
+ * @version 3.20.7
  ******************************************************************************
  * @section License
  * <b>(C) Copyright 2014 Silicon Laboratories, Inc. http://www.silabs.com</b>

@@ -1,7 +1,7 @@
 /**************************************************************************//**
  * @file efm32gg_lesense.h
  * @brief EFM32GG_LESENSE register and bit field definitions
- * @version 3.20.6
+ * @version 3.20.7
  ******************************************************************************
  * @section License
  * <b>(C) Copyright 2014 Silicon Laboratories, Inc. http://www.silabs.com</b>
@@ -61,9 +61,10 @@ typedef struct
   __IO uint32_t       POWERDOWN;      /**< LESENSE RAM power-down register  */
 
   uint32_t            RESERVED0[105]; /**< Reserved registers */
-
   LESENSE_ST_TypeDef  ST[16];         /**< Decoding states */
+
   LESENSE_BUF_TypeDef BUF[16];        /**< Scanresult */
+
   LESENSE_CH_TypeDef  CH[16];         /**< Scanconfig */
 } LESENSE_TypeDef;                    /** @} */
 

@@ -1,7 +1,7 @@
 /**************************************************************************//**
  * @file efm32gg_prs_signals.h
  * @brief EFM32GG_PRS_SIGNALS register and bit field definitions
- * @version 3.20.6
+ * @version 3.20.7
  ******************************************************************************
  * @section License
  * <b>(C) Copyright 2014 Silicon Laboratories, Inc. http://www.silabs.com</b>
@@ -34,7 +34,6 @@
  * @{
  * @brief PRS Signal names
  *****************************************************************************/
-
 #define PRS_VCMP_OUT             ((1 << 16) + 0)  /**< PRS Voltage comparator output */
 #define PRS_ACMP0_OUT            ((2 << 16) + 0)  /**< PRS Analog comparator output */
 #define PRS_ACMP1_OUT            ((3 << 16) + 0)  /**< PRS Analog comparator output */

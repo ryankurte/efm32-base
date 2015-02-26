@@ -1,7 +1,7 @@
 /**************************************************************************//**
  * @file efm32gg_prs.h
  * @brief EFM32GG_PRS register and bit field definitions
- * @version 3.20.6
+ * @version 3.20.7
  ******************************************************************************
  * @section License
  * <b>(C) Copyright 2014 Silicon Laboratories, Inc. http://www.silabs.com</b>
@@ -41,7 +41,6 @@ typedef struct
   __IO uint32_t  ROUTE;        /**< I/O Routing Register  */
 
   uint32_t       RESERVED0[1]; /**< Reserved registers */
-
   PRS_CH_TypeDef CH[12];       /**< Channel registers */
 } PRS_TypeDef;                 /** @} */
 

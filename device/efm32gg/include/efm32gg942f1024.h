@@ -2,7 +2,7 @@
  * @file efm32gg942f1024.h
  * @brief CMSIS Cortex-M Peripheral Access Layer Header File
  *        for EFM32GG942F1024
- * @version 3.20.6
+ * @version 3.20.7
  ******************************************************************************
  * @section License
  * <b>(C) Copyright 2014 Silicon Laboratories, Inc. http://www.silabs.com</b>
@@ -311,7 +311,6 @@ typedef struct
   __IO uint32_t  RECT0;          /**< Channel 0 Rectangle Register  */
 
   uint32_t       RESERVED6[39];  /**< Reserved registers */
-
   DMA_CH_TypeDef CH[12];         /**< Channel registers */
 } DMA_TypeDef;                   /** @} */
 
@@ -394,7 +393,6 @@ typedef struct
   __IO uint32_t  ROUTE;        /**< I/O Routing Register  */
 
   uint32_t       RESERVED0[1]; /**< Reserved registers */
-
   PRS_CH_TypeDef CH[12];       /**< Channel registers */
 } PRS_TypeDef;                 /** @} */
 
@@ -518,7 +516,6 @@ typedef struct
  * @{
  * @brief PRS Signal names
  *****************************************************************************/
-
 #define PRS_VCMP_OUT             ((1 << 16) + 0)  /**< PRS Voltage comparator output */
 #define PRS_ACMP0_OUT            ((2 << 16) + 0)  /**< PRS Analog comparator output */
 #define PRS_ACMP1_OUT            ((3 << 16) + 0)  /**< PRS Analog comparator output */
