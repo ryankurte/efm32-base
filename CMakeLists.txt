@@ -29,10 +29,14 @@ set(TARGET efm32-test)
 project(${TARGET} C CXX ASM)
 
 # Set device
+if(NOT DEVICE)
 set(DEVICE EFM32GG990F1024)
+endif()
 
 # Set build
+if(NOT CMAKE_BUILD_TYPE)
 set(CMAKE_BUILD_TYPE DEBUG)
+endif()
 
 ##### Modules #####
 
@@ -64,3 +68,4 @@ include(${CMAKE_CURRENT_LIST_DIR}/${PROJECT_PREFIX}/toolchain/post-build.cmake)
 
 # Add JLink commands
 include(${CMAKE_CURRENT_LIST_DIR}/${PROJECT_PREFIX}/toolchain/jlink.cmake)
+
