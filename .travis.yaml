@@ -20,16 +20,8 @@ install:
     - sudo apt-get install qemu-system-x86 python3
     - sudo apt-get install g++-multilib
 
-    - git config --global user.email "travis@electronpowered.org"
-    - git config --global user.name "Travis CI"
-    - git checkout https://github.com/electronpowered/efm32-base.git
-    - cd efm32-base
-
 script:
-    - cd efm32-base
-    - ./test.sh
-    
-
+    - make
 
 notifications:
     email: false

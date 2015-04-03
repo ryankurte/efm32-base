@@ -1,8 +1,8 @@
 # Base EFM32 CMake file
 #
 # This can be used as is as a project base, or by adding the efm32-base
-# repository as a submodule in another project, copying this CMakeLists file
-# to the top level directory, and updating the toolchain paths to reflect this
+# repository as a submodule to another project, copying this CMakeLists file
+# to the top level directory, and updating the BASE_LOCATION variable to reflect this
 # change
 
 ###### Project Environment #####
@@ -10,15 +10,11 @@
 # Set minimum CMake version
 cmake_minimum_required(VERSION 2.8.4)
 
-# Check which directory we are running in so we can find our toolchains etc
-get_filename_component(BASE_DIRECTORY ${CMAKE_CURRENT_LIST_DIR} NAME)
-if(NOT ${BASE_DIRECTORY} STREQUAL "efm32-base")
-	set(PROJECT_PREFIX "efm32-base")
-endif()
-message("Project prefix: " ${PROJECT_PREFIX})
+# Set efm32-base project location
+set(BASE_LOCATION .)
 
-# Set the toolchain/languages/support files etc
-include(${CMAKE_CURRENT_LIST_DIR}/${PROJECT_PREFIX}/toolchain/arm-gcc.cmake)
+# Set the compiler (must be prior to project setup)
+include(${BASE_LOCATION}/toolchain/arm-gcc.cmake)
 
 ##### Project Setup #####
 
@@ -40,15 +36,16 @@ endif()
 
 ##### Modules #####
 
-# Libraries should add themselves to the LIBS variable
+# Libraries can be added to the LIBS variable
+# or manually included here.
 
 # Add base libs (emlib, CMSIS, device files)
-include(${PROJECT_SOURCE_DIR}/${PROJECT_PREFIX}/toolchain/efm32-base.cmake)
+include(${BASE_LOCATION}/toolchain/efm32-base.cmake)
 
 ##### Files #####
 
 # Add project headers
-include_directories(${PROJECT_SOURCE_DIR}/include)
+include_directories(${BASE_LOCATION}/include)
 
 # Add project sources
 set(SOURCES
@@ -64,8 +61,8 @@ target_link_libraries(${TARGET} ${LIBS})
 ##### Post build #####
 
 # Add post build commands
-include(${CMAKE_CURRENT_LIST_DIR}/${PROJECT_PREFIX}/toolchain/post-build.cmake)
+include(${BASE_LOCATION}/toolchain/post-build.cmake)
 
 # Add JLink commands
-include(${CMAKE_CURRENT_LIST_DIR}/${PROJECT_PREFIX}/toolchain/jlink.cmake)
+include(${BASE_LOCATION}/toolchain/jlink.cmake)
 
