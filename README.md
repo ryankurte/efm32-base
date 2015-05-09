@@ -2,6 +2,8 @@
 
 This base project is designed to provide a quick and platform independent method of building projects for Silicon Labs EFM32 microcontrollers.
 
+Status: complete bar automated testing
+
 ##Motivation
  - Getting started with Microcontrollers is hard (and time consuming)
  - Vendor IDEs are ultimately useless when approaching testing and build-automation
