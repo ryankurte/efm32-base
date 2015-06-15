@@ -2,7 +2,7 @@
 
 This base project is designed to provide a quick and platform independent method of building projects for Silicon Labs EFM32 microcontrollers.
 
-Status: complete bar automated testing
+[![Build Status](https://travis-ci.org/ryankurte/efm32-base.svg)](https://travis-ci.org/ryankurte/efm32-base)
 
 ##Motivation
  - Getting started with Microcontrollers is hard (and time consuming)
