@@ -3,7 +3,7 @@
 # Configures the required linker script, startup script, and system file and adds them to the build
 
 # Add headers for the specific device
-include_directories(${CMAKE_CURRENT_LIST_DIR}/${CPU_FAMILY_U}/include)
+include_directories(${CMAKE_CURRENT_LIST_DIR}/${CPU_FAMILY_U}/Include)
 
 # Set linker script name
 set(LINKER_SCRIPT ${CMAKE_CURRENT_LIST_DIR}/${CPU_FAMILY_U}/Source/GCC/${CPU_FAMILY_L}.ld)
