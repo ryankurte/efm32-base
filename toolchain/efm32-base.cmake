@@ -15,6 +15,11 @@ string(REGEX MATCH "^(EFM32[A-Z]+)" CPU_FAMILY_U "${DEVICE_U}")
 string(TOLOWER ${CPU_FAMILY_U} CPU_FAMILY_L)
 message("Family: ${CPU_FAMILY_U}")
 
+if(NOT DEFINED FLASH_START)
+set(FLASH_START 0x00000000)
+message("No FLASH_START defined. Using default: ${FLASH_START}")
+endif(NOT DEFINED FLASH_START)
+
 # Determine core type
 if(CPU_FAMILY_U STREQUAL "EFM32ZG")
 set(CPU_TYPE "m0plus")
