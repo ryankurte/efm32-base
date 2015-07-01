@@ -34,7 +34,7 @@ include(${CMAKE_CURRENT_LIST_DIR}/../emlib/emlib.cmake)
 
 # Set compiler flags
 # Common arguments
-set(COMMON_DEFINITIONS "-g -gdwarf-2 -Wextra -Wall -Wno-unused-parameter -mcpu=cortex-${CPU_TYPE} -mthumb -fno-builtin -ffunction-sections -fdata-sections -fomit-frame-pointer -D${DEVICE} ${OPTIONAL_DEBUG_SYMBOLS}")
+set(COMMON_DEFINITIONS "-Wextra -Wall -Wno-unused-parameter -mcpu=cortex-${CPU_TYPE} -mthumb -fno-builtin -ffunction-sections -fdata-sections -fomit-frame-pointer -D${DEVICE} ${OPTIONAL_DEBUG_SYMBOLS}")
 set(DEPFLAGS "-MMD -MP")
 
 # Enable FLTO optimization if required
@@ -54,11 +54,15 @@ set(CMAKE_EXE_LINKER_FLAGS "${COMMON_DEFINITIONS} -Xlinker -T${LINKER_SCRIPT} -W
 set(LIBS -lgcc -lc -lnosys ${LIBS})
 
 # Debug Flags
-set(CMAKE_C_FLAGS_DEBUG "-O0 -g -gdwarf-2")
-set(CMAKE_CXX_FLAGS_DEBUG "-O0 -g -gdwarf-2")
-set(CMAKE_ASM_FLAGS_DEBUG "-O0 -g -gdwarf-2")
+set(COMMON_DEBUG_FLAGS "-O0 -g -gdwarf-2")
+set(CMAKE_C_FLAGS_DEBUG   "-${COMMON_DEBUG_FLAGS}")
+set(CMAKE_CXX_FLAGS_DEBUG "-${COMMON_DEBUG_FLAGS}")
+set(CMAKE_ASM_FLAGS_DEBUG "-${COMMON_DEBUG_FLAGS}")
 
 # Release Flags
-set(CMAKE_C_FLAGS_RELEASE "-Os '-DNDEBUG=1'")
-set(CMAKE_CXX_FLAGS_RELEASE "-Os '-DNDEBUG=1'")
-set(CMAKE_ASM_FLAGS_RELEASE "-Os '-DNDEBUG=1'")
+set(COMMON_RELEASE_FLAGS "${OPTFLAGS} -DNDEBUG=1 -DRELEASE=1")
+set(CMAKE_C_FLAGS_RELEASE 	"${COMMON_RELEASE_FLAGS}")
+set(CMAKE_CXX_FLAGS_RELEASE "${COMMON_RELEASE_FLAGS}")
+set(CMAKE_ASM_FLAGS_RELEASE "${COMMON_RELEASE_FLAGS}")
+
+
