@@ -1,7 +1,7 @@
 device ${DEVICE}
 h
-loadbin ${BINARY}, 0x00000000
-verifybin ${BINARY}, 0x00000000
+loadbin ${BINARY}, ${FLASH_START}
+verifybin ${BINARY}, ${FLASH_START}
 r
 g
 qc
