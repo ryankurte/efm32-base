@@ -1,5 +1,5 @@
-#!/bin/bash
-#Test compilation script
+
+#Test compilation makefile
 
 .PHONY: setup efm32g efm32gg efm32zg efm32wg efm32lg efm32tg
 
