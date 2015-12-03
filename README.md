@@ -44,9 +44,10 @@ For an example project using this method, see [TODO].
 ## Building
 Once you have integrated this project with your project, you can build in the standard cmake manner.
 
-1. `mkdir build`
-2. `cd build`
-3. `cmake ..`
-4. `make`
+1. `mkdir build` to create the build directory
+2. `cd build` to switch to the build directory
+3. `cmake ..` to configure the build
+4. `make` to execute the build
+5. `make flash` to flash to a device
 
 If you have any issues, suggestions or alterations, feel free to open an issue or a pull request.
