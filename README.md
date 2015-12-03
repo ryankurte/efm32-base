@@ -1,6 +1,7 @@
 # EFM32 Base Project
 
 This base project is designed to provide a quick and platform independent method of building projects for Silicon Labs EFM32 microcontrollers.
+Designed and tested on OSX and Debian. Windows might work with cygwig/mingw/gnuwindows tools, but hasn't been attempted.
 
 [![Build Status](https://travis-ci.org/ryankurte/efm32-base.svg)](https://travis-ci.org/ryankurte/efm32-base)
 
@@ -11,9 +12,10 @@ This base project is designed to provide a quick and platform independent method
 This project addresses this by providing a common base for for projects using Silicon Labs EFM32 processors.
 
 ## Dependencies
- - cmake
- - make
+ - cmake - use brew on osx, or your favourite package manager for linux
+ - make - should be available by default, otherwise as above
  - arm-none-eabi-gcc - Embedded ARM Compiler/Toolchain (https://launchpad.net/gcc-arm-embedded/+download)
+ - JLink tools - https://www.segger.com/jlink-software.html
 
 ## Usage
 
