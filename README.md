@@ -9,13 +9,16 @@ Designed and tested on OSX and Debian. Windows might work with cygwig/mingw/gnuw
  - Getting started with Microcontrollers is hard (and time consuming)
  - Vendor IDEs are ultimately useless when approaching testing and build-automation
 
-This project addresses this by providing a common base for for projects using Silicon Labs EFM32 processors.
+This project addresses this by providing a common base for for projects using Silicon Labs EFM32 processors.  
+This will likely be superseeded by ARM-Mbed Yotta going forwards, check out http://yottadocs.mbed.com/ for more information.
 
 ## Dependencies
  - cmake - use brew on osx, or your favourite package manager for linux
  - make - should be available by default, otherwise as above
  - arm-none-eabi-gcc - Embedded ARM Compiler/Toolchain (https://launchpad.net/gcc-arm-embedded/+download)
- - JLink tools - https://www.segger.com/jlink-software.html
+ - JLink tools - download and install from https://www.segger.com/jlink-software.html
+
+Note that you can also run `. ./armenv.sh` which will download and configure a local copy of the arm-none-eabi-gcc, see https://git.io/vRP63 for more information.
 
 ## Usage
 
