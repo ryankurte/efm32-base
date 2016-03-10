@@ -24,7 +24,7 @@ Note that you can also run `. ./armenv.sh` which will download and configure a l
 
 This project can either be used directly or as a submodule in a larger project.
 Note that submodule use will allow updates to this project for fixes or further device support.  
-For an example project using this method, see [TODO].
+For an example project using this method, see [ryankurte/usb-thing](https://github.com/ryankurte/usb-thing).
 
 ### To use the project directly:
 
