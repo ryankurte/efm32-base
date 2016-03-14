@@ -38,11 +38,11 @@ efm32hg:
 
 #EFM32LG Family
 ezr32lg:
-	cd builds; rm -rf ezr32lg; mkdir ezr32lg; cd ezr32lg; cmake -DDEVICE=EZR32LG230F128R67G ../..; make;
+	cd builds; rm -rf ezr32lg; mkdir ezr32lg; cd ezr32lg; cmake -DDEVICE=EZR32LG230F256R67 ../..; make;
 
 #EFM32TG Family
 ezr32wg:
-	cd builds; rm -rf ezr32wg; mkdir ezr32wg; cd ezr32wg; cmake -DDEVICE=EZR32WG230F256R67G ../..; make;
+	cd builds; rm -rf ezr32wg; mkdir ezr32wg; cd ezr32wg; cmake -DDEVICE=EZR32WG230F256R67 ../..; make;
 
 
 clean:

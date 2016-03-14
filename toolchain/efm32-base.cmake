@@ -5,13 +5,14 @@
 if(NOT DEFINED DEVICE)
 message(FATAL_ERROR "No processor defined")
 endif(NOT DEFINED DEVICE)
+message("Device: ${DEVICE}")
 
 # Convert to upper case
 string(TOUPPER ${DEVICE} DEVICE_U)
 message("Processor: ${DEVICE_U}")
 
 # Determine device family
-string(REGEX MATCH "^(EFM32[A-Z]+)" CPU_FAMILY_U "${DEVICE_U}")
+string(REGEX MATCH "^((EFM|EZR)32[A-Z]+)" CPU_FAMILY_U "${DEVICE_U}")
 string(TOLOWER ${CPU_FAMILY_U} CPU_FAMILY_L)
 message("Family: ${CPU_FAMILY_U}")
 
@@ -24,7 +25,7 @@ endif(NOT DEFINED FLASH_START)
 if(CPU_FAMILY_U STREQUAL "EFM32ZG")
 set(CPU_TYPE "m0plus")
 set(CPU_FIX "")
-elseif(CPU_FAMILY_U STREQUAL "EFM32WG")
+elseif(CPU_FAMILY_U STREQUAL "EFM32WG" OR CPU_FAMILY_U STREQUAL "EZR32WG")
 set(CPU_TYPE "m4")
 set(CPU_FIX "")
 else()
