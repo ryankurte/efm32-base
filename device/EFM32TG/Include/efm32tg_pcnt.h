@@ -1,10 +1,10 @@
 /**************************************************************************//**
  * @file efm32tg_pcnt.h
  * @brief EFM32TG_PCNT register and bit field definitions
- * @version 3.20.7
+ * @version 4.2.1
  ******************************************************************************
  * @section License
- * <b>(C) Copyright 2014 Silicon Laboratories, Inc. http://www.silabs.com</b>
+ * <b>Copyright 2015 Silicon Laboratories, Inc. http://www.silabs.com</b>
  ******************************************************************************
  *
  * Permission is granted to anyone to use this software for any purpose,
@@ -29,6 +29,10 @@
  * any third party, arising from your use of this Software.
  *
  *****************************************************************************/
+/**************************************************************************//**
+* @addtogroup Parts
+* @{
+******************************************************************************/
 /**************************************************************************//**
  * @defgroup EFM32TG_PCNT
  * @brief EFM32TG_PCNT Register Declaration
@@ -397,5 +401,5 @@ typedef struct
 #define PCNT_INPUT_S1PRSEN_DEFAULT        (_PCNT_INPUT_S1PRSEN_DEFAULT << 10) /**< Shifted mode DEFAULT for PCNT_INPUT */
 
 /** @} End of group EFM32TG_PCNT */
-
+/** @} End of group Parts */
 

@@ -1,10 +1,10 @@
 /**************************************************************************//**
  * @file efm32tg_dmareq.h
  * @brief EFM32TG_DMAREQ register and bit field definitions
- * @version 3.20.7
+ * @version 4.2.1
  ******************************************************************************
  * @section License
- * <b>(C) Copyright 2014 Silicon Laboratories, Inc. http://www.silabs.com</b>
+ * <b>Copyright 2015 Silicon Laboratories, Inc. http://www.silabs.com</b>
  ******************************************************************************
  *
  * Permission is granted to anyone to use this software for any purpose,
@@ -29,6 +29,10 @@
  * any third party, arising from your use of this Software.
  *
  *****************************************************************************/
+/**************************************************************************//**
+* @addtogroup Parts
+* @{
+******************************************************************************/
 
 /**************************************************************************//**
  * @defgroup EFM32TG_DMAREQ_BitFields
@@ -67,5 +71,5 @@
 #define DMAREQ_LESENSE_BUFDATAV       ((50 << 16) + 0) /**< DMA channel select for LESENSE_BUFDATAV */
 
 /** @} End of group EFM32TG_DMAREQ */
-
+/** @} End of group Parts */
 

@@ -10,6 +10,8 @@
 **
 **  Target      : Silicon Labs EFM32LG devices.
 **
+**  Version     : 4.2.0
+**
 **  Environment : Atollic TrueSTUDIO(R)
 **
 **  Distribution: The file is distributed "as is," without any warranty

@@ -1,10 +1,10 @@
 /**************************************************************************//**
  * @file efm32tg_wdog.h
  * @brief EFM32TG_WDOG register and bit field definitions
- * @version 3.20.7
+ * @version 4.2.1
  ******************************************************************************
  * @section License
- * <b>(C) Copyright 2014 Silicon Laboratories, Inc. http://www.silabs.com</b>
+ * <b>Copyright 2015 Silicon Laboratories, Inc. http://www.silabs.com</b>
  ******************************************************************************
  *
  * Permission is granted to anyone to use this software for any purpose,
@@ -29,6 +29,10 @@
  * any third party, arising from your use of this Software.
  *
  *****************************************************************************/
+/**************************************************************************//**
+* @addtogroup Parts
+* @{
+******************************************************************************/
 /**************************************************************************//**
  * @defgroup EFM32TG_WDOG
  * @brief EFM32TG_WDOG Register Declaration
@@ -128,5 +132,5 @@ typedef struct
 #define WDOG_SYNCBUSY_CMD_DEFAULT        (_WDOG_SYNCBUSY_CMD_DEFAULT << 1)  /**< Shifted mode DEFAULT for WDOG_SYNCBUSY */
 
 /** @} End of group EFM32TG_WDOG */
-
+/** @} End of group Parts */
 

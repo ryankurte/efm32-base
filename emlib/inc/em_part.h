@@ -1,10 +1,10 @@
 /***************************************************************************//**
  * @file em_part.h
  * @brief Verify that part specific main header files are supported and included
- * @version 3.20.6
+ * @version 4.2.1
  *******************************************************************************
  * @section License
- * <b>(C) Copyright 2014 Silicon Labs, http://www.silabs.com</b>
+ * <b>(C) Copyright 2015 Silicon Labs, http://www.silabs.com</b>
  *******************************************************************************
  *
  * Permission is granted to anyone to use this software for any purpose,
@@ -30,12 +30,12 @@
  *
  ******************************************************************************/
 
+#ifndef __SILICON_LABS_EM_PART_H__
+#define __SILICON_LABS_EM_PART_H__
 
-#ifndef __EM_PART_H
-#define __EM_PART_H
-
-/* This file is kept for backwards compability. */
+/* This file is kept for backwards compatibility. */
+#warning "Using em_part.h is deprecated. Please use em_device.h instead."
 
 #include "em_device.h"
 
-#endif /* __EM_PART_H */
+#endif /* __SILICON_LABS_EM_PART_H__ */

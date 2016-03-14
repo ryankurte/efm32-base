@@ -1,7 +1,7 @@
 /***************************************************************************//**
  * @file em_usbtypes.h
  * @brief USB protocol stack library, internal type definitions.
- * @version 3.20.7
+ * @version 4.2.1
  *******************************************************************************
  * @section License
  * <b>(C) Copyright 2014 Silicon Labs, http://www.silabs.com</b>
@@ -32,12 +32,24 @@ extern "C" {
 #define HP_RX_QUE_DEPTH       8
 #define MAX_XFER_LEN          524287L         /* 2^19 - 1 bytes             */
 #define MAX_PACKETS_PR_XFER   1023            /* 2^10 - 1 packets           */
-#define MAX_NUM_TX_FIFOS      6               /* In addition to EP0 Tx FIFO */
-#define MAX_NUM_IN_EPS        6               /* In addition to EP0         */
-#define MAX_NUM_OUT_EPS       6               /* In addition to EP0         */
+#if defined( _USB_DIEPTXF6_MASK )
+  #define MAX_NUM_TX_FIFOS      6             /* In addition to EP0 Tx FIFO */
+  #define MAX_NUM_IN_EPS        6             /* In addition to EP0         */
+  #define MAX_NUM_OUT_EPS       6             /* In addition to EP0         */
+  #define MAX_DEVICE_FIFO_SIZE_INWORDS 512U
+#else
+  #define MAX_NUM_TX_FIFOS      3             /* In addition to EP0 Tx FIFO */
+  #define MAX_NUM_IN_EPS        3             /* In addition to EP0         */
+  #define MAX_NUM_OUT_EPS       3             /* In addition to EP0         */
+  #define MAX_DEVICE_FIFO_SIZE_INWORDS 384U
+#endif
 #define MIN_EP_FIFO_SIZE_INWORDS  16U         /* Unit is words (32bit)      */
 #define MIN_EP_FIFO_SIZE_INBYTES  64U         /* Unit is bytes (8bit)       */
-#define MAX_DEVICE_FIFO_SIZE_INWORDS 512U
+
+/* For MCU's without USB host capability. */
+#if !defined( USB_ROUTE_VBUSENPEN )
+#define USB_VBUS_SWITCH_NOT_PRESENT
+#endif
 
 /* Limit imposed by the USB standard */
 #define MAX_USB_EP_NUM      15
@@ -125,7 +137,8 @@ typedef enum
   D_EP_IDLE          = 0,
   D_EP_TRANSMITTING  = 1,
   D_EP_RECEIVING     = 2,
-  D_EP_STATUS        = 3
+  D_EP0_IN_STATUS    = 3,
+  D_EP0_OUT_STATUS   = 4
 } USBD_EpState_TypeDef;
 
 typedef struct

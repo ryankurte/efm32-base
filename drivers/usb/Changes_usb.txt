@@ -1,4 +1,40 @@
 ================ Revision history ============================================
+4.2.1:
+ - No changes.
+
+4.2.0:
+ - No changes.
+
+4.1.1:
+ - Extended USB bus reset duration.
+ - Extended USB bus reset recovery time in host stack to be more robust when
+   devices are attached.
+
+4.1.0:
+ - Fixed bug in host stack, USBH_SetAltInterfaceB() specified device instead
+   of interface.
+
+4.0.0:
+ - Added support for isochronous endpoint transfers.
+
+3.20.14:
+ - Added support for Happy Gecko USB Low Energy Modes (LEM).
+
+3.20.13:
+ - No changes.
+
+3.20.12:
+ - Replaced USB_EP0_SIZE and USB_MAX_EP_SIZE macros with new versions which
+   have correct values for low speed/full speed/endpoint types.
+
+3.20.10:
+ - Added support for Happy Gecko USB LEM (Low Energy Modes).
+ - Fixed bug in suspend powersave mode implementation.
+
+3.20.9:
+ - Added support for Happy Gecko USB peripheral.
+ - Improved USB cable plug/unplug robustness.
+
 3.20.7:
  - Fixed bug in device stack when resuming from partial powerdown mode.
  - Disable PHY pins and stop USB clocks in USBD_Stop() and USBH_Stop() functions.
@@ -81,5 +117,5 @@
  - 23/03-2011: Initial version.
  - 15/04-2011: Added host device stack.
  - 24/05-2011: First release candidate.
- - 06/06-2011: Host driver port plug/unplug code improvements.
+ - 06/06-2011: Host driver port plug/unplug code improvements
  - 18/08-2011: Redesign of device abort transfer function.

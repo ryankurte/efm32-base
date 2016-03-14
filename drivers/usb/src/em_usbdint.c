@@ -1,7 +1,7 @@
 /**************************************************************************//**
  * @file em_usbdint.c
  * @brief USB protocol stack library, USB device peripheral interrupt handlers.
- * @version 3.20.7
+ * @version 4.2.1
  ******************************************************************************
  * @section License
  * <b>(C) Copyright 2014 Silicon Labs, http://www.silabs.com</b>
@@ -35,16 +35,25 @@ static void Handle_USB_GINTSTS_SOF       ( void );
 static void Handle_USB_GINTSTS_USBRST    ( void );
 static void Handle_USB_GINTSTS_USBSUSP   ( void );
 static void Handle_USB_GINTSTS_WKUPINT   ( void );
+#if defined( USB_DOEP0INT_STUPPKTRCVD )
+static void HandleOutEpIntr( uint32_t status, USBD_Ep_TypeDef *ep );
+#else
+static void ProcessSetup                 ( void );
+static void ProcessOepData               ( USBD_Ep_TypeDef *ep );
+#endif
 
 #if ( USB_PWRSAVE_MODE )
 /* Variables and prototypes for USB powerdown (suspend) functionality. */
-volatile bool USBD_poweredDown = false;
 static bool UsbPowerDown( void );
-static bool UsbPowerUp(   void );
+static bool UsbPowerUp( void );
+
+volatile bool USBD_poweredDown = false;
 
 /* Storage for backing up USB core registers. */
 static uint32_t  x_USB_GINTMSK;
+#if defined(_USB_GOTGCTL_MASK)
 static uint32_t  x_USB_GOTGCTL;
+#endif
 static uint32_t  x_USB_GAHBCFG;
 static uint32_t  x_USB_GUSBCFG;
 static uint32_t  x_USB_GRXFSIZ;
@@ -72,6 +81,10 @@ static uint32_t  x_USB_EP_DMAADDR[ NUM_EP_USED ];
 static uint32_t  x_USB_DIEPTXFS[ FIFO_CNT ];
 #endif
 
+#if ( USB_PWRSAVE_MODE )
+static uint32_t cmuStatus = 0;
+#endif
+
 #endif /* if ( USB_PWRSAVE_MODE ) */
 
 /*
@@ -87,13 +100,34 @@ void USB_IRQHandler( void )
 #if ( USB_PWRSAVE_MODE )
   if ( USBD_poweredDown )
   {
-    /* Switch USBC clock from 32kHz to HFCLK to be able to read USB */
-    /* peripheral registers.                                        */
+    /* Switch USBC clock from 32kHz to a 48MHz clock to be able to  */
+    /* read USB peripheral registers.                               */
     /* If we woke up from EM2, HFCLK is now HFRCO.                  */
 
-    CMU_OscillatorEnable( cmuOsc_HFXO, true, false);  /* Prepare HFXO. */
+    /* Restore clock oscillators.*/
+#if defined( CMU_OSCENCMD_USHFRCOEN )
+    if ( ( CMU->STATUS & CMU_STATUS_USHFRCOENS ) == 0 )/*Wakeup from EM2 ?*/
+    {
+      CMU->OSCENCMD = ( cmuStatus
+                        & ( CMU_STATUS_AUXHFRCOENS | CMU_STATUS_HFXOENS ) )
+                      | CMU_OSCENCMD_USHFRCOEN;
+    }
+#else
+    if ( ( CMU->STATUS & CMU_STATUS_HFXOENS ) == 0 ) /* Wakeup from EM2 ? */
+    {
+      CMU->OSCENCMD = cmuStatus
+                      & ( CMU_STATUS_AUXHFRCOENS | CMU_STATUS_HFXOENS );
+    }
+#endif
+
+    /* Select correct USBC clock.*/
+#if defined( CMU_OSCENCMD_USHFRCOEN )
+    CMU->CMD = CMU_CMD_USBCCLKSEL_USHFRCO;
+    while ( ( CMU->STATUS & CMU_STATUS_USBCUSHFRCOSEL ) == 0 ){}
+#else
     CMU->CMD = CMU_CMD_USBCCLKSEL_HFCLKNODIV;
-    while ( !( CMU->STATUS & CMU_STATUS_USBCHFCLKSEL ) ){}
+    while ( ( CMU->STATUS & CMU_STATUS_USBCHFCLKSEL ) == 0 ){}
+#endif
   }
 #endif /* if ( USB_PWRSAVE_MODE ) */
 
@@ -109,13 +143,10 @@ void USB_IRQHandler( void )
         DEBUG_USB_INT_LO_PUTS( "\nVboN" );
 
 #if ( USB_PWRSAVE_MODE )
-#if ( USB_PWRSAVE_MODE & USB_PWRSAVE_MODE_ONVBUSOFF )
         if ( UsbPowerUp() )
-#endif
         {
           USBDHAL_EnableUsbResetAndSuspendInt();
         }
-
         USBD_SetUsbState( USBD_STATE_POWERED );
 #endif
       }
@@ -125,19 +156,19 @@ void USB_IRQHandler( void )
     {
       USB->IFC = USB_IFC_VREGOSL;
 
-      if ( !( USB->STATUS & USB_STATUS_VREGOS ) )
+      if ( ( USB->STATUS & USB_STATUS_VREGOS ) == 0 )
       {
         servedVbusInterrupt = true;
         DEBUG_USB_INT_LO_PUTS( "\nVboF" );
 
 #if ( USB_PWRSAVE_MODE )
+#if ( USB_PWRSAVE_MODE & USB_PWRSAVE_MODE_ONVBUSOFF )
         if ( !USBD_poweredDown )
         {
           USB->GINTMSK = 0;
           USB->GINTSTS = 0xFFFFFFFF;
         }
 
-#if ( USB_PWRSAVE_MODE & USB_PWRSAVE_MODE_ONVBUSOFF )
         UsbPowerDown();
 #endif
         USBD_SetUsbState( USBD_STATE_NONE );
@@ -182,7 +213,7 @@ static void Handle_USB_GINTSTS_ENUMDONE( void )
 {
 #if ( USB_PWRSAVE_MODE )
   UsbPowerUp();
-#endif /* if ( USB_PWRSAVE_MODE ) */
+#endif
 
   USBDHAL_Ep0Activate( dev->ep0MpsCode );
   dev->ep[ 0 ].state = D_EP_IDLE;
@@ -240,7 +271,14 @@ static void Handle_USB_GINTSTS_IEPINT( void )
                             _USB_DIEP_TSIZ_XFERSIZE_MASK    ) >>
                           _USB_DIEP_TSIZ_XFERSIZE_SHIFT          );
           ep->remaining -= ep->xferred;
+
           USBDEP_EpHandler( ep->addr );
+#if defined( USB_DOEP0INT_STUPPKTRCVD )
+          if ( USB_DINEPS[ ep->num ].INT & USB_DIEP_INT_NAKINTRPT )
+          {
+            USB_DINEPS[ ep->num ].INT = USB_DIEP_INT_NAKINTRPT;
+          }
+#endif
         }
       }
     }
@@ -259,6 +297,7 @@ static void Handle_USB_GINTSTS_OEPINT( void )
   USBD_Ep_TypeDef *ep;
 
   DEBUG_USB_INT_HI_PUTCHAR( 'o' );
+
   epint = USBDHAL_GetAllOutEpInts();
   for ( epnum = 0,                epmask = 1;
         epnum <= MAX_NUM_OUT_EPS;
@@ -269,85 +308,111 @@ static void Handle_USB_GINTSTS_OEPINT( void )
       ep = USBD_GetEpFromAddr( epnum );
       status = USBDHAL_GetOutEpInts( ep );
 
+#if defined( USB_DOEP0INT_STUPPKTRCVD )
+      HandleOutEpIntr( status, ep );
+#else
       if ( status & USB_DOEP_INT_XFERCOMPL )
       {
         USB_DOUTEPS[ epnum ].INT = USB_DOEP_INT_XFERCOMPL;
-
         DEBUG_USB_INT_HI_PUTCHAR( 'c' );
-
-        if ( epnum == 0 )
-        {
-          if ( ep->remaining > ep->packetSize )
-          {
-            ep->remaining -= ep->packetSize;
-            ep->xferred += ep->packetSize;
-          }
-          else
-          {
-            ep->xferred += ep->remaining;
-            ep->remaining = 0;
-          }
-          USBDEP_Ep0Handler( dev );
-        }
-        else
-        {
-          ep->xferred = ep->hwXferSize -
-              ( ( USB_DOUTEPS[ epnum ].TSIZ & _USB_DOEP_TSIZ_XFERSIZE_MASK ) >>
-                _USB_DOEP_TSIZ_XFERSIZE_SHIFT );
-          ep->remaining -= ep->xferred;
-          USBDEP_EpHandler( ep->addr );
-        }
+        ProcessOepData( ep );
       }
 
       /* Setup Phase Done */
-      if ( status & USB_DOEP_INT_SETUP )
+      if ( status & USB_DOEP0INT_SETUP )
       {
-        DEBUG_USB_INT_LO_PUTS( "\nSP" );
-
-        if ( USB->DOEP0INT & USB_DOEP_INT_BACK2BACKSETUP )
-        {                           /* Back to back setup packets received */
-          USB->DOEP0INT = USB_DOEP_INT_BACK2BACKSETUP;
-          DEBUG_USB_INT_LO_PUTS( "B2B" );
-
-          dev->setup = (USB_Setup_TypeDef*)
-                       ( USB->DOEP0DMAADDR - USB_SETUP_PKT_SIZE );
-        }
-        else
-        {
-          /* Read SETUP packet counter from hw. */
-          int supCnt = ( USB->DOEP0TSIZ & _USB_DOEP0TSIZ_SUPCNT_MASK )
-                       >> _USB_DOEP0TSIZ_SUPCNT_SHIFT;
-
-          if ( supCnt == 3 )
-            supCnt = 2;
-
-          dev->setup = &dev->setupPkt[ 2 - supCnt ];
-        }
-        USB->DOEP0TSIZ |= 3 << _USB_DOEP0TSIZ_SUPCNT_SHIFT;
-        USB->DOEP0DMAADDR = (uint32_t)dev->setupPkt;
-        USB->DOEP0INT = USB_DOEP_INT_SETUP;
-        USBDEP_Ep0Handler( dev );   /* Call the SETUP process for the EP0  */
+        ProcessSetup();
       }
+#endif
     }
   }
 }
 
+#if !defined( USB_DOEP0INT_STUPPKTRCVD )
+static void ProcessOepData( USBD_Ep_TypeDef *ep )
+{
+  if ( ep->num == 0 )
+  {
+    if ( ep->remaining > ep->packetSize )
+    {
+      ep->remaining -= ep->packetSize;
+      ep->xferred += ep->packetSize;
+    }
+    else
+    {
+      ep->xferred += ep->remaining;
+      ep->remaining = 0;
+    }
+    USBDEP_Ep0Handler( dev );
+  }
+  else
+  {
+    ep->xferred = ep->hwXferSize -
+        ( ( USB_DOUTEPS[ ep->num ].TSIZ & _USB_DOEP_TSIZ_XFERSIZE_MASK )>>
+          _USB_DOEP_TSIZ_XFERSIZE_SHIFT );
+    ep->remaining -= ep->xferred;
+    USBDEP_EpHandler( ep->addr );
+  }
+}
+#endif
+
+#if !defined( USB_DOEP0INT_STUPPKTRCVD )
+static void ProcessSetup( void )
+{
+  DEBUG_USB_INT_LO_PUTS( "\nS" );
+
+  if ( USB->DOEP0INT & USB_DOEP0INT_BACK2BACKSETUP )
+  {                           /* Back to back setup packets received */
+    USB->DOEP0INT = USB_DOEP0INT_BACK2BACKSETUP;
+    DEBUG_USB_INT_LO_PUTS( "B2B" );
+
+    dev->setup = (USB_Setup_TypeDef*)( USB->DOEP0DMAADDR - USB_SETUP_PKT_SIZE );
+  }
+  else
+  {
+    /* Read SETUP packet counter from hw. */
+    int supCnt = ( USB->DOEP0TSIZ & _USB_DOEP0TSIZ_SUPCNT_MASK )
+                 >> _USB_DOEP0TSIZ_SUPCNT_SHIFT;
+
+    if ( supCnt == 3 )
+      supCnt = 2;
+
+    dev->setup = &dev->setupPkt[ 2 - supCnt ];
+  }
+  USB->DOEP0TSIZ |= 3 << _USB_DOEP0TSIZ_SUPCNT_SHIFT;
+  USB->DOEP0DMAADDR = (uint32_t)dev->setupPkt;
+  USB->DOEP0INT = USB_DOEP0INT_SETUP;
+
+  USBDEP_Ep0Handler( dev );   /* Call the SETUP handler for EP0 */
+}
+#endif
+
 /*
- * Handle USB reset detectet interrupt in suspend mode.
+ * Handle USB reset detected interrupt in suspend mode.
  */
 static void Handle_USB_GINTSTS_RESETDET  ( void )
 {
-  USB->GINTSTS = USB_GINTSTS_RESETDET;
-
 #if ( USB_PWRSAVE_MODE )
-  UsbPowerUp();
+  if ( ! USBD_poweredDown )
+  {
+    USB->GINTSTS = USB_GINTSTS_RESETDET;
+  }
+
+  if ( UsbPowerUp() )
+  {
+    USB->GINTSTS = USB_GINTSTS_RESETDET;
+  }
 
 #if ( USB_PWRSAVE_MODE & USB_PWRSAVE_MODE_ONVBUSOFF )
   /* Power down immediately if VBUS is off. */
   if ( ! ( USB->STATUS & USB_STATUS_VREGOS ) )
+  {
     UsbPowerDown();
+  }
 #endif
 
+#else
+  USB->GINTSTS = USB_GINTSTS_RESETDET;
 #endif /* if ( USB_PWRSAVE_MODE ) */
 
   if ( USB->STATUS & USB_STATUS_VREGOS )
@@ -400,7 +465,12 @@ static void Handle_USB_GINTSTS_USBRST( void )
   }
 
   USB->DAINTMSK = USB_DAINTMSK_INEPMSK0 | USB_DAINTMSK_OUTEPMSK0;
+#if defined( USB_DOEPMSK_STSPHSERCVDMSK )
+  USB->DOEPMSK  = USB_DOEPMSK_SETUPMSK  | USB_DOEPMSK_XFERCOMPLMSK
+                  | USB_DOEPMSK_STSPHSERCVDMSK;
+#else
   USB->DOEPMSK  = USB_DOEPMSK_SETUPMSK  | USB_DOEPMSK_XFERCOMPLMSK;
+#endif
   USB->DIEPMSK  = USB_DIEPMSK_XFERCOMPLMSK;
 
   /* Reset Device Address */
@@ -443,7 +513,7 @@ static void Handle_USB_GINTSTS_USBSUSP( void )
   {
 #if ( USB_PWRSAVE_MODE )
     UsbPowerDown();
-#endif /* if ( USB_PWRSAVE_MODE ) */
+#endif
     USBD_SetUsbState( USBD_STATE_SUSPENDED );
   }
 }
@@ -453,15 +523,21 @@ static void Handle_USB_GINTSTS_USBSUSP( void )
  */
 static void Handle_USB_GINTSTS_WKUPINT( void )
 {
-  USB->GINTSTS = USB_GINTSTS_WKUPINT;
-
 #if ( USB_PWRSAVE_MODE )
+  if ( ! USBD_poweredDown )
+  {
+    USB->GINTSTS = USB_GINTSTS_WKUPINT;
+  }
+
   if ( UsbPowerUp() )
   {
+    USB->GINTSTS = USB_GINTSTS_WKUPINT;
     USBDHAL_StartEp0Setup( dev );
     USBDHAL_Ep0Activate( dev->ep0MpsCode );
   }
-#endif /* if ( USB_PWRSAVE_MODE ) */
+#else
+  USB->GINTSTS = USB_GINTSTS_WKUPINT;
+#endif
 
   USBD_SetUsbState( dev->savedState );
   DEBUG_USB_INT_LO_PUTS( "WkuP\n" );
@@ -489,7 +565,9 @@ static bool UsbPowerDown( void )
 
     /* Backup USB core registers. */
     x_USB_GINTMSK   = USB->GINTMSK;
+#if defined(_USB_GOTGCTL_MASK)
     x_USB_GOTGCTL   = USB->GOTGCTL;
+#endif
     x_USB_GAHBCFG   = USB->GAHBCFG;
     x_USB_GUSBCFG   = USB->GUSBCFG;
     x_USB_GRXFSIZ   = USB->GRXFSIZ;
@@ -539,6 +617,9 @@ static bool UsbPowerDown( void )
     USB->PCGCCTL |= USB_PCGCCTL_RSTPDWNMODULE;
     USB->PCGCCTL |= USB_PCGCCTL_STOPPCLK;
 
+    /* Record current clock settings. */
+    cmuStatus = CMU->STATUS;
+
 #if ( USB_PWRSAVE_MODE & USB_PWRSAVE_MODE_ENTEREM2 )
     /* Enter EM2 on interrupt exit. */
     SCB->SCR |= SCB_SCR_SLEEPDEEP_Msk | SCB_SCR_SLEEPONEXIT_Msk;
@@ -547,10 +628,11 @@ static bool UsbPowerDown( void )
     /* Switch USBC clock to 32 kHz. */
 #if ( USB_USBC_32kHz_CLK == USB_USBC_32kHz_CLK_LFXO )
     CMU->CMD = CMU_CMD_USBCCLKSEL_LFXO;
+    while ( ( CMU->STATUS & CMU_STATUS_USBCLFXOSEL ) == 0 ){}
 #else
     CMU->CMD = CMU_CMD_USBCCLKSEL_LFRCO;
+    while ( ( CMU->STATUS & CMU_STATUS_USBCLFRCOSEL ) == 0 ){}
 #endif
-    while ( CMU->STATUS & CMU_STATUS_USBCHFCLKSEL ){}
 
     return true;
   }
@@ -561,7 +643,7 @@ static bool UsbPowerDown( void )
 #if ( USB_PWRSAVE_MODE )
 /*
  * Exit USB core partial powerdown mode, restore essential USB core registers.
- * Optionally prevent re-entry back to EM2.
+ * Will prevent re-entry back to EM2.
  * Returns true if a powerup sequence was performed.
  */
 static bool UsbPowerUp( void )
@@ -580,15 +662,26 @@ static bool UsbPowerUp( void )
     USBD_poweredDown = false;
     DEBUG_USB_INT_LO_PUTCHAR( '/' );
 
-    /* Switch CPU core clock to 48MHz */
+#if !defined( USB_CORECLK_HFRCO ) || !defined( CMU_OSCENCMD_USHFRCOEN )
+    /* Switch HFCLK from HFRCO to HFXO. */
     CMU_ClockSelectSet( cmuClock_HF, cmuSelect_HFXO );
+#endif
 
-    /* Switch USBC clock to HFCLK */
-    CMU_ClockSelectSet( cmuClock_USBC, cmuSelect_HFCLK );
+    /* Turn off HFRCO when not needed. */
+    if ( ( cmuStatus & CMU_STATUS_HFRCOENS ) == 0 )
+    {
+      CMU->OSCENCMD = CMU_OSCENCMD_HFRCODIS;
+    }
 
     /* Exit partial powerdown mode. */
     USB->PCGCCTL &= ~USB_PCGCCTL_STOPPCLK;
     USB->PCGCCTL &= ~(USB_PCGCCTL_PWRCLMP | USB_PCGCCTL_RSTPDWNMODULE);
+
+    if (( USB->GINTSTS & ( USB_GINTSTS_WKUPINT | USB_GINTSTS_RESETDET ) ) == 0)
+    {
+      USB->DCTL = x_USB_DCTL | USB_DCTL_RMTWKUPSIG;
+      USB->DCTL = x_USB_DCTL;
+    }
 
     /* Restore USB core registers. */
     USB->GUSBCFG = x_USB_GUSBCFG;
@@ -623,7 +716,6 @@ static bool UsbPowerUp( void )
 
       if ( ep->in )
       {
-
         USB_DINEPS[ epNum ].CTL     = tmp;
         USB_DINEPS[ epNum ].TSIZ    = x_USB_EP_TSIZ[    i ];
         USB_DINEPS[ epNum ].DMAADDR = x_USB_EP_DMAADDR[ i ];
@@ -645,7 +737,9 @@ static bool UsbPowerUp( void )
     USB->GNPTXFSIZ = x_USB_GNPTXFSIZ;
     USB->GRXFSIZ   = x_USB_GRXFSIZ;
     USB->GAHBCFG   = x_USB_GAHBCFG;
+#if defined(_USB_GOTGCTL_MASK)
     USB->GOTGCTL   = x_USB_GOTGCTL;
+#endif
     USB->GINTMSK   = x_USB_GINTMSK;
 
     USB->DCTL |= USB_DCTL_PWRONPRGDONE;
@@ -660,6 +754,120 @@ static bool UsbPowerUp( void )
   return false;
 }
 #endif /* if ( USB_PWRSAVE_MODE ) */
+
+#if defined( USB_DOEP0INT_STUPPKTRCVD )
+static void HandleOutEpIntr( uint32_t status, USBD_Ep_TypeDef *ep )
+{
+  uint32_t doeptsiz;
+
+  if ( ep->num == 0 )
+  {
+    if ( status & USB_DOEP0INT_XFERCOMPL )
+    {
+      USB->DOEP0INT = USB_DOEP0INT_XFERCOMPL;
+      doeptsiz      = USB->DOEP0TSIZ;
+
+      if ( ep->state == D_EP_IDLE )
+      {
+        if ( status & USB_DOEP0INT_STUPPKTRCVD )
+        {
+          USB->DOEP0INT = USB_DOEP0INT_STUPPKTRCVD;
+        }
+        status = USBDHAL_GetOutEpInts( ep );
+        doeptsiz = USB->DOEP0TSIZ;
+
+        if ( status & USB_DOEP0INT_SETUP )
+        {
+retry:
+          /* Already started data stage, clear setup */
+          USB->DOEP0INT = USB_DOEP0INT_SETUP;
+          status       &= ~USB_DOEP0INT_SETUP;
+          {
+            int supCnt = ( doeptsiz & _USB_DOEP0TSIZ_SUPCNT_MASK )
+                         >> _USB_DOEP0TSIZ_SUPCNT_SHIFT;
+
+            if ( supCnt == 3 )
+              supCnt = 2;
+
+            dev->setup = &dev->setupPkt[ 2 - supCnt ];
+          }
+          DEBUG_USB_INT_LO_PUTS( "\nS" );
+          USBDEP_Ep0Handler( dev );
+
+          /* Prepare for more setup packets */
+          if ( ep->state == D_EP0_IN_STATUS || ep->state == D_EP_TRANSMITTING )
+          {
+            USBDHAL_StartEp0Setup( dev );
+          }
+        }
+        else /* xfercompl && idle && !setup */
+        {
+            status = USBDHAL_GetOutEpInts( ep );
+            if ( status & USB_DOEP0INT_SETUP )
+              goto retry;
+            USBDHAL_StartEp0Setup( dev );
+        }
+      }
+      else /* ep0state != EP0_IDLE */
+      {
+        if ( ep->state == D_EP_RECEIVING )
+        {
+          if ( ep->remaining > ep->packetSize )
+          {
+            ep->remaining -= ep->packetSize;
+            ep->xferred += ep->packetSize;
+          }
+          else
+          {
+            ep->xferred += ep->remaining;
+            ep->remaining = 0;
+          }
+          USBDEP_Ep0Handler( dev );
+        }
+        else if ( ep->state == D_EP0_OUT_STATUS )
+        {
+          USBDEP_Ep0Handler( dev );
+        }
+      }
+    } /* if ( status & USB_DOEP0INT_XFERCOMPL ) */
+
+    if ( status & USB_DOEP0INT_STSPHSERCVD )
+    {
+      USB->DOEP0INT = USB_DOEP0INT_STSPHSERCVD;
+    }
+
+    if ( status & USB_DOEP0INT_SETUP )
+    {
+      USB->DOEP0INT = USB_DOEP0INT_SETUP;
+      {
+        int supCnt = ( USB->DOEP0TSIZ & _USB_DOEP0TSIZ_SUPCNT_MASK )
+                     >> _USB_DOEP0TSIZ_SUPCNT_SHIFT;
+
+        if ( supCnt == 3 )
+          supCnt = 2;
+
+        dev->setup = &dev->setupPkt[ 2 - supCnt ];
+      }
+      DEBUG_USB_INT_LO_PUTS( "\nS" );
+      USBDEP_Ep0Handler( dev );
+    }
+  }
+  else /* epnum != 0 */
+  {
+    if ( status & USB_DOEP_INT_XFERCOMPL )
+    {
+      USB_DOUTEPS[ ep->num ].INT = USB_DOEP_INT_XFERCOMPL;
+
+      ep->xferred = ep->hwXferSize -
+          ( ( USB_DOUTEPS[ ep->num ].TSIZ & _USB_DOEP_TSIZ_XFERSIZE_MASK )>>
+            _USB_DOEP_TSIZ_XFERSIZE_SHIFT );
+      ep->remaining -= ep->xferred;
+
+      USBDEP_EpHandler( ep->addr );
+    }
+  }
+}
+#endif
 
 /** @endcond */
 

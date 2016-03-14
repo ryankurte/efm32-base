@@ -1,10 +1,10 @@
 /**************************************************************************//**
  * @file efm32g_dac.h
  * @brief EFM32G_DAC register and bit field definitions
- * @version 3.20.7
+ * @version 4.2.1
  ******************************************************************************
  * @section License
- * <b>(C) Copyright 2014 Silicon Laboratories, Inc. http://www.silabs.com</b>
+ * <b>Copyright 2015 Silicon Laboratories, Inc. http://www.silabs.com</b>
  ******************************************************************************
  *
  * Permission is granted to anyone to use this software for any purpose,
@@ -29,6 +29,10 @@
  * any third party, arising from your use of this Software.
  *
  *****************************************************************************/
+/**************************************************************************//**
+* @addtogroup Parts
+* @{
+******************************************************************************/
 /**************************************************************************//**
  * @defgroup EFM32G_DAC
  * @{
@@ -376,5 +380,5 @@ typedef struct
 #define DAC_BIASPROG_HALFBIAS_DEFAULT     (_DAC_BIASPROG_HALFBIAS_DEFAULT << 6) /**< Shifted mode DEFAULT for DAC_BIASPROG */
 
 /** @} End of group EFM32G_DAC */
-
+/** @} End of group Parts */
 

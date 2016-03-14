@@ -1,10 +1,10 @@
 /**************************************************************************//**
  * @file efm32g_ebi.h
  * @brief EFM32G_EBI register and bit field definitions
- * @version 3.20.7
+ * @version 4.2.1
  ******************************************************************************
  * @section License
- * <b>(C) Copyright 2014 Silicon Laboratories, Inc. http://www.silabs.com</b>
+ * <b>Copyright 2015 Silicon Laboratories, Inc. http://www.silabs.com</b>
  ******************************************************************************
  *
  * Permission is granted to anyone to use this software for any purpose,
@@ -29,6 +29,10 @@
  * any third party, arising from your use of this Software.
  *
  *****************************************************************************/
+/**************************************************************************//**
+* @addtogroup Parts
+* @{
+******************************************************************************/
 /**************************************************************************//**
  * @defgroup EFM32G_EBI
  * @{
@@ -226,5 +230,5 @@ typedef struct
 #define EBI_ROUTE_ARDYPEN_DEFAULT            (_EBI_ROUTE_ARDYPEN_DEFAULT << 6) /**< Shifted mode DEFAULT for EBI_ROUTE */
 
 /** @} End of group EFM32G_EBI */
-
+/** @} End of group Parts */
 

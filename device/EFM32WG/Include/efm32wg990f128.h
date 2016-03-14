@@ -2,10 +2,10 @@
  * @file efm32wg990f128.h
  * @brief CMSIS Cortex-M Peripheral Access Layer Header File
  *        for EFM32WG990F128
- * @version 3.20.7
+ * @version 4.2.1
  ******************************************************************************
  * @section License
- * <b>(C) Copyright 2014 Silicon Laboratories, Inc. http://www.silabs.com</b>
+ * <b>Copyright 2015 Silicon Laboratories, Inc. http://www.silabs.com</b>
  ******************************************************************************
  *
  * Permission is granted to anyone to use this software for any purpose,
@@ -31,8 +31,8 @@
  *
  *****************************************************************************/
 
-#ifndef __EFM32WG990F128_H
-#define __EFM32WG990F128_H
+#ifndef EFM32WG990F128_H
+#define EFM32WG990F128_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -52,7 +52,7 @@ extern "C" {
 typedef enum IRQn
 {
 /******  Cortex-M4 Processor Exceptions Numbers *******************************************/
-  NonMaskableInt_IRQn   = -14,              /*!< 2 Non Maskable Interrupt                 */
+  NonMaskableInt_IRQn   = -14,              /*!< 2 Cortex-M4 Non Maskable Interrupt       */
   HardFault_IRQn        = -13,              /*!< 3 Cortex-M4 Hard Fault Interrupt         */
   MemoryManagement_IRQn = -12,              /*!< 4 Cortex-M4 Memory Management Interrupt  */
   BusFault_IRQn         = -11,              /*!< 5 Cortex-M4 Bus Fault Interrupt          */
@@ -123,8 +123,10 @@ typedef enum IRQn
 ******************************************************************************/
 
 /** Part family */
-#define _EFM32_WONDER_FAMILY    1 /**< Wonder Gecko EFM32WG MCU Family */
-#define _EFM_DEVICE               /**< Silicon Labs EFM-type microcontroller */
+#define _EFM32_WONDER_FAMILY            1 /**< Wonder Gecko EFM32WG MCU Family */
+#define _EFM_DEVICE                       /**< Silicon Labs EFM-type microcontroller */
+#define _SILICON_LABS_32B_PLATFORM_1      /**< Silicon Labs platform name */
+#define _SILICON_LABS_32B_PLATFORM      1 /**< Silicon Labs platform name */
 
 /* If part number is not defined as compiler option, define it */
 #if !defined(EFM32WG990F128)
@@ -481,4 +483,4 @@ typedef enum IRQn
 #ifdef __cplusplus
 }
 #endif
-#endif /* __EFM32WG990F128_H */
+#endif /* EFM32WG990F128_H */

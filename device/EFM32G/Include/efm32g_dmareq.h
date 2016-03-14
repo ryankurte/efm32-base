@@ -1,10 +1,10 @@
 /**************************************************************************//**
  * @file efm32g_dmareq.h
  * @brief EFM32G_DMAREQ register and bit field definitions
- * @version 3.20.7
+ * @version 4.2.1
  ******************************************************************************
  * @section License
- * <b>(C) Copyright 2014 Silicon Laboratories, Inc. http://www.silabs.com</b>
+ * <b>Copyright 2015 Silicon Laboratories, Inc. http://www.silabs.com</b>
  ******************************************************************************
  *
  * Permission is granted to anyone to use this software for any purpose,
@@ -29,6 +29,10 @@
  * any third party, arising from your use of this Software.
  *
  *****************************************************************************/
+/**************************************************************************//**
+* @addtogroup Parts
+* @{
+******************************************************************************/
 
 /**************************************************************************//**
  * @defgroup EFM32G_DMAREQ_BitFields
@@ -77,5 +81,5 @@
 #define DMAREQ_AES_KEYWR          ((49 << 16) + 3) /**< DMA channel select for AES_KEYWR */
 
 /** @} End of group EFM32G_DMAREQ */
-
+/** @} End of group Parts */
 

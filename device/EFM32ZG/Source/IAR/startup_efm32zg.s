@@ -2,7 +2,7 @@
 ; * @file startup_efm32zg.s
 ; * @brief    CMSIS Core Device Startup File
 ; *           Silicon Labs EFM32ZG Device Series
-; * @version 3.20.7
+; * @version 4.2.1
 ; * @date     30. January 2012
 ; *
 ; * @note
@@ -78,6 +78,7 @@ __vector_table_0x1c
         DCD     SysTick_Handler
 
         ; External Interrupts
+
         DCD DMA_IRQHandler  ; 0: DMA Interrupt
         DCD GPIO_EVEN_IRQHandler  ; 1: GPIO_EVEN Interrupt
         DCD TIMER0_IRQHandler  ; 2: TIMER0 Interrupt
@@ -95,6 +96,8 @@ __vector_table_0x1c
         DCD VCMP_IRQHandler  ; 14: VCMP Interrupt
         DCD MSC_IRQHandler  ; 15: MSC Interrupt
         DCD AES_IRQHandler  ; 16: AES Interrupt
+        DCD 0               ; 17: Reserved Interrupt
+        DCD 0               ; 18: Reserved Interrupt
 
 
 __Vectors_End

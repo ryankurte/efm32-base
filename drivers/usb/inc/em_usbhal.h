@@ -1,7 +1,7 @@
 /***************************************************************************//**
  * @file em_usbhal.h
  * @brief USB protocol stack library, low level USB peripheral access.
- * @version 3.20.7
+ * @version 4.2.1
  *******************************************************************************
  * @section License
  * <b>(C) Copyright 2014 Silicon Labs, http://www.silabs.com</b>
@@ -52,6 +52,11 @@ extern "C" {
 #define DIEPCTL_EPTYPE_ISOC    (1 << _USB_DIEP_CTL_EPTYPE_SHIFT )
 #define DIEPCTL_EPTYPE_BULK    (2 << _USB_DIEP_CTL_EPTYPE_SHIFT )
 #define DIEPCTL_EPTYPE_INTR    (3 << _USB_DIEP_CTL_EPTYPE_SHIFT )
+
+#define DOEPCTL_EPTYPE_CONTROL (0 << _USB_DOEP_CTL_EPTYPE_SHIFT )
+#define DOEPCTL_EPTYPE_ISOC    (1 << _USB_DOEP_CTL_EPTYPE_SHIFT )
+#define DOEPCTL_EPTYPE_BULK    (2 << _USB_DOEP_CTL_EPTYPE_SHIFT )
+#define DOEPCTL_EPTYPE_INTR    (3 << _USB_DOEP_CTL_EPTYPE_SHIFT )
 
 #define HCCHAR_EPTYPE_CTRL     (0 << _USB_HC_CHAR_EPTYPE_SHIFT )
 #define HCCHAR_EPTYPE_ISOC     (1 << _USB_HC_CHAR_EPTYPE_SHIFT )
@@ -291,7 +296,7 @@ __STATIC_INLINE void USBDHAL_Ep0Activate( uint32_t ep0mps )
   USB->DCTL = ( USB->DCTL & ~DCTL_WO_BITMASK ) | USB_DCTL_CGNPINNAK;
 
   USB->DOEP0CTL = ( USB->DOEP0CTL & ~DEPCTL_WO_BITMASK )
-                  | USB_DOEP_CTL_CNAK | USB_DOEP_CTL_EPENA
+                  | USB_DOEP0CTL_CNAK | USB_DOEP0CTL_EPENA
                   | ep0mps;
 }
 
@@ -340,7 +345,12 @@ __STATIC_INLINE uint32_t USBDHAL_GetOutEpInts( USBD_Ep_TypeDef *ep )
   uint32_t retVal;
 
   retVal  = USB_DOUTEPS[ ep->num ].INT;
+#if defined( USB_DOEP0INT_STUPPKTRCVD )
+  retVal &= USB->DOEPMSK | USB_DOEP0INT_STUPPKTRCVD;
+#else
   retVal &= USB->DOEPMSK;
+#endif
+
   return retVal;
 }
 
@@ -366,7 +376,7 @@ __STATIC_INLINE USB_Status_TypeDef USBDHAL_GetStallStatusEp(
     depctl = USB_DOUTEPS[ ep->num ].CTL;
     eptype = depctl & _USB_DOEP_CTL_EPTYPE_MASK;
 
-    if (( eptype == DIEPCTL_EPTYPE_INTR ) || ( eptype == DIEPCTL_EPTYPE_BULK ))
+    if (( eptype == DOEPCTL_EPTYPE_INTR ) || ( eptype == DOEPCTL_EPTYPE_BULK ))
     {
       *halt = depctl & USB_DOEP_CTL_STALL ? 1 : 0;
       retVal = USB_STATUS_OK;
@@ -381,7 +391,7 @@ __STATIC_INLINE void USBDHAL_ReenableEp0Setup( USBD_Device_TypeDef *dev )
 {
   USB->DOEP0DMAADDR = (uint32_t)dev->setupPkt;
   USB->DOEP0CTL = ( USB->DOEP0CTL & ~DEPCTL_WO_BITMASK )
-                  | USB_DOEP_CTL_EPENA
+                  | USB_DOEP0CTL_EPENA
                   | dev->ep0MpsCode;
 }
 
@@ -470,17 +480,17 @@ __STATIC_INLINE void USBDHAL_StartEp0In( uint32_t len, uint32_t ep0mps )
                    ( 1   << _USB_DIEP0TSIZ_PKTCNT_SHIFT     );
 
   USB->DIEP0CTL = ( USB->DIEP0CTL & ~DEPCTL_WO_BITMASK )
-                  | USB_DIEP_CTL_CNAK | USB_DIEP_CTL_EPENA
+                  | USB_DIEP0CTL_CNAK | USB_DIEP0CTL_EPENA
                   | ep0mps;
 }
 
 __STATIC_INLINE void USBDHAL_StartEp0Out( uint32_t len, uint32_t ep0mps )
 {
-  USB->DOEP0TSIZ = ( len << _USB_DOEP0TSIZ_XFERSIZE_SHIFT   ) |
-                   ( 1   << _USB_DOEP0TSIZ_PKTCNT_SHIFT     );
+  USB->DOEP0TSIZ = ( len << _USB_DOEP0TSIZ_XFERSIZE_SHIFT ) |
+                   ( 1   << _USB_DOEP0TSIZ_PKTCNT_SHIFT   );
 
   USB->DOEP0CTL = ( USB->DOEP0CTL & ~DEPCTL_WO_BITMASK )
-                  | USB_DOEP_CTL_CNAK | USB_DOEP_CTL_EPENA
+                  | USB_DOEP0CTL_CNAK | USB_DOEP0CTL_EPENA
                   | ep0mps;
 }
 
@@ -488,14 +498,26 @@ __STATIC_INLINE void USBDHAL_StartEp0Setup( USBD_Device_TypeDef *dev )
 {
   dev->ep[ 0 ].in = false;
 
+#if defined( USB_DOEP0INT_STUPPKTRCVD )
+  USB->DOEP0TSIZ = ( 8*3 << _USB_DOEP0TSIZ_XFERSIZE_SHIFT ) |
+                   ( 1   << _USB_DOEP0TSIZ_PKTCNT_SHIFT   ) |
+                   ( 3   << _USB_DOEP0TSIZ_SUPCNT_SHIFT   );
+#else
   USB->DOEP0TSIZ = 3 << _USB_DOEP0TSIZ_SUPCNT_SHIFT;
+#endif
 
   dev->setup = dev->setupPkt;
   USB->DOEP0DMAADDR = (uint32_t)dev->setup;
 
+#if defined( USB_DOEP0INT_STUPPKTRCVD )
   USB->DOEP0CTL = ( USB->DOEP0CTL & ~DEPCTL_WO_BITMASK )
-                  | USB_DOEP_CTL_CNAK | USB_DOEP_CTL_EPENA
+                  | USB_DOEP0CTL_EPENA
                   | dev->ep0MpsCode;
+#else
+  USB->DOEP0CTL = ( USB->DOEP0CTL & ~DEPCTL_WO_BITMASK )
+                  | USB_DOEP0CTL_CNAK | USB_DOEP0CTL_EPENA
+                  | dev->ep0MpsCode;
+#endif
 }
 
 __STATIC_INLINE void USBDHAL_StartEpIn( USBD_Ep_TypeDef *ep )

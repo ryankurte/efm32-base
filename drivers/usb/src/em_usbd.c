@@ -1,7 +1,7 @@
 /**************************************************************************//**
  * @file em_usbd.c
- * @brief USB protocol stack library, device API.
- * @version 3.20.7
+ * @brief USB protocol stack library API for EFM32/EZR32.
+ * @version 4.2.1
  ******************************************************************************
  * @section License
  * <b>(C) Copyright 2014 Silicon Labs, http://www.silabs.com</b>
@@ -225,15 +225,33 @@ int USBD_Init( const USBD_Init_TypeDef *p )
   USB_InterfaceDescriptor_TypeDef *id;
   uint32_t totalRxFifoSize, totalTxFifoSize, numInEps, numOutEps;
 
+#if !defined( USB_CORECLK_HFRCO ) || !defined( CMU_OSCENCMD_USHFRCOEN )
+  /* Devices supporting crystal-less USB can use HFRCO or HFXO as core clock. */
+  /* All other devices must use HFXO as core clock.                           */
   if ( CMU_ClockSelectGet( cmuClock_HF ) != cmuSelect_HFXO )
   {
     CMU_ClockSelectSet( cmuClock_HF, cmuSelect_HFXO );
   }
-#if ( USB_USBC_32kHz_CLK == USB_USBC_32kHz_CLK_LFXO )
-  CMU_OscillatorEnable( cmuOsc_LFXO, true, false );
-#else
-  CMU_OscillatorEnable( cmuOsc_LFRCO, true, false );
 #endif
+
+#if !defined( CMU_OSCENCMD_USHFRCOEN )
+#if ( USB_USBC_32kHz_CLK == USB_USBC_32kHz_CLK_LFXO )
+  CMU_OscillatorEnable(cmuOsc_LFXO, true, false);
+#else
+  CMU_OscillatorEnable(cmuOsc_LFRCO, true, false);
+#endif
+
+#else
+  CMU_ClockEnable(cmuClock_CORELE, true);
+  /* LFC clock is needed to detect USB suspend when LEMIDLE is activated. */
+#if ( USB_USBC_32kHz_CLK == USB_USBC_32kHz_CLK_LFXO )
+  CMU_ClockSelectSet(cmuClock_LFC, cmuSelect_LFXO);
+#else
+  CMU_ClockSelectSet(cmuClock_LFC, cmuSelect_LFRCO);
+#endif
+  CMU_ClockEnable(cmuClock_USBLE, true);
+#endif
+
   USBTIMER_Init();
 
   memset( dev, 0, sizeof( USBD_Device_TypeDef ) );
@@ -335,7 +353,15 @@ int USBD_Init( const USBD_Init_TypeDef *p )
       numEps++;
       epd = (USB_EndpointDescriptor_TypeDef*)conf;
 
+#if defined( __GNUC__ )
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Warray-bounds"
+#endif
       ep                 = &dev->ep[ numEps ];
+#if defined( __GNUC__ )
+#pragma GCC diagnostic pop
+#endif
+
       ep->in             = ( epd->bEndpointAddress & USB_SETUP_DIR_MASK ) != 0;
       ep->buf            = NULL;
       ep->addr           = epd->bEndpointAddress;
@@ -389,13 +415,16 @@ int USBD_Init( const USBD_Init_TypeDef *p )
     {
       id = (USB_InterfaceDescriptor_TypeDef*)conf;
 
-      if ( dev->numberOfInterfaces != id->bInterfaceNumber )
+      if ( id->bAlternateSetting == 0 )     // Only check default interfaces
+      {
+        if ( dev->numberOfInterfaces != id->bInterfaceNumber )
         {
           DEBUG_USB_API_PUTS( "\nUSBD_Init(), Illegal interface number" );
           EFM_ASSERT( false );
           return USB_STATUS_ILLEGAL;
         }
       dev->numberOfInterfaces++;
+      }
     }
 
     conf += *conf;
@@ -439,7 +468,21 @@ int USBD_Init( const USBD_Init_TypeDef *p )
 
   /* Enable USB clock */
   CMU->HFCORECLKEN0 |= CMU_HFCORECLKEN0_USB | CMU_HFCORECLKEN0_USBC;
+
+#if defined( CMU_OSCENCMD_USHFRCOEN )
+  CMU->USHFRCOCONF = CMU_USHFRCOCONF_BAND_48MHZ;
+  CMU_ClockSelectSet( cmuClock_USBC, cmuSelect_USHFRCO );
+
+  /* Enable USHFRCO Clock Recovery mode. */
+  CMU->USBCRCTRL |= CMU_USBCRCTRL_EN;
+
+  /* Turn on Low Energy Mode (LEM) features. */
+  USB->CTRL = USB_CTRL_LEMOSCCTRL_GATE
+              | USB_CTRL_LEMIDLEEN
+              | USB_CTRL_LEMPHYCTRL;
+#else
   CMU_ClockSelectSet( cmuClock_USBC, cmuSelect_HFCLK );
+#endif
 
   USBHAL_DisableGlobalInt();
 
@@ -848,6 +891,7 @@ int USBD_Write( int epAddr, void *data, int byteCount,
 }
 
 /******** THE REST OF THE FILE IS DOCUMENTATION ONLY !**********************//**
+ * @addtogroup USB
  * @{
 
 @page usb_device USB device stack library
@@ -866,7 +910,7 @@ int USBD_Write( int epAddr, void *data, int byteCount,
 
   The USB device protocol stack provides an API which makes it possible to
   create USB devices with a minimum of effort. The device stack supports control,
-  bulk and interrupt transfers.
+  bulk, interrupt and isochronous transfers.
 
   The stack is highly configurable to suit various needs, it does also contain
   useful debugging features together with several demonstration projects to
@@ -1061,6 +1105,9 @@ extern int RETARGET_WriteChar(char c);
                               // If not specified, TIMER0 is used
 
 #define USB_VBUS_SWITCH_NOT_PRESENT  // Hardware does not have a VBUS switch
+
+#define USB_CORECLK_HFRCO   // Devices supporting crystal-less USB can use
+                            // HFRCO as core clock, default is HFXO
 @endverbatim
 
   @n You are strongly encouraged to start application development with DEBUG_USB_API
@@ -1211,7 +1258,7 @@ static const USB_DeviceDescriptor_TypeDef deviceDesc __attribute__ ((aligned(4))
   .bDeviceClass       = 0xFF,
   .bDeviceSubClass    = 0,
   .bDeviceProtocol    = 0,
-  .bMaxPacketSize0    = USB_EP0_SIZE,
+  .bMaxPacketSize0    = USB_FS_CTRL_EP_MAXSIZE,
   .idVendor           = 0x10C4,
   .idProduct          = 0x0001,
   .bcdDevice          = 0x0000,

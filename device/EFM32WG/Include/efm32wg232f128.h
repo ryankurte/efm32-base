@@ -2,10 +2,10 @@
  * @file efm32wg232f128.h
  * @brief CMSIS Cortex-M Peripheral Access Layer Header File
  *        for EFM32WG232F128
- * @version 3.20.7
+ * @version 4.2.1
  ******************************************************************************
  * @section License
- * <b>(C) Copyright 2014 Silicon Laboratories, Inc. http://www.silabs.com</b>
+ * <b>Copyright 2015 Silicon Laboratories, Inc. http://www.silabs.com</b>
  ******************************************************************************
  *
  * Permission is granted to anyone to use this software for any purpose,
@@ -31,8 +31,8 @@
  *
  *****************************************************************************/
 
-#ifndef __EFM32WG232F128_H
-#define __EFM32WG232F128_H
+#ifndef EFM32WG232F128_H
+#define EFM32WG232F128_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -52,7 +52,7 @@ extern "C" {
 typedef enum IRQn
 {
 /******  Cortex-M4 Processor Exceptions Numbers *******************************************/
-  NonMaskableInt_IRQn   = -14,              /*!< 2 Non Maskable Interrupt                 */
+  NonMaskableInt_IRQn   = -14,              /*!< 2 Cortex-M4 Non Maskable Interrupt       */
   HardFault_IRQn        = -13,              /*!< 3 Cortex-M4 Hard Fault Interrupt         */
   MemoryManagement_IRQn = -12,              /*!< 4 Cortex-M4 Memory Management Interrupt  */
   BusFault_IRQn         = -11,              /*!< 5 Cortex-M4 Bus Fault Interrupt          */
@@ -116,8 +116,10 @@ typedef enum IRQn
 ******************************************************************************/
 
 /** Part family */
-#define _EFM32_WONDER_FAMILY    1 /**< Wonder Gecko EFM32WG MCU Family */
-#define _EFM_DEVICE               /**< Silicon Labs EFM-type microcontroller */
+#define _EFM32_WONDER_FAMILY            1 /**< Wonder Gecko EFM32WG MCU Family */
+#define _EFM_DEVICE                       /**< Silicon Labs EFM-type microcontroller */
+#define _SILICON_LABS_32B_PLATFORM_1      /**< Silicon Labs platform name */
+#define _SILICON_LABS_32B_PLATFORM      1 /**< Silicon Labs platform name */
 
 /* If part number is not defined as compiler option, define it */
 #if !defined(EFM32WG232F128)
@@ -346,6 +348,7 @@ typedef struct
   __IO uint32_t LFACLKEN0;    /**< Low Frequency A Clock Enable Register 0  (Async Reg)  */
   uint32_t      RESERVED1[1]; /**< Reserved for future use **/
   __IO uint32_t LFBCLKEN0;    /**< Low Frequency B Clock Enable Register 0 (Async Reg)  */
+
   uint32_t      RESERVED2[1]; /**< Reserved for future use **/
   __IO uint32_t LFAPRESC0;    /**< Low Frequency A Prescaler Register 0 (Async Reg)  */
   uint32_t      RESERVED3[1]; /**< Reserved for future use **/
@@ -2119,7 +2122,7 @@ typedef struct
 
 /* Bit fields for CMU CTRL */
 #define _CMU_CTRL_RESETVALUE                        0x000C262CUL                                /**< Default value for CMU_CTRL */
-#define _CMU_CTRL_MASK                              0x53FFFEEFUL                                /**< Mask for CMU_CTRL */
+#define _CMU_CTRL_MASK                              0x57FFFEEFUL                                /**< Mask for CMU_CTRL */
 #define _CMU_CTRL_HFXOMODE_SHIFT                    0                                           /**< Shift value for CMU_HFXOMODE */
 #define _CMU_CTRL_HFXOMODE_MASK                     0x3UL                                       /**< Bit mask for CMU_HFXOMODE */
 #define _CMU_CTRL_HFXOMODE_DEFAULT                  0x00000000UL                                /**< Mode DEFAULT for CMU_CTRL */
@@ -2228,7 +2231,7 @@ typedef struct
 #define CMU_CTRL_CLKOUTSEL0_ULFRCO                  (_CMU_CTRL_CLKOUTSEL0_ULFRCO << 20)         /**< Shifted mode ULFRCO for CMU_CTRL */
 #define CMU_CTRL_CLKOUTSEL0_AUXHFRCO                (_CMU_CTRL_CLKOUTSEL0_AUXHFRCO << 20)       /**< Shifted mode AUXHFRCO for CMU_CTRL */
 #define _CMU_CTRL_CLKOUTSEL1_SHIFT                  23                                          /**< Shift value for CMU_CLKOUTSEL1 */
-#define _CMU_CTRL_CLKOUTSEL1_MASK                   0x3800000UL                                 /**< Bit mask for CMU_CLKOUTSEL1 */
+#define _CMU_CTRL_CLKOUTSEL1_MASK                   0x7800000UL                                 /**< Bit mask for CMU_CLKOUTSEL1 */
 #define _CMU_CTRL_CLKOUTSEL1_DEFAULT                0x00000000UL                                /**< Mode DEFAULT for CMU_CTRL */
 #define _CMU_CTRL_CLKOUTSEL1_LFRCO                  0x00000000UL                                /**< Mode LFRCO for CMU_CTRL */
 #define _CMU_CTRL_CLKOUTSEL1_LFXO                   0x00000001UL                                /**< Mode LFXO for CMU_CTRL */
@@ -3605,4 +3608,4 @@ typedef struct
 #ifdef __cplusplus
 }
 #endif
-#endif /* __EFM32WG232F128_H */
+#endif /* EFM32WG232F128_H */

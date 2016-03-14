@@ -53,10 +53,10 @@ license.
 Silicon Labs continually works to provide updated and improved example code,
 header files and other software of use for our customers. Please check
 
-http://www.silabs.com/support/pages/document-library.aspx?p=MCUs--32-bit&f=Low-Power%20MCUs--32-bit
+http://www.silabs.com/support/pages/document-library.aspx?p=MCUs--32-bit
 
 for the latest releases. If you download and install the
 Simplicity Studio application, you will be notified about updates when
 available.
 
-(C) Copyright Silicon Labs, 2014
+(C) Copyright Silicon Labs, 2015

@@ -1,7 +1,7 @@
 /**************************************************************************//**
  * @file em_usbhal.c
  * @brief USB protocol stack library, low level USB peripheral access.
- * @version 3.20.7
+ * @version 4.2.1
  ******************************************************************************
  * @section License
  * <b>(C) Copyright 2014 Silicon Labs, http://www.silabs.com</b>
@@ -177,17 +177,19 @@ USB_Status_TypeDef USBDHAL_CoreInit( uint32_t totalRxFifoSize,
 #if !defined( USB_VBUS_SWITCH_NOT_PRESENT )
   CMU_ClockEnable( cmuClock_GPIO, true );
   GPIO_PinModeSet( gpioPortF, 5, gpioModePushPull, 0 ); /* Enable VBUSEN pin */
-  USB->ROUTE = USB_ROUTE_PHYPEN | USB_ROUTE_VBUSENPEN;  /* Init PHY          */
+  USB->ROUTE = USB_ROUTE_PHYPEN | USB_ROUTE_VBUSENPEN;  /* Enable PHY pins.  */
 #else
-  USB->ROUTE = USB_ROUTE_PHYPEN;                        /* Init PHY          */
+  USB->ROUTE = USB_ROUTE_PHYPEN;                        /* Enable PHY pins.  */
 #endif
 
   USBHAL_CoreReset();                                   /* Reset USB core    */
 
+#if defined( USB_GUSBCFG_FORCEHSTMODE )
   /* Force Device Mode */
   USB->GUSBCFG = ( USB->GUSBCFG                                    &
                   ~(GUSBCFG_WO_BITMASK | USB_GUSBCFG_FORCEHSTMODE )  ) |
                  USB_GUSBCFG_FORCEDEVMODE;
+#endif
 
   INT_Enable();
   USBTIMER_DelayMs( 50 );
@@ -204,6 +206,9 @@ USB_Status_TypeDef USBDHAL_CoreInit( uint32_t totalRxFifoSize,
 
   USB->GAHBCFG = ( USB->GAHBCFG & ~_USB_GAHBCFG_HBSTLEN_MASK ) |
                  USB_GAHBCFG_DMAEN | USB_GAHBCFG_HBSTLEN_INCR;
+
+  /* Ignore frame numbers on ISO transfers. */
+  USB->DCTL = ( USB->DCTL & ~DCTL_WO_BITMASK ) | USB_DCTL_IGNRFRMNUM;
 
   /* Set Rx FIFO size */
   start = EFM32_MAX( totalRxFifoSize, MIN_EP_FIFO_SIZE_INWORDS );
@@ -268,6 +273,10 @@ USB_Status_TypeDef USBDHAL_CoreInit( uint32_t totalRxFifoSize,
     USB_DOUTEPS[ i ].TSIZ = 0;
     USB_DOUTEPS[ i ].INT  = 0xFFFFFFFF;
   }
+
+#if ( USB_DCTL_SFTDISCON_DEFAULT != 0 )
+  USBD_Connect();
+#endif
 
   /* Enable VREGO sense. */
   USB->CTRL |= USB_CTRL_VREGOSEN;
@@ -565,12 +574,13 @@ USB_Status_TypeDef USBHHAL_CoreInit( uint32_t rxFifoSize,
 
   CMU_ClockEnable( cmuClock_GPIO, true );
   GPIO_PinModeSet( gpioPortF, 5, gpioModePushPull, 0 ); /* Enable VBUSEN pin */
+
 #if ( USB_VBUSOVRCUR_PORT != USB_VBUSOVRCUR_PORT_NONE )
   /* Enable VBUS overcurrent flag pin. */
   GPIO_PinModeSet( USB_VBUSOVRCUR_PORT, USB_VBUSOVRCUR_PIN, gpioModeInput, 0 );
 #endif
-  USB->ROUTE = USB_ROUTE_PHYPEN | USB_ROUTE_VBUSENPEN;  /* Init PHY          */
 
+  USB->ROUTE = USB_ROUTE_PHYPEN | USB_ROUTE_VBUSENPEN;  /* Enable PHY pins.  */
   USBHAL_CoreReset();                                   /* Reset USB core    */
 
   /* Force Host Mode */

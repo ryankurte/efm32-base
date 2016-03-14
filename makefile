@@ -1,9 +1,9 @@
 
 #Test compilation makefile
 
-.PHONY: setup efm32g efm32gg efm32zg efm32wg efm32lg efm32tg
+.PHONY: setup efm32g efm32gg efm32zg efm32wg efm32lg efm32tg efm32hg ezr32lg ezr32wg
 
-test: setup efm32g efm32gg efm32zg efm32wg efm32lg efm32tg
+test: setup efm32g efm32gg efm32zg efm32wg efm32lg efm32tg efm32hg ezr32lg ezr32wg
 
 setup:
 	mkdir -p builds
@@ -31,6 +31,19 @@ efm32lg:
 #EFM32TG Family
 efm32tg:
 	cd builds; rm -rf efm32tg; mkdir efm32tg; cd efm32tg; cmake -DDEVICE=EFM32TG840F32 ../..; make;
+
+#EFM32WG Family
+efm32hg:
+	cd builds; rm -rf efm32hg; mkdir efm32hg; cd efm32hg; cmake -DDEVICE=EFM32HG322F64 ../..; make
+
+#EFM32LG Family
+ezr32lg:
+	cd builds; rm -rf ezr32lg; mkdir ezr32lg; cd ezr32lg; cmake -DDEVICE=EZR32LG230F128R67G ../..; make;
+
+#EFM32TG Family
+ezr32wg:
+	cd builds; rm -rf ezr32wg; mkdir ezr32wg; cd ezr32wg; cmake -DDEVICE=EZR32WG230F256R67G ../..; make;
+
 
 clean:
 	rm -rf builds

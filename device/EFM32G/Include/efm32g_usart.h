@@ -1,10 +1,10 @@
 /**************************************************************************//**
  * @file efm32g_usart.h
  * @brief EFM32G_USART register and bit field definitions
- * @version 3.20.7
+ * @version 4.2.1
  ******************************************************************************
  * @section License
- * <b>(C) Copyright 2014 Silicon Laboratories, Inc. http://www.silabs.com</b>
+ * <b>Copyright 2015 Silicon Laboratories, Inc. http://www.silabs.com</b>
  ******************************************************************************
  *
  * Permission is granted to anyone to use this software for any purpose,
@@ -29,6 +29,10 @@
  * any third party, arising from your use of this Software.
  *
  *****************************************************************************/
+/**************************************************************************//**
+* @addtogroup Parts
+* @{
+******************************************************************************/
 /**************************************************************************//**
  * @defgroup EFM32G_USART
  * @{
@@ -1014,5 +1018,5 @@ typedef struct
 #define USART_ROUTE_LOCATION_LOC3             (_USART_ROUTE_LOCATION_LOC3 << 8)    /**< Shifted mode LOC3 for USART_ROUTE */
 
 /** @} End of group EFM32G_USART */
-
+/** @} End of group Parts */
 

@@ -1,10 +1,10 @@
 /***************************************************************************//**
  * @file em_dbg.c
  * @brief Debug (DBG) Peripheral API
- * @version 3.20.6
+ * @version 4.2.1
  *******************************************************************************
  * @section License
- * <b>(C) Copyright 2014 Silicon Labs, http://www.silabs.com</b>
+ * <b>(C) Copyright 2015 Silicon Labs, http://www.silabs.com</b>
  *******************************************************************************
  *
  * Permission is granted to anyone to use this software for any purpose,
@@ -30,10 +30,9 @@
  *
  ******************************************************************************/
 
-
 #include "em_dbg.h"
 
-#if defined ( CoreDebug_DHCSR_C_DEBUGEN_Msk )
+#if defined( CoreDebug_DHCSR_C_DEBUGEN_Msk )
 
 #include "em_assert.h"
 #include "em_cmu.h"
@@ -54,6 +53,7 @@
  **************************   GLOBAL FUNCTIONS   *******************************
  ******************************************************************************/
 
+#if defined( GPIO_ROUTE_SWOPEN ) || defined( GPIO_ROUTEPEN_SWVPEN )
 /***************************************************************************//**
  * @brief
  *   Enable Serial Wire Output (SWO) pin.
@@ -92,8 +92,15 @@ void DBG_SWOEnable(unsigned int location)
 
   EFM_ASSERT(location < AFCHANLOC_MAX);
 
+#if defined ( AF_DBG_SWO_PORT )
   port = AF_DBG_SWO_PORT(location);
   pin  = AF_DBG_SWO_PIN(location);
+#elif defined (AF_DBG_SWV_PORT )
+  port = AF_DBG_SWV_PORT(location);
+  pin  = AF_DBG_SWV_PIN(location);
+#else
+#warning "AF debug port is not defined."
+#endif
 
   /* Port/pin location not defined for device? */
   if ((pin < 0) || (port < 0))
@@ -112,7 +119,8 @@ void DBG_SWOEnable(unsigned int location)
   /* Configure SWO pin for output */
   GPIO_PinModeSet((GPIO_Port_TypeDef)port, pin, gpioModePushPull, 0);
 }
+#endif
 
 /** @} (end addtogroup DBG) */
 /** @} (end addtogroup EM_Library) */
-#endif /* defined ( CoreDebug_DHCSR_C_DEBUGEN_Msk ) */
+#endif /* defined( CoreDebug_DHCSR_C_DEBUGEN_Msk ) */

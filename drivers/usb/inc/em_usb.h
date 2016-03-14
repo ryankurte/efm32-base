@@ -1,7 +1,7 @@
 /***************************************************************************//**
  * @file em_usb.h
- * @brief USB protocol stack library API for EFM32.
- * @version 3.20.7
+ * @brief USB protocol stack library API for EFM32/EZR32.
+ * @version 4.2.1
  *******************************************************************************
  * @section License
  * <b>(C) Copyright 2014 Silicon Labs, http://www.silabs.com</b>
@@ -52,6 +52,8 @@ extern "C" {
  * @{
  ******************************************************************************/
 
+#define SILABS_USB_VID          0x10C4          /**< Silicon Labs Vendor ID, supplied by USB-IF.       */
+
 /* SETUP request, direction of data stage */
 #define USB_SETUP_DIR_OUT       0               /**< Setup request data stage OUT direction value.     */
 #define USB_SETUP_DIR_IN        1               /**< Setup request data stage IN direction value.      */
@@ -97,22 +99,47 @@ extern "C" {
 #define USB_CDC_SETCTRLLINESTATE  0x22          /**< CDC class setup request SET_CONTROL_LINE_STATE.   */
 #define USB_MSD_BOTRESET          0xFF          /**< MSD class setup request Bulk only transfer reset. */
 #define USB_MSD_GETMAXLUN         0xFE          /**< MSD class setup request Get Max LUN.              */
+#define USB_AUDIO_GET_CUR         0x81          /**< Audio class setup request GET_CUR.                */
+#define USB_AUDIO_SET_CUR         0x01          /**< Audio class setup request SET_CUR.                */
+#define USB_AUDIO_GET_CUR         0x81          /**< Audio class setup request GET_CUR.                */
+#define USB_AUDIO_SET_MIN         0x02          /**< Audio class setup request SET_MIN.                */
+#define USB_AUDIO_GET_MIN         0x82          /**< Audio class setup request GET_MIN.                */
+#define USB_AUDIO_SET_MAX         0x03          /**< Audio class setup request SET_MAX.                */
+#define USB_AUDIO_GET_MAX         0x83          /**< Audio class setup request GET_MAX.                */
+#define USB_AUDIO_SET_RES         0x04          /**< Audio class setup request SET_RES.                */
+#define USB_AUDIO_GET_RES         0x84          /**< Audio class setup request GET_RES.                */
+#define USB_AUDIO_SET_MEM         0x05          /**< Audio class setup request SET_MEM.                */
+#define USB_AUDIO_GET_MEM         0x85          /**< Audio class setup request GET_MEM.                */
+#define USB_AUDIO_GET_STAT        0xFF          /**< Audio class setup request GET_STAT.               */
 
 /* SETUP command GET/SET_DESCRIPTOR decriptor types */
 #define USB_DEVICE_DESCRIPTOR             1     /**< DEVICE descriptor value.                          */
 #define USB_CONFIG_DESCRIPTOR             2     /**< CONFIGURATION descriptor value.                   */
 #define USB_STRING_DESCRIPTOR             3     /**< STRING descriptor value.                          */
+#define USB_MAX_STRING_DESCRIPTOR_CHARS   126   /**< Maximum STRING descriptor bString length.         */
 #define USB_INTERFACE_DESCRIPTOR          4     /**< INTERFACE descriptor value.                       */
 #define USB_ENDPOINT_DESCRIPTOR           5     /**< ENDPOINT descriptor value.                        */
 #define USB_DEVICE_QUALIFIER_DESCRIPTOR   6     /**< DEVICE_QUALIFIER descriptor value.                */
 #define USB_OTHER_SPEED_CONFIG_DESCRIPTOR 7     /**< OTHER_SPEED_CONFIGURATION descriptor value.       */
 #define USB_INTERFACE_POWER_DESCRIPTOR    8     /**< INTERFACE_POWER descriptor value.                 */
 #define USB_INTERFACE_ASSOCIATION_DESCRIPTOR 11 /**< INTERFACE_ASSOCIATION descriptor value.           */
-#define USB_HUB_DESCRIPTOR                0x29  /**< HUB descriptor value.                             */
 #define USB_HID_DESCRIPTOR                0x21  /**< HID descriptor value.                             */
-#define USB_HID_REPORT_DESCRIPTOR         0x22  /**< HID REPORT descriptor value.                      */
-#define USB_CS_INTERFACE_DESCRIPTOR       0x24  /**< Audio Class-specific Descriptor Type.             */
 #define USB_SMARTCARD_DESCRIPTOR          0x21  /**< Smartcard usb-ccid-specific Descriptor Type.      */
+#define USB_HID_REPORT_DESCRIPTOR         0x22  /**< HID REPORT descriptor value.                      */
+#define USB_CS_INTERFACE_DESCRIPTOR       0x24  /**< Audio Class-specific interface Descriptor Type.   */
+#define USB_CS_ENDPOINT_DESCRIPTOR        0x25  /**< Audio Class-specific endpoint Descriptor Type.    */
+#define USB_HUB_DESCRIPTOR                0x29  /**< HUB descriptor value.                             */
+#define USB_CA_HEADER_DESCRIPTOR          1     /**< Audio Class-Specific AC Interface Header descriptor.*/
+#define USB_CA_INPUT_TERMINAL_DESCRIPTOR  2     /**< Audio Class-Specific AC Interface Input Terminal desc. */
+#define USB_CA_OUTPUT_TERMINAL_DESCRIPTOR 3     /**< Audio Class-Specific AC Interface Output Terminal desc.*/
+#define USB_CA_MIXER_UNIT_DESCRIPTOR      4     /**< Audio Class-Specific AC Interface Mixer descriptor.*/
+#define USB_CA_SELECTOR_UNIT_DESCRIPTOR   5     /**< Audio Class-Specific AC Interface Selector desc.  */
+#define USB_CA_FEATURE_UNIT_DESCRIPTOR    6     /**< Audio Class-Specific AC Interface Feature desc.   */
+#define USB_CA_PROCESSING_UNIT_DESCRIPTOR 7     /**< Audio Class-Specific AC Interface Processing desc.*/
+#define USB_CA_EXTENSION_UNIT_DESCRIPTOR  8     /**< Audio Class-Specific AC Interface Extension desc. */
+#define USB_CA_EP_GENERAL_DESCRIPTOR      1     /**< Audio Class-Specific general descriptor subtype code.*/
+#define USB_CA_AS_GENERAL_DESCRIPTOR      1     /**< Audio Class-Specific AS Interface General descriptor.*/
+#define USB_CA_FORMAT_TYPE_DESCRIPTOR     2     /**< Audio Class-Specific AS Interface Format Type desc. */
 
 #define USB_DEVICE_DESCSIZE               18    /**< Device descriptor size.                           */
 #define USB_CONFIG_DESCSIZE               9     /**< Configuration descriptor size.                    */
@@ -120,25 +147,38 @@ extern "C" {
 #define USB_ENDPOINT_DESCSIZE             7     /**< Endpoint descriptor size.                         */
 #define USB_DEVICE_QUALIFIER_DESCSIZE     10    /**< Device qualifier descriptor size.                 */
 #define USB_OTHER_SPEED_CONFIG_DESCSIZE   9     /**< Device other speed configuration descriptor size. */
+#define USB_INTERFACE_ASSOCIATION_DESCSIZE 8    /**< INTERFACE_ASSOCIATION descriptor size.            */
 #define USB_HID_DESCSIZE                  9     /**< HID descriptor size.                              */
+#define USB_SMARTCARD_DESCSIZE            54    /**< CCID descriptor size.                             */
 #define USB_CDC_HEADER_FND_DESCSIZE       5     /**< CDC Header functional descriptor size.            */
 #define USB_CDC_CALLMNG_FND_DESCSIZE      5     /**< CDC Call Management functional descriptor size.   */
 #define USB_CDC_ACM_FND_DESCSIZE          4     /**< CDC Abstract Control Management functional descriptor size.*/
-#define USB_INTERFACE_ASSOCIATION_DESCSIZE 8    /**< INTERFACE_ASSOCIATION descriptor size.            */
-#define USB_SMARTCARD_DESCSIZE            54    /**< CCID descriptor size.                             */
+#define USB_CA_INPUT_TERMINAL_DESCSIZE    12    /**< Audio Input Terminal descriptor size.             */
+#define USB_CA_OUTPUT_TERMINAL_DESCSIZE   9     /**< Audio Output Terminal descriptor size.            */
+#define USB_CA_EP_GENERAL_DESCSIZE        7     /**< Audio Class-Specific general descriptor subtype size.*/
+#define USB_CA_AS_GENERAL_DESCSIZE        7     /**< Audio Class-Specific AS Interface General desc size.*/
+#define USB_CA_STD_AS_ENDPOINT_DESCSZIE   9     /**< Audio-class standard audio stream descriptor size.*/
 
 /* Misc. USB definitions */
-#define USB_EP0_SIZE           64               /**< The size of endpoint 0.                           */
-#define USB_MAX_EP_SIZE        64               /**< The max size of any full speed endpoint.          */
-#define USB_EPTYPE_CTRL        0                /**< Endpoint type control.                            */
-#define USB_EPTYPE_ISOC        1                /**< Endpoint type isochron.                           */
-#define USB_EPTYPE_BULK        2                /**< Endpoint type bulk.                               */
-#define USB_EPTYPE_INTR        3                /**< Endpoint type interrupt.                          */
-#define USB_EP_DIR_IN          0x80             /**< Endpoint direction mask.                          */
-#define USB_SETUP_PKT_SIZE     8                /**< Setup request packet size.                        */
-#define USB_EPNUM_MASK         0x0F             /**< Endpoint number mask.                             */
-#define USB_LANGID_ENUS        0x0409           /**< English-United States language id.                */
-#define USB_MAX_DEVICE_ADDRESS 127              /**< Maximum allowable device address.                 */
+#define USB_LS_CTRL_EP_MAXSIZE  8               /**< The max size of low speed control endpoints.      */
+#define USB_LS_INTR_EP_MAXSIZE  8               /**< The max size of low speed interrupt endpoints.    */
+#define USB_FS_CTRL_EP_MAXSIZE  64              /**< The max size of full speed control endpoints.     */
+#define USB_FS_INTR_EP_MAXSIZE  64              /**< The max size of full speed interrupt endpoints.   */
+#define USB_FS_BULK_EP_MAXSIZE  64              /**< The max size of full speed bulk endpoints.        */
+#define USB_FS_ISOC_EP_MAXSIZE  1023            /**< The max size of full speed isochronous endpoints. */
+#define USB_EPTYPE_CTRL         0               /**< Endpoint type control.                            */
+#define USB_EPTYPE_ISOC         1               /**< Endpoint type isochron.                           */
+#define USB_EPTYPE_BULK         2               /**< Endpoint type bulk.                               */
+#define USB_EPTYPE_INTR         3               /**< Endpoint type interrupt.                          */
+#define USB_EPSYNC_NO           (0 << 2)        /**< Endpoint synchronization type, none.              */
+#define USB_EPSYNC_ASYNC        (1 << 2)        /**< Endpoint synchronization type, asynchronous.      */
+#define USB_EPSYNC_ADAPTIVE     (2 << 2)        /**< Endpoint synchronization type, adaptive.          */
+#define USB_EPSYNC_SYNC         (3 << 2)        /**< Endpoint synchronization type, synchronous.       */
+#define USB_EP_DIR_IN           0x80            /**< Endpoint direction mask.                          */
+#define USB_SETUP_PKT_SIZE      8               /**< Setup request packet size.                        */
+#define USB_EPNUM_MASK          0x0F            /**< Endpoint number mask.                             */
+#define USB_LANGID_ENUS         0x0409          /**< English-United States language id.                */
+#define USB_MAX_DEVICE_ADDRESS  127             /**< Maximum allowable device address.                 */
 
 #define CONFIG_DESC_BM_REMOTEWAKEUP 0x20        /**< Configuration descriptor attribute macro.         */
 #define CONFIG_DESC_BM_SELFPOWERED  0x40        /**< Configuration descriptor attribute macro.         */
@@ -178,6 +218,11 @@ extern "C" {
 #define USB_CLASS_MSD_CSW_CMDFAILED       1     /**< MSD BOT Command status wrapper command failed code. */
 #define USB_CLASS_MSD_CSW_PHASEERROR      2     /**< MSD BOT Command status wrapper cmd phase error code.*/
 
+#define USB_CLASS_AUDIO                   1     /**< Audio interface class code.                         */
+#define USB_CLASS_AUDIO_CONTROL           1     /**< Audio subclass code for control interface.          */
+#define USB_CLASS_AUDIO_STREAMING         2     /**< Audio subclass code for streaming interface.        */
+#define USB_CLASS_AUDIO_MIDISTREAMING     3     /**< Audio subclass code for midi streaming interface.   */
+
 /*** Triplet for the device descriptor of a composite device using IAD descriptors. ***/
 #define USB_CLASS_MISCELLANEOUS           0xEF  /**< MISCELLANEOUS device class code.                    */
 #define USB_CLASS_MISC_COMMON_SUBCLASS    2     /**< MISCELLANEOUS Common sub class code.                */
@@ -190,7 +235,7 @@ extern "C" {
 #if defined( __CHAR16_TYPE__ )
 typedef __CHAR16_TYPE__ char16_t;
 #else
-typedef unsigned short char16_t;
+typedef unsigned short char16_t;          /**< Data type used for UTF-16LE formatted USB string descriptors. */
 #endif
 
 #elif defined( __ICCARM__ )               /* IAR compiler */
@@ -348,7 +393,7 @@ typedef struct
       uint16_t  wIndex;                         /**< Index or offset, varies according to request.     */
       uint16_t  wLength;                        /**< Number of bytes to transfer if there is a data stage.*/
     };
-  uint32_t  dw[2];
+    uint32_t  dw[2];
   };
 } __attribute__ ((packed)) USB_Setup_TypeDef;
 EFM32_PACK_END()

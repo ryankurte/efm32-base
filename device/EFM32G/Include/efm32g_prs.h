@@ -1,10 +1,10 @@
 /**************************************************************************//**
  * @file efm32g_prs.h
  * @brief EFM32G_PRS register and bit field definitions
- * @version 3.20.7
+ * @version 4.2.1
  ******************************************************************************
  * @section License
- * <b>(C) Copyright 2014 Silicon Laboratories, Inc. http://www.silabs.com</b>
+ * <b>Copyright 2015 Silicon Laboratories, Inc. http://www.silabs.com</b>
  ******************************************************************************
  *
  * Permission is granted to anyone to use this software for any purpose,
@@ -29,6 +29,10 @@
  * any third party, arising from your use of this Software.
  *
  *****************************************************************************/
+/**************************************************************************//**
+* @addtogroup Parts
+* @{
+******************************************************************************/
 /**************************************************************************//**
  * @defgroup EFM32G_PRS
  * @{
@@ -290,5 +294,5 @@ typedef struct
 #define PRS_CH_CTRL_EDSEL_BOTHEDGES          (_PRS_CH_CTRL_EDSEL_BOTHEDGES << 24)     /**< Shifted mode BOTHEDGES for PRS_CH_CTRL */
 
 /** @} End of group EFM32G_PRS */
-
+/** @} End of group Parts */
 

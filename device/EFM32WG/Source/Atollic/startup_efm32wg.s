@@ -20,7 +20,7 @@
  *
  *******************************************************************************
  * Silicon Labs release version
- * @version 3.20.7
+ * @version 4.2.1
  ******************************************************************************/
 
   .syntax unified
@@ -129,6 +129,7 @@ InterruptVector:
   .word SysTick_Handler           /* 15 - Systick */
 
   /* External Interrupts */
+
   .word   DMA_IRQHandler      /* 0 - DMA */
   .word   GPIO_EVEN_IRQHandler      /* 1 - GPIO_EVEN */
   .word   TIMER0_IRQHandler      /* 2 - TIMER0 */
