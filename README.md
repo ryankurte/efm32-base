@@ -1,6 +1,6 @@
 # EFM32 Base Project
 
-This base project is designed to provide a quick and platform independent method of building projects for Silicon Labs EFM32 microcontrollers.
+This base project is designed to provide a quick and platform independent method of building projects for Silicon Labs EFM32 microcontrollers.  
 Designed and tested on OSX and Debian. Windows might work with cygwig/mingw/gnuwindows tools, but hasn't been attempted.
 
 [![Build Status](https://travis-ci.org/ryankurte/efm32-base.svg)](https://travis-ci.org/ryankurte/efm32-base)
@@ -9,7 +9,7 @@ Designed and tested on OSX and Debian. Windows might work with cygwig/mingw/gnuw
  - Getting started with Microcontrollers is hard (and time consuming)
  - Vendor IDEs are ultimately useless when approaching testing and build-automation
 
-This project addresses this by providing a common base for for projects using Silicon Labs EFM32 processors.  
+This project addresses this by providing a common base for for projects using Silicon Labs EFM32 and EZR32 processors.   
 This will likely be superseeded by ARM-Mbed Yotta going forwards, check out http://yottadocs.mbed.com/ for more information.
 
 ## Dependencies
@@ -18,7 +18,7 @@ This will likely be superseeded by ARM-Mbed Yotta going forwards, check out http
  - arm-none-eabi-gcc - Embedded ARM Compiler/Toolchain (https://launchpad.net/gcc-arm-embedded/+download)
  - JLink tools - download and install from https://www.segger.com/jlink-software.html
 
-Note that you can also run `. ./armenv.sh` which will download and configure a local copy of the arm-none-eabi-gcc, see https://git.io/vRP63 for more information.
+Note that on OSX/Linux you can also run `. ./armenv.sh` which will download and configure a local copy of the arm-none-eabi-gcc, see https://git.io/vRP63 for more information.
 
 ## Usage
 
