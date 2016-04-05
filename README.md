@@ -18,7 +18,7 @@ This will likely be superseeded by ARM-Mbed Yotta going forwards, check out http
  - arm-none-eabi-gcc - Embedded ARM Compiler/Toolchain (https://launchpad.net/gcc-arm-embedded/+download)
  - JLink tools - download and install from https://www.segger.com/jlink-software.html
 
-Note that on OSX/Linux you can also run `. ./armenv.sh` which will download and configure a local copy of the arm-none-eabi-gcc, see https://git.io/vRP63 for more information.
+If you're into local tools, check out https://git.io/vRP63 for a script to load and couple a compiler version into your project.
 
 ## Usage
 
