@@ -10,7 +10,7 @@ Designed and tested on OSX and Debian. Windows might work with cygwig/mingw/gnuw
  - Vendor IDEs are ultimately useless when approaching testing and build-automation
 
 This project addresses this by providing a common base for for projects using Silicon Labs EFM32 and EZR32 processors.   
-This will likely be superseeded by ARM-Mbed Yotta going forwards, check out http://yottadocs.mbed.com/ for more information.
+If you're not into cmake, you might want to check out [ARM Mbed Yotta](http://yottadocs.mbed.com/) or [PlatformIO](http://platformio.org/), both of which offer higher level approaches to embedded setup/development.
 
 ## Dependencies
  - cmake - use brew on osx, or your favourite package manager for linux
@@ -18,7 +18,7 @@ This will likely be superseeded by ARM-Mbed Yotta going forwards, check out http
  - arm-none-eabi-gcc - Embedded ARM Compiler/Toolchain (https://launchpad.net/gcc-arm-embedded/+download)
  - JLink tools - download and install from https://www.segger.com/jlink-software.html
 
-Note that on OSX/Linux you can also run `. ./armenv.sh` which will download and configure a local copy of the arm-none-eabi-gcc, see https://git.io/vRP63 for more information.
+If you're into local tools, check out https://git.io/vRP63 for a script to load and couple a compiler version into your project.
 
 ## Usage
 
