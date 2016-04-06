@@ -57,7 +57,7 @@ set(CMAKE_ASM_FLAGS "${COMMON_DEFINITIONS} -x assembler-with-cpp -DLOOP_ADDR=0x8
 set(CMAKE_EXE_LINKER_FLAGS "${COMMON_DEFINITIONS} -Xlinker -T${LINKER_SCRIPT} -Wl,-Map=${CMAKE_PROJECT_NAME}.map -Wl,--gc-sections")
 
 # Set default inclusions
-set(LIBS -lgcc -lc -lnosys ${LIBS})
+set(LIBS ${LIBS} -lgcc -lc -lnosys -lgcc -lc -lnosys)
 
 # Debug Flags
 set(COMMON_DEBUG_FLAGS "-O0 -g -gdwarf-2")
