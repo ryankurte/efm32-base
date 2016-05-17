@@ -18,7 +18,7 @@ If you're not into cmake, you might want to check out [ARM Mbed Yotta](http://yo
  - arm-none-eabi-gcc - Embedded ARM Compiler/Toolchain (https://launchpad.net/gcc-arm-embedded/+download)
  - JLink tools - download and install from https://www.segger.com/jlink-software.html
 
-If you're into local tools, check out https://git.io/vRP63 for a script to load and couple a compiler version into your project.
+If you're into docker, check out [ryankurte/docker-arm-embedded](https://hub.docker.com/r/ryankurte/docker-arm-embedded/) for a containerised toolchain. You will still need JLink tools locally to flash and debug.
 
 ## Usage
 
