@@ -4,6 +4,9 @@
 # repository as a submodule to another project, copying this CMakeLists file
 # to the top level directory, and updating the BASE_LOCATION variable to reflect this
 # change
+#
+## Copyright (c) 2016 Ryan Kurte
+# This file is covered under the MIT license available at: https://opensource.org/licenses/MIT
 
 ###### Project Environment #####
 

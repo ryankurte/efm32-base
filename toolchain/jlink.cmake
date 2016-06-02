@@ -1,5 +1,7 @@
 # JLink functions
 # Adds targets for JLink programmers and emulators
+# Copyright (c) 2016 Ryan Kurte
+# This file is covered under the MIT license available at: https://opensource.org/licenses/MIT
 
 # Configure flasher script for the project
 set(BINARY ${TARGET}.bin)
