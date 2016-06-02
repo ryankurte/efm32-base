@@ -59,13 +59,15 @@ Once you have integrated this project with your project, you can build in the st
 5. `make flash` to flash to a device
 
 ## Licensing
+
 Since this is a combination of a number of Silicon Labs (ex. Energy Micro) components, as well as custom additions, licensing is a little interesting. A summary of the licenses involved follows, but I take no responsibility for the accuracy or interpretation of such.  
 
-The CMSIS Core falls under a fairly permissive ARM license, available [here](cmsis/Include/arm_common_tables.h). This requires that the license requires the copyright and license note to be distributed in the documentation accompanying binary distribution, and that the name ARM LIMITED may not be used to promote any products derived from this without written permission.  
+The CMSIS Core falls under a fairly permissive ARM [license](cmsis/Include/arm_common_tables.h). This requires that the license requires the copyright and license note to be distributed in the documentation accompanying binary distribution, and that the name ARM LIMITED may not be used to promote any products derived from this without written permission.  
 
 The device and emlib components fall under the above ARM license (startup files) as well as a permissive Silicon Labs [license](device/EFM32GG/efm32gg280f1024.h). This allows use, alteration and distribution for any purpose provided the origin of the source is not represented, altered versions are plainly marked, and the notice is not removed from the source distribution.  
 
-Drivers are covered by the [Silabs License Agreement](drivers/Silabs_License_Agreement.txt) which is about the worst license in the collection. This is similar to the the license above, however prohibits sublicensing the included code and use of the code on non-silabs devices.  
+Drivers are covered by the [Silabs License Agreement](drivers/Silabs_License_Agreement.txt). This is similar to the the license above, however prohibits sublicensing the included code and use of the code on non-silabs devices.  
 
 The CMake components of this project are distributed under the MIT license.  
+
 
