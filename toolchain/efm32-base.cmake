@@ -1,6 +1,9 @@
 # EFM32 Base CMake file
 #
 # Configures the project files and environment for any EFM32 project
+#
+# Copyright (c) 2016 Ryan Kurte
+# This file is covered under the MIT license available at: https://opensource.org/licenses/MIT
 
 if(NOT DEFINED DEVICE)
 message(FATAL_ERROR "No processor defined")

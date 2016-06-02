@@ -1,4 +1,6 @@
-#ARM none eabi gcc toolchain configuration
+# ARM none eabi gcc toolchain configuration
+# Copyright (c) 2016 Ryan Kurte
+# This file is covered under the MIT license available at: https://opensource.org/licenses/MIT
 
 # We are cross compiling so we don't want compiler tests to run, as they will fail
 include(CMakeForceCompiler)
