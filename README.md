@@ -70,4 +70,10 @@ Drivers are covered by the [Silabs License Agreement](drivers/Silabs_License_Agr
 
 The CMake components of this project are distributed under the MIT license.  
 
+What does all this mean?  
+ * Commercial use is not a problem (as you would expect)
+ * Licenses need to be distributed with device binaries
+ * Unless you are using the Driver module (ie. USB) you can probably re/sublicense things.
+ * I have no idea how this interacts with common FOSS licenses :-/
+
 
