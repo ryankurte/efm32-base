@@ -15,7 +15,7 @@ string(TOUPPER ${DEVICE} DEVICE_U)
 message("Processor: ${DEVICE_U}")
 
 # Determine device family
-string(REGEX MATCH "^((EFM|EZR)32[A-Z]+)" CPU_FAMILY_U "${DEVICE_U}")
+string(REGEX MATCH "^((EFM|EZR)32[A-Z]+([0-9][A-Z])?)" CPU_FAMILY_U "${DEVICE_U}")
 string(TOLOWER ${CPU_FAMILY_U} CPU_FAMILY_L)
 message("Family: ${CPU_FAMILY_U}")
 
