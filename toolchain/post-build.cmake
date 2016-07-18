@@ -8,3 +8,5 @@ add_custom_command(TARGET ${TARGET} POST_BUILD COMMAND ${OBJCOPY} -O binary ${TA
 add_custom_command(TARGET ${TARGET} POST_BUILD COMMAND ${OBJCOPY} -O ihex ${TARGET} ${TARGET}.hex)
 
 add_custom_command(TARGET ${TARGET} POST_BUILD COMMAND ${OBJDUMP} -d -S ${TARGET} > ${TARGET}.dmp)
+
+add_custom_command(TARGET ${TARGET} POST_BUILD COMMAND ${OBJSIZE} ${TARGET})

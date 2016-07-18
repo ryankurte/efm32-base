@@ -39,11 +39,14 @@ endif()
 # Include libraries
 include(${CMAKE_CURRENT_LIST_DIR}/../device/device.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/../cmsis/cmsis.cmake)
+if(NOT DEFINED NO_EMLIB)
 include(${CMAKE_CURRENT_LIST_DIR}/../emlib/emlib.cmake)
+endif()
 
 # Set compiler flags
 # Common arguments
-set(COMMON_DEFINITIONS "-Wextra -Wall -Wno-unused-parameter -mcpu=cortex-${CPU_TYPE} -mthumb -fno-builtin -ffunction-sections -fdata-sections -fomit-frame-pointer -D${DEVICE} ${OPTIONAL_DEBUG_SYMBOLS}")
+add_definitions("-D${DEVICE}")
+set(COMMON_DEFINITIONS "-Wextra -Wall -Wno-unused-parameter -mcpu=cortex-${CPU_TYPE} -mthumb -fno-builtin -ffunction-sections -fdata-sections -fomit-frame-pointer ${OPTIONAL_DEBUG_SYMBOLS}")
 set(DEPFLAGS "-MMD -MP")
 
 # Enable FLTO optimization if required
