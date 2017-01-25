@@ -58,6 +58,15 @@ Once you have integrated this project with your project, you can build in the st
 4. `make` to execute the build
 5. `make flash` to flash to a device
 
+## Debugging
+
+Debugging using a Segger J-Link device (as is present on the Silicon Labs evaluation boards) requires two processes, a GDB server that connects to the target and provides a local interface as well as a GDB instance that connects to this interface. As such, you have to run two terminal sessions and swap between a bit to use this.
+
+1. `make debug-server` or `make ds` from the first session to start the debug server and connect to the target
+2. `make debug` or `make d` from the second session to launch GDB in Terminal User Interface (TUI) mode
+
+You can then use the GDB interface to interact with the running application.
+
 ## Licensing
 
 Since this is a combination of a number of Silicon Labs (ex. Energy Micro) components, as well as custom additions, licensing is a little interesting. A summary of the licenses involved follows, but I take no responsibility for the accuracy or interpretation of such.  
