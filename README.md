@@ -69,14 +69,20 @@ You can then use the GDB interface to interact with the running application.
 
 ## Updating this project
 
-To add devices:
+### To add devices / update the SDK:
 
-1.  Grab the silabs [Gecko SDK](https://github.com/SiliconLabs/Gecko_SDK). Usually from the latest version of their IDE because this project predates the release of the SDK files on github and the github repo contains all sorts of documentation that we don't need.
-2. Copy the `cmsis`, `device`, `drivers` and `emlib` folders from the SDK into this repo.
+1.  Grab the silabs [Gecko SDK](https://github.com/SiliconLabs/Gecko_SDK) from somewhere (note that github is no longer supported/updated by silabs).
+2. Copy the `cmsis`, `device`, `drivers`, `emdrv` and `emlib` folders from the SDK into this repo.
 3. Add [a test (or tests)](https://github.com/ryankurte/efm32-base/blob/master/makefile) to build the new chip families
-4. Add hacks to the `.cmake` files through the repo to fix the new inconsistencies until all the tests work again.
+4. Add hacks to the `.cmake` files through the repo to fix any new naming inconsistencies (ie. `EFM32G210F128` vs. `EFR32FG13P231F512GM48` until all the tests build again.
 5. Open a PR against the master
 6. [Maintainer] Review/Accept PR and Tag the repo with the Gecko SDK version
+
+### To add/fix tooling
+
+1. Open an issue with the issue you're having
+2. Fork and open a PR referencing the issue
+3. [Maintainer] Review/Accept PR
 
 ## Licensing
 
