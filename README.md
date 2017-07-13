@@ -67,6 +67,17 @@ Debugging using a Segger J-Link device (as is present on the Silicon Labs evalua
 
 You can then use the GDB interface to interact with the running application.
 
+## Updating this project
+
+To add devices:
+
+1.  Grab the silabs [Gecko SDK](https://github.com/SiliconLabs/Gecko_SDK). Usually from the latest version of their IDE because this project predates the release of the SDK files on github and the github repo contains all sorts of documentation that we don't need.
+2. Copy the `cmsis`, `device`, `drivers` and `emlib` folders from the SDK into this repo.
+3. Add [a test (or tests)](https://github.com/ryankurte/efm32-base/blob/master/makefile) to build the new chip families
+4. Add hacks to the `.cmake` files through the repo to fix the new inconsistencies until all the tests work again.
+5. Open a PR against the master
+6. [Maintainer] Review/Accept PR and Tag the repo with the Gecko SDK version
+
 ## Licensing
 
 Since this is a combination of a number of Silicon Labs (ex. Energy Micro) components, as well as custom additions, licensing is a little interesting. A summary of the licenses involved follows, but I take no responsibility for the accuracy or interpretation of such.  
