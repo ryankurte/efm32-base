@@ -12,7 +12,7 @@ If you have any issues, suggestions or alterations, feel free to open an issue o
  - Getting started with Microcontrollers is hard (and time consuming)
  - Vendor IDEs are ultimately useless when approaching testing and build-automation
 
-This project addresses this by providing a common base for for projects using Silicon Labs EFM32 and EZR32 processors.   
+This project addresses this by providing a common base for for projects using Silicon Labs EFM32, EZR32 and EFR32 processors.   
 If you're not into cmake, you might want to check out [ARM Mbed Yotta](http://yottadocs.mbed.com/) or [PlatformIO](http://platformio.org/), both of which offer higher level approaches to embedded setup/development.
 
 ## Dependencies
