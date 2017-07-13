@@ -1,10 +1,10 @@
 /**************************************************************************//**
  * @file efm32jg1b_pcnt.h
  * @brief EFM32JG1B_PCNT register and bit field definitions
- * @version 4.2.1
+ * @version 5.2.1
  ******************************************************************************
- * @section License
- * <b>Copyright 2015 Silicon Laboratories, Inc. http://www.silabs.com</b>
+ * # License
+ * <b>Copyright 2017 Silicon Laboratories, Inc. http://www.silabs.com</b>
  ******************************************************************************
  *
  * Permission is granted to anyone to use this software for any purpose,
@@ -29,42 +29,52 @@
  * any third party, arising from your use of this Software.
  *
  *****************************************************************************/
+
+#if defined(__ICCARM__)
+#pragma system_include       /* Treat file as system include file. */
+#elif defined(__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050)
+#pragma clang system_header  /* Treat file as system include file. */
+#endif
+
 /**************************************************************************//**
 * @addtogroup Parts
 * @{
 ******************************************************************************/
 /**************************************************************************//**
- * @defgroup EFM32JG1B_PCNT
+ * @defgroup EFM32JG1B_PCNT PCNT
  * @{
  * @brief EFM32JG1B_PCNT Register Declaration
  *****************************************************************************/
+/** PCNT Register Declaration */
 typedef struct
 {
-  __IO uint32_t CTRL;         /**< Control Register  */
-  __IO uint32_t CMD;          /**< Command Register  */
-  __I uint32_t  STATUS;       /**< Status Register  */
-  __I uint32_t  CNT;          /**< Counter Value Register  */
-  __I uint32_t  TOP;          /**< Top Value Register  */
-  __IO uint32_t TOPB;         /**< Top Value Buffer Register  */
-  __I uint32_t  IF;           /**< Interrupt Flag Register  */
-  __IO uint32_t IFS;          /**< Interrupt Flag Set Register  */
-  __IO uint32_t IFC;          /**< Interrupt Flag Clear Register  */
-  __IO uint32_t IEN;          /**< Interrupt Enable Register  */
-  uint32_t      RESERVED0[1]; /**< Reserved for future use **/
-  __IO uint32_t ROUTELOC0;    /**< I/O Routing Location Register  */
+  __IOM uint32_t CTRL;         /**< Control Register  */
+  __IOM uint32_t CMD;          /**< Command Register  */
+  __IM uint32_t  STATUS;       /**< Status Register  */
+  __IM uint32_t  CNT;          /**< Counter Value Register  */
+  __IM uint32_t  TOP;          /**< Top Value Register  */
+  __IOM uint32_t TOPB;         /**< Top Value Buffer Register  */
+  __IM uint32_t  IF;           /**< Interrupt Flag Register  */
+  __IOM uint32_t IFS;          /**< Interrupt Flag Set Register  */
+  __IOM uint32_t IFC;          /**< Interrupt Flag Clear Register  */
+  __IOM uint32_t IEN;          /**< Interrupt Enable Register  */
+  uint32_t       RESERVED0[1]; /**< Reserved for future use **/
+  __IOM uint32_t ROUTELOC0;    /**< I/O Routing Location Register  */
 
-  uint32_t      RESERVED1[4]; /**< Reserved for future use **/
-  __IO uint32_t FREEZE;       /**< Freeze Register  */
-  __I uint32_t  SYNCBUSY;     /**< Synchronization Busy Register  */
+  uint32_t       RESERVED1[4]; /**< Reserved for future use **/
+  __IOM uint32_t FREEZE;       /**< Freeze Register  */
+  __IM uint32_t  SYNCBUSY;     /**< Synchronization Busy Register  */
 
-  uint32_t      RESERVED2[7]; /**< Reserved for future use **/
-  __I uint32_t  AUXCNT;       /**< Auxiliary Counter Value Register  */
-  __IO uint32_t INPUT;        /**< PCNT Input Register  */
-  __IO uint32_t OVSCFG;       /**< Oversampling Config Register  */
-} PCNT_TypeDef;               /** @} */
+  uint32_t       RESERVED2[7]; /**< Reserved for future use **/
+  __IM uint32_t  AUXCNT;       /**< Auxiliary Counter Value Register  */
+  __IOM uint32_t INPUT;        /**< PCNT Input Register  */
+  __IOM uint32_t OVSCFG;       /**< Oversampling Config Register  */
+} PCNT_TypeDef;                /** @} */
 
 /**************************************************************************//**
- * @defgroup EFM32JG1B_PCNT_BitFields
+ * @addtogroup EFM32JG1B_PCNT
+ * @{
+ * @defgroup EFM32JG1B_PCNT_BitFields  PCNT Bit Fields
  * @{
  *****************************************************************************/
 
@@ -315,7 +325,7 @@ typedef struct
 #define _PCNT_IF_DIRCNG_MASK               0x4UL                           /**< Bit mask for PCNT_DIRCNG */
 #define _PCNT_IF_DIRCNG_DEFAULT            0x00000000UL                    /**< Mode DEFAULT for PCNT_IF */
 #define PCNT_IF_DIRCNG_DEFAULT             (_PCNT_IF_DIRCNG_DEFAULT << 2)  /**< Shifted mode DEFAULT for PCNT_IF */
-#define PCNT_IF_AUXOF                      (0x1UL << 3)                    /**< Overflow Interrupt Read Flag */
+#define PCNT_IF_AUXOF                      (0x1UL << 3)                    /**< Auxiliary Overflow Interrupt Read Flag */
 #define _PCNT_IF_AUXOF_SHIFT               3                               /**< Shift value for PCNT_AUXOF */
 #define _PCNT_IF_AUXOF_MASK                0x8UL                           /**< Bit mask for PCNT_AUXOF */
 #define _PCNT_IF_AUXOF_DEFAULT             0x00000000UL                    /**< Mode DEFAULT for PCNT_IF */
@@ -701,6 +711,7 @@ typedef struct
 #define _PCNT_OVSCFG_FLUTTERRM_DEFAULT     0x00000000UL                           /**< Mode DEFAULT for PCNT_OVSCFG */
 #define PCNT_OVSCFG_FLUTTERRM_DEFAULT      (_PCNT_OVSCFG_FLUTTERRM_DEFAULT << 12) /**< Shifted mode DEFAULT for PCNT_OVSCFG */
 
+/** @} */
 /** @} End of group EFM32JG1B_PCNT */
 /** @} End of group Parts */
 

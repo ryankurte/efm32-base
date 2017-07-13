@@ -1,10 +1,10 @@
 /**************************************************************************//**
  * @file startup_efm32lg.c
  * @brief CMSIS Compatible EFM32LG startup file in C for IAR EWARM
- * @version 4.2.1
+ * @version 5.2.1
  ******************************************************************************
- * @section License
- * <b>Copyright 2015 Silicon Laboratories, Inc. http://www.silabs.com</b>
+ * # License
+ * <b>Copyright 2017 Silicon Laboratories, Inc. http://www.silabs.com</b>
  ******************************************************************************
  *
  * Permission is granted to anyone to use this software for any purpose,

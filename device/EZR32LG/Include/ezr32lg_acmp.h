@@ -1,10 +1,10 @@
 /**************************************************************************//**
  * @file ezr32lg_acmp.h
  * @brief EZR32LG_ACMP register and bit field definitions
- * @version 4.2.1
+ * @version 5.2.1
  ******************************************************************************
- * @section License
- * <b>Copyright 2015 Silicon Laboratories, Inc. http://www.silabs.com</b>
+ * # License
+ * <b>Copyright 2017 Silicon Laboratories, Inc. http://www.silabs.com</b>
  ******************************************************************************
  *
  * Permission is granted to anyone to use this software for any purpose,
@@ -29,6 +29,13 @@
  * any third party, arising from your use of this Software.
  *
  *****************************************************************************/
+
+#if defined(__ICCARM__)
+#pragma system_include       /* Treat file as system include file. */
+#elif defined(__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050)
+#pragma clang system_header  /* Treat file as system include file. */
+#endif
+
 /**************************************************************************//**
 * @addtogroup Parts
 * @{
@@ -40,15 +47,15 @@
  *****************************************************************************/
 typedef struct
 {
-  __IO uint32_t CTRL;     /**< Control Register  */
-  __IO uint32_t INPUTSEL; /**< Input Selection Register  */
-  __I uint32_t  STATUS;   /**< Status Register  */
-  __IO uint32_t IEN;      /**< Interrupt Enable Register  */
-  __I uint32_t  IF;       /**< Interrupt Flag Register  */
-  __IO uint32_t IFS;      /**< Interrupt Flag Set Register  */
-  __IO uint32_t IFC;      /**< Interrupt Flag Clear Register  */
-  __IO uint32_t ROUTE;    /**< I/O Routing Register  */
-} ACMP_TypeDef;           /** @} */
+  __IOM uint32_t CTRL;     /**< Control Register  */
+  __IOM uint32_t INPUTSEL; /**< Input Selection Register  */
+  __IM uint32_t  STATUS;   /**< Status Register  */
+  __IOM uint32_t IEN;      /**< Interrupt Enable Register  */
+  __IM uint32_t  IF;       /**< Interrupt Flag Register  */
+  __IOM uint32_t IFS;      /**< Interrupt Flag Set Register  */
+  __IOM uint32_t IFC;      /**< Interrupt Flag Clear Register  */
+  __IOM uint32_t ROUTE;    /**< I/O Routing Register  */
+} ACMP_TypeDef;            /**< ACMP Register Declaration *//** @} */
 
 /**************************************************************************//**
  * @defgroup EZR32LG_ACMP_BitFields

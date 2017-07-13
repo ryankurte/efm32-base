@@ -1,10 +1,10 @@
 /**************************************************************************//**
  * @file efm32pg1b_rtcc.h
  * @brief EFM32PG1B_RTCC register and bit field definitions
- * @version 4.2.1
+ * @version 5.2.1
  ******************************************************************************
- * @section License
- * <b>Copyright 2015 Silicon Laboratories, Inc. http://www.silabs.com</b>
+ * # License
+ * <b>Copyright 2017 Silicon Laboratories, Inc. http://www.silabs.com</b>
  ******************************************************************************
  *
  * Permission is granted to anyone to use this software for any purpose,
@@ -29,33 +29,41 @@
  * any third party, arising from your use of this Software.
  *
  *****************************************************************************/
+
+#if defined(__ICCARM__)
+#pragma system_include       /* Treat file as system include file. */
+#elif defined(__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050)
+#pragma clang system_header  /* Treat file as system include file. */
+#endif
+
 /**************************************************************************//**
 * @addtogroup Parts
 * @{
 ******************************************************************************/
 /**************************************************************************//**
- * @defgroup EFM32PG1B_RTCC
+ * @defgroup EFM32PG1B_RTCC RTCC
  * @{
  * @brief EFM32PG1B_RTCC Register Declaration
  *****************************************************************************/
+/** RTCC Register Declaration */
 typedef struct
 {
-  __IO uint32_t    CTRL;          /**< Control Register  */
-  __IO uint32_t    PRECNT;        /**< Pre-Counter Value Register  */
-  __IO uint32_t    CNT;           /**< Counter Value Register  */
-  __I uint32_t     COMBCNT;       /**< Combined Pre-Counter and Counter Value Register  */
-  __IO uint32_t    TIME;          /**< Time of day register  */
-  __IO uint32_t    DATE;          /**< Date register  */
-  __I uint32_t     IF;            /**< RTCC Interrupt Flags  */
-  __IO uint32_t    IFS;           /**< Interrupt Flag Set Register  */
-  __IO uint32_t    IFC;           /**< Interrupt Flag Clear Register  */
-  __IO uint32_t    IEN;           /**< Interrupt Enable Register  */
-  __I uint32_t     STATUS;        /**< Status register  */
-  __IO uint32_t    CMD;           /**< Command Register  */
-  __I uint32_t     SYNCBUSY;      /**< Synchronization Busy Register  */
-  __IO uint32_t    POWERDOWN;     /**< Retention RAM power-down register  */
-  __IO uint32_t    LOCK;          /**< Configuration Lock Register  */
-  __IO uint32_t    EM4WUEN;       /**< Wake Up Enable  */
+  __IOM uint32_t   CTRL;          /**< Control Register  */
+  __IOM uint32_t   PRECNT;        /**< Pre-Counter Value Register  */
+  __IOM uint32_t   CNT;           /**< Counter Value Register  */
+  __IM uint32_t    COMBCNT;       /**< Combined Pre-Counter and Counter Value Register  */
+  __IOM uint32_t   TIME;          /**< Time of day register  */
+  __IOM uint32_t   DATE;          /**< Date register  */
+  __IM uint32_t    IF;            /**< RTCC Interrupt Flags  */
+  __IOM uint32_t   IFS;           /**< Interrupt Flag Set Register  */
+  __IOM uint32_t   IFC;           /**< Interrupt Flag Clear Register  */
+  __IOM uint32_t   IEN;           /**< Interrupt Enable Register  */
+  __IM uint32_t    STATUS;        /**< Status register  */
+  __IOM uint32_t   CMD;           /**< Command Register  */
+  __IM uint32_t    SYNCBUSY;      /**< Synchronization Busy Register  */
+  __IOM uint32_t   POWERDOWN;     /**< Retention RAM power-down register  */
+  __IOM uint32_t   LOCK;          /**< Configuration Lock Register  */
+  __IOM uint32_t   EM4WUEN;       /**< Wake Up Enable  */
 
   RTCC_CC_TypeDef  CC[3];         /**< Capture/Compare Channel */
 
@@ -64,7 +72,9 @@ typedef struct
 } RTCC_TypeDef;                   /** @} */
 
 /**************************************************************************//**
- * @defgroup EFM32PG1B_RTCC_BitFields
+ * @addtogroup EFM32PG1B_RTCC
+ * @{
+ * @defgroup EFM32PG1B_RTCC_BitFields  RTCC Bit Fields
  * @{
  *****************************************************************************/
 
@@ -690,6 +700,7 @@ typedef struct
 #define _RTCC_RET_REG_REG_DEFAULT           0x00000000UL                     /**< Mode DEFAULT for RTCC_RET_REG */
 #define RTCC_RET_REG_REG_DEFAULT            (_RTCC_RET_REG_REG_DEFAULT << 0) /**< Shifted mode DEFAULT for RTCC_RET_REG */
 
+/** @} */
 /** @} End of group EFM32PG1B_RTCC */
 /** @} End of group Parts */
 

@@ -1,10 +1,10 @@
 /***************************************************************************//**
  * @file em_dac.c
- * @brief Digital to Analog Coversion (DAC) Peripheral API
- * @version 4.2.1
+ * @brief Digital to Analog Converter (DAC) Peripheral API
+ * @version 5.2.1
  *******************************************************************************
- * @section License
- * <b>(C) Copyright 2015 Silicon Labs, http://www.silabs.com</b>
+ * # License
+ * <b>Copyright 2016 Silicon Laboratories, Inc. http://www.silabs.com</b>
  *******************************************************************************
  *
  * Permission is granted to anyone to use this software for any purpose,
@@ -37,13 +37,18 @@
 #include "em_bus.h"
 
 /***************************************************************************//**
- * @addtogroup EM_Library
+ * @addtogroup emlib
  * @{
  ******************************************************************************/
 
 /***************************************************************************//**
  * @addtogroup DAC
- * @brief Digital to Analog Coversion (DAC) Peripheral API
+ * @brief Digital to Analog Converter (DAC) Peripheral API
+ * @details
+ *  This module contains functions to control the DAC peripheral of Silicon
+ *  Labs 32-bit MCUs and SoCs. The DAC converts digital values to analog signals
+ *  at up to 500 ksps with 12-bit accuracy. The DAC is designed for low energy
+ *  consumption, but can also provide very good performance.
  * @{
  ******************************************************************************/
 
@@ -85,18 +90,14 @@ void DAC_Enable(DAC_TypeDef *dac, unsigned int ch, bool enable)
   EFM_ASSERT(DAC_REF_VALID(dac));
   EFM_ASSERT(DAC_CH_VALID(ch));
 
-  if (!ch)
-  {
+  if (!ch) {
     reg = &(dac->CH0CTRL);
-  }
-  else
-  {
+  } else {
     reg = &(dac->CH1CTRL);
   }
 
   BUS_RegBitWrite(reg, _DAC_CH0CTRL_EN_SHIFT, enable);
 }
-
 
 /***************************************************************************//**
  * @brief
@@ -126,8 +127,7 @@ void DAC_Init(DAC_TypeDef *dac, const DAC_Init_TypeDef *init)
   BUS_RegBitWrite(&(dac->CH1CTRL), _DAC_CH0CTRL_EN_SHIFT, 0);
 
   /* Load proper calibration data depending on selected reference */
-  switch (init->reference)
-  {
+  switch (init->reference) {
     case dacRef2V5:
       dac->CAL = DEVINFO->DAC0CAL1;
       break;
@@ -148,29 +148,24 @@ void DAC_Init(DAC_TypeDef *dac, const DAC_Init_TypeDef *init)
         | ((uint32_t)(init->outMode)   << _DAC_CTRL_OUTMODE_SHIFT)
         | ((uint32_t)(init->convMode)  << _DAC_CTRL_CONVMODE_SHIFT);
 
-  if (init->ch0ResetPre)
-  {
+  if (init->ch0ResetPre) {
     tmp |= DAC_CTRL_CH0PRESCRST;
   }
 
-  if (init->outEnablePRS)
-  {
+  if (init->outEnablePRS) {
     tmp |= DAC_CTRL_OUTENPRS;
   }
 
-  if (init->sineEnable)
-  {
+  if (init->sineEnable) {
     tmp |= DAC_CTRL_SINEMODE;
   }
 
-  if (init->diff)
-  {
+  if (init->diff) {
     tmp |= DAC_CTRL_DIFF;
   }
 
   dac->CTRL = tmp;
 }
-
 
 /***************************************************************************//**
  * @brief
@@ -196,31 +191,24 @@ void DAC_InitChannel(DAC_TypeDef *dac,
 
   tmp = (uint32_t)(init->prsSel) << _DAC_CH0CTRL_PRSSEL_SHIFT;
 
-  if (init->enable)
-  {
+  if (init->enable) {
     tmp |= DAC_CH0CTRL_EN;
   }
 
-  if (init->prsEnable)
-  {
+  if (init->prsEnable) {
     tmp |= DAC_CH0CTRL_PRSEN;
   }
 
-  if (init->refreshEnable)
-  {
+  if (init->refreshEnable) {
     tmp |= DAC_CH0CTRL_REFREN;
   }
 
-  if (ch)
-  {
+  if (ch) {
     dac->CH1CTRL = tmp;
-  }
-  else
-  {
+  } else {
     dac->CH0CTRL = tmp;
   }
 }
-
 
 /***************************************************************************//**
  * @brief
@@ -239,12 +227,11 @@ void DAC_InitChannel(DAC_TypeDef *dac,
  * @param[in] value
  *   Value to write to the channel output register CHnDATA.
  ******************************************************************************/
-void DAC_ChannelOutputSet( DAC_TypeDef *dac,
-                           unsigned int channel,
-                           uint32_t     value )
+void DAC_ChannelOutputSet(DAC_TypeDef *dac,
+                          unsigned int channel,
+                          uint32_t     value)
 {
-  switch(channel)
-  {
+  switch (channel) {
     case 0:
       DAC_Channel0OutputSet(dac, value);
       break;
@@ -256,7 +243,6 @@ void DAC_ChannelOutputSet( DAC_TypeDef *dac,
       break;
   }
 }
-
 
 /***************************************************************************//**
  * @brief
@@ -284,36 +270,32 @@ uint8_t DAC_PrescaleCalc(uint32_t dacFreq, uint32_t hfperFreq)
   uint32_t ret;
 
   /* Make sure selected DAC clock is below max value */
-  if (dacFreq > DAC_MAX_CLOCK)
-  {
+  if (dacFreq > DAC_MAX_CLOCK) {
     dacFreq = DAC_MAX_CLOCK;
   }
 
   /* Use current HFPER frequency? */
-  if (!hfperFreq)
-  {
+  if (!hfperFreq) {
     hfperFreq = CMU_ClockFreqGet(cmuClock_HFPER);
   }
 
   /* Iterate in order to determine best prescale value. Only a few possible */
   /* values. We start with lowest prescaler value in order to get first */
   /* equal or below wanted DAC frequency value. */
-  for (ret = 0; ret <= (_DAC_CTRL_PRESC_MASK >> _DAC_CTRL_PRESC_SHIFT); ret++)
-  {
-    if ((hfperFreq >> ret) <= dacFreq)
+  for (ret = 0; ret <= (_DAC_CTRL_PRESC_MASK >> _DAC_CTRL_PRESC_SHIFT); ret++) {
+    if ((hfperFreq >> ret) <= dacFreq) {
       break;
+    }
   }
 
   /* If ret is higher than the max prescaler value, make sure to return
      the max value. */
-  if (ret > (_DAC_CTRL_PRESC_MASK >> _DAC_CTRL_PRESC_SHIFT))
-  {
+  if (ret > (_DAC_CTRL_PRESC_MASK >> _DAC_CTRL_PRESC_SHIFT)) {
     ret = _DAC_CTRL_PRESC_MASK >> _DAC_CTRL_PRESC_SHIFT;
   }
 
   return (uint8_t)ret;
 }
-
 
 /***************************************************************************//**
  * @brief
@@ -335,7 +317,6 @@ void DAC_Reset(DAC_TypeDef *dac)
   /* Do not reset route register, setting should be done independently */
 }
 
-
 /** @} (end addtogroup DAC) */
-/** @} (end addtogroup EM_Library) */
+/** @} (end addtogroup emlib) */
 #endif /* defined(DAC_COUNT) && (DAC_COUNT > 0) */

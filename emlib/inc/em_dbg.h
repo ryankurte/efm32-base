@@ -1,10 +1,10 @@
 /***************************************************************************//**
  * @file em_dbg.h
  * @brief Debug (DBG) API
- * @version 4.2.1
+ * @version 5.2.1
  *******************************************************************************
- * @section License
- * <b>(C) Copyright 2015 Silicon Labs, http://www.silabs.com</b>
+ * # License
+ * <b>Copyright 2016 Silicon Laboratories, Inc. http://www.silabs.com</b>
  *******************************************************************************
  *
  * Permission is granted to anyone to use this software for any purpose,
@@ -30,21 +30,20 @@
  *
  ******************************************************************************/
 
-
-#ifndef __SILICON_LABS_EM_DBG_H__
-#define __SILICON_LABS_EM_DBG_H__
+#ifndef EM_DBG_H
+#define EM_DBG_H
 
 #include <stdbool.h>
 #include "em_device.h"
 
-#if defined( CoreDebug_DHCSR_C_DEBUGEN_Msk )
+#if defined(CoreDebug_DHCSR_C_DEBUGEN_Msk)
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 /***************************************************************************//**
- * @addtogroup EM_Library
+ * @addtogroup emlib
  * @{
  ******************************************************************************/
 
@@ -57,7 +56,7 @@ extern "C" {
  *****************************   PROTOTYPES   **********************************
  ******************************************************************************/
 
-#if defined( GPIO_ROUTE_SWCLKPEN ) || defined( GPIO_ROUTEPEN_SWCLKTCKPEN )
+#if defined(GPIO_ROUTE_SWCLKPEN) || defined(GPIO_ROUTEPEN_SWCLKTCKPEN)
 /***************************************************************************//**
  * @brief
  *   Check if a debugger is connected (and debug session activated)
@@ -76,13 +75,12 @@ __STATIC_INLINE bool DBG_Connected(void)
 }
 #endif
 
-
-#if defined( GPIO_ROUTE_SWOPEN ) || defined( GPIO_ROUTEPEN_SWVPEN )
+#if defined(GPIO_ROUTE_SWOPEN) || defined(GPIO_ROUTEPEN_SWVPEN)
 void DBG_SWOEnable(unsigned int location);
 #endif
 
 /** @} (end addtogroup DBG) */
-/** @} (end addtogroup EM_Library) */
+/** @} (end addtogroup emlib) */
 
 #ifdef __cplusplus
 }
@@ -90,4 +88,4 @@ void DBG_SWOEnable(unsigned int location);
 
 #endif /* defined( CoreDebug_DHCSR_C_DEBUGEN_Msk ) */
 
-#endif /* __SILICON_LABS_EM_DBG_H__ */
+#endif /* EM_DBG_H */

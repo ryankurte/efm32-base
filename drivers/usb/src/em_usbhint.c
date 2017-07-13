@@ -1,9 +1,9 @@
 /***************************************************************************//**
  * @file em_usbhint.c
  * @brief USB protocol stack library, USB host peripheral interrupt handlers.
- * @version 4.2.1
+ * @version 5.2.1
  *******************************************************************************
- * @section License
+ * # License
  * <b>(C) Copyright 2014 Silicon Labs, http://www.silabs.com</b>
  *******************************************************************************
  *
@@ -14,63 +14,63 @@
  ******************************************************************************/
 
 #include "em_device.h"
-#if defined( USB_PRESENT ) && ( USB_COUNT == 1 )
+#if defined(USB_PRESENT) && (USB_COUNT == 1)
 #include "em_usb.h"
-#if defined( USB_HOST )
+#if defined(USB_HOST)
 
+#include "em_core.h"
 #include "em_usbtypes.h"
 #include "em_usbhal.h"
 #include "em_usbh.h"
-#if ( USB_VBUSOVRCUR_PORT != USB_VBUSOVRCUR_PORT_NONE )
+#if (USB_VBUSOVRCUR_PORT != USB_VBUSOVRCUR_PORT_NONE)
 #include "em_gpio.h"
 #endif
 
 /** @cond DO_NOT_INCLUDE_WITH_DOXYGEN */
 
-#define HANDLE_INT( x ) if ( status & x ) { Handle_##x(); status &= ~x; }
+#define HANDLE_INT(x) if ( status & x ) { Handle_##x(); status &= ~x; }
 
 #define FIFO_TXSTS_HCNUM_MASK  0x78000000
 #define FIFO_TXSTS_HCNUM_SHIFT 27
 
-static void Handle_HcInInt(  uint8_t hcnum );
-static void Handle_HcOutInt( uint8_t hcnum );
-static void Handle_USB_GINTSTS_DISCONNINT ( void );
-static void Handle_USB_GINTSTS_HCHINT     ( void );
-static void Handle_USB_GINTSTS_PRTINT     ( void );
+static void Handle_HcInInt(uint8_t hcnum);
+static void Handle_HcOutInt(uint8_t hcnum);
+static void Handle_USB_GINTSTS_DISCONNINT (void);
+static void Handle_USB_GINTSTS_HCHINT     (void);
+static void Handle_USB_GINTSTS_PRTINT     (void);
 
 /*
  * USB_IRQHandler() is the first level handler for the USB peripheral interrupt.
  */
-void USB_IRQHandler( void )
+void USB_IRQHandler(void)
 {
   uint32_t status;
+  CORE_DECLARE_IRQ_STATE;
 
-  INT_Disable();
+  CORE_ENTER_ATOMIC();
 
   status = USBHAL_GetCoreInts();
-  if ( status == 0 )
-  {
-    INT_Enable();
-    DEBUG_USB_INT_LO_PUTS( "\nSinT" );
+  if ( status == 0 ) {
+    CORE_EXIT_ATOMIC();
+    DEBUG_USB_INT_LO_PUTS("\nSinT");
     return;
   }
 
-  HANDLE_INT( USB_GINTSTS_HCHINT     )
-  HANDLE_INT( USB_GINTSTS_PRTINT     )
-  HANDLE_INT( USB_GINTSTS_DISCONNINT )
+  HANDLE_INT(USB_GINTSTS_HCHINT)
+  HANDLE_INT(USB_GINTSTS_PRTINT)
+  HANDLE_INT(USB_GINTSTS_DISCONNINT)
 
-  INT_Enable();
+  CORE_EXIT_ATOMIC();
 
-  if ( status != 0 )
-  {
-    DEBUG_USB_INT_LO_PUTS( "\nUinT" );
+  if ( status != 0 ) {
+    DEBUG_USB_INT_LO_PUTS("\nUinT");
   }
 }
 
 /*
  * Handle host channel IN transfer interrupt.
  */
-static void Handle_HcInInt( uint8_t hcnum )
+static void Handle_HcInInt(uint8_t hcnum)
 {
   USBH_Hc_TypeDef *hc;
   USB_Status_TypeDef result;
@@ -79,116 +79,92 @@ static void Handle_HcInInt( uint8_t hcnum )
   uint32_t status2;
 #endif
 
-  hc = &hcs[ hcnum ];
-  status = USBHHAL_GetHcInts( hcnum );
-  hcchar = USB->HC[ hcnum ].CHAR;
+  hc = &hcs[hcnum];
+  status = USBHHAL_GetHcInts(hcnum);
+  hcchar = USB->HC[hcnum].CHAR;
   eptype = hcchar & _USB_HC_CHAR_EPTYPE_MASK;
 
-  DEBUG_USB_INT_HI_PUTCHAR( 'i' );
+  DEBUG_USB_INT_HI_PUTCHAR('i');
 
-  if ( status & USB_HC_INT_CHHLTD )
-  {
-    USB->HC[ hcnum ].INT = 0xFFFFFFFF;
+  if ( status & USB_HC_INT_CHHLTD ) {
+    USB->HC[hcnum].INT = 0xFFFFFFFF;
 
 #ifdef DEBUG_USB_INT_HI
     status2 = status;
 #endif
-    status &= USB_HC_INT_XFERCOMPL | USB_HC_INT_STALL | USB_HC_INT_XACTERR |
-              USB_HC_INT_ACK | USB_HC_INT_NAK | USB_HC_INT_DATATGLERR |
-              USB_HC_INT_BBLERR;
+    status &= USB_HC_INT_XFERCOMPL | USB_HC_INT_STALL | USB_HC_INT_XACTERR
+              | USB_HC_INT_ACK | USB_HC_INT_NAK | USB_HC_INT_DATATGLERR
+              | USB_HC_INT_BBLERR;
 
-    if ( ( status & ( USB_HC_INT_ACK | USB_HC_INT_XFERCOMPL ) ) ==
-         ( USB_HC_INT_ACK | USB_HC_INT_XFERCOMPL              )    )
-    {
-      DEBUG_USB_INT_HI_PUTCHAR( 'c' );
+    if ( (status & (USB_HC_INT_ACK | USB_HC_INT_XFERCOMPL) )
+         == (USB_HC_INT_ACK | USB_HC_INT_XFERCOMPL)) {
+      DEBUG_USB_INT_HI_PUTCHAR('c');
 
-      hc->xferred = hc->hwXferSize -
-                    ( ( USB->HC[ hcnum ].TSIZ & _USB_HC_TSIZ_XFERSIZE_MASK ) >>
-                      _USB_HC_TSIZ_XFERSIZE_SHIFT );
+      hc->xferred = hc->hwXferSize
+                    - ( (USB->HC[hcnum].TSIZ & _USB_HC_TSIZ_XFERSIZE_MASK)
+                        >> _USB_HC_TSIZ_XFERSIZE_SHIFT);
 
       hc->remaining -= hc->xferred;
-      hc->ep->toggle = ( USB->HC[ hcnum ].TSIZ & _USB_HC_TSIZ_PID_MASK ) ==
-                       USB_HC_TSIZ_PID_DATA0 ? USB_PID_DATA0 : USB_PID_DATA1;
+      hc->ep->toggle = (USB->HC[hcnum].TSIZ & _USB_HC_TSIZ_PID_MASK)
+                       == USB_HC_TSIZ_PID_DATA0 ? USB_PID_DATA0 : USB_PID_DATA1;
 
       result = USB_STATUS_OK;
-    }
-
-    else if ( status & USB_HC_INT_STALL )
-    {
+    } else if ( status & USB_HC_INT_STALL ) {
       result = USB_STATUS_EP_STALLED;
-      DEBUG_USB_INT_LO_PUTS( "StaL" );
-    }
-
-    else if ( status & USB_HC_INT_BBLERR )
-    {
+      DEBUG_USB_INT_LO_PUTS("StaL");
+    } else if ( status & USB_HC_INT_BBLERR ) {
       result = USB_STATUS_EP_ERROR;
-      DEBUG_USB_INT_LO_PUTS( "BabL" );
-    }
-
-    else if ( ( ( status &
-                  ( USB_HC_INT_DATATGLERR | USB_HC_INT_NAK ) )
-                == USB_HC_INT_DATATGLERR                       ) &&
-              ( !( hc->status & HCS_TIMEOUT )                  )    )
-    {
+      DEBUG_USB_INT_LO_PUTS("BabL");
+    } else if ( ( (status & (USB_HC_INT_DATATGLERR | USB_HC_INT_NAK))
+                  == USB_HC_INT_DATATGLERR)
+                && (!(hc->status & HCS_TIMEOUT))) {
       /* Toggle error but not nak or timeout */
       result = USB_STATUS_EP_ERROR;
-      DEBUG_USB_INT_LO_PUTS( "TglE" );
+      DEBUG_USB_INT_LO_PUTS("TglE");
 
       hc->errorCnt++;
-      if ( hc->errorCnt < 3 )
-      {
-        USBHHAL_HCStart( hcnum );
+      if ( hc->errorCnt < 3 ) {
+        USBHHAL_HCStart(hcnum);
         return;
       }
-    }
-
-    else if ( ( ( status &
-                  ( USB_HC_INT_DATATGLERR | USB_HC_INT_NAK |
-                    USB_HC_INT_XACTERR )                       )
-                == USB_HC_INT_XACTERR                            ) &&
-              ( !( hc->status & HCS_TIMEOUT )                    )    )
-    {
+    } else if ( ( (status & (USB_HC_INT_DATATGLERR | USB_HC_INT_NAK
+                             | USB_HC_INT_XACTERR))
+                  == USB_HC_INT_XACTERR)
+                && (!(hc->status & HCS_TIMEOUT))) {
       /* Exact error but not toggle err or nak or timeout */
       result = USB_STATUS_EP_ERROR;
-      DEBUG_USB_INT_LO_PUTS( "XacT" );
+      DEBUG_USB_INT_LO_PUTS("XacT");
 
       hc->errorCnt++;
-      if ( hc->errorCnt < 3 )
-      {
-        USBHHAL_HCStart( hcnum );
+      if ( hc->errorCnt < 3 ) {
+        USBHHAL_HCStart(hcnum);
         return;
       }
-    }
-
-    else if ( hc->status & HCS_TIMEOUT )
-    {
-      DEBUG_USB_INT_HI_PUTCHAR( 't' );
+    } else if ( hc->status & HCS_TIMEOUT ) {
+      DEBUG_USB_INT_HI_PUTCHAR('t');
       result = USB_STATUS_TIMEOUT;
-    }
-
-    else
-    {
+    } else {
 #ifdef DEBUG_USB_INT_HI
-      if ( !( ( eptype == HCCHAR_EPTYPE_INTR                  ) &&
-              ( ( status & USB_HC_INT_NAK ) == USB_HC_INT_NAK )    ) )
-        {
-          USB_PRINTF( "0x%08lX", status2 );
-        }
+      if ( !( (eptype == HCCHAR_EPTYPE_INTR)
+              && ( (status & USB_HC_INT_NAK) == USB_HC_INT_NAK))) {
+        USB_PRINTF("0x%08lX", status2);
+      }
 #endif
       return;
     }
 
-    if ( eptype == HCCHAR_EPTYPE_CTRL )
-      USBHEP_CtrlEpHandler( hc->ep, result );
-    else
-      USBHEP_EpHandler( hc->ep, result );
+    if ( eptype == HCCHAR_EPTYPE_CTRL ) {
+      USBHEP_CtrlEpHandler(hc->ep, result);
+    } else {
+      USBHEP_EpHandler(hc->ep, result);
+    }
   }
 }
 
 /*
  * Handle host channel OUT transfer interrupt.
  */
-static void Handle_HcOutInt( uint8_t hcnum )
+static void Handle_HcOutInt(uint8_t hcnum)
 {
   USBH_Hc_TypeDef *hc;
   USB_Status_TypeDef result;
@@ -197,92 +173,74 @@ static void Handle_HcOutInt( uint8_t hcnum )
   uint32_t status2;
 #endif
 
-  hc = &hcs[ hcnum ];
-  status = USBHHAL_GetHcInts( hcnum );
-  hcchar = USB->HC[ hcnum ].CHAR;
+  hc = &hcs[hcnum];
+  status = USBHHAL_GetHcInts(hcnum);
+  hcchar = USB->HC[hcnum].CHAR;
   eptype = hcchar & _USB_HC_CHAR_EPTYPE_MASK;
 
-  DEBUG_USB_INT_HI_PUTCHAR( 'o' );
+  DEBUG_USB_INT_HI_PUTCHAR('o');
 
-  if ( status & USB_HC_INT_CHHLTD )
-  {
-    USB->HC[ hcnum ].INT = 0xFFFFFFFF;
+  if ( status & USB_HC_INT_CHHLTD ) {
+    USB->HC[hcnum].INT = 0xFFFFFFFF;
 
 #ifdef DEBUG_USB_INT_HI
     status2 = status;
 #endif
-    status &= USB_HC_INT_XFERCOMPL | USB_HC_INT_STALL | USB_HC_INT_XACTERR |
-              USB_HC_INT_ACK | USB_HC_INT_NAK;
+    status &= USB_HC_INT_XFERCOMPL | USB_HC_INT_STALL | USB_HC_INT_XACTERR
+              | USB_HC_INT_ACK | USB_HC_INT_NAK;
 
-    if ( ( status & ( USB_HC_INT_ACK | USB_HC_INT_XFERCOMPL ) ) ==
-         ( USB_HC_INT_ACK | USB_HC_INT_XFERCOMPL              )    )
-    {
-      DEBUG_USB_INT_HI_PUTCHAR( 'c' );
+    if ( (status & (USB_HC_INT_ACK | USB_HC_INT_XFERCOMPL) )
+         == (USB_HC_INT_ACK | USB_HC_INT_XFERCOMPL)) {
+      DEBUG_USB_INT_HI_PUTCHAR('c');
 
       hc->xferred   = hc->remaining;
       hc->remaining = 0;
-      hc->ep->toggle = ( USB->HC[ hcnum ].TSIZ & _USB_HC_TSIZ_PID_MASK ) ==
-                       USB_HC_TSIZ_PID_DATA0 ? USB_PID_DATA0 : USB_PID_DATA1;
+      hc->ep->toggle = (USB->HC[hcnum].TSIZ & _USB_HC_TSIZ_PID_MASK)
+                       == USB_HC_TSIZ_PID_DATA0 ? USB_PID_DATA0 : USB_PID_DATA1;
 
       result = USB_STATUS_OK;
-    }
-
-    else if ( status & USB_HC_INT_STALL )
-    {
+    } else if ( status & USB_HC_INT_STALL ) {
       result = USB_STATUS_EP_STALLED;
-      DEBUG_USB_INT_LO_PUTS( "StaL" );
-    }
-
-    else if ( status & USB_HC_INT_XACTERR )
-    {
-      DEBUG_USB_INT_LO_PUTS( "XacT" );
-      if ( status & ( USB_HC_INT_ACK | USB_HC_INT_NAK ) )
-      {
+      DEBUG_USB_INT_LO_PUTS("StaL");
+    } else if ( status & USB_HC_INT_XACTERR ) {
+      DEBUG_USB_INT_LO_PUTS("XacT");
+      if ( status & (USB_HC_INT_ACK | USB_HC_INT_NAK) ) {
         hc->errorCnt = 0;
-        USBHHAL_HCStart( hcnum );
+        USBHHAL_HCStart(hcnum);
         return;
-      }
-      else
-      {
+      } else {
         hc->errorCnt++;
-        if ( hc->errorCnt < 3 )
-        {
-          USBHHAL_HCStart( hcnum );
+        if ( hc->errorCnt < 3 ) {
+          USBHHAL_HCStart(hcnum);
           return;
         }
       }
       result = USB_STATUS_EP_ERROR;
-    }
-
-    else if ( hc->status & HCS_TIMEOUT )
-    {
-      DEBUG_USB_INT_HI_PUTCHAR( 't' );
+    } else if ( hc->status & HCS_TIMEOUT ) {
+      DEBUG_USB_INT_HI_PUTCHAR('t');
       result = USB_STATUS_TIMEOUT;
-    }
-
-    else
-    {
+    } else {
 #ifdef DEBUG_USB_INT_HI
-      if ( !( ( eptype == HCCHAR_EPTYPE_INTR                  ) &&
-              ( ( status & USB_HC_INT_NAK ) == USB_HC_INT_NAK )    ) )
-        {
-          USB_PRINTF( "0x%08lX", status2 );
-        }
+      if ( !( (eptype == HCCHAR_EPTYPE_INTR)
+              && ( (status & USB_HC_INT_NAK) == USB_HC_INT_NAK))) {
+        USB_PRINTF("0x%08lX", status2);
+      }
 #endif
       return;
     }
 
-    if ( eptype == HCCHAR_EPTYPE_CTRL )
-      USBHEP_CtrlEpHandler( hc->ep, result );
-    else
-      USBHEP_EpHandler( hc->ep, result );
+    if ( eptype == HCCHAR_EPTYPE_CTRL ) {
+      USBHEP_CtrlEpHandler(hc->ep, result);
+    } else {
+      USBHEP_EpHandler(hc->ep, result);
+    }
   }
 }
 
 /*
  * Handle port disconnect interrupt.
  */
-static void Handle_USB_GINTSTS_DISCONNINT( void )
+static void Handle_USB_GINTSTS_DISCONNINT(void)
 {
   int i;
   uint32_t hcchar;
@@ -291,47 +249,40 @@ static void Handle_USB_GINTSTS_DISCONNINT( void )
   USB->HAINTMSK = 0;
 
   USBH_portStatus = H_PORT_DISCONNECTED;
-  USBTIMER_Stop( HOSTPORT_TIMER_INDEX );
-  USBHHAL_PortReset( false );
+  USBTIMER_Stop(HOSTPORT_TIMER_INDEX);
+  USBHHAL_PortReset(false);
 
-  for ( i=0; i< NUM_HC_USED + 2; i++ )
-  {
-    hcchar = USB->HC[ i ].CHAR;                 /* Halt channel             */
-    USBHHAL_HCHalt( i, hcchar );
-    USB->HC[ i ].INT = 0xFFFFFFFF;              /* Clear pending interrupts */
+  for ( i = 0; i < NUM_HC_USED + 2; i++ ) {
+    hcchar = USB->HC[i].CHAR;                   /* Halt channel             */
+    USBHHAL_HCHalt(i, hcchar);
+    USB->HC[i].INT = 0xFFFFFFFF;                /* Clear pending interrupts */
 
-    if ( !hcs[ i ].idle )
-    {
-      USBHEP_TransferDone( hcs[ i ].ep, USB_STATUS_DEVICE_REMOVED );
+    if ( !hcs[i].idle ) {
+      USBHEP_TransferDone(hcs[i].ep, USB_STATUS_DEVICE_REMOVED);
     }
   }
 
-  DEBUG_USB_INT_LO_PUTS( "\nDisC" );
+  DEBUG_USB_INT_LO_PUTS("\nDisC");
 }
 
 /*
  * Handle host channel interrupt. Call IN and OUT transfer handlers as needed.
  */
-static void Handle_USB_GINTSTS_HCHINT( void )
+static void Handle_USB_GINTSTS_HCHINT(void)
 {
   uint8_t hcnum;
   uint32_t hcints, hcmask;
 
   hcints = USBHHAL_GetHostChannelInts();
 
-  for ( hcnum = 0,               hcmask = 1;
+  for ( hcnum = 0, hcmask = 1;
         hcnum < NUM_HC_USED + 2;
-        hcnum++,                 hcmask <<= 1 )
-  {
-    if ( hcints & hcmask )
-    {
-      if ( USB->HC[ hcnum ].CHAR & USB_HC_CHAR_EPDIR )
-      {
-        Handle_HcInInt( hcnum );
-      }
-      else
-      {
-        Handle_HcOutInt( hcnum );
+        hcnum++, hcmask <<= 1 ) {
+    if ( hcints & hcmask ) {
+      if ( USB->HC[hcnum].CHAR & USB_HC_CHAR_EPDIR ) {
+        Handle_HcInInt(hcnum);
+      } else {
+        Handle_HcOutInt(hcnum);
       }
     }
   }
@@ -341,56 +292,47 @@ static void Handle_USB_GINTSTS_HCHINT( void )
  * Callback function for port interrupt state machine.
  * Called on timeout of the port timer when a port reset is completed.
  */
-static void PortResetComplete( void )
+static void PortResetComplete(void)
 {
-  if ( USB->HPRT & USB_HPRT_PRTCONNSTS ) /* Is device still connected ? */
-  {
-    DEBUG_USB_INT_LO_PUTCHAR( '5' );
-  }
-  else
-  {
+  if ( USB->HPRT & USB_HPRT_PRTCONNSTS ) { /* Is device still connected ? */
+    DEBUG_USB_INT_LO_PUTCHAR('5');
+  } else {
     USBH_portStatus = H_PORT_DISCONNECTED;
   }
-  USBHHAL_PortReset( false );
+  USBHHAL_PortReset(false);
 }
 
 /*
  * Callback function for port interrupt state machine.
  * Called on timeout of the port timer connection debounce time has expired.
  */
-static void PortDebounceComplete( void )
+static void PortDebounceComplete(void)
 {
   uint32_t hprt;
 
   hprt = USB->HPRT;                   /* Get port status */
 
-  if ( hprt & USB_HPRT_PRTCONNSTS )   /* Is device still connected ? */
-  {
-    if ( ( hprt & _USB_HPRT_PRTSPD_MASK ) == HPRT_L_SPEED )
-    {
-      DEBUG_USB_INT_LO_PUTCHAR( '3' );
+  if ( hprt & USB_HPRT_PRTCONNSTS ) { /* Is device still connected ? */
+    if ( (hprt & _USB_HPRT_PRTSPD_MASK) == HPRT_L_SPEED ) {
+      DEBUG_USB_INT_LO_PUTCHAR('3');
       USB->HFIR = 6000;
       /* Set 6 MHz PHY clock */
-      USB->HCFG = ( USB->HCFG & ~_USB_HCFG_FSLSPCLKSEL_MASK ) |
-                  ( 2 << _USB_HCFG_FSLSPCLKSEL_SHIFT        );
-    }
-    else if ( ( hprt & _USB_HPRT_PRTSPD_MASK ) == HPRT_F_SPEED )
-    {
-      DEBUG_USB_INT_LO_PUTCHAR( '4' );
+      USB->HCFG = (USB->HCFG & ~_USB_HCFG_FSLSPCLKSEL_MASK)
+                  | (2 << _USB_HCFG_FSLSPCLKSEL_SHIFT);
+    } else if ( (hprt & _USB_HPRT_PRTSPD_MASK) == HPRT_F_SPEED ) {
+      DEBUG_USB_INT_LO_PUTCHAR('4');
       USB->HFIR = 48000;
       /* Set 48 MHz PHY clock */
-      USB->HCFG = ( USB->HCFG & ~_USB_HCFG_FSLSPCLKSEL_MASK ) |
-                  ( 1 << _USB_HCFG_FSLSPCLKSEL_SHIFT        );
+      USB->HCFG = (USB->HCFG & ~_USB_HCFG_FSLSPCLKSEL_MASK)
+                  | (1 << _USB_HCFG_FSLSPCLKSEL_SHIFT);
     }
 
     USBH_portStatus = H_PORT_CONNECTED_RESETTING;
-    USBTIMER_Start( HOSTPORT_TIMER_INDEX,
-                    USBH_attachTiming[ USBH_attachRetryCount ].resetTime,
-                    PortResetComplete );
-    USBHHAL_PortReset( true );
-  }
-  else
-  {
+    USBTIMER_Start(HOSTPORT_TIMER_INDEX,
+                   USBH_attachTiming[USBH_attachRetryCount].resetTime,
+                   PortResetComplete);
+    USBHHAL_PortReset(true);
+  } else {
     USBH_portStatus = H_PORT_DISCONNECTED;
   }
 }
@@ -398,59 +340,54 @@ static void PortDebounceComplete( void )
 /*
  * Handle port interrupt.
  */
-static void Handle_USB_GINTSTS_PRTINT( void )
+static void Handle_USB_GINTSTS_PRTINT(void)
 {
   uint32_t hprt;
 
   hprt = USB->HPRT;                               /* Get port status */
 
-  DEBUG_USB_INT_LO_PUTCHAR( '^' );
+  DEBUG_USB_INT_LO_PUTCHAR('^');
 
-  switch ( USBH_portStatus )
-  {
+  switch ( USBH_portStatus ) {
     case H_PORT_DISCONNECTED:
-    /***********************/
-      if ( ( hprt & USB_HPRT_PRTCONNDET ) &&
-           ( hprt & USB_HPRT_PRTCONNSTS )    )    /* Any device connected ? */
-      {
-        DEBUG_USB_INT_LO_PUTCHAR( '2' );
+      /***********************/
+      if ( (hprt & USB_HPRT_PRTCONNDET)
+           && (hprt & USB_HPRT_PRTCONNSTS)) {     /* Any device connected ? */
+        DEBUG_USB_INT_LO_PUTCHAR('2');
         USBH_portStatus = H_PORT_CONNECTED_DEBOUNCING;
-        USBTIMER_Start( HOSTPORT_TIMER_INDEX,
-                        USBH_attachTiming[ USBH_attachRetryCount ].debounceTime,
-                        PortDebounceComplete );
+        USBTIMER_Start(HOSTPORT_TIMER_INDEX,
+                       USBH_attachTiming[USBH_attachRetryCount].debounceTime,
+                       PortDebounceComplete);
       }
       break;
 
     case H_PORT_CONNECTED_DEBOUNCING:
-    /***********************/
-      DEBUG_USB_INT_LO_PUTCHAR( 'Y' );
+      /***********************/
+      DEBUG_USB_INT_LO_PUTCHAR('Y');
       break;
 
     case H_PORT_CONNECTED_RESETTING:
-    /***********************/
-      if ( ( hprt & USB_HPRT_PRTENCHNG  ) &&    /* Port enable changed ?    */
-           ( hprt & USB_HPRT_PRTENA     ) &&    /* Port enabled ?           */
-           ( hprt & USB_HPRT_PRTCONNSTS )    )  /* Device still connected ? */
-      {
-        DEBUG_USB_INT_LO_PUTCHAR( '6' );
+      /***********************/
+      if ( (hprt & USB_HPRT_PRTENCHNG)          /* Port enable changed ?    */
+           && (hprt & USB_HPRT_PRTENA)          /* Port enabled ?           */
+           && (hprt & USB_HPRT_PRTCONNSTS)) {   /* Device still connected ? */
+        DEBUG_USB_INT_LO_PUTCHAR('6');
         USBH_portStatus = H_PORT_CONNECTED;
       }
       break;
 
     case H_PORT_CONNECTED:
-    /***********************/
-      if ( (    hprt & USB_HPRT_PRTENCHNG ) &&
-           ( !( hprt & USB_HPRT_PRTENA )  )    )
-      {
-        DEBUG_USB_INT_LO_PUTCHAR( 'X' );
-#if ( USB_VBUSOVRCUR_PORT != USB_VBUSOVRCUR_PORT_NONE )
-        if ( GPIO_PinInGet( USB_VBUSOVRCUR_PORT, USB_VBUSOVRCUR_PIN ) ==
-             USB_VBUSOVRCUR_POLARITY )
-        {
-          DEBUG_USB_INT_LO_PUTCHAR( '~' );
-          USBHHAL_PortReset( false );
-          USBHHAL_VbusOn( false );
-          USBTIMER_Stop( HOSTPORT_TIMER_INDEX );
+      /***********************/
+      if ( (hprt & USB_HPRT_PRTENCHNG)
+           && (!(hprt & USB_HPRT_PRTENA))) {
+        DEBUG_USB_INT_LO_PUTCHAR('X');
+#if (USB_VBUSOVRCUR_PORT != USB_VBUSOVRCUR_PORT_NONE)
+        if ( GPIO_PinInGet(USB_VBUSOVRCUR_PORT, USB_VBUSOVRCUR_PIN)
+             == USB_VBUSOVRCUR_POLARITY ) {
+          DEBUG_USB_INT_LO_PUTCHAR('~');
+          USBHHAL_PortReset(false);
+          USBHHAL_VbusOn(false);
+          USBTIMER_Stop(HOSTPORT_TIMER_INDEX);
           USBH_portStatus = H_PORT_OVERCURRENT;
         }
 #endif
@@ -458,13 +395,12 @@ static void Handle_USB_GINTSTS_PRTINT( void )
       break;
 
     case H_PORT_OVERCURRENT:
-    /***********************/
+      /***********************/
       break;
   }
 
-  if ( hprt & USB_HPRT_PRTOVRCURRCHNG ) /* Overcurrent change interrupt ? */
-  {
-    DEBUG_USB_INT_LO_PUTCHAR( '9' );
+  if ( hprt & USB_HPRT_PRTOVRCURRCHNG ) { /* Overcurrent change interrupt ? */
+    DEBUG_USB_INT_LO_PUTCHAR('9');
   }
 
   hprt &= ~HPRT_WC_MASK;              /* Mask off all write clear bits  */

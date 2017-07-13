@@ -1,10 +1,10 @@
 /**************************************************************************//**
  * @file efm32jg1b_ldma.h
  * @brief EFM32JG1B_LDMA register and bit field definitions
- * @version 4.2.1
+ * @version 5.2.1
  ******************************************************************************
- * @section License
- * <b>Copyright 2015 Silicon Laboratories, Inc. http://www.silabs.com</b>
+ * # License
+ * <b>Copyright 2017 Silicon Laboratories, Inc. http://www.silabs.com</b>
  ******************************************************************************
  *
  * Permission is granted to anyone to use this software for any purpose,
@@ -29,42 +29,52 @@
  * any third party, arising from your use of this Software.
  *
  *****************************************************************************/
+
+#if defined(__ICCARM__)
+#pragma system_include       /* Treat file as system include file. */
+#elif defined(__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050)
+#pragma clang system_header  /* Treat file as system include file. */
+#endif
+
 /**************************************************************************//**
 * @addtogroup Parts
 * @{
 ******************************************************************************/
 /**************************************************************************//**
- * @defgroup EFM32JG1B_LDMA
+ * @defgroup EFM32JG1B_LDMA LDMA
  * @{
  * @brief EFM32JG1B_LDMA Register Declaration
  *****************************************************************************/
+/** LDMA Register Declaration */
 typedef struct
 {
-  __IO uint32_t   CTRL;         /**< DMA Control Register  */
-  __I uint32_t    STATUS;       /**< DMA Status Register  */
-  __IO uint32_t   SYNC;         /**< DMA Synchronization Trigger Register (Single-Cycle RMW)  */
+  __IOM uint32_t  CTRL;         /**< DMA Control Register  */
+  __IM uint32_t   STATUS;       /**< DMA Status Register  */
+  __IOM uint32_t  SYNC;         /**< DMA Synchronization Trigger Register (Single-Cycle RMW)  */
   uint32_t        RESERVED0[5]; /**< Reserved for future use **/
-  __IO uint32_t   CHEN;         /**< DMA Channel Enable Register (Single-Cycle RMW)  */
-  __I uint32_t    CHBUSY;       /**< DMA Channel Busy Register  */
-  __IO uint32_t   CHDONE;       /**< DMA Channel Linking Done Register (Single-Cycle RMW)  */
-  __IO uint32_t   DBGHALT;      /**< DMA Channel Debug Halt Register  */
-  __IO uint32_t   SWREQ;        /**< DMA Channel Software Transfer Request Register  */
-  __IO uint32_t   REQDIS;       /**< DMA Channel Request Disable Register  */
-  __I uint32_t    REQPEND;      /**< DMA Channel Requests Pending Register  */
-  __IO uint32_t   LINKLOAD;     /**< DMA Channel Link Load Register  */
-  __IO uint32_t   REQCLEAR;     /**< DMA Channel Request Clear Register  */
+  __IOM uint32_t  CHEN;         /**< DMA Channel Enable Register (Single-Cycle RMW)  */
+  __IM uint32_t   CHBUSY;       /**< DMA Channel Busy Register  */
+  __IOM uint32_t  CHDONE;       /**< DMA Channel Linking Done Register (Single-Cycle RMW)  */
+  __IOM uint32_t  DBGHALT;      /**< DMA Channel Debug Halt Register  */
+  __IOM uint32_t  SWREQ;        /**< DMA Channel Software Transfer Request Register  */
+  __IOM uint32_t  REQDIS;       /**< DMA Channel Request Disable Register  */
+  __IM uint32_t   REQPEND;      /**< DMA Channel Requests Pending Register  */
+  __IOM uint32_t  LINKLOAD;     /**< DMA Channel Link Load Register  */
+  __IOM uint32_t  REQCLEAR;     /**< DMA Channel Request Clear Register  */
   uint32_t        RESERVED1[7]; /**< Reserved for future use **/
-  __I uint32_t    IF;           /**< Interrupt Flag Register  */
-  __IO uint32_t   IFS;          /**< Interrupt Flag Set Register  */
-  __IO uint32_t   IFC;          /**< Interrupt Flag Clear Register  */
-  __IO uint32_t   IEN;          /**< Interrupt Enable register  */
+  __IM uint32_t   IF;           /**< Interrupt Flag Register  */
+  __IOM uint32_t  IFS;          /**< Interrupt Flag Set Register  */
+  __IOM uint32_t  IFC;          /**< Interrupt Flag Clear Register  */
+  __IOM uint32_t  IEN;          /**< Interrupt Enable register  */
 
   uint32_t        RESERVED2[4]; /**< Reserved registers */
   LDMA_CH_TypeDef CH[8];        /**< DMA Channel Registers */
 } LDMA_TypeDef;                 /** @} */
 
 /**************************************************************************//**
- * @defgroup EFM32JG1B_LDMA_BitFields
+ * @addtogroup EFM32JG1B_LDMA
+ * @{
+ * @defgroup EFM32JG1B_LDMA_BitFields  LDMA Bit Fields
  * @{
  *****************************************************************************/
 
@@ -556,6 +566,7 @@ typedef struct
 #define _LDMA_CH_LINK_LINKADDR_DEFAULT               0x00000000UL                           /**< Mode DEFAULT for LDMA_CH_LINK */
 #define LDMA_CH_LINK_LINKADDR_DEFAULT                (_LDMA_CH_LINK_LINKADDR_DEFAULT << 2)  /**< Shifted mode DEFAULT for LDMA_CH_LINK */
 
+/** @} */
 /** @} End of group EFM32JG1B_LDMA */
 /** @} End of group Parts */
 

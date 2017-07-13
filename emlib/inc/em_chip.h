@@ -1,10 +1,10 @@
 /***************************************************************************//**
  * @file em_chip.h
  * @brief Chip Initialization API
- * @version 4.2.1
+ * @version 5.2.1
  *******************************************************************************
- * @section License
- * <b>(C) Copyright 2015 Silicon Labs, http://www.silabs.com</b>
+ * # License
+ * <b>Copyright 2016 Silicon Laboratories, Inc. http://www.silabs.com</b>
  *******************************************************************************
  *
  * Permission is granted to anyone to use this software for any purpose,
@@ -30,30 +30,38 @@
  *
  ******************************************************************************/
 
-#ifndef __SILICON_LABS_EM_CHIP_H__
-#define __SILICON_LABS_EM_CHIP_H__
+#ifndef EM_CHIP_H
+#define EM_CHIP_H
 
 #include "em_device.h"
 #include "em_system.h"
+#include "em_gpio.h"
+#include "em_bus.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 /***************************************************************************//**
- * @addtogroup EM_Library
+ * @addtogroup emlib
  * @{
  ******************************************************************************/
 
 /***************************************************************************//**
  * @addtogroup CHIP
- * @brief Chip Initialization API
+ * @brief Chip errata workarounds initialization API
+ * @details
+ *  API to initialize chip for errata workarounds.
  * @{
  ******************************************************************************/
 
 /**************************************************************************//**
  * @brief
- *   Chip initialization routine for revision errata workarounds
+ *   Chip initialization routine for revision errata workarounds. This function
+ *   must be called immediately in main().
+ *
+ * @note
+ *   This function must be called immediately in main().
  *
  * This init function will configure the device to a state where it is
  * as similar as later revisions as possible, to improve software compatibility
@@ -61,15 +69,14 @@ extern "C" {
  *****************************************************************************/
 __STATIC_INLINE void CHIP_Init(void)
 {
-#if defined(_EFM32_GECKO_FAMILY)
+#if defined(_SILICON_LABS_32B_SERIES_0) && defined(_EFM32_GECKO_FAMILY)
   uint32_t                    rev;
   SYSTEM_ChipRevision_TypeDef chipRev;
   volatile uint32_t           *reg;
 
   rev = *(volatile uint32_t *)(0x0FE081FC);
   /* Engineering Sample calibration setup */
-  if ((rev >> 24) == 0)
-  {
+  if ((rev >> 24) == 0) {
     reg   = (volatile uint32_t *)0x400CA00C;
     *reg &= ~(0x70UL);
     /* DREG */
@@ -77,8 +84,7 @@ __STATIC_INLINE void CHIP_Init(void)
     *reg &= ~(0xE0000000UL);
     *reg |= ~(7UL << 25);
   }
-  if ((rev >> 24) <= 3)
-  {
+  if ((rev >> 24) <= 3) {
     /* DREG */
     reg   = (volatile uint32_t *)0x400C6020;
     *reg &= ~(0x00001F80UL);
@@ -96,12 +102,10 @@ __STATIC_INLINE void CHIP_Init(void)
   }
 
   SYSTEM_ChipRevisionGet(&chipRev);
-  if (chipRev.major == 0x01)
-  {
+  if (chipRev.major == 0x01) {
     /* Rev A errata handling for EM2/3. Must enable DMA clock in order for EM2/3 */
     /* to work. This will be fixed in later chip revisions, so only do for rev A. */
-    if (chipRev.minor == 00)
-    {
+    if (chipRev.minor == 00) {
       reg   = (volatile uint32_t *)0x400C8040;
       *reg |= 0x2;
     }
@@ -109,16 +113,14 @@ __STATIC_INLINE void CHIP_Init(void)
     /* Rev A+B errata handling for I2C when using EM2/3. USART0 clock must be enabled */
     /* after waking up from EM2/EM3 in order for I2C to work. This will be fixed in */
     /* later chip revisions, so only do for rev A+B. */
-    if (chipRev.minor <= 0x01)
-    {
+    if (chipRev.minor <= 0x01) {
       reg   = (volatile uint32_t *)0x400C8044;
       *reg |= 0x1;
     }
   }
   /* Ensure correct ADC/DAC calibration value */
   rev = *(volatile uint32_t *)0x0FE081F0;
-  if (rev < 0x4C8ABA00)
-  {
+  if (rev < 0x4C8ABA00) {
     uint32_t cal;
 
     /* Enable ADC/DAC clocks */
@@ -126,17 +128,17 @@ __STATIC_INLINE void CHIP_Init(void)
     *reg |= (1 << 14 | 1 << 11);
 
     /* Retrive calibration values */
-    cal = ((*(volatile uint32_t *)(0x0FE081B4UL) & 0x00007F00UL) >>
-           8) << 24;
+    cal = ((*(volatile uint32_t *)(0x0FE081B4UL) & 0x00007F00UL)
+           >> 8) << 24;
 
-    cal |= ((*(volatile uint32_t *)(0x0FE081B4UL) & 0x0000007FUL) >>
-            0) << 16;
+    cal |= ((*(volatile uint32_t *)(0x0FE081B4UL) & 0x0000007FUL)
+            >> 0) << 16;
 
-    cal |= ((*(volatile uint32_t *)(0x0FE081B4UL) & 0x00007F00UL) >>
-            8) << 8;
+    cal |= ((*(volatile uint32_t *)(0x0FE081B4UL) & 0x00007F00UL)
+            >> 8) << 8;
 
-    cal |= ((*(volatile uint32_t *)(0x0FE081B4UL) & 0x0000007FUL) >>
-            0) << 0;
+    cal |= ((*(volatile uint32_t *)(0x0FE081B4UL) & 0x0000007FUL)
+            >> 0) << 0;
 
     /* ADC0->CAL = 1.25 reference */
     reg  = (volatile uint32_t *)0x40002034UL;
@@ -153,27 +155,30 @@ __STATIC_INLINE void CHIP_Init(void)
   }
 #endif
 
-#if defined(_EFM32_GIANT_FAMILY)
-  uint32_t                    rev;
+#if defined(_SILICON_LABS_32B_SERIES_0) && defined(_EFM32_GIANT_FAMILY)
+
+  /****************************/
+  /* Fix for errata CMU_E113. */
+
+  uint8_t                     prodRev;
   SYSTEM_ChipRevision_TypeDef chipRev;
 
-  rev = *(volatile uint32_t *)(0x0FE081FC);
+  prodRev = SYSTEM_GetProdRev();
   SYSTEM_ChipRevisionGet(&chipRev);
 
-  if (((rev >> 24) > 15) && (chipRev.minor == 3))
-  {
+  if ((prodRev >= 16) && (chipRev.minor >= 3)) {
     /* This fixes an issue with the LFXO on high temperatures. */
     *(volatile uint32_t*)0x400C80C0 =
-                      ( *(volatile uint32_t*)0x400C80C0 & ~(1<<6) ) | (1<<4);
+      (*(volatile uint32_t*)0x400C80C0 & ~(1 << 6) ) | (1 << 4);
   }
 #endif
 
-#if defined(_EFM32_HAPPY_FAMILY)
-  uint32_t rev;
-  rev = *(volatile uint32_t *)(0x0FE081FC);
+#if defined(_SILICON_LABS_32B_SERIES_0) && defined(_EFM32_HAPPY_FAMILY)
 
-  if ((rev >> 24) <= 129)
-  {
+  uint8_t prodRev;
+  prodRev = SYSTEM_GetProdRev();
+
+  if (prodRev <= 129) {
     /* This fixes a mistaken internal connection between PC0 and PC4 */
     /* This disables an internal pulldown on PC4 */
     *(volatile uint32_t*)(0x400C6018) = (1 << 26) | (5 << 0);
@@ -181,13 +186,95 @@ __STATIC_INLINE void CHIP_Init(void)
     *(volatile uint32_t*)(0x400C80E4) &= ~(1 << 24);
   }
 #endif
+
+#if defined(_SILICON_LABS_GECKO_INTERNAL_SDID_80)
+
+  /****************************
+   * Fixes for errata GPIO_E201 (slewrate) and
+   * HFXO high temperature oscillator startup robustness fix */
+
+  uint32_t port;
+  uint32_t clkEn;
+  uint8_t prodRev;
+  const uint32_t setVal   = (0x5 << _GPIO_P_CTRL_SLEWRATEALT_SHIFT)
+                            | (0x5 << _GPIO_P_CTRL_SLEWRATE_SHIFT);
+  const uint32_t resetVal = _GPIO_P_CTRL_RESETVALUE
+                            & ~(_GPIO_P_CTRL_SLEWRATE_MASK
+                                | _GPIO_P_CTRL_SLEWRATEALT_MASK);
+
+  prodRev = SYSTEM_GetProdRev();
+  SYSTEM_ChipRevision_TypeDef chipRev;
+  SYSTEM_ChipRevisionGet(&chipRev);
+
+  /* This errata is fixed in hardware from PRODREV 0x8F. */
+  if (prodRev < 0x8F) {
+    /* Fixes for errata GPIO_E201 (slewrate) */
+
+    /* Save HFBUSCLK enable state and enable GPIO clock. */
+    clkEn = CMU->HFBUSCLKEN0;
+    CMU->HFBUSCLKEN0 = clkEn | CMU_HFBUSCLKEN0_GPIO;
+
+    /* Update slewrate */
+    for (port = 0; port <= GPIO_PORT_MAX; port++) {
+      GPIO->P[port].CTRL = setVal | resetVal;
+    }
+
+    /* Restore HFBUSCLK enable state. */
+    CMU->HFBUSCLKEN0 = clkEn;
+  }
+
+  /* This errata is fixed in hardware from PRODREV 0x90. */
+  if (prodRev < 0x90) {
+    /* HFXO high temperature oscillator startup robustness fix */
+    CMU->HFXOSTARTUPCTRL =
+      (CMU->HFXOSTARTUPCTRL & ~_CMU_HFXOSTARTUPCTRL_IBTRIMXOCORE_MASK)
+      | (0x20 << _CMU_HFXOSTARTUPCTRL_IBTRIMXOCORE_SHIFT);
+  }
+
+  if (chipRev.major == 0x01) {
+    /* Fix for errata EMU_E210 - Potential Power-Down When Entering EM2 */
+    *(volatile uint32_t *)(EMU_BASE + 0x164) |= 0x4;
+  }
+
+#if defined(_EFR_DEVICE)
+  /****************************
+   * Fix for errata DCDC_E206
+   * Disable bypass limit enabled temporarily in SystemInit() errata
+   * workaround. */
+  BUS_RegBitWrite(&EMU->DCDCCLIMCTRL, _EMU_DCDCCLIMCTRL_BYPLIMEN_SHIFT, 0);
+#endif
+#endif
+
+#if defined(_SILICON_LABS_GECKO_INTERNAL_SDID_84)
+
+  uint8_t prodRev = SYSTEM_GetProdRev();
+
+  /* EM2 current fixes for early samples */
+  if (prodRev == 0) {
+    *(volatile uint32_t *)(EMU_BASE + 0x190)  = 0x0000ADE8UL;
+    *(volatile uint32_t *)(EMU_BASE + 0x198) |= (0x1 << 2);
+    *(volatile uint32_t *)(EMU_BASE + 0x190)  = 0x0;
+  }
+  if (prodRev < 2) {
+    *(volatile uint32_t *)(EMU_BASE + 0x164) |= (0x1 << 13);
+  }
+
+  /* Set optimal LFRCOCTRL VREFUPDATE and enable duty cycling of vref */
+  CMU->LFRCOCTRL = (CMU->LFRCOCTRL & ~_CMU_LFRCOCTRL_VREFUPDATE_MASK)
+                   | CMU_LFRCOCTRL_VREFUPDATE_64CYCLES
+                   | CMU_LFRCOCTRL_ENVREF;
+#endif
+
+#if defined(_EFR_DEVICE) && (_SILICON_LABS_GECKO_INTERNAL_SDID >= 84)
+  MSC->CTRL |= 0x1 << 8;
+#endif
 }
 
 /** @} (end addtogroup CHIP) */
-/** @} (end addtogroup EM_Library) */
+/** @} (end addtogroup emlib) */
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* __SILICON_LABS_EM_CHIP_H__ */
+#endif /* EM_CHIP_H */

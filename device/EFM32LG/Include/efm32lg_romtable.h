@@ -1,10 +1,10 @@
 /**************************************************************************//**
  * @file efm32lg_romtable.h
  * @brief EFM32LG_ROMTABLE register and bit field definitions
- * @version 4.2.1
+ * @version 5.2.1
  ******************************************************************************
- * @section License
- * <b>Copyright 2015 Silicon Laboratories, Inc. http://www.silabs.com</b>
+ * # License
+ * <b>Copyright 2017 Silicon Laboratories, Inc. http://www.silabs.com</b>
  ******************************************************************************
  *
  * Permission is granted to anyone to use this software for any purpose,
@@ -29,6 +29,13 @@
  * any third party, arising from your use of this Software.
  *
  *****************************************************************************/
+
+#if defined(__ICCARM__)
+#pragma system_include       /* Treat file as system include file. */
+#elif defined(__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050)
+#pragma clang system_header  /* Treat file as system include file. */
+#endif
+
 /**************************************************************************//**
 * @addtogroup Parts
 * @{
@@ -40,16 +47,16 @@
  *****************************************************************************/
 typedef struct
 {
-  __I uint32_t PID4; /**< JEP_106_BANK */
-  __I uint32_t PID5; /**< Unused */
-  __I uint32_t PID6; /**< Unused */
-  __I uint32_t PID7; /**< Unused */
-  __I uint32_t PID0; /**< Chip family LSB, chip major revision */
-  __I uint32_t PID1; /**< JEP_106_NO, Chip family MSB */
-  __I uint32_t PID2; /**< Chip minor rev MSB, JEP_106_PRESENT, JEP_106_NO */
-  __I uint32_t PID3; /**< Chip minor rev LSB */
-  __I uint32_t CID0; /**< Unused */
-} ROMTABLE_TypeDef;  /** @} */
+  __IM uint32_t PID4; /**< JEP_106_BANK */
+  __IM uint32_t PID5; /**< Unused */
+  __IM uint32_t PID6; /**< Unused */
+  __IM uint32_t PID7; /**< Unused */
+  __IM uint32_t PID0; /**< Chip family LSB, chip major revision */
+  __IM uint32_t PID1; /**< JEP_106_NO, Chip family MSB */
+  __IM uint32_t PID2; /**< Chip minor rev MSB, JEP_106_PRESENT, JEP_106_NO */
+  __IM uint32_t PID3; /**< Chip minor rev LSB */
+  __IM uint32_t CID0; /**< Unused */
+} ROMTABLE_TypeDef;   /** @} */
 
 /**************************************************************************//**
  * @defgroup EFM32LG_ROMTABLE_BitFields

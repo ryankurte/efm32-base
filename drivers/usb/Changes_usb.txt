@@ -1,4 +1,34 @@
 ================ Revision history ============================================
+5.2.1:
+ - No changes.
+
+5.1.3:
+ - No changes.
+
+5.1.2:
+ - No changes.
+
+5.1.1:
+ - No changes.
+
+5.1.0:
+ - No changes.
+
+5.0.0:
+ - Update to use em_core instead of em_int to implement critical regions.
+ - Removed iprintf usage since nanolib is now used by default.
+
+4.4.0:
+ - No changes.
+
+4.3.1:
+ - No changes.
+
+4.3.0:
+ - Implemented USB remote wakeup when usb peripheral is in partial power down
+   mode.
+ - Fixed usb state error when exiting SUSPENDED state after a remote wakeup.
+
 4.2.1:
  - No changes.
 

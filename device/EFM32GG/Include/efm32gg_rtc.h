@@ -1,10 +1,10 @@
 /**************************************************************************//**
  * @file efm32gg_rtc.h
  * @brief EFM32GG_RTC register and bit field definitions
- * @version 4.2.1
+ * @version 5.2.1
  ******************************************************************************
- * @section License
- * <b>Copyright 2015 Silicon Laboratories, Inc. http://www.silabs.com</b>
+ * # License
+ * <b>Copyright 2017 Silicon Laboratories, Inc. http://www.silabs.com</b>
  ******************************************************************************
  *
  * Permission is granted to anyone to use this software for any purpose,
@@ -29,6 +29,13 @@
  * any third party, arising from your use of this Software.
  *
  *****************************************************************************/
+
+#if defined(__ICCARM__)
+#pragma system_include       /* Treat file as system include file. */
+#elif defined(__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050)
+#pragma clang system_header  /* Treat file as system include file. */
+#endif
+
 /**************************************************************************//**
 * @addtogroup Parts
 * @{
@@ -40,18 +47,18 @@
  *****************************************************************************/
 typedef struct
 {
-  __IO uint32_t CTRL;     /**< Control Register  */
-  __IO uint32_t CNT;      /**< Counter Value Register  */
-  __IO uint32_t COMP0;    /**< Compare Value Register 0  */
-  __IO uint32_t COMP1;    /**< Compare Value Register 1  */
-  __I uint32_t  IF;       /**< Interrupt Flag Register  */
-  __IO uint32_t IFS;      /**< Interrupt Flag Set Register  */
-  __IO uint32_t IFC;      /**< Interrupt Flag Clear Register  */
-  __IO uint32_t IEN;      /**< Interrupt Enable Register  */
+  __IOM uint32_t CTRL;     /**< Control Register  */
+  __IOM uint32_t CNT;      /**< Counter Value Register  */
+  __IOM uint32_t COMP0;    /**< Compare Value Register 0  */
+  __IOM uint32_t COMP1;    /**< Compare Value Register 1  */
+  __IM uint32_t  IF;       /**< Interrupt Flag Register  */
+  __IOM uint32_t IFS;      /**< Interrupt Flag Set Register  */
+  __IOM uint32_t IFC;      /**< Interrupt Flag Clear Register  */
+  __IOM uint32_t IEN;      /**< Interrupt Enable Register  */
 
-  __IO uint32_t FREEZE;   /**< Freeze Register  */
-  __I uint32_t  SYNCBUSY; /**< Synchronization Busy Register  */
-} RTC_TypeDef;            /** @} */
+  __IOM uint32_t FREEZE;   /**< Freeze Register  */
+  __IM uint32_t  SYNCBUSY; /**< Synchronization Busy Register  */
+} RTC_TypeDef;             /**< RTC Register Declaration *//** @} */
 
 /**************************************************************************//**
  * @defgroup EFM32GG_RTC_BitFields

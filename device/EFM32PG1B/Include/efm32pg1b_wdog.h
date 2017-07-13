@@ -1,10 +1,10 @@
 /**************************************************************************//**
  * @file efm32pg1b_wdog.h
  * @brief EFM32PG1B_WDOG register and bit field definitions
- * @version 4.2.1
+ * @version 5.2.1
  ******************************************************************************
- * @section License
- * <b>Copyright 2015 Silicon Laboratories, Inc. http://www.silabs.com</b>
+ * # License
+ * <b>Copyright 2017 Silicon Laboratories, Inc. http://www.silabs.com</b>
  ******************************************************************************
  *
  * Permission is granted to anyone to use this software for any purpose,
@@ -29,33 +29,43 @@
  * any third party, arising from your use of this Software.
  *
  *****************************************************************************/
+
+#if defined(__ICCARM__)
+#pragma system_include       /* Treat file as system include file. */
+#elif defined(__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050)
+#pragma clang system_header  /* Treat file as system include file. */
+#endif
+
 /**************************************************************************//**
 * @addtogroup Parts
 * @{
 ******************************************************************************/
 /**************************************************************************//**
- * @defgroup EFM32PG1B_WDOG
+ * @defgroup EFM32PG1B_WDOG WDOG
  * @{
  * @brief EFM32PG1B_WDOG Register Declaration
  *****************************************************************************/
+/** WDOG Register Declaration */
 typedef struct
 {
-  __IO uint32_t    CTRL;         /**< Control Register  */
-  __IO uint32_t    CMD;          /**< Command Register  */
+  __IOM uint32_t   CTRL;         /**< Control Register  */
+  __IOM uint32_t   CMD;          /**< Command Register  */
 
-  __I uint32_t     SYNCBUSY;     /**< Synchronization Busy Register  */
+  __IM uint32_t    SYNCBUSY;     /**< Synchronization Busy Register  */
 
   WDOG_PCH_TypeDef PCH[2];       /**< PCH */
 
   uint32_t         RESERVED0[2]; /**< Reserved for future use **/
-  __I uint32_t     IF;           /**< Watchdog Interrupt Flags  */
-  __IO uint32_t    IFS;          /**< Interrupt Flag Set Register  */
-  __IO uint32_t    IFC;          /**< Interrupt Flag Clear Register  */
-  __IO uint32_t    IEN;          /**< Interrupt Enable Register  */
+  __IM uint32_t    IF;           /**< Watchdog Interrupt Flags  */
+  __IOM uint32_t   IFS;          /**< Interrupt Flag Set Register  */
+  __IOM uint32_t   IFC;          /**< Interrupt Flag Clear Register  */
+  __IOM uint32_t   IEN;          /**< Interrupt Enable Register  */
 } WDOG_TypeDef;                  /** @} */
 
 /**************************************************************************//**
- * @defgroup EFM32PG1B_WDOG_BitFields
+ * @addtogroup EFM32PG1B_WDOG
+ * @{
+ * @defgroup EFM32PG1B_WDOG_BitFields  WDOG Bit Fields
  * @{
  *****************************************************************************/
 
@@ -215,17 +225,17 @@ typedef struct
 /* Bit fields for WDOG IF */
 #define _WDOG_IF_RESETVALUE                       0x00000000UL                 /**< Default value for WDOG_IF */
 #define _WDOG_IF_MASK                             0x0000001FUL                 /**< Mask for WDOG_IF */
-#define WDOG_IF_TOUT                              (0x1UL << 0)                 /**< Wdog Timeout Interrupt Flag */
+#define WDOG_IF_TOUT                              (0x1UL << 0)                 /**< WDOG Timeout Interrupt Flag */
 #define _WDOG_IF_TOUT_SHIFT                       0                            /**< Shift value for WDOG_TOUT */
 #define _WDOG_IF_TOUT_MASK                        0x1UL                        /**< Bit mask for WDOG_TOUT */
 #define _WDOG_IF_TOUT_DEFAULT                     0x00000000UL                 /**< Mode DEFAULT for WDOG_IF */
 #define WDOG_IF_TOUT_DEFAULT                      (_WDOG_IF_TOUT_DEFAULT << 0) /**< Shifted mode DEFAULT for WDOG_IF */
-#define WDOG_IF_WARN                              (0x1UL << 1)                 /**< Wdog Warning Timeout Interrupt Flag */
+#define WDOG_IF_WARN                              (0x1UL << 1)                 /**< WDOG Warning Timeout Interrupt Flag */
 #define _WDOG_IF_WARN_SHIFT                       1                            /**< Shift value for WDOG_WARN */
 #define _WDOG_IF_WARN_MASK                        0x2UL                        /**< Bit mask for WDOG_WARN */
 #define _WDOG_IF_WARN_DEFAULT                     0x00000000UL                 /**< Mode DEFAULT for WDOG_IF */
 #define WDOG_IF_WARN_DEFAULT                      (_WDOG_IF_WARN_DEFAULT << 1) /**< Shifted mode DEFAULT for WDOG_IF */
-#define WDOG_IF_WIN                               (0x1UL << 2)                 /**< Wdog Window Interrupt Flag */
+#define WDOG_IF_WIN                               (0x1UL << 2)                 /**< WDOG Window Interrupt Flag */
 #define _WDOG_IF_WIN_SHIFT                        2                            /**< Shift value for WDOG_WIN */
 #define _WDOG_IF_WIN_MASK                         0x4UL                        /**< Bit mask for WDOG_WIN */
 #define _WDOG_IF_WIN_DEFAULT                      0x00000000UL                 /**< Mode DEFAULT for WDOG_IF */
@@ -328,6 +338,7 @@ typedef struct
 #define _WDOG_IEN_PEM1_DEFAULT                    0x00000000UL                  /**< Mode DEFAULT for WDOG_IEN */
 #define WDOG_IEN_PEM1_DEFAULT                     (_WDOG_IEN_PEM1_DEFAULT << 4) /**< Shifted mode DEFAULT for WDOG_IEN */
 
+/** @} */
 /** @} End of group EFM32PG1B_WDOG */
 /** @} End of group Parts */
 

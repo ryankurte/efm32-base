@@ -1,10 +1,10 @@
 /**************************************************************************//**
  * @file ezr32lg_dma_descriptor.h
  * @brief EZR32LG_DMA_DESCRIPTOR register and bit field definitions
- * @version 4.2.1
+ * @version 5.2.1
  ******************************************************************************
- * @section License
- * <b>Copyright 2015 Silicon Laboratories, Inc. http://www.silabs.com</b>
+ * # License
+ * <b>Copyright 2017 Silicon Laboratories, Inc. http://www.silabs.com</b>
  ******************************************************************************
  *
  * Permission is granted to anyone to use this software for any purpose,
@@ -29,6 +29,13 @@
  * any third party, arising from your use of this Software.
  *
  *****************************************************************************/
+
+#if defined(__ICCARM__)
+#pragma system_include       /* Treat file as system include file. */
+#elif defined(__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050)
+#pragma clang system_header  /* Treat file as system include file. */
+#endif
+
 /**************************************************************************//**
 * @addtogroup Parts
 * @{
@@ -39,12 +46,12 @@
  *****************************************************************************/
 typedef struct
 {
-  /* Note! Use of double __IO (volatile) qualifier to ensure that both */
+  /* Note! Use of double __IOM (volatile) qualifier to ensure that both */
   /* pointer and referenced memory are declared volatile. */
-  __IO void * __IO SRCEND;     /**< DMA source address end */
-  __IO void * __IO DSTEND;     /**< DMA destination address end */
-  __IO uint32_t    CTRL;       /**< DMA control register */
-  __IO uint32_t    USER;       /**< DMA padding register, available for user */
+  __IOM void * __IOM SRCEND;   /**< DMA source address end */
+  __IOM void * __IOM DSTEND;   /**< DMA destination address end */
+  __IOM uint32_t     CTRL;     /**< DMA control register */
+  __IOM uint32_t     USER;     /**< DMA padding register, available for user */
 } DMA_DESCRIPTOR_TypeDef;      /** @} */
 
 /** @} End of group Parts */

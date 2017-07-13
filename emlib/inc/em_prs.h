@@ -1,10 +1,10 @@
 /***************************************************************************//**
  * @file em_prs.h
  * @brief Peripheral Reflex System (PRS) peripheral API
- * @version 4.2.1
+ * @version 5.2.1
  *******************************************************************************
- * @section License
- * <b>(C) Copyright 2015 Silicon Labs, http://www.silabs.com</b>
+ * # License
+ * <b>Copyright 2016 Silicon Laboratories, Inc. http://www.silabs.com</b>
  *******************************************************************************
  *
  * Permission is granted to anyone to use this software for any purpose,
@@ -30,8 +30,8 @@
  *
  ******************************************************************************/
 
-#ifndef __SILICON_LABS_EM_PRS_H__
-#define __SILICON_LABS_EM_PRS_H__
+#ifndef EM_PRS_H
+#define EM_PRS_H
 
 #include "em_device.h"
 #if defined(PRS_COUNT) && (PRS_COUNT > 0)
@@ -41,7 +41,7 @@ extern "C" {
 #endif
 
 /***************************************************************************//**
- * @addtogroup EM_Library
+ * @addtogroup emlib
  * @{
  ******************************************************************************/
 
@@ -55,8 +55,7 @@ extern "C" {
  ******************************************************************************/
 
 /** Edge detection type. */
-typedef enum
-{
+typedef enum {
   prsEdgeOff  = PRS_CH_CTRL_EDSEL_OFF,      /**< Leave signal as is. */
   prsEdgePos  = PRS_CH_CTRL_EDSEL_POSEDGE,  /**< Generate pules on positive edge. */
   prsEdgeNeg  = PRS_CH_CTRL_EDSEL_NEGEDGE,  /**< Generate pules on negative edge. */
@@ -88,7 +87,6 @@ __STATIC_INLINE void PRS_LevelSet(uint32_t level, uint32_t mask)
   PRS->SWLEVEL = (PRS->SWLEVEL & ~mask) | (level & mask);
 }
 
-
 /***************************************************************************//**
  * @brief
  *   Trigger a high pulse (one HFPERCLK) for one or more channels.
@@ -113,18 +111,18 @@ void PRS_SourceSignalSet(unsigned int ch,
                          uint32_t signal,
                          PRS_Edge_TypeDef edge);
 
-#if defined( PRS_CH_CTRL_ASYNC )
+#if defined(PRS_CH_CTRL_ASYNC)
 void PRS_SourceAsyncSignalSet(unsigned int ch,
                               uint32_t source,
                               uint32_t signal);
 #endif
 
 /** @} (end addtogroup PRS) */
-/** @} (end addtogroup EM_Library) */
+/** @} (end addtogroup emlib) */
 
 #ifdef __cplusplus
 }
 #endif
 
 #endif /* defined(PRS_COUNT) && (PRS_COUNT > 0) */
-#endif /* __SILICON_LABS_EM_PRS_H__ */
+#endif /* EM_PRS_H */

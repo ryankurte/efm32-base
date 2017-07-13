@@ -1,10 +1,10 @@
 /**************************************************************************//**
  * @file efm32pg1b_i2c.h
  * @brief EFM32PG1B_I2C register and bit field definitions
- * @version 4.2.1
+ * @version 5.2.1
  ******************************************************************************
- * @section License
- * <b>Copyright 2015 Silicon Laboratories, Inc. http://www.silabs.com</b>
+ * # License
+ * <b>Copyright 2017 Silicon Laboratories, Inc. http://www.silabs.com</b>
  ******************************************************************************
  *
  * Permission is granted to anyone to use this software for any purpose,
@@ -29,40 +29,50 @@
  * any third party, arising from your use of this Software.
  *
  *****************************************************************************/
+
+#if defined(__ICCARM__)
+#pragma system_include       /* Treat file as system include file. */
+#elif defined(__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050)
+#pragma clang system_header  /* Treat file as system include file. */
+#endif
+
 /**************************************************************************//**
 * @addtogroup Parts
 * @{
 ******************************************************************************/
 /**************************************************************************//**
- * @defgroup EFM32PG1B_I2C
+ * @defgroup EFM32PG1B_I2C I2C
  * @{
  * @brief EFM32PG1B_I2C Register Declaration
  *****************************************************************************/
+/** I2C Register Declaration */
 typedef struct
 {
-  __IO uint32_t CTRL;      /**< Control Register  */
-  __IO uint32_t CMD;       /**< Command Register  */
-  __I uint32_t  STATE;     /**< State Register  */
-  __I uint32_t  STATUS;    /**< Status Register  */
-  __IO uint32_t CLKDIV;    /**< Clock Division Register  */
-  __IO uint32_t SADDR;     /**< Slave Address Register  */
-  __IO uint32_t SADDRMASK; /**< Slave Address Mask Register  */
-  __I uint32_t  RXDATA;    /**< Receive Buffer Data Register  */
-  __I uint32_t  RXDOUBLE;  /**< Receive Buffer Double Data Register  */
-  __I uint32_t  RXDATAP;   /**< Receive Buffer Data Peek Register  */
-  __I uint32_t  RXDOUBLEP; /**< Receive Buffer Double Data Peek Register  */
-  __IO uint32_t TXDATA;    /**< Transmit Buffer Data Register  */
-  __IO uint32_t TXDOUBLE;  /**< Transmit Buffer Double Data Register  */
-  __I uint32_t  IF;        /**< Interrupt Flag Register  */
-  __IO uint32_t IFS;       /**< Interrupt Flag Set Register  */
-  __IO uint32_t IFC;       /**< Interrupt Flag Clear Register  */
-  __IO uint32_t IEN;       /**< Interrupt Enable Register  */
-  __IO uint32_t ROUTEPEN;  /**< I/O Routing Pin Enable Register  */
-  __IO uint32_t ROUTELOC0; /**< I/O Routing Location Register  */
-} I2C_TypeDef;             /** @} */
+  __IOM uint32_t CTRL;      /**< Control Register  */
+  __IOM uint32_t CMD;       /**< Command Register  */
+  __IM uint32_t  STATE;     /**< State Register  */
+  __IM uint32_t  STATUS;    /**< Status Register  */
+  __IOM uint32_t CLKDIV;    /**< Clock Division Register  */
+  __IOM uint32_t SADDR;     /**< Slave Address Register  */
+  __IOM uint32_t SADDRMASK; /**< Slave Address Mask Register  */
+  __IM uint32_t  RXDATA;    /**< Receive Buffer Data Register  */
+  __IM uint32_t  RXDOUBLE;  /**< Receive Buffer Double Data Register  */
+  __IM uint32_t  RXDATAP;   /**< Receive Buffer Data Peek Register  */
+  __IM uint32_t  RXDOUBLEP; /**< Receive Buffer Double Data Peek Register  */
+  __IOM uint32_t TXDATA;    /**< Transmit Buffer Data Register  */
+  __IOM uint32_t TXDOUBLE;  /**< Transmit Buffer Double Data Register  */
+  __IM uint32_t  IF;        /**< Interrupt Flag Register  */
+  __IOM uint32_t IFS;       /**< Interrupt Flag Set Register  */
+  __IOM uint32_t IFC;       /**< Interrupt Flag Clear Register  */
+  __IOM uint32_t IEN;       /**< Interrupt Enable Register  */
+  __IOM uint32_t ROUTEPEN;  /**< I/O Routing Pin Enable Register  */
+  __IOM uint32_t ROUTELOC0; /**< I/O Routing Location Register  */
+} I2C_TypeDef;              /** @} */
 
 /**************************************************************************//**
- * @defgroup EFM32PG1B_I2C_BitFields
+ * @addtogroup EFM32PG1B_I2C
+ * @{
+ * @defgroup EFM32PG1B_I2C_BitFields  I2C Bit Fields
  * @{
  *****************************************************************************/
 
@@ -916,6 +926,7 @@ typedef struct
 #define I2C_ROUTELOC0_SCLLOC_LOC30         (_I2C_ROUTELOC0_SCLLOC_LOC30 << 8)   /**< Shifted mode LOC30 for I2C_ROUTELOC0 */
 #define I2C_ROUTELOC0_SCLLOC_LOC31         (_I2C_ROUTELOC0_SCLLOC_LOC31 << 8)   /**< Shifted mode LOC31 for I2C_ROUTELOC0 */
 
+/** @} */
 /** @} End of group EFM32PG1B_I2C */
 /** @} End of group Parts */
 

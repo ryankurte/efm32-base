@@ -1,10 +1,10 @@
 /**************************************************************************//**
  * @file efm32jg1b_letimer.h
  * @brief EFM32JG1B_LETIMER register and bit field definitions
- * @version 4.2.1
+ * @version 5.2.1
  ******************************************************************************
- * @section License
- * <b>Copyright 2015 Silicon Laboratories, Inc. http://www.silabs.com</b>
+ * # License
+ * <b>Copyright 2017 Silicon Laboratories, Inc. http://www.silabs.com</b>
  ******************************************************************************
  *
  * Permission is granted to anyone to use this software for any purpose,
@@ -29,43 +29,53 @@
  * any third party, arising from your use of this Software.
  *
  *****************************************************************************/
+
+#if defined(__ICCARM__)
+#pragma system_include       /* Treat file as system include file. */
+#elif defined(__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050)
+#pragma clang system_header  /* Treat file as system include file. */
+#endif
+
 /**************************************************************************//**
 * @addtogroup Parts
 * @{
 ******************************************************************************/
 /**************************************************************************//**
- * @defgroup EFM32JG1B_LETIMER
+ * @defgroup EFM32JG1B_LETIMER LETIMER
  * @{
  * @brief EFM32JG1B_LETIMER Register Declaration
  *****************************************************************************/
+/** LETIMER Register Declaration */
 typedef struct
 {
-  __IO uint32_t CTRL;         /**< Control Register  */
-  __IO uint32_t CMD;          /**< Command Register  */
-  __I uint32_t  STATUS;       /**< Status Register  */
-  __IO uint32_t CNT;          /**< Counter Value Register  */
-  __IO uint32_t COMP0;        /**< Compare Value Register 0  */
-  __IO uint32_t COMP1;        /**< Compare Value Register 1  */
-  __IO uint32_t REP0;         /**< Repeat Counter Register 0  */
-  __IO uint32_t REP1;         /**< Repeat Counter Register 1  */
-  __I uint32_t  IF;           /**< Interrupt Flag Register  */
-  __IO uint32_t IFS;          /**< Interrupt Flag Set Register  */
-  __IO uint32_t IFC;          /**< Interrupt Flag Clear Register  */
-  __IO uint32_t IEN;          /**< Interrupt Enable Register  */
+  __IOM uint32_t CTRL;         /**< Control Register  */
+  __IOM uint32_t CMD;          /**< Command Register  */
+  __IM uint32_t  STATUS;       /**< Status Register  */
+  __IOM uint32_t CNT;          /**< Counter Value Register  */
+  __IOM uint32_t COMP0;        /**< Compare Value Register 0  */
+  __IOM uint32_t COMP1;        /**< Compare Value Register 1  */
+  __IOM uint32_t REP0;         /**< Repeat Counter Register 0  */
+  __IOM uint32_t REP1;         /**< Repeat Counter Register 1  */
+  __IM uint32_t  IF;           /**< Interrupt Flag Register  */
+  __IOM uint32_t IFS;          /**< Interrupt Flag Set Register  */
+  __IOM uint32_t IFC;          /**< Interrupt Flag Clear Register  */
+  __IOM uint32_t IEN;          /**< Interrupt Enable Register  */
 
-  uint32_t      RESERVED0[1]; /**< Reserved for future use **/
-  __I uint32_t  SYNCBUSY;     /**< Synchronization Busy Register  */
+  uint32_t       RESERVED0[1]; /**< Reserved for future use **/
+  __IM uint32_t  SYNCBUSY;     /**< Synchronization Busy Register  */
 
-  uint32_t      RESERVED1[2]; /**< Reserved for future use **/
-  __IO uint32_t ROUTEPEN;     /**< I/O Routing Pin Enable Register  */
-  __IO uint32_t ROUTELOC0;    /**< I/O Routing Location Register  */
+  uint32_t       RESERVED1[2]; /**< Reserved for future use **/
+  __IOM uint32_t ROUTEPEN;     /**< I/O Routing Pin Enable Register  */
+  __IOM uint32_t ROUTELOC0;    /**< I/O Routing Location Register  */
 
-  uint32_t      RESERVED2[2]; /**< Reserved for future use **/
-  __IO uint32_t PRSSEL;       /**< PRS Input Select Register  */
-} LETIMER_TypeDef;            /** @} */
+  uint32_t       RESERVED2[2]; /**< Reserved for future use **/
+  __IOM uint32_t PRSSEL;       /**< PRS Input Select Register  */
+} LETIMER_TypeDef;             /** @} */
 
 /**************************************************************************//**
- * @defgroup EFM32JG1B_LETIMER_BitFields
+ * @addtogroup EFM32JG1B_LETIMER
+ * @{
+ * @defgroup EFM32JG1B_LETIMER_BitFields  LETIMER Bit Fields
  * @{
  *****************************************************************************/
 
@@ -615,6 +625,7 @@ typedef struct
 #define LETIMER_PRSSEL_PRSCLEARMODE_FALLING     (_LETIMER_PRSSEL_PRSCLEARMODE_FALLING << 26) /**< Shifted mode FALLING for LETIMER_PRSSEL */
 #define LETIMER_PRSSEL_PRSCLEARMODE_BOTH        (_LETIMER_PRSSEL_PRSCLEARMODE_BOTH << 26)    /**< Shifted mode BOTH for LETIMER_PRSSEL */
 
+/** @} */
 /** @} End of group EFM32JG1B_LETIMER */
 /** @} End of group Parts */
 

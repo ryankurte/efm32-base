@@ -1,10 +1,10 @@
 /***************************************************************************//**
  * @file em_rtc.h
  * @brief Real Time Counter (RTC) peripheral API
- * @version 4.2.1
+ * @version 5.2.1
  *******************************************************************************
- * @section License
- * <b>(C) Copyright 2015 Silicon Labs, http://www.silabs.com</b>
+ * # License
+ * <b>Copyright 2016 Silicon Laboratories, Inc. http://www.silabs.com</b>
  *******************************************************************************
  *
  * Permission is granted to anyone to use this software for any purpose,
@@ -30,8 +30,8 @@
  *
  ******************************************************************************/
 
-#ifndef __SILICON_LABS_EM_RTC_H__
-#define __SILICON_LABS_EM_RTC_H__
+#ifndef EM_RTC_H
+#define EM_RTC_H
 
 #include "em_device.h"
 #if defined(RTC_COUNT) && (RTC_COUNT > 0)
@@ -43,7 +43,7 @@ extern "C" {
 #endif
 
 /***************************************************************************//**
- * @addtogroup EM_Library
+ * @addtogroup emlib
  * @{
  ******************************************************************************/
 
@@ -57,8 +57,7 @@ extern "C" {
  ******************************************************************************/
 
 /** RTC initialization structure. */
-typedef struct
-{
+typedef struct {
   bool enable;   /**< Start counting when init completed. */
   bool debugRun; /**< Counter shall keep running during debug halt. */
   bool comp0Top; /**< Use compare register 0 as max count value. */
@@ -66,12 +65,11 @@ typedef struct
 
 /** Suggested default config for RTC init structure. */
 #define RTC_INIT_DEFAULT                                     \
-{                                                            \
-  true,    /* Start counting when init done */               \
-  false,   /* Disable updating during debug halt */          \
-  true     /* Restart counting from 0 when reaching COMP0 */ \
-}
-
+  {                                                          \
+    true,  /* Start counting when init done */               \
+    false, /* Disable updating during debug halt */          \
+    true   /* Restart counting from 0 when reaching COMP0 */ \
+  }
 
 /*******************************************************************************
  *****************************   PROTOTYPES   **********************************
@@ -92,9 +90,25 @@ __STATIC_INLINE uint32_t RTC_CounterGet(void)
   return RTC->CNT;
 }
 
+#if !defined(_EFM32_GECKO_FAMILY)
+/***************************************************************************//**
+ * @brief
+ *   Set the RTC counter value.
+ *
+ * @param[in] value
+ *   The new RTC counter value.
+ ******************************************************************************/
+__STATIC_INLINE void RTC_CounterSet(uint32_t value)
+{
+  RTC->CNT = value;
+}
+#endif
+
 void RTC_CounterReset(void);
 void RTC_Enable(bool enable);
+#if defined(_RTC_FREEZE_MASK)
 void RTC_FreezeEnable(bool enable);
+#endif
 void RTC_Init(const RTC_Init_TypeDef *init);
 
 /***************************************************************************//**
@@ -111,7 +125,6 @@ __STATIC_INLINE void RTC_IntClear(uint32_t flags)
   RTC->IFC = flags;
 }
 
-
 /***************************************************************************//**
  * @brief
  *   Disable one or more RTC interrupts.
@@ -125,7 +138,6 @@ __STATIC_INLINE void RTC_IntDisable(uint32_t flags)
 {
   RTC->IEN &= ~flags;
 }
-
 
 /***************************************************************************//**
  * @brief
@@ -146,7 +158,6 @@ __STATIC_INLINE void RTC_IntEnable(uint32_t flags)
   RTC->IEN |= flags;
 }
 
-
 /***************************************************************************//**
  * @brief
  *   Get pending RTC interrupt flags.
@@ -162,7 +173,6 @@ __STATIC_INLINE uint32_t RTC_IntGet(void)
 {
   return RTC->IF;
 }
-
 
 /***************************************************************************//**
  * @brief
@@ -186,7 +196,6 @@ __STATIC_INLINE uint32_t RTC_IntGetEnabled(void)
   return RTC->IF & ien;
 }
 
-
 /***************************************************************************//**
  * @brief
  *   Set one or more pending RTC interrupts from SW.
@@ -204,11 +213,11 @@ __STATIC_INLINE void RTC_IntSet(uint32_t flags)
 void RTC_Reset(void);
 
 /** @} (end addtogroup RTC) */
-/** @} (end addtogroup EM_Library) */
+/** @} (end addtogroup emlib) */
 
 #ifdef __cplusplus
 }
 #endif
 
 #endif /* defined(RTC_COUNT) && (RTC_COUNT > 0) */
-#endif /* __SILICON_LABS_EM_RTC_H__ */
+#endif /* EM_RTC_H */

@@ -1,10 +1,10 @@
 /**************************************************************************//**
  * @file efm32pg1b_cryotimer.h
  * @brief EFM32PG1B_CRYOTIMER register and bit field definitions
- * @version 4.2.1
+ * @version 5.2.1
  ******************************************************************************
- * @section License
- * <b>Copyright 2015 Silicon Laboratories, Inc. http://www.silabs.com</b>
+ * # License
+ * <b>Copyright 2017 Silicon Laboratories, Inc. http://www.silabs.com</b>
  ******************************************************************************
  *
  * Permission is granted to anyone to use this software for any purpose,
@@ -29,29 +29,39 @@
  * any third party, arising from your use of this Software.
  *
  *****************************************************************************/
+
+#if defined(__ICCARM__)
+#pragma system_include       /* Treat file as system include file. */
+#elif defined(__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050)
+#pragma clang system_header  /* Treat file as system include file. */
+#endif
+
 /**************************************************************************//**
 * @addtogroup Parts
 * @{
 ******************************************************************************/
 /**************************************************************************//**
- * @defgroup EFM32PG1B_CRYOTIMER
+ * @defgroup EFM32PG1B_CRYOTIMER CRYOTIMER
  * @{
  * @brief EFM32PG1B_CRYOTIMER Register Declaration
  *****************************************************************************/
+/** CRYOTIMER Register Declaration */
 typedef struct
 {
-  __IO uint32_t CTRL;      /**< Control Register  */
-  __IO uint32_t PERIODSEL; /**< Interrupt Duration  */
-  __I uint32_t  CNT;       /**< Counter Value  */
-  __IO uint32_t EM4WUEN;   /**< Wake Up Enable  */
-  __I uint32_t  IF;        /**< Interrupt Flag Register  */
-  __IO uint32_t IFS;       /**< Interrupt Flag Set Register  */
-  __IO uint32_t IFC;       /**< Interrupt Flag Clear Register  */
-  __IO uint32_t IEN;       /**< Interrupt Enable Register  */
-} CRYOTIMER_TypeDef;       /** @} */
+  __IOM uint32_t CTRL;      /**< Control Register  */
+  __IOM uint32_t PERIODSEL; /**< Interrupt Duration  */
+  __IM uint32_t  CNT;       /**< Counter Value  */
+  __IOM uint32_t EM4WUEN;   /**< Wake Up Enable  */
+  __IM uint32_t  IF;        /**< Interrupt Flag Register  */
+  __IOM uint32_t IFS;       /**< Interrupt Flag Set Register  */
+  __IOM uint32_t IFC;       /**< Interrupt Flag Clear Register  */
+  __IOM uint32_t IEN;       /**< Interrupt Enable Register  */
+} CRYOTIMER_TypeDef;        /** @} */
 
 /**************************************************************************//**
- * @defgroup EFM32PG1B_CRYOTIMER_BitFields
+ * @addtogroup EFM32PG1B_CRYOTIMER
+ * @{
+ * @defgroup EFM32PG1B_CRYOTIMER_BitFields  CRYOTIMER Bit Fields
  * @{
  *****************************************************************************/
 
@@ -160,6 +170,7 @@ typedef struct
 #define _CRYOTIMER_IEN_PERIOD_DEFAULT             0x00000000UL                         /**< Mode DEFAULT for CRYOTIMER_IEN */
 #define CRYOTIMER_IEN_PERIOD_DEFAULT              (_CRYOTIMER_IEN_PERIOD_DEFAULT << 0) /**< Shifted mode DEFAULT for CRYOTIMER_IEN */
 
+/** @} */
 /** @} End of group EFM32PG1B_CRYOTIMER */
 /** @} End of group Parts */
 

@@ -1,10 +1,10 @@
 /**************************************************************************//**
  * @file efm32jg1b_dma_descriptor.h
  * @brief EFM32JG1B_DMA_DESCRIPTOR register and bit field definitions
- * @version 4.2.1
+ * @version 5.2.1
  ******************************************************************************
- * @section License
- * <b>Copyright 2015 Silicon Laboratories, Inc. http://www.silabs.com</b>
+ * # License
+ * <b>Copyright 2017 Silicon Laboratories, Inc. http://www.silabs.com</b>
  ******************************************************************************
  *
  * Permission is granted to anyone to use this software for any purpose,
@@ -29,22 +29,30 @@
  * any third party, arising from your use of this Software.
  *
  *****************************************************************************/
+
+#if defined(__ICCARM__)
+#pragma system_include       /* Treat file as system include file. */
+#elif defined(__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050)
+#pragma clang system_header  /* Treat file as system include file. */
+#endif
+
 /**************************************************************************//**
 * @addtogroup Parts
 * @{
 ******************************************************************************/
 /**************************************************************************//**
- * @defgroup EFM32JG1B_DMA_DESCRIPTOR
+ * @defgroup EFM32JG1B_DMA_DESCRIPTOR DMA Descriptor
  * @{
  *****************************************************************************/
+/** DMA_DESCRIPTOR Register Declaration */
 typedef struct
 {
-  /* Note! Use of double __IO (volatile) qualifier to ensure that both */
+  /* Note! Use of double __IOM (volatile) qualifier to ensure that both */
   /* pointer and referenced memory are declared volatile. */
-  __IO uint32_t    CTRL;       /**< DMA control register */
-  __IO void * __IO SRC;        /**< DMA source address */
-  __IO void * __IO DST;        /**< DMA destination address */
-  __IO void * __IO LINK;       /**< DMA link address */
+  __IOM uint32_t     CTRL;     /**< DMA control register */
+  __IOM void * __IOM SRC;      /**< DMA source address */
+  __IOM void * __IOM DST;      /**< DMA destination address */
+  __IOM void * __IOM LINK;     /**< DMA link address */
 } DMA_DESCRIPTOR_TypeDef;      /**< @} */
 
 /** @} End of group Parts */

@@ -1,0 +1,236 @@
+#include <stdint.h>
+
+#include "rail.h"
+#include "rail_types.h"
+#include "rail_ieee802154.h"
+
+#include CONFIGURATION_HEADER
+
+/**
+ * Callback that lets the app know when the radio has finished init
+ * and is ready.
+ */
+void RAILCb_RfReady(void) {}
+
+/**
+ * Interrupt level callback to signify when the packet was sent
+ * @param txPacketInfo Information about the packet that was transmitted.
+ * @note that this structure is only valid during the timeframe of the
+ * callback.
+ */
+void RAILCb_TxPacketSent(RAIL_TxPacketInfo_t *txPacketInfo) {}
+
+/**
+ * Interrupt level callback
+ * Allows the user finer granularity in tx radio events.
+ *
+ * Radio Statuses:
+ * RAIL_TX_CONFIG_BUFFER_UNDERFLOW
+ * RAIL_TX_CONFIG_CHANNEL_BUSY
+ *
+ * @param[in] status A bit field that defines what event caused the callback
+ */
+void RAILCb_TxRadioStatus(uint8_t status) {}
+
+/**
+ * Receive packet callback.
+ *
+ * @param[in] rxPacketHandle Contains a handle that points to the memory that
+ *   the packet was stored in. This handle will be the same as something
+ *   returned by the RAILCb_AllocateMemory() API. To convert this into a receive
+ *   packet info struct use the *** function.
+ *
+ * This function is called whenever a packet is received and returns to you the
+ * memory handle for where this received packet and its appended information was
+ * stored. After this callback is done we will release the memory handle so you
+ * must somehow increment a reference count or copy the data out within this
+ * function.
+ */
+void RAILCb_RxPacketReceived(void *rxPacketHandle) {}
+
+/**
+ * Called whenever an enabled radio status event occurs
+ *
+ * Triggers:
+ *  RAIL_RX_CONFIG_PREAMBLE_DETECT
+ *  RAIL_RX_CONFIG_SYNC1_DETECT
+ *  RAIL_RX_CONFIG_SYNC2_DETECT
+ *  RAIL_RX_CONFIG_INVALID_CRC
+ *  RAIL_RX_CONFIG_BUFFER_OVERFLOW
+ *  RAIL_RX_CONFIG_ADDRESS_FILTERED
+ *
+ * @param[in] status The event that triggered this callback
+ */
+void RAILCb_RxRadioStatus(uint8_t status) {}
+
+/**
+ * Callback that notifies the application that a calibration is needed.
+ *
+ * This callback function is called whenever the RAIL library detects that a
+ * calibration is needed. It is up to the application to determine a valid
+ * window to call RAIL_CalStart().
+ *
+ */
+void RAILCb_CalNeeded(void)
+{
+  // Perform the necessary calibrations without saving the results
+  RAIL_CalStart(NULL, RAIL_CAL_ALL_PENDING, false);
+}
+
+
+/**
+ * Interrupt level callback to signify when the radio changes state.
+ *
+ * @param[in] state Current state of the radio, as defined by EFR32 data sheet
+ * TODO: Unify these states with the RAIL_RadioState_t type? (There are much
+ *    more than just TX, RX, and IDLE)
+ */
+void RAILCb_RadioStateChanged(uint8_t state) {}
+
+/**
+ * Callback function used by RAIL to request memory.
+ *
+ * @param[in] size The amount of memory in bytes that we need for this packet
+ * @return A handle to memory in your storage system.
+ *
+ * This is used to allocate memory for receive packets and must be implemented
+ * by the application.
+ */
+void *RAILCb_AllocateMemory(uint32_t size)
+{
+  return NULL;
+}
+
+/**
+ * Callback function used by RAIL to free memory.
+ *
+ * @param[in] handle A handle to a memory block allocated with the
+ *   RAILCb_AllocateMemory() API above.
+ *
+ * This is used to free memory that was allocated with the
+ * RAILCb_AllocateMemory() function when RAIL is done using it.
+ */
+void RAILCb_FreeMemory(void *handle)
+{
+}
+
+/**
+ * Called to begin copying received data into the current memory handle.
+ *
+ * @param[in] handle A handle to the current memory block for packet data.
+ * @param[in] offset The offset in bytes from the start of the handle that we
+ * need a pointer for.
+ * @param[out] available The number of bytes available to be written to this
+ * return pointer. If this is zero the receive will terminate. This parameter
+ * will default to all spaces allocated to handle contiguous allocators. If your
+ * allocator is different you *must* set this appropriately.
+ * @return A pointer to the address to write data for this handle.
+ *
+ * This function is called before every memory write to a handle so that we can
+ * get the actual address this handle references in the system. When we're done
+ * writing there will be a corresponding call to RAILCb_EndWriteMemory().
+ *
+ * @note You must have at least sizeof(RAIL_RxPacketInfo_t) contiguous bytes at
+ * offset 0 or the appended info will not be written.
+ */
+void *RAILCb_BeginWriteMemory(void *handle,
+                              uint32_t offset,
+                              uint32_t *available)
+{
+  return ((uint8_t*)handle) + offset;
+}
+
+/**
+ * Called to complete the write memory transaction.
+ *
+ * @param handle The handle to the current memory block we're modifying.
+ * @param offset The offset in bytes from the start of the handle that this data
+ * was written to.
+ * @param size The number of bytes that were written.
+ *
+ * This callback indicates the completeion of a write memory transaction. It
+ * can be used to store information about how many bytes were written or 
+ * anything else needed. Once this is called the pointer returned by 
+ * RAILCb_BeginWriteMemory() will no longer be assumed to be valid and we will
+ * call that function again for any future writes. 
+ */
+void RAILCb_EndWriteMemory(void *handle, uint32_t offset, uint32_t size)
+{
+}
+
+/**
+ * This function is called when the RAIL timer expires
+ *
+ * You must implement a stub for this in your RAIL application even if you
+ * don't use the timer.
+ */
+void RAILCb_TimerExpired(void)
+{
+}
+
+/**
+ * Callback that notifies the application when searching for an ACK has timed
+ * out.
+ *
+ * @return void
+ *
+ * This callback function is called whenever the timeout for searching for an
+ * ack is exceeded.
+ */
+void RAILCb_RxAckTimeout(void)
+{
+}
+
+/**
+ * Callback for when a Data Request is being received
+ *
+ * @param address The source address of the data request command
+ *
+ * This function is called when the command byte of an incoming frame is for a
+ * data request, which requests an ACK. This callback will be called before the
+ * packet is fully received, to allow the node to have more time to decide
+ * whether to set frame pending in the outgoing ACK.
+ */
+void RAILCb_IEEE802154_DataRequestCommand(RAIL_IEEE802154_Address_t *address)
+{
+}
+
+/**
+ * Callback that fires when the receive fifo exceeds the configured threshold
+ * value
+ *
+ * @param[in] bytesAvailable Number of bytes available in the receive fifo at
+ * the time of the callback dispatch
+ *
+ * @return void
+ * @warning You must implement a stub for this in your RAIL application.
+ *
+ * Callback that fires when the receive fifo exceeds the configured threshold
+ * value.  Provides the number of bytes available in the receive fifo at the
+ * time of the callback dispatch.
+ */
+void RAILCb_RxFifoAlmostFull(uint16_t bytesAvailable)
+{
+}
+
+/**
+ * Callback that fires when the transmit fifo falls under the configured
+ * threshold value
+ *
+ * @param[in] spaceAvailable Number of bytes open in the transmit fifo at the
+ * time of the callback dispatch
+ *
+ * @return void
+ * @warning You must implement a stub for this in your RAIL application.
+ *
+ * Callback that fires when the transmit fifo falls under the configured
+ * threshold value. It only fires if a rising edge occurs across this
+ * threshold. This callback will not fire on initailization nor after resetting
+ * the transmit fifo with RAIL_ResetFifo().
+ *
+ * Provides the number of bytes open in the transmit fifo at the time of the
+ * callback dispatch.
+ */
+void RAILCb_TxFifoAlmostEmpty(uint16_t spaceAvailable)
+{
+}

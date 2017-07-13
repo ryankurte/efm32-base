@@ -1,10 +1,10 @@
 /***************************************************************************//**
  * @file em_burtc.c
  * @brief Backup Real Time Counter (BURTC) Peripheral API
- * @version 4.2.1
+ * @version 5.2.1
  *******************************************************************************
- * @section License
- * <b>(C) Copyright 2015 Silicon Labs, http://www.silabs.com</b>
+ * # License
+ * <b>Copyright 2016 Silicon Laboratories, Inc. http://www.silabs.com</b>
  *******************************************************************************
  *
  * Permission is granted to anyone to use this software for any purpose,
@@ -30,18 +30,22 @@
  *
  ******************************************************************************/
 
-
 #include "em_burtc.h"
 #if defined(BURTC_PRESENT)
 
 /***************************************************************************//**
- * @addtogroup EM_Library
+ * @addtogroup emlib
  * @{
  ******************************************************************************/
 
 /***************************************************************************//**
  * @addtogroup BURTC
  * @brief Backup Real Time Counter (BURTC) Peripheral API
+ * @details
+ *  This module contains functions to control the BURTC peripheral of Silicon
+ *  Labs 32-bit MCUs. The Backup Real Time Counter allows timekeeping in all
+ *  energy modes. The Backup RTC is also available when the system is in backup
+ *  mode.
  * @{
  ******************************************************************************/
 
@@ -73,7 +77,6 @@ __STATIC_INLINE uint32_t divToLog2(uint32_t div)
   return log2;
 }
 
-
 /***************************************************************************//**
  * @brief
  *   Wait for ongoing sync of register(s) to low frequency domain to complete.
@@ -88,8 +91,7 @@ __STATIC_INLINE void regSync(uint32_t mask)
      activated, or when no clock is selected for the BURTC. If no clock is
      selected, then the sync is done once the clock source is set. */
   if ((BURTC->FREEZE & BURTC_FREEZE_REGFREEZE)
-      || ((BURTC->CTRL & _BURTC_CTRL_CLKSEL_MASK) != _BURTC_CTRL_CLKSEL_NONE))
-  {
+      || ((BURTC->CTRL & _BURTC_CTRL_CLKSEL_MASK) == BURTC_CTRL_CLKSEL_NONE)) {
     return;
   }
   /* Wait for any pending previous write operation to have been completed */
@@ -98,7 +100,6 @@ __STATIC_INLINE void regSync(uint32_t mask)
     ;
 }
 /** @endcond */
-
 
 /*******************************************************************************
  **************************   GLOBAL FUNCTIONS   *******************************
@@ -135,13 +136,13 @@ void BURTC_Init(const BURTC_Init_TypeDef *burtcInit)
   /* Note! Giant Gecko revision C errata, do NOT use LPCOMP=7 */
   EFM_ASSERT(burtcInit->lowPowerComp <= 6);
   /* You cannot enable the BURTC if mode is set to disabled */
-  EFM_ASSERT((burtcInit->enable == false) ||
-             ((burtcInit->enable == true)
-              && (burtcInit->mode != burtcModeDisable)));
+  EFM_ASSERT((burtcInit->enable == false)
+             || ((burtcInit->enable == true)
+                 && (burtcInit->mode != burtcModeDisable)));
   /* Low power mode is only available with LFRCO or LFXO as clock source */
   EFM_ASSERT((burtcInit->clkSel != burtcClkSelULFRCO)
              || ((burtcInit->clkSel == burtcClkSelULFRCO)
-                  && (burtcInit->lowPowerMode == burtcLPDisable)));
+                 && (burtcInit->lowPowerMode == burtcLPDisable)));
 
   /* Calculate prescaler value from clock divider input */
   /* Note! If clock select (clkSel) is ULFRCO, a clock divisor (clkDiv) of
@@ -150,8 +151,7 @@ void BURTC_Init(const BURTC_Init_TypeDef *burtcInit)
   presc = divToLog2(burtcInit->clkDiv);
 
   /* Make sure all registers are updated simultaneously */
-  if (burtcInit->enable)
-  {
+  if (burtcInit->enable) {
     BURTC_FreezeEnable(true);
   }
 
@@ -179,8 +179,7 @@ void BURTC_Init(const BURTC_Init_TypeDef *burtcInit)
   BURTC->CTRL = ctrl;
 
   /* Enable BURTC and counter */
-  if (burtcInit->enable)
-  {
+  if (burtcInit->enable) {
     /* To enable BURTC counter, we need to disable reset */
     BURTC_Enable(true);
 
@@ -188,7 +187,6 @@ void BURTC_Init(const BURTC_Init_TypeDef *burtcInit)
     BURTC_FreezeEnable(false);
   }
 }
-
 
 /***************************************************************************//**
  * @brief Set BURTC compare channel
@@ -211,7 +209,6 @@ void BURTC_CompareSet(unsigned int comp, uint32_t value)
   BURTC->COMP0 = value;
 }
 
-
 /***************************************************************************//**
  * @brief Get BURTC compare value
  *
@@ -228,7 +225,6 @@ uint32_t BURTC_CompareGet(unsigned int comp)
   return BURTC->COMP0;
 }
 
-
 /***************************************************************************//**
  * @brief Reset counter
  ******************************************************************************/
@@ -238,7 +234,6 @@ void BURTC_CounterReset(void)
   BUS_RegBitWrite(&BURTC->CTRL, _BURTC_CTRL_RSTEN_SHIFT, 1);
   BUS_RegBitWrite(&BURTC->CTRL, _BURTC_CTRL_RSTEN_SHIFT, 0);
 }
-
 
 /***************************************************************************//**
  * @brief
@@ -258,7 +253,6 @@ void BURTC_Reset(void)
   BUS_RegBitWrite(&RMU->CTRL, _RMU_CTRL_BURSTEN_SHIFT, buResetState);
 }
 
-
 /***************************************************************************//**
  * @brief
  *   Get clock frequency of the BURTC.
@@ -275,16 +269,12 @@ uint32_t BURTC_ClockFreqGet(void)
   clkSel = BURTC->CTRL & _BURTC_CTRL_CLKSEL_MASK;
   clkDiv = (BURTC->CTRL & _BURTC_CTRL_PRESC_MASK) >> _BURTC_CTRL_PRESC_SHIFT;
 
-  switch (clkSel)
-  {
+  switch (clkSel) {
     /** Ultra low frequency (1 kHz) clock */
     case BURTC_CTRL_CLKSEL_ULFRCO:
-      if (_BURTC_CTRL_PRESC_DIV1 == clkDiv)
-      {
+      if (_BURTC_CTRL_PRESC_DIV1 == clkDiv) {
         frequency = 2000;     /* 2KHz when clock divisor is 1. */
-      }
-      else
-      {
+      } else {
         frequency = SystemULFRCOClockGet();  /* 1KHz when divisor is different
                                                 from 1. */
       }
@@ -307,8 +297,7 @@ uint32_t BURTC_ClockFreqGet(void)
   return frequency;
 }
 
-
 /** @} (end addtogroup BURTC) */
-/** @} (end addtogroup EM_Library) */
+/** @} (end addtogroup emlib) */
 
 #endif /* BURTC_PRESENT */

@@ -1,10 +1,10 @@
 /**************************************************************************//**
  * @file efm32gg_ebi.h
  * @brief EFM32GG_EBI register and bit field definitions
- * @version 4.2.1
+ * @version 5.2.1
  ******************************************************************************
- * @section License
- * <b>Copyright 2015 Silicon Laboratories, Inc. http://www.silabs.com</b>
+ * # License
+ * <b>Copyright 2017 Silicon Laboratories, Inc. http://www.silabs.com</b>
  ******************************************************************************
  *
  * Permission is granted to anyone to use this software for any purpose,
@@ -29,6 +29,13 @@
  * any third party, arising from your use of this Software.
  *
  *****************************************************************************/
+
+#if defined(__ICCARM__)
+#pragma system_include       /* Treat file as system include file. */
+#elif defined(__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050)
+#pragma clang system_header  /* Treat file as system include file. */
+#endif
+
 /**************************************************************************//**
 * @addtogroup Parts
 * @{
@@ -40,49 +47,49 @@
  *****************************************************************************/
 typedef struct
 {
-  __IO uint32_t CTRL;         /**< Control Register  */
-  __IO uint32_t ADDRTIMING;   /**< Address Timing Register  */
-  __IO uint32_t RDTIMING;     /**< Read Timing Register  */
-  __IO uint32_t WRTIMING;     /**< Write Timing Register  */
-  __IO uint32_t POLARITY;     /**< Polarity Register  */
-  __IO uint32_t ROUTE;        /**< I/O Routing Register  */
-  __IO uint32_t ADDRTIMING1;  /**< Address Timing Register 1  */
-  __IO uint32_t RDTIMING1;    /**< Read Timing Register 1  */
-  __IO uint32_t WRTIMING1;    /**< Write Timing Register 1  */
-  __IO uint32_t POLARITY1;    /**< Polarity Register 1  */
-  __IO uint32_t ADDRTIMING2;  /**< Address Timing Register 2  */
-  __IO uint32_t RDTIMING2;    /**< Read Timing Register 2  */
-  __IO uint32_t WRTIMING2;    /**< Write Timing Register 2  */
-  __IO uint32_t POLARITY2;    /**< Polarity Register 2  */
-  __IO uint32_t ADDRTIMING3;  /**< Address Timing Register 3  */
-  __IO uint32_t RDTIMING3;    /**< Read Timing Register 3  */
-  __IO uint32_t WRTIMING3;    /**< Write Timing Register 3  */
-  __IO uint32_t POLARITY3;    /**< Polarity Register 3  */
-  __IO uint32_t PAGECTRL;     /**< Page Control Register  */
-  __IO uint32_t NANDCTRL;     /**< NAND Control Register  */
-  __IO uint32_t CMD;          /**< Command Register  */
-  __I uint32_t  STATUS;       /**< Status Register  */
-  __I uint32_t  ECCPARITY;    /**< ECC Parity register  */
-  __IO uint32_t TFTCTRL;      /**< TFT Control Register  */
-  __I uint32_t  TFTSTATUS;    /**< TFT Status Register  */
-  __IO uint32_t TFTFRAMEBASE; /**< TFT Frame Base Register  */
-  __IO uint32_t TFTSTRIDE;    /**< TFT Stride Register  */
-  __IO uint32_t TFTSIZE;      /**< TFT Size Register  */
-  __IO uint32_t TFTHPORCH;    /**< TFT Horizontal Porch Register  */
-  __IO uint32_t TFTVPORCH;    /**< TFT Vertical Porch Register  */
-  __IO uint32_t TFTTIMING;    /**< TFT Timing Register  */
-  __IO uint32_t TFTPOLARITY;  /**< TFT Polarity Register  */
-  __IO uint32_t TFTDD;        /**< TFT Direct Drive Data Register  */
-  __IO uint32_t TFTALPHA;     /**< TFT Alpha Blending Register  */
-  __IO uint32_t TFTPIXEL0;    /**< TFT Pixel 0 Register  */
-  __IO uint32_t TFTPIXEL1;    /**< TFT Pixel 1 Register  */
-  __I uint32_t  TFTPIXEL;     /**< TFT Alpha Blending Result Pixel Register  */
-  __IO uint32_t TFTMASK;      /**< TFT Masking Register  */
-  __I uint32_t  IF;           /**< Interrupt Flag Register  */
-  __IO uint32_t IFS;          /**< Interrupt Flag Set Register  */
-  __IO uint32_t IFC;          /**< Interrupt Flag Clear Register  */
-  __IO uint32_t IEN;          /**< Interrupt Enable Register  */
-} EBI_TypeDef;                /** @} */
+  __IOM uint32_t CTRL;         /**< Control Register  */
+  __IOM uint32_t ADDRTIMING;   /**< Address Timing Register  */
+  __IOM uint32_t RDTIMING;     /**< Read Timing Register  */
+  __IOM uint32_t WRTIMING;     /**< Write Timing Register  */
+  __IOM uint32_t POLARITY;     /**< Polarity Register  */
+  __IOM uint32_t ROUTE;        /**< I/O Routing Register  */
+  __IOM uint32_t ADDRTIMING1;  /**< Address Timing Register 1  */
+  __IOM uint32_t RDTIMING1;    /**< Read Timing Register 1  */
+  __IOM uint32_t WRTIMING1;    /**< Write Timing Register 1  */
+  __IOM uint32_t POLARITY1;    /**< Polarity Register 1  */
+  __IOM uint32_t ADDRTIMING2;  /**< Address Timing Register 2  */
+  __IOM uint32_t RDTIMING2;    /**< Read Timing Register 2  */
+  __IOM uint32_t WRTIMING2;    /**< Write Timing Register 2  */
+  __IOM uint32_t POLARITY2;    /**< Polarity Register 2  */
+  __IOM uint32_t ADDRTIMING3;  /**< Address Timing Register 3  */
+  __IOM uint32_t RDTIMING3;    /**< Read Timing Register 3  */
+  __IOM uint32_t WRTIMING3;    /**< Write Timing Register 3  */
+  __IOM uint32_t POLARITY3;    /**< Polarity Register 3  */
+  __IOM uint32_t PAGECTRL;     /**< Page Control Register  */
+  __IOM uint32_t NANDCTRL;     /**< NAND Control Register  */
+  __IOM uint32_t CMD;          /**< Command Register  */
+  __IM uint32_t  STATUS;       /**< Status Register  */
+  __IM uint32_t  ECCPARITY;    /**< ECC Parity register  */
+  __IOM uint32_t TFTCTRL;      /**< TFT Control Register  */
+  __IM uint32_t  TFTSTATUS;    /**< TFT Status Register  */
+  __IOM uint32_t TFTFRAMEBASE; /**< TFT Frame Base Register  */
+  __IOM uint32_t TFTSTRIDE;    /**< TFT Stride Register  */
+  __IOM uint32_t TFTSIZE;      /**< TFT Size Register  */
+  __IOM uint32_t TFTHPORCH;    /**< TFT Horizontal Porch Register  */
+  __IOM uint32_t TFTVPORCH;    /**< TFT Vertical Porch Register  */
+  __IOM uint32_t TFTTIMING;    /**< TFT Timing Register  */
+  __IOM uint32_t TFTPOLARITY;  /**< TFT Polarity Register  */
+  __IOM uint32_t TFTDD;        /**< TFT Direct Drive Data Register  */
+  __IOM uint32_t TFTALPHA;     /**< TFT Alpha Blending Register  */
+  __IOM uint32_t TFTPIXEL0;    /**< TFT Pixel 0 Register  */
+  __IOM uint32_t TFTPIXEL1;    /**< TFT Pixel 1 Register  */
+  __IM uint32_t  TFTPIXEL;     /**< TFT Alpha Blending Result Pixel Register  */
+  __IOM uint32_t TFTMASK;      /**< TFT Masking Register  */
+  __IM uint32_t  IF;           /**< Interrupt Flag Register  */
+  __IOM uint32_t IFS;          /**< Interrupt Flag Set Register  */
+  __IOM uint32_t IFC;          /**< Interrupt Flag Clear Register  */
+  __IOM uint32_t IEN;          /**< Interrupt Enable Register  */
+} EBI_TypeDef;                 /**< EBI Register Declaration *//** @} */
 
 /**************************************************************************//**
  * @defgroup EFM32GG_EBI_BitFields

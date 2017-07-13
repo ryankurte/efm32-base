@@ -1,10 +1,10 @@
 /**************************************************************************//**
  * @file efm32g_lcd.h
  * @brief EFM32G_LCD register and bit field definitions
- * @version 4.2.1
+ * @version 5.2.1
  ******************************************************************************
- * @section License
- * <b>Copyright 2015 Silicon Laboratories, Inc. http://www.silabs.com</b>
+ * # License
+ * <b>Copyright 2017 Silicon Laboratories, Inc. http://www.silabs.com</b>
  ******************************************************************************
  *
  * Permission is granted to anyone to use this software for any purpose,
@@ -29,6 +29,13 @@
  * any third party, arising from your use of this Software.
  *
  *****************************************************************************/
+
+#if defined(__ICCARM__)
+#pragma system_include       /* Treat file as system include file. */
+#elif defined(__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050)
+#pragma clang system_header  /* Treat file as system include file. */
+#endif
+
 /**************************************************************************//**
 * @addtogroup Parts
 * @{
@@ -40,30 +47,30 @@
  *****************************************************************************/
 typedef struct
 {
-  __IO uint32_t CTRL;         /**< Control Register  */
-  __IO uint32_t DISPCTRL;     /**< Display Control Register  */
-  __IO uint32_t SEGEN;        /**< Segment Enable Register  */
-  __IO uint32_t BACTRL;       /**< Blink and Animation Control Register  */
-  __I uint32_t  STATUS;       /**< Status Register  */
-  __IO uint32_t AREGA;        /**< Animation Register A  */
-  __IO uint32_t AREGB;        /**< Animation Register B  */
-  __I uint32_t  IF;           /**< Interrupt Flag Register  */
-  __IO uint32_t IFS;          /**< Interrupt Flag Set Register  */
-  __IO uint32_t IFC;          /**< Interrupt Flag Clear Register  */
-  __IO uint32_t IEN;          /**< Interrupt Enable Register  */
-  uint32_t      RESERVED0[5]; /**< Reserved for future use **/
-  __IO uint32_t SEGD0L;       /**< Segment Data Low Register 0  */
-  __IO uint32_t SEGD1L;       /**< Segment Data Low Register 1  */
-  __IO uint32_t SEGD2L;       /**< Segment Data Low Register 2  */
-  __IO uint32_t SEGD3L;       /**< Segment Data Low Register 3  */
-  __IO uint32_t SEGD0H;       /**< Segment Data High Register 0  */
-  __IO uint32_t SEGD1H;       /**< Segment Data High Register 1  */
-  __IO uint32_t SEGD2H;       /**< Segment Data High Register 2  */
-  __IO uint32_t SEGD3H;       /**< Segment Data High Register 3  */
+  __IOM uint32_t CTRL;         /**< Control Register  */
+  __IOM uint32_t DISPCTRL;     /**< Display Control Register  */
+  __IOM uint32_t SEGEN;        /**< Segment Enable Register  */
+  __IOM uint32_t BACTRL;       /**< Blink and Animation Control Register  */
+  __IM uint32_t  STATUS;       /**< Status Register  */
+  __IOM uint32_t AREGA;        /**< Animation Register A  */
+  __IOM uint32_t AREGB;        /**< Animation Register B  */
+  __IM uint32_t  IF;           /**< Interrupt Flag Register  */
+  __IOM uint32_t IFS;          /**< Interrupt Flag Set Register  */
+  __IOM uint32_t IFC;          /**< Interrupt Flag Clear Register  */
+  __IOM uint32_t IEN;          /**< Interrupt Enable Register  */
+  uint32_t       RESERVED0[5]; /**< Reserved for future use **/
+  __IOM uint32_t SEGD0L;       /**< Segment Data Low Register 0  */
+  __IOM uint32_t SEGD1L;       /**< Segment Data Low Register 1  */
+  __IOM uint32_t SEGD2L;       /**< Segment Data Low Register 2  */
+  __IOM uint32_t SEGD3L;       /**< Segment Data Low Register 3  */
+  __IOM uint32_t SEGD0H;       /**< Segment Data High Register 0  */
+  __IOM uint32_t SEGD1H;       /**< Segment Data High Register 1  */
+  __IOM uint32_t SEGD2H;       /**< Segment Data High Register 2  */
+  __IOM uint32_t SEGD3H;       /**< Segment Data High Register 3  */
 
-  __IO uint32_t FREEZE;       /**< Freeze Register  */
-  __I uint32_t  SYNCBUSY;     /**< Synchronization Busy Register  */
-} LCD_TypeDef;                /** @} */
+  __IOM uint32_t FREEZE;       /**< Freeze Register  */
+  __IM uint32_t  SYNCBUSY;     /**< Synchronization Busy Register  */
+} LCD_TypeDef;                 /**< LCD Register Declaration *//** @} */
 
 /**************************************************************************//**
  * @defgroup EFM32G_LCD_BitFields

@@ -1,13 +1,13 @@
-/* Linker script for Silicon Labs EZR32LG devices */
-/*                                                                  */
-/* This file is subject to the license terms as defined in ARM's    */
-/* CMSIS END USER LICENSE AGREEMENT.pdf, governing the use of       */
-/* Example Code.                                                    */
-/*                                                                  */
-/* Silicon Laboratories, Inc. 2015                                  */
-/*                                                                  */
-/* Version 4.2.0 */
-/*                                                                  */
+/* Linker script for Silicon Labs EZR32LG devices                      */
+/*                                                                     */
+/* This file is subject to the license terms as defined in ARM's       */
+/* CMSIS END USER LICENSE AGREEMENT.pdf, governing the use of          */
+/* Example Code.                                                       */
+/*                                                                     */
+/* Copyright 2017 Silicon Laboratories, Inc. http://www.silabs.com     */
+/*                                                                     */
+/* Version 5.2.1 */
+/*                                                                     */
 
 MEMORY
 {

@@ -2,10 +2,10 @@
  * @file efm32hg108f64.h
  * @brief CMSIS Cortex-M Peripheral Access Layer Header File
  *        for EFM32HG108F64
- * @version 4.2.1
+ * @version 5.2.1
  ******************************************************************************
- * @section License
- * <b>Copyright 2015 Silicon Laboratories, Inc. http://www.silabs.com</b>
+ * # License
+ * <b>Copyright 2017 Silicon Laboratories, Inc. http://www.silabs.com</b>
  ******************************************************************************
  *
  * Permission is granted to anyone to use this software for any purpose,
@@ -31,6 +31,12 @@
  *
  *****************************************************************************/
 
+#if defined(__ICCARM__)
+#pragma system_include       /* Treat file as system include file. */
+#elif defined(__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050)
+#pragma clang system_header  /* Treat file as system include file. */
+#endif
+
 #ifndef EFM32HG108F64_H
 #define EFM32HG108F64_H
 
@@ -52,31 +58,31 @@ extern "C" {
 typedef enum IRQn
 {
 /******  Cortex-M0+ Processor Exceptions Numbers *****************************************/
-  NonMaskableInt_IRQn = -14,                /*!< 2 Cortex-M0+ Non Maskable Interrupt     */
-  HardFault_IRQn      = -13,                /*!< 3 Cortex-M0+ Hard Fault Interrupt       */
-  SVCall_IRQn         = -5,                 /*!< 11 Cortex-M0+ SV Call Interrupt         */
-  PendSV_IRQn         = -2,                 /*!< 14 Cortex-M0+ Pend SV Interrupt         */
-  SysTick_IRQn        = -1,                 /*!< 15 Cortex-M0+ System Tick Interrupt     */
+  NonMaskableInt_IRQn = -14,                /*!< -14 Cortex-M0+ Non Maskable Interrupt   */
+  HardFault_IRQn      = -13,                /*!< -13 Cortex-M0+ Hard Fault Interrupt     */
+  SVCall_IRQn         = -5,                 /*!< -5  Cortex-M0+ SV Call Interrupt        */
+  PendSV_IRQn         = -2,                 /*!< -2  Cortex-M0+ Pend SV Interrupt        */
+  SysTick_IRQn        = -1,                 /*!< -1  Cortex-M0+ System Tick Interrupt    */
 
-/******  EFM32HG Peripheral Interrupt Numbers *********************************************/
-  DMA_IRQn            = 0,  /*!< 16+0 EFM32 DMA Interrupt */
-  GPIO_EVEN_IRQn      = 1,  /*!< 16+1 EFM32 GPIO_EVEN Interrupt */
-  TIMER0_IRQn         = 2,  /*!< 16+2 EFM32 TIMER0 Interrupt */
-  ACMP0_IRQn          = 3,  /*!< 16+3 EFM32 ACMP0 Interrupt */
-  I2C0_IRQn           = 5,  /*!< 16+5 EFM32 I2C0 Interrupt */
-  GPIO_ODD_IRQn       = 6,  /*!< 16+6 EFM32 GPIO_ODD Interrupt */
-  TIMER1_IRQn         = 7,  /*!< 16+7 EFM32 TIMER1 Interrupt */
-  USART1_RX_IRQn      = 8,  /*!< 16+8 EFM32 USART1_RX Interrupt */
-  USART1_TX_IRQn      = 9,  /*!< 16+9 EFM32 USART1_TX Interrupt */
-  LEUART0_IRQn        = 10, /*!< 16+10 EFM32 LEUART0 Interrupt */
-  PCNT0_IRQn          = 11, /*!< 16+11 EFM32 PCNT0 Interrupt */
-  RTC_IRQn            = 12, /*!< 16+12 EFM32 RTC Interrupt */
-  CMU_IRQn            = 13, /*!< 16+13 EFM32 CMU Interrupt */
-  VCMP_IRQn           = 14, /*!< 16+14 EFM32 VCMP Interrupt */
-  MSC_IRQn            = 15, /*!< 16+15 EFM32 MSC Interrupt */
-  USART0_RX_IRQn      = 17, /*!< 16+17 EFM32 USART0_RX Interrupt */
-  USART0_TX_IRQn      = 18, /*!< 16+18 EFM32 USART0_TX Interrupt */
-  TIMER2_IRQn         = 20, /*!< 16+20 EFM32 TIMER2 Interrupt */
+/******  EFM32HG Peripheral Interrupt Numbers ********************************************/
+  DMA_IRQn            = 0,  /*!< 0 EFM32 DMA Interrupt */
+  GPIO_EVEN_IRQn      = 1,  /*!< 1 EFM32 GPIO_EVEN Interrupt */
+  TIMER0_IRQn         = 2,  /*!< 2 EFM32 TIMER0 Interrupt */
+  ACMP0_IRQn          = 3,  /*!< 3 EFM32 ACMP0 Interrupt */
+  I2C0_IRQn           = 5,  /*!< 5 EFM32 I2C0 Interrupt */
+  GPIO_ODD_IRQn       = 6,  /*!< 6 EFM32 GPIO_ODD Interrupt */
+  TIMER1_IRQn         = 7,  /*!< 7 EFM32 TIMER1 Interrupt */
+  USART1_RX_IRQn      = 8,  /*!< 8 EFM32 USART1_RX Interrupt */
+  USART1_TX_IRQn      = 9,  /*!< 9 EFM32 USART1_TX Interrupt */
+  LEUART0_IRQn        = 10, /*!< 10 EFM32 LEUART0 Interrupt */
+  PCNT0_IRQn          = 11, /*!< 11 EFM32 PCNT0 Interrupt */
+  RTC_IRQn            = 12, /*!< 12 EFM32 RTC Interrupt */
+  CMU_IRQn            = 13, /*!< 13 EFM32 CMU Interrupt */
+  VCMP_IRQn           = 14, /*!< 14 EFM32 VCMP Interrupt */
+  MSC_IRQn            = 15, /*!< 15 EFM32 MSC Interrupt */
+  USART0_RX_IRQn      = 17, /*!< 17 EFM32 USART0_RX Interrupt */
+  USART0_TX_IRQn      = 18, /*!< 18 EFM32 USART0_TX Interrupt */
+  TIMER2_IRQn         = 20, /*!< 20 EFM32 TIMER2 Interrupt */
 } IRQn_Type;
 
 /**************************************************************************//**
@@ -97,10 +103,14 @@ typedef enum IRQn
 ******************************************************************************/
 
 /** Part family */
-#define _EFM32_HAPPY_FAMILY             1 /**< Happy Gecko EFM32HG MCU Family */
-#define _EFM_DEVICE                       /**< Silicon Labs EFM-type microcontroller */
-#define _SILICON_LABS_32B_PLATFORM_1      /**< Silicon Labs platform name */
-#define _SILICON_LABS_32B_PLATFORM      1 /**< Silicon Labs platform name */
+#define _EFM32_HAPPY_FAMILY                     1  /**< Happy Gecko EFM32HG MCU Family */
+#define _EFM_DEVICE                                /**< Silicon Labs EFM-type microcontroller */
+#define _SILICON_LABS_32B_SERIES_0                 /**< Silicon Labs series number */
+#define _SILICON_LABS_32B_SERIES                0  /**< Silicon Labs series number */
+#define _SILICON_LABS_GECKO_INTERNAL_SDID       77 /**< Silicon Labs internal use only, may change any time */
+#define _SILICON_LABS_GECKO_INTERNAL_SDID_77       /**< Silicon Labs internal use only, may change any time */
+#define _SILICON_LABS_32B_PLATFORM_1               /**< @deprecated Silicon Labs platform name */
+#define _SILICON_LABS_32B_PLATFORM              1  /**< @deprecated Silicon Labs platform name */
 
 /* If part number is not defined as compiler option, define it */
 #if !defined(EFM32HG108F64)
@@ -143,12 +153,13 @@ typedef enum IRQn
 /** Flash and SRAM limits for EFM32HG108F64 */
 #define FLASH_BASE           (0x00000000UL) /**< Flash Base Address */
 #define FLASH_SIZE           (0x00010000UL) /**< Available Flash Memory */
-#define FLASH_PAGE_SIZE      1024           /**< Flash Memory page size */
+#define FLASH_PAGE_SIZE      1024U          /**< Flash Memory page size */
 #define SRAM_BASE            (0x20000000UL) /**< SRAM Base Address */
 #define SRAM_SIZE            (0x00002000UL) /**< Available SRAM Memory */
 #define __CM0PLUS_REV        0x001          /**< Cortex-M0+ Core revision r0p1 */
 #define PRS_CHAN_COUNT       6              /**< Number of PRS channels */
 #define DMA_CHAN_COUNT       6              /**< Number of DMA channels */
+#define EXT_IRQ_COUNT        21             /**< Number of External (NVIC) interrupts */
 
 /** AF channels connect the different on-chip peripherals with the af-mux */
 #define AFCHAN_MAX           42
@@ -158,56 +169,56 @@ typedef enum IRQn
 
 /* Part number capabilities */
 
-#define TIMER_PRESENT         /**< TIMER is available in this part */
-#define TIMER_COUNT         3 /**< 3 TIMERs available  */
-#define ACMP_PRESENT          /**< ACMP is available in this part */
-#define ACMP_COUNT          1 /**< 1 ACMPs available  */
-#define USART_PRESENT         /**< USART is available in this part */
-#define USART_COUNT         2 /**< 2 USARTs available  */
-#define LEUART_PRESENT        /**< LEUART is available in this part */
-#define LEUART_COUNT        1 /**< 1 LEUARTs available  */
-#define PCNT_PRESENT          /**< PCNT is available in this part */
-#define PCNT_COUNT          1 /**< 1 PCNTs available  */
-#define I2C_PRESENT           /**< I2C is available in this part */
-#define I2C_COUNT           1 /**< 1 I2Cs available  */
-#define DMA_PRESENT
-#define DMA_COUNT           1
-#define LE_PRESENT
-#define LE_COUNT            1
-#define USBLE_PRESENT
-#define USBLE_COUNT         1
-#define MSC_PRESENT
-#define MSC_COUNT           1
-#define EMU_PRESENT
-#define EMU_COUNT           1
-#define RMU_PRESENT
-#define RMU_COUNT           1
-#define CMU_PRESENT
-#define CMU_COUNT           1
-#define PRS_PRESENT
-#define PRS_COUNT           1
-#define GPIO_PRESENT
-#define GPIO_COUNT          1
-#define VCMP_PRESENT
-#define VCMP_COUNT          1
-#define RTC_PRESENT
-#define RTC_COUNT           1
-#define HFXTAL_PRESENT
-#define HFXTAL_COUNT        1
-#define LFXTAL_PRESENT
-#define LFXTAL_COUNT        1
-#define USHFRCO_PRESENT
-#define USHFRCO_COUNT       1
-#define WDOG_PRESENT
-#define WDOG_COUNT          1
-#define DBG_PRESENT
-#define DBG_COUNT           1
-#define MTB_PRESENT
-#define MTB_COUNT           1
-#define BOOTLOADER_PRESENT
-#define BOOTLOADER_COUNT    1
-#define ANALOG_PRESENT
-#define ANALOG_COUNT        1
+#define TIMER_PRESENT           /**< TIMER is available in this part */
+#define TIMER_COUNT           3 /**< 3 TIMERs available  */
+#define ACMP_PRESENT            /**< ACMP is available in this part */
+#define ACMP_COUNT            1 /**< 1 ACMPs available  */
+#define USART_PRESENT           /**< USART is available in this part */
+#define USART_COUNT           2 /**< 2 USARTs available  */
+#define LEUART_PRESENT          /**< LEUART is available in this part */
+#define LEUART_COUNT          1 /**< 1 LEUARTs available  */
+#define PCNT_PRESENT            /**< PCNT is available in this part */
+#define PCNT_COUNT            1 /**< 1 PCNTs available  */
+#define I2C_PRESENT             /**< I2C is available in this part */
+#define I2C_COUNT             1 /**< 1 I2Cs available  */
+#define DMA_PRESENT             /**< DMA is available in this part */
+#define DMA_COUNT             1 /**< 1 DMA available */
+#define LE_PRESENT              /**< LE is available in this part */
+#define LE_COUNT              1 /**< 1 LE available */
+#define USBLE_PRESENT           /**< USBLE is available in this part */
+#define USBLE_COUNT           1 /**< 1 USBLE available */
+#define MSC_PRESENT             /**< MSC is available in this part */
+#define MSC_COUNT             1 /**< 1 MSC available */
+#define EMU_PRESENT             /**< EMU is available in this part */
+#define EMU_COUNT             1 /**< 1 EMU available */
+#define RMU_PRESENT             /**< RMU is available in this part */
+#define RMU_COUNT             1 /**< 1 RMU available */
+#define CMU_PRESENT             /**< CMU is available in this part */
+#define CMU_COUNT             1 /**< 1 CMU available */
+#define PRS_PRESENT             /**< PRS is available in this part */
+#define PRS_COUNT             1 /**< 1 PRS available */
+#define GPIO_PRESENT            /**< GPIO is available in this part */
+#define GPIO_COUNT            1 /**< 1 GPIO available */
+#define VCMP_PRESENT            /**< VCMP is available in this part */
+#define VCMP_COUNT            1 /**< 1 VCMP available */
+#define RTC_PRESENT             /**< RTC is available in this part */
+#define RTC_COUNT             1 /**< 1 RTC available */
+#define HFXTAL_PRESENT          /**< HFXTAL is available in this part */
+#define HFXTAL_COUNT          1 /**< 1 HFXTAL available */
+#define LFXTAL_PRESENT          /**< LFXTAL is available in this part */
+#define LFXTAL_COUNT          1 /**< 1 LFXTAL available */
+#define USHFRCO_PRESENT         /**< USHFRCO is available in this part */
+#define USHFRCO_COUNT         1 /**< 1 USHFRCO available */
+#define WDOG_PRESENT            /**< WDOG is available in this part */
+#define WDOG_COUNT            1 /**< 1 WDOG available */
+#define DBG_PRESENT             /**< DBG is available in this part */
+#define DBG_COUNT             1 /**< 1 DBG available */
+#define MTB_PRESENT             /**< MTB is available in this part */
+#define MTB_COUNT             1 /**< 1 MTB available */
+#define BOOTLOADER_PRESENT      /**< BOOTLOADER is available in this part */
+#define BOOTLOADER_COUNT      1 /**< 1 BOOTLOADER available */
+#define ANALOG_PRESENT          /**< ANALOG is available in this part */
+#define ANALOG_COUNT          1 /**< 1 ANALOG available */
 
 /** @} End of group EFM32HG108F64_Part */
 
@@ -231,39 +242,39 @@ typedef enum IRQn
  *****************************************************************************/
 typedef struct
 {
-  __I uint32_t   STATUS;         /**< DMA Status Registers  */
-  __O uint32_t   CONFIG;         /**< DMA Configuration Register  */
-  __IO uint32_t  CTRLBASE;       /**< Channel Control Data Base Pointer Register  */
-  __I uint32_t   ALTCTRLBASE;    /**< Channel Alternate Control Data Base Pointer Register  */
-  __I uint32_t   CHWAITSTATUS;   /**< Channel Wait on Request Status Register  */
-  __O uint32_t   CHSWREQ;        /**< Channel Software Request Register  */
-  __IO uint32_t  CHUSEBURSTS;    /**< Channel Useburst Set Register  */
-  __O uint32_t   CHUSEBURSTC;    /**< Channel Useburst Clear Register  */
-  __IO uint32_t  CHREQMASKS;     /**< Channel Request Mask Set Register  */
-  __O uint32_t   CHREQMASKC;     /**< Channel Request Mask Clear Register  */
-  __IO uint32_t  CHENS;          /**< Channel Enable Set Register  */
-  __O uint32_t   CHENC;          /**< Channel Enable Clear Register  */
-  __IO uint32_t  CHALTS;         /**< Channel Alternate Set Register  */
-  __O uint32_t   CHALTC;         /**< Channel Alternate Clear Register  */
-  __IO uint32_t  CHPRIS;         /**< Channel Priority Set Register  */
-  __O uint32_t   CHPRIC;         /**< Channel Priority Clear Register  */
+  __IM uint32_t  STATUS;         /**< DMA Status Registers  */
+  __OM uint32_t  CONFIG;         /**< DMA Configuration Register  */
+  __IOM uint32_t CTRLBASE;       /**< Channel Control Data Base Pointer Register  */
+  __IM uint32_t  ALTCTRLBASE;    /**< Channel Alternate Control Data Base Pointer Register  */
+  __IM uint32_t  CHWAITSTATUS;   /**< Channel Wait on Request Status Register  */
+  __OM uint32_t  CHSWREQ;        /**< Channel Software Request Register  */
+  __IOM uint32_t CHUSEBURSTS;    /**< Channel Useburst Set Register  */
+  __OM uint32_t  CHUSEBURSTC;    /**< Channel Useburst Clear Register  */
+  __IOM uint32_t CHREQMASKS;     /**< Channel Request Mask Set Register  */
+  __OM uint32_t  CHREQMASKC;     /**< Channel Request Mask Clear Register  */
+  __IOM uint32_t CHENS;          /**< Channel Enable Set Register  */
+  __OM uint32_t  CHENC;          /**< Channel Enable Clear Register  */
+  __IOM uint32_t CHALTS;         /**< Channel Alternate Set Register  */
+  __OM uint32_t  CHALTC;         /**< Channel Alternate Clear Register  */
+  __IOM uint32_t CHPRIS;         /**< Channel Priority Set Register  */
+  __OM uint32_t  CHPRIC;         /**< Channel Priority Clear Register  */
   uint32_t       RESERVED0[3];   /**< Reserved for future use **/
-  __IO uint32_t  ERRORC;         /**< Bus Error Clear Register  */
+  __IOM uint32_t ERRORC;         /**< Bus Error Clear Register  */
 
   uint32_t       RESERVED1[880]; /**< Reserved for future use **/
-  __I uint32_t   CHREQSTATUS;    /**< Channel Request Status  */
+  __IM uint32_t  CHREQSTATUS;    /**< Channel Request Status  */
   uint32_t       RESERVED2[1];   /**< Reserved for future use **/
-  __I uint32_t   CHSREQSTATUS;   /**< Channel Single Request Status  */
+  __IM uint32_t  CHSREQSTATUS;   /**< Channel Single Request Status  */
 
   uint32_t       RESERVED3[121]; /**< Reserved for future use **/
-  __I uint32_t   IF;             /**< Interrupt Flag Register  */
-  __IO uint32_t  IFS;            /**< Interrupt Flag Set Register  */
-  __IO uint32_t  IFC;            /**< Interrupt Flag Clear Register  */
-  __IO uint32_t  IEN;            /**< Interrupt Enable register  */
+  __IM uint32_t  IF;             /**< Interrupt Flag Register  */
+  __IOM uint32_t IFS;            /**< Interrupt Flag Set Register  */
+  __IOM uint32_t IFC;            /**< Interrupt Flag Clear Register  */
+  __IOM uint32_t IEN;            /**< Interrupt Enable register  */
 
   uint32_t       RESERVED4[60];  /**< Reserved registers */
   DMA_CH_TypeDef CH[6];          /**< Channel registers */
-} DMA_TypeDef;                   /** @} */
+} DMA_TypeDef;                   /**< DMA Register Declaration *//** @} */
 
 #include "efm32hg_msc.h"
 #include "efm32hg_emu.h"
@@ -276,47 +287,47 @@ typedef struct
  *****************************************************************************/
 typedef struct
 {
-  __IO uint32_t CTRL;          /**< CMU Control Register  */
-  __IO uint32_t HFCORECLKDIV;  /**< High Frequency Core Clock Division Register  */
-  __IO uint32_t HFPERCLKDIV;   /**< High Frequency Peripheral Clock Division Register  */
-  __IO uint32_t HFRCOCTRL;     /**< HFRCO Control Register  */
-  __IO uint32_t LFRCOCTRL;     /**< LFRCO Control Register  */
-  __IO uint32_t AUXHFRCOCTRL;  /**< AUXHFRCO Control Register  */
-  __IO uint32_t CALCTRL;       /**< Calibration Control Register  */
-  __IO uint32_t CALCNT;        /**< Calibration Counter Register  */
-  __IO uint32_t OSCENCMD;      /**< Oscillator Enable/Disable Command Register  */
-  __IO uint32_t CMD;           /**< Command Register  */
-  __IO uint32_t LFCLKSEL;      /**< Low Frequency Clock Select Register  */
-  __I uint32_t  STATUS;        /**< Status Register  */
-  __I uint32_t  IF;            /**< Interrupt Flag Register  */
-  __IO uint32_t IFS;           /**< Interrupt Flag Set Register  */
-  __IO uint32_t IFC;           /**< Interrupt Flag Clear Register  */
-  __IO uint32_t IEN;           /**< Interrupt Enable Register  */
-  __IO uint32_t HFCORECLKEN0;  /**< High Frequency Core Clock Enable Register 0  */
-  __IO uint32_t HFPERCLKEN0;   /**< High Frequency Peripheral Clock Enable Register 0  */
-  uint32_t      RESERVED0[2];  /**< Reserved for future use **/
-  __I uint32_t  SYNCBUSY;      /**< Synchronization Busy Register  */
-  __IO uint32_t FREEZE;        /**< Freeze Register  */
-  __IO uint32_t LFACLKEN0;     /**< Low Frequency A Clock Enable Register 0  (Async Reg)  */
-  uint32_t      RESERVED1[1];  /**< Reserved for future use **/
-  __IO uint32_t LFBCLKEN0;     /**< Low Frequency B Clock Enable Register 0 (Async Reg)  */
-  __IO uint32_t LFCCLKEN0;     /**< Low Frequency C Clock Enable Register 0 (Async Reg)  */
-  __IO uint32_t LFAPRESC0;     /**< Low Frequency A Prescaler Register 0 (Async Reg)  */
-  uint32_t      RESERVED2[1];  /**< Reserved for future use **/
-  __IO uint32_t LFBPRESC0;     /**< Low Frequency B Prescaler Register 0  (Async Reg)  */
-  uint32_t      RESERVED3[1];  /**< Reserved for future use **/
-  __IO uint32_t PCNTCTRL;      /**< PCNT Control Register  */
+  __IOM uint32_t CTRL;          /**< CMU Control Register  */
+  __IOM uint32_t HFCORECLKDIV;  /**< High Frequency Core Clock Division Register  */
+  __IOM uint32_t HFPERCLKDIV;   /**< High Frequency Peripheral Clock Division Register  */
+  __IOM uint32_t HFRCOCTRL;     /**< HFRCO Control Register  */
+  __IOM uint32_t LFRCOCTRL;     /**< LFRCO Control Register  */
+  __IOM uint32_t AUXHFRCOCTRL;  /**< AUXHFRCO Control Register  */
+  __IOM uint32_t CALCTRL;       /**< Calibration Control Register  */
+  __IOM uint32_t CALCNT;        /**< Calibration Counter Register  */
+  __IOM uint32_t OSCENCMD;      /**< Oscillator Enable/Disable Command Register  */
+  __IOM uint32_t CMD;           /**< Command Register  */
+  __IOM uint32_t LFCLKSEL;      /**< Low Frequency Clock Select Register  */
+  __IM uint32_t  STATUS;        /**< Status Register  */
+  __IM uint32_t  IF;            /**< Interrupt Flag Register  */
+  __IOM uint32_t IFS;           /**< Interrupt Flag Set Register  */
+  __IOM uint32_t IFC;           /**< Interrupt Flag Clear Register  */
+  __IOM uint32_t IEN;           /**< Interrupt Enable Register  */
+  __IOM uint32_t HFCORECLKEN0;  /**< High Frequency Core Clock Enable Register 0  */
+  __IOM uint32_t HFPERCLKEN0;   /**< High Frequency Peripheral Clock Enable Register 0  */
+  uint32_t       RESERVED0[2];  /**< Reserved for future use **/
+  __IM uint32_t  SYNCBUSY;      /**< Synchronization Busy Register  */
+  __IOM uint32_t FREEZE;        /**< Freeze Register  */
+  __IOM uint32_t LFACLKEN0;     /**< Low Frequency A Clock Enable Register 0  (Async Reg)  */
+  uint32_t       RESERVED1[1];  /**< Reserved for future use **/
+  __IOM uint32_t LFBCLKEN0;     /**< Low Frequency B Clock Enable Register 0 (Async Reg)  */
+  __IOM uint32_t LFCCLKEN0;     /**< Low Frequency C Clock Enable Register 0 (Async Reg)  */
+  __IOM uint32_t LFAPRESC0;     /**< Low Frequency A Prescaler Register 0 (Async Reg)  */
+  uint32_t       RESERVED2[1];  /**< Reserved for future use **/
+  __IOM uint32_t LFBPRESC0;     /**< Low Frequency B Prescaler Register 0  (Async Reg)  */
+  uint32_t       RESERVED3[1];  /**< Reserved for future use **/
+  __IOM uint32_t PCNTCTRL;      /**< PCNT Control Register  */
 
-  uint32_t      RESERVED4[1];  /**< Reserved for future use **/
-  __IO uint32_t ROUTE;         /**< I/O Routing Register  */
-  __IO uint32_t LOCK;          /**< Configuration Lock Register  */
+  uint32_t       RESERVED4[1];  /**< Reserved for future use **/
+  __IOM uint32_t ROUTE;         /**< I/O Routing Register  */
+  __IOM uint32_t LOCK;          /**< Configuration Lock Register  */
 
-  uint32_t      RESERVED5[18]; /**< Reserved for future use **/
-  __IO uint32_t USBCRCTRL;     /**< USB Clock Recovery Control  */
-  __IO uint32_t USHFRCOCTRL;   /**< USHFRCO Control  */
-  __IO uint32_t USHFRCOTUNE;   /**< USHFRCO Frequency Tune  */
-  __IO uint32_t USHFRCOCONF;   /**< USHFRCO Configuration  */
-} CMU_TypeDef;                 /** @} */
+  uint32_t       RESERVED5[18]; /**< Reserved for future use **/
+  __IOM uint32_t USBCRCTRL;     /**< USB Clock Recovery Control  */
+  __IOM uint32_t USHFRCOCTRL;   /**< USHFRCO Control  */
+  __IOM uint32_t USHFRCOTUNE;   /**< USHFRCO Frequency Tune  */
+  __IOM uint32_t USHFRCOCONF;   /**< USHFRCO Configuration  */
+} CMU_TypeDef;                  /**< CMU Register Declaration *//** @} */
 
 #include "efm32hg_timer_cc.h"
 #include "efm32hg_timer.h"
@@ -331,16 +342,16 @@ typedef struct
  *****************************************************************************/
 typedef struct
 {
-  __IO uint32_t  SWPULSE;      /**< Software Pulse Register  */
-  __IO uint32_t  SWLEVEL;      /**< Software Level Register  */
-  __IO uint32_t  ROUTE;        /**< I/O Routing Register  */
+  __IOM uint32_t SWPULSE;      /**< Software Pulse Register  */
+  __IOM uint32_t SWLEVEL;      /**< Software Level Register  */
+  __IOM uint32_t ROUTE;        /**< I/O Routing Register  */
 
   uint32_t       RESERVED0[1]; /**< Reserved registers */
   PRS_CH_TypeDef CH[6];        /**< Channel registers */
 
   uint32_t       RESERVED1[6]; /**< Reserved for future use **/
-  __IO uint32_t  TRACECTRL;    /**< MTB Trace Control Register  */
-} PRS_TypeDef;                 /** @} */
+  __IOM uint32_t TRACECTRL;    /**< MTB Trace Control Register  */
+} PRS_TypeDef;                 /**< PRS Register Declaration *//** @} */
 
 #include "efm32hg_gpio_p.h"
 #include "efm32hg_gpio.h"

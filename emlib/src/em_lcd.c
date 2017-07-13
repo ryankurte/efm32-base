@@ -1,10 +1,10 @@
 /***************************************************************************//**
  * @file em_lcd.c
  * @brief Liquid Crystal Display (LCD) Peripheral API
- * @version 4.2.1
+ * @version 5.2.1
  *******************************************************************************
- * @section License
- * <b>(C) Copyright 2015 Silicon Labs, http://www.silabs.com</b>
+ * # License
+ * <b>Copyright 2016 Silicon Laboratories, Inc. http://www.silabs.com</b>
  *******************************************************************************
  *
  * Permission is granted to anyone to use this software for any purpose,
@@ -35,14 +35,22 @@
 #include "em_assert.h"
 #include "em_bus.h"
 
+/* LCD is not supported for EFM32GG11 in this release. */
+#if !defined(_SILICON_LABS_GECKO_INTERNAL_SDID_100)
+
 /***************************************************************************//**
- * @addtogroup EM_Library
+ * @addtogroup emlib
  * @{
  ******************************************************************************/
 
 /***************************************************************************//**
  * @addtogroup LCD
  * @brief Liquid Crystal Display (LCD) Peripheral API
+ * @details
+ *  This module contains functions to control the LDC peripheral of Silicon
+ *  Labs 32-bit MCUs and SoCs. The LCD driver can drive up to 8x36 segmented
+ *  LCD directly. The animation feature makes it possible to have active
+ *  animations without CPU intervention.
  * @{
  ******************************************************************************/
 
@@ -90,12 +98,10 @@ void LCD_Init(const LCD_Init_TypeDef *lcdInit)
   LCD->DISPCTRL = dispCtrl;
 
   /* Enable controller if wanted */
-  if (lcdInit->enable)
-  {
+  if (lcdInit->enable) {
     LCD_Enable(true);
   }
 }
-
 
 /***************************************************************************//**
  * @brief
@@ -110,8 +116,7 @@ void LCD_VLCDSelect(LCD_VLCDSel_TypeDef vlcd)
 
   /* Select VEXT or VDD */
   dispctrl &= ~_LCD_DISPCTRL_VLCDSEL_MASK;
-  switch (vlcd)
-  {
+  switch (vlcd) {
     case lcdVLCDSelVExtBoost:
       dispctrl |= LCD_DISPCTRL_VLCDSEL_VEXTBOOST;
       break;
@@ -125,7 +130,6 @@ void LCD_VLCDSelect(LCD_VLCDSel_TypeDef vlcd)
   LCD->DISPCTRL = dispctrl;
 }
 
-
 /***************************************************************************//**
  * @brief
  *   Configure Update Control
@@ -137,7 +141,6 @@ void LCD_UpdateCtrl(LCD_UpdateCtrl_TypeDef ud)
 {
   LCD->CTRL = (LCD->CTRL & ~_LCD_CTRL_UDCTRL_MASK) | ud;
 }
-
 
 /***************************************************************************//**
  * @brief
@@ -166,7 +169,6 @@ void LCD_FrameCountInit(const LCD_FrameCountInit_TypeDef *fcInit)
 
   LCD_FrameCountEnable(fcInit->enable);
 }
-
 
 /***************************************************************************//**
  * @brief
@@ -197,12 +199,9 @@ void LCD_AnimInit(const LCD_AnimInit_TypeDef *animInit)
 #if defined(LCD_BACTRL_ALOC)
   bactrl &= ~(_LCD_BACTRL_ALOC_MASK);
 
-  if(animInit->startSeg == 0)
-  {
+  if (animInit->startSeg == 0) {
     bactrl |= LCD_BACTRL_ALOC_SEG0TO7;
-  }
-  else if(animInit->startSeg == 8)
-  {
+  } else if (animInit->startSeg == 8) {
     bactrl |= LCD_BACTRL_ALOC_SEG8TO15;
   }
 #endif
@@ -213,7 +212,6 @@ void LCD_AnimInit(const LCD_AnimInit_TypeDef *animInit)
   /* Enable */
   LCD_AnimEnable(animInit->enable);
 }
-
 
 /***************************************************************************//**
  * @brief
@@ -228,16 +226,12 @@ void LCD_AnimInit(const LCD_AnimInit_TypeDef *animInit)
  ******************************************************************************/
 void LCD_SegmentRangeEnable(LCD_SegmentRange_TypeDef segmentRange, bool enable)
 {
-  if (enable)
-  {
+  if (enable) {
     LCD->SEGEN |= segmentRange;
-  }
-  else
-  {
+  } else {
     LCD->SEGEN &= ~((uint32_t)segmentRange);
   }
 }
-
 
 /***************************************************************************//**
  * @brief
@@ -275,55 +269,46 @@ void LCD_SegmentSet(int com, int bit, bool enable)
 #endif
 
   /* Use bitband access for atomic bit set/clear of segment */
-  switch (com)
-  {
+  switch (com) {
     case 0:
-      if (bit < 32)
-      {
+      if (bit < 32) {
         BUS_RegBitWrite(&(LCD->SEGD0L), bit, enable);
       }
 #if defined(_LCD_SEGD0H_MASK)
-      else
-      {
+      else {
         bit -= 32;
         BUS_RegBitWrite(&(LCD->SEGD0H), bit, enable);
       }
 #endif
       break;
     case 1:
-      if (bit < 32)
-      {
+      if (bit < 32) {
         BUS_RegBitWrite(&(LCD->SEGD1L), bit, enable);
       }
 #if defined(_LCD_SEGD1H_MASK)
-      else
-      {
+      else {
         bit -= 32;
         BUS_RegBitWrite(&(LCD->SEGD1H), bit, enable);
       }
 #endif
       break;
     case 2:
-      if (bit < 32)
-      {
+      if (bit < 32) {
         BUS_RegBitWrite(&(LCD->SEGD2L), bit, enable);
       }
 #if defined(_LCD_SEGD2H_MASK)
-      else
-      {
+      else {
         bit -= 32;
         BUS_RegBitWrite(&(LCD->SEGD2H), bit, enable);
       }
 #endif
       break;
     case 3:
-      if (bit < 32)
-      {
+      if (bit < 32) {
         BUS_RegBitWrite(&(LCD->SEGD3L), bit, enable);
       }
 #if defined(_LCD_SEGD3H_MASK)
-      else
-      {
+      else {
         bit -= 32;
         BUS_RegBitWrite(&(LCD->SEGD3H), bit, enable);
       }
@@ -331,13 +316,11 @@ void LCD_SegmentSet(int com, int bit, bool enable)
       break;
 #if defined(_LCD_SEGD4L_MASK)
     case 4:
-      if (bit < 32)
-      {
+      if (bit < 32) {
         BUS_RegBitWrite(&(LCD->SEGD4L), bit, enable);
       }
 #if defined(_LCD_SEGD4H_MASK)
-      else
-      {
+      else {
         bit -= 32;
         BUS_RegBitWrite(&(LCD->SEGD4H), bit, enable);
       }
@@ -346,13 +329,11 @@ void LCD_SegmentSet(int com, int bit, bool enable)
 #endif
 #if defined(_LCD_SEGD5L_MASK)
     case 5:
-      if (bit < 32)
-      {
+      if (bit < 32) {
         BUS_RegBitWrite(&(LCD->SEGD5L), bit, enable);
       }
 #if defined(_LCD_SEGD5H_MASK)
-      else
-      {
+      else {
         bit -= 32;
         BUS_RegBitWrite(&(LCD->SEGD5H), bit, enable);
       }
@@ -361,13 +342,11 @@ void LCD_SegmentSet(int com, int bit, bool enable)
 #endif
     case 6:
 #if defined(_LCD_SEGD6L_MASK)
-      if (bit < 32)
-      {
+      if (bit < 32) {
         BUS_RegBitWrite(&(LCD->SEGD6L), bit, enable);
       }
 #if defined(_LCD_SEGD6H_MASK)
-      else
-      {
+      else {
         bit -= 32;
         BUS_RegBitWrite(&(LCD->SEGD6H), bit, enable);
       }
@@ -376,13 +355,11 @@ void LCD_SegmentSet(int com, int bit, bool enable)
 #endif
 #if defined(_LCD_SEGD7L_MASK)
     case 7:
-      if (bit < 32)
-      {
+      if (bit < 32) {
         BUS_RegBitWrite(&(LCD->SEGD7L), bit, enable);
       }
 #if defined(_LCD_SEGD7H_MASK)
-      else
-      {
+      else {
         bit -= 32;
         BUS_RegBitWrite(&(LCD->SEGD7H), bit, enable);
       }
@@ -395,7 +372,6 @@ void LCD_SegmentSet(int com, int bit, bool enable)
       break;
   }
 }
-
 
 /***************************************************************************//**
  * @brief
@@ -423,8 +399,7 @@ void LCD_SegmentSetLow(int com, uint32_t mask, uint32_t bits)
   EFM_ASSERT(com < 4);
 #endif
 
-  switch (com)
-  {
+  switch (com) {
     case 0:
       segData     = LCD->SEGD0L;
       segData    &= ~(mask);
@@ -487,7 +462,6 @@ void LCD_SegmentSetLow(int com, uint32_t mask, uint32_t bits)
   }
 }
 
-
 #if defined(_LCD_SEGD0H_MASK)
 /***************************************************************************//**
  * @brief
@@ -513,8 +487,7 @@ void LCD_SegmentSetHigh(int com, uint32_t mask, uint32_t bits)
 #endif
 
   /* Maximum number of com lines */
-  switch (com)
-  {
+  switch (com) {
     case 0:
       segData     = LCD->SEGD0H;
       segData    &= ~(mask);
@@ -592,7 +565,6 @@ void LCD_ContrastSet(int level)
                   | (level << _LCD_DISPCTRL_CONLEV_SHIFT);
 }
 
-
 /***************************************************************************//**
  * @brief
  *   Configure voltage booster
@@ -607,7 +579,6 @@ void LCD_VBoostSet(LCD_VBoostLevel_TypeDef vboost)
   /* Reconfigure Voltage Boost */
   LCD->DISPCTRL = (LCD->DISPCTRL & ~_LCD_DISPCTRL_VBLEV_MASK) | vboost;
 }
-
 
 #if defined(LCD_CTRL_DSC)
 /***************************************************************************//**
@@ -642,8 +613,7 @@ void LCD_BiasSegmentSet(int segmentLine, int biasLevel)
   biasRegister = segmentLine / 8;
   bitShift     = (segmentLine % 8) * 4;
 
-  switch (biasRegister)
-  {
+  switch (biasRegister) {
     case 0:
       segmentRegister = &LCD->SEGD0L;
       break;
@@ -668,48 +638,35 @@ void LCD_BiasSegmentSet(int segmentLine, int biasLevel)
   biasRegister = segmentLine / 10;
   bitShift     = (segmentLine % 10) * 4;
 
-  switch (biasRegister)
-  {
+  switch (biasRegister) {
     case 0:
-      if (bitShift < 32)
-      {
+      if (bitShift < 32) {
         segmentRegister = &LCD->SEGD0L;
-      }
-      else
-      {
+      } else {
         segmentRegister = &LCD->SEGD0H;
         bitShift       -= 32;
       }
       break;
     case 1:
-      if (bitShift < 32)
-      {
+      if (bitShift < 32) {
         segmentRegister = &LCD->SEGD1L;
-      }
-      else
-      {
+      } else {
         segmentRegister = &LCD->SEGD1H;
         bitShift       -= 32;
       }
       break;
     case 2:
-      if (bitShift < 32)
-      {
+      if (bitShift < 32) {
         segmentRegister = &LCD->SEGD2L;
-      }
-      else
-      {
+      } else {
         segmentRegister = &LCD->SEGD1H;
         bitShift       -= 32;
       }
       break;
     case 3:
-      if (bitShift < 32)
-      {
+      if (bitShift < 32) {
         segmentRegister = &LCD->SEGD3L;
-      }
-      else
-      {
+      } else {
         segmentRegister = &LCD->SEGD3H;
         bitShift       -= 32;
       }
@@ -725,7 +682,6 @@ void LCD_BiasSegmentSet(int segmentLine, int biasLevel)
   *segmentRegister = (*segmentRegister & ~(0xF << bitShift)) | (biasLevel << bitShift);
 }
 #endif
-
 
 #if defined(LCD_CTRL_DSC)
 /***************************************************************************//**
@@ -758,6 +714,8 @@ void LCD_BiasComSet(int comLine, int biasLevel)
 #endif
 
 /** @} (end addtogroup LCD) */
-/** @} (end addtogroup EM_Library) */
+/** @} (end addtogroup emlib) */
+
+#endif /* !defined(_SILICON_LABS_GECKO_INTERNAL_SDID_100) */
 
 #endif /* defined(LCD_COUNT) && (LCD_COUNT > 0) */

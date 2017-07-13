@@ -1,10 +1,10 @@
 /***************************************************************************//**
  * @file em_acmp.c
  * @brief Analog Comparator (ACMP) Peripheral API
- * @version 4.2.1
+ * @version 5.2.1
  *******************************************************************************
- * @section License
- * <b>(C) Copyright 2015 Silicon Labs, http://www.silabs.com</b>
+ * # License
+ * <b>Copyright 2016 Silicon Laboratories, Inc. http://www.silabs.com</b>
  *******************************************************************************
  *
  * Permission is granted to anyone to use this software for any purpose,
@@ -30,7 +30,6 @@
  *
  ******************************************************************************/
 
-
 #include "em_acmp.h"
 #if defined(ACMP_COUNT) && (ACMP_COUNT > 0)
 
@@ -39,13 +38,12 @@
 #include "em_assert.h"
 
 /***************************************************************************//**
- * @addtogroup EM_Library
+ * @addtogroup emlib
  * @{
  ******************************************************************************/
 
 /***************************************************************************//**
  * @addtogroup ACMP
- * @brief Analog comparator (ACMP) Peripheral API
  * @{
  ******************************************************************************/
 
@@ -55,13 +53,17 @@
 
 /** @cond DO_NOT_INCLUDE_WITH_DOXYGEN */
 
-
 /** Validation of ACMP register block pointer reference
  *  for assert statements. */
 #if (ACMP_COUNT == 1)
 #define ACMP_REF_VALID(ref)    ((ref) == ACMP0)
 #elif (ACMP_COUNT == 2)
 #define ACMP_REF_VALID(ref)    (((ref) == ACMP0) || ((ref) == ACMP1))
+#elif (ACMP_COUNT == 4)
+#define ACMP_REF_VALID(ref)    (((ref) == ACMP0)    \
+                                || ((ref) == ACMP1) \
+                                || ((ref) == ACMP2) \
+                                || ((ref) == ACMP3))
 #else
 #error Undefined number of analog comparators (ACMP).
 #endif
@@ -76,6 +78,8 @@
 #define _ACMP_ROUTE_LOCATION_MAX     _ACMP_ROUTE_LOCATION_LOC1
 #elif defined(_ACMP_ROUTELOC0_OUTLOC_LOC31)
 #define _ACMP_ROUTE_LOCATION_MAX     _ACMP_ROUTELOC0_OUTLOC_LOC31
+#elif defined(_ACMP_ROUTELOC0_OUTLOC_MASK)
+#define _ACMP_ROUTE_LOCATION_MAX     _ACMP_ROUTELOC0_OUTLOC_MASK
 #else
 #error Undefined max route locations
 #endif
@@ -121,8 +125,8 @@ void ACMP_CapsenseInit(ACMP_TypeDef *acmp, const ACMP_CapsenseInit_TypeDef *init
 #endif
 
   /* Make sure biasprog is within bounds */
-  EFM_ASSERT(init->biasProg <=
-      (_ACMP_CTRL_BIASPROG_MASK >> _ACMP_CTRL_BIASPROG_SHIFT));
+  EFM_ASSERT(init->biasProg
+             <= (_ACMP_CTRL_BIASPROG_MASK >> _ACMP_CTRL_BIASPROG_SHIFT));
 
   /* Set control register. No need to set interrupt modes */
   acmp->CTRL = (init->fullBias << _ACMP_CTRL_FULLBIAS_SHIFT)
@@ -139,7 +143,7 @@ void ACMP_CapsenseInit(ACMP_TypeDef *acmp, const ACMP_CapsenseInit_TypeDef *init
 #if defined(_ACMP_CTRL_ACCURACY_MASK)
                | ACMP_CTRL_ACCURACY_HIGH
 #endif
-               ;
+  ;
 
 #if defined(_ACMP_HYSTERESIS0_MASK)
   acmp->HYSTERESIS0 = (init->vddLevelHigh      << _ACMP_HYSTERESIS0_DIVVA_SHIFT)
@@ -163,7 +167,7 @@ void ACMP_CapsenseInit(ACMP_TypeDef *acmp, const ACMP_CapsenseInit_TypeDef *init
                    | ACMP_INPUTSEL_VASEL_VDD
                    | ACMP_INPUTSEL_NEGSEL_VADIV
 #endif
-                   ;
+  ;
 
   /* Enable ACMP if requested. */
   BUS_RegBitWrite(&(acmp->CTRL), _ACMP_CTRL_EN_SHIFT, init->enable);
@@ -198,7 +202,7 @@ void ACMP_CapsenseChannelSet(ACMP_TypeDef *acmp, ACMP_Channel_TypeDef channel)
 
   /* Set channel as positive channel in ACMP */
   BUS_RegMaskedWrite(&acmp->INPUTSEL, _ACMP_INPUTSEL_POSSEL_MASK,
-      channel << _ACMP_INPUTSEL_POSSEL_SHIFT);
+                     channel << _ACMP_INPUTSEL_POSSEL_SHIFT);
 }
 
 /***************************************************************************//**
@@ -230,6 +234,32 @@ void ACMP_Enable(ACMP_TypeDef *acmp)
 
   acmp->CTRL |= ACMP_CTRL_EN;
 }
+
+#if defined(_ACMP_EXTIFCTRL_MASK)
+/***************************************************************************//**
+ * @brief
+ *   Select and enable an external input.
+ *
+ * @details
+ *   This is used when an external module needs to take control of the ACMP
+ *   POSSEL field in order to configure the APORT input for the ACMP. Modules
+ *   like LESENSE use this to change the ACMP input during a scan sequence.
+ *
+ * @param[in] acmp
+ *   Pointer to ACMP peripheral register block.
+ *
+ * @param[in] aport
+ *   This parameter decides which APORT(s) the ACMP will use when it's being
+ *   controlled by an external module.
+ ******************************************************************************/
+void ACMP_ExternalInputSelect(ACMP_TypeDef *acmp, ACMP_ExternalInput_Typedef aport)
+{
+  acmp->EXTIFCTRL = (aport << _ACMP_EXTIFCTRL_APORTSEL_SHIFT)
+                    | ACMP_EXTIFCTRL_EN;
+  while (!(acmp->STATUS & ACMP_STATUS_EXTIFACT))
+    ;
+}
+#endif
 
 /***************************************************************************//**
  * @brief
@@ -287,7 +317,7 @@ void ACMP_GPIOSetup(ACMP_TypeDef *acmp, uint32_t location, bool enable, bool inv
 
   /* Set GPIO inversion */
   BUS_RegMaskedWrite(&acmp->CTRL, _ACMP_CTRL_GPIOINV_MASK,
-      invert << _ACMP_CTRL_GPIOINV_SHIFT);
+                     invert << _ACMP_CTRL_GPIOINV_SHIFT);
 
 #if defined(_ACMP_ROUTE_MASK)
   acmp->ROUTE = (location << _ACMP_ROUTE_LOCATION_SHIFT)
@@ -352,7 +382,8 @@ void ACMP_Init(ACMP_TypeDef *acmp, const ACMP_Init_TypeDef *init)
   EFM_ASSERT(ACMP_REF_VALID(acmp));
 
   /* Make sure biasprog is within bounds */
-  EFM_ASSERT(init->biasProg < 16);
+  EFM_ASSERT(init->biasProg
+             <= (_ACMP_CTRL_BIASPROG_MASK >> _ACMP_CTRL_BIASPROG_SHIFT));
 
   /* Make sure the ACMP is disable since we might be changing the
    * ACMP power source */
@@ -385,15 +416,15 @@ void ACMP_Init(ACMP_TypeDef *acmp, const ACMP_Init_TypeDef *init)
 
   acmp->INPUTSEL = (0)
 #if defined(_ACMP_INPUTSEL_VLPSEL_MASK)
-               | (init->vlpInput << _ACMP_INPUTSEL_VLPSEL_SHIFT)
+                   | (init->vlpInput << _ACMP_INPUTSEL_VLPSEL_SHIFT)
 #endif
 #if defined(_ACMP_INPUTSEL_LPREF_MASK)
-               | (init->lowPowerReferenceEnabled << _ACMP_INPUTSEL_LPREF_SHIFT)
+                   | (init->lowPowerReferenceEnabled << _ACMP_INPUTSEL_LPREF_SHIFT)
 #endif
 #if defined(_ACMP_INPUTSEL_VDDLEVEL_MASK)
-               | (init->vddLevel << _ACMP_INPUTSEL_VDDLEVEL_SHIFT)
+                   | (init->vddLevel << _ACMP_INPUTSEL_VDDLEVEL_SHIFT)
 #endif
-               ;
+  ;
 
   /* Enable ACMP if requested. */
   BUS_RegBitWrite(&(acmp->CTRL), _ACMP_CTRL_EN_SHIFT, init->enable);
@@ -417,11 +448,11 @@ void ACMP_VASetup(ACMP_TypeDef *acmp, const ACMP_VAConfig_TypeDef *vaconfig)
   EFM_ASSERT(vaconfig->div1 < 64);
 
   BUS_RegMaskedWrite(&acmp->INPUTSEL, _ACMP_INPUTSEL_VASEL_MASK,
-      vaconfig->input << _ACMP_INPUTSEL_VASEL_SHIFT);
+                     vaconfig->input << _ACMP_INPUTSEL_VASEL_SHIFT);
   BUS_RegMaskedWrite(&acmp->HYSTERESIS0, _ACMP_HYSTERESIS0_DIVVA_MASK,
-      vaconfig->div0 << _ACMP_HYSTERESIS0_DIVVA_SHIFT);
+                     vaconfig->div0 << _ACMP_HYSTERESIS0_DIVVA_SHIFT);
   BUS_RegMaskedWrite(&acmp->HYSTERESIS1, _ACMP_HYSTERESIS1_DIVVA_MASK,
-      vaconfig->div1 << _ACMP_HYSTERESIS1_DIVVA_SHIFT);
+                     vaconfig->div1 << _ACMP_HYSTERESIS1_DIVVA_SHIFT);
 }
 #endif
 
@@ -443,14 +474,14 @@ void ACMP_VBSetup(ACMP_TypeDef *acmp, const ACMP_VBConfig_TypeDef *vbconfig)
   EFM_ASSERT(vbconfig->div1 < 64);
 
   BUS_RegMaskedWrite(&acmp->INPUTSEL, _ACMP_INPUTSEL_VBSEL_MASK,
-      vbconfig->input << _ACMP_INPUTSEL_VBSEL_SHIFT);
+                     vbconfig->input << _ACMP_INPUTSEL_VBSEL_SHIFT);
   BUS_RegMaskedWrite(&acmp->HYSTERESIS0, _ACMP_HYSTERESIS0_DIVVB_MASK,
-      vbconfig->div0 << _ACMP_HYSTERESIS0_DIVVB_SHIFT);
+                     vbconfig->div0 << _ACMP_HYSTERESIS0_DIVVB_SHIFT);
   BUS_RegMaskedWrite(&acmp->HYSTERESIS1, _ACMP_HYSTERESIS1_DIVVB_MASK,
-      vbconfig->div1 << _ACMP_HYSTERESIS1_DIVVB_SHIFT);
+                     vbconfig->div1 << _ACMP_HYSTERESIS1_DIVVB_SHIFT);
 }
 #endif
 
 /** @} (end addtogroup ACMP) */
-/** @} (end addtogroup EM_Library) */
+/** @} (end addtogroup emlib) */
 #endif /* defined(ACMP_COUNT) && (ACMP_COUNT > 0) */

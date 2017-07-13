@@ -2,7 +2,7 @@
  * @file startup_ezr32lg.c
  * @brief CMSIS Compatible EZR32LG startup file in C.
  *        Should be used with GCC 'GNU Tools ARM Embedded'
- * @version 4.2.1
+ * @version 5.2.1
  * Date:    12 June 2014
  *
  */
@@ -287,7 +287,7 @@ void Reset_Handler(void) {
 #ifdef __STARTUP_CLEAR_BSS_MULTIPLE
 /*  Multiple sections scheme.
  *
- *  Between symbol address __copy_table_start__ and __copy_table_end__,
+ *  Between symbol address __zero_table_start__ and __zero_table_end__,
  *  there are array of tuples specifying:
  *    offset 0: Start of a BSS section
  *    offset 4: Size of this BSS section. Must be multiply of 4

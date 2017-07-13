@@ -1,9 +1,9 @@
 /***************************************************************************//**
  * @file em_usb.h
  * @brief USB protocol stack library API for EFM32/EZR32.
- * @version 4.2.1
+ * @version 5.2.1
  *******************************************************************************
- * @section License
+ * # License
  * <b>(C) Copyright 2014 Silicon Labs, http://www.silabs.com</b>
  *******************************************************************************
  *
@@ -18,16 +18,15 @@
 
 #include "em_device.h"
 #include "em_assert.h"
-#if defined( USB_PRESENT ) && ( USB_COUNT == 1 )
+#if defined(USB_PRESENT) && (USB_COUNT == 1)
 #include "usbconfig.h"
-#if defined( USB_DEVICE ) || defined( USB_HOST )
+#if defined(USB_DEVICE) || defined(USB_HOST)
 
 #include <string.h>
 #include <stddef.h>
 #include "em_common.h"
-#include "em_int.h"
 
-#if defined( USB_USE_PRINTF )
+#if defined(USB_USE_PRINTF)
 #include <stdio.h>
 #endif
 
@@ -39,18 +38,27 @@ extern "C" {
 #pragma anon_unions
 #endif
 
+#if defined(USB_HOST)
 /***************************************************************************//**
  * @addtogroup USB
- * @brief USB HOST and DEVICE protocol stacks.
  * @{
  ******************************************************************************/
 
 /***************************************************************************//**
  * @addtogroup USB_COMMON
- * @brief Common parts for both HOST and DEVICE USB stacks, see @ref usb_device
- *        and @ref usb_host pages for device and host library documentation.
  * @{
  ******************************************************************************/
+#else
+/***************************************************************************//**
+ * @addtogroup USB
+ * @{
+ ******************************************************************************/
+
+/***************************************************************************//**
+ * @addtogroup USB_COMMON
+ * @{
+ ******************************************************************************/
+#endif
 
 #define SILABS_USB_VID          0x10C4          /**< Silicon Labs Vendor ID, supplied by USB-IF.       */
 
@@ -184,7 +192,7 @@ extern "C" {
 #define CONFIG_DESC_BM_SELFPOWERED  0x40        /**< Configuration descriptor attribute macro.         */
 #define CONFIG_DESC_BM_RESERVED_D7  0x80        /**< Configuration descriptor attribute macro.         */
 #define CONFIG_DESC_BM_TRANSFERTYPE 0x03        /**< Configuration descriptor transfer type bitmask.   */
-#define CONFIG_DESC_MAXPOWER_mA(x)  (((x)+1)/2) /**< Configuration descriptor power macro.             */
+#define CONFIG_DESC_MAXPOWER_mA(x)  (((x) + 1) / 2) /**< Configuration descriptor power macro.         */
 
 #define DEVICE_IS_SELFPOWERED       0x0001      /**< Standard request GET_STATUS bitmask.              */
 #define REMOTE_WAKEUP_ENABLED       0x0002      /**< Standard request GET_STATUS bitmask.              */
@@ -231,90 +239,83 @@ extern "C" {
 #define PORT_FULL_SPEED                   1     /**< Full speed return value for USBH_GetPortSpeed(). */
 #define PORT_LOW_SPEED                    2     /**< Low speed return value for USBH_GetPortSpeed().  */
 
-#if defined( __GNUC__  )                  /* GCC compilers */
-#if defined( __CHAR16_TYPE__ )
+#if defined(__GNUC__)                     /* GCC compilers */
+#if defined(__CHAR16_TYPE__)
 typedef __CHAR16_TYPE__ char16_t;
 #else
 typedef unsigned short char16_t;          /**< Data type used for UTF-16LE formatted USB string descriptors. */
 #endif
 
-#elif defined( __ICCARM__ )               /* IAR compiler */
+#elif defined(__ICCARM__)                 /* IAR compiler */
 #include <uchar.h>
 
-#elif defined( __CC_ARM )                 /* MDK-ARM compiler */
+#elif defined(__CC_ARM)                   /* MDK-ARM compiler */
 typedef unsigned short char16_t;
 #endif
 
 /** Macro for creating USB compliant UTF-16LE UNICODE string descriptors.
- *  @n Example: STATIC_CONST_STRING_DESC( iManufacturer, 'E','n','e','r','g','y',' ','M','i','c','r','o',' ','A','S' );
+ *  @n Example: STATIC_CONST_STRING_DESC(iManufacturer, 'E','n','e','r','g','y',' ','M','i','c','r','o',' ','A','S');
  *  @note The size of the resulting struct will be two byte larger than a USB string
  *        descriptor. This is to accommodate a terminating null char for the string.
  *        The value assigned to the 'len' member does not take this into account
  *        and is therefore correct usb wise.
  */
-#define STATIC_CONST_STRING_DESC( _name, ... )                  \
-EFM32_PACK_START( 1 )                                           \
-typedef struct                                                  \
-{                                                               \
-  uint8_t  len;                                                 \
-  uint8_t  type;                                                \
-  char16_t name[ 1 + sizeof( (char16_t[]){__VA_ARGS__} ) / 2];  \
-} __attribute__ ((packed)) _##_name;                            \
-EFM32_PACK_END()                                                \
-EFM32_ALIGN( 4 )                                                \
-EFM32_PACK_START( 1 )                                           \
-static const _##_name _name __attribute__ ((aligned(4)))=       \
-{                                                               \
-  .len  = sizeof( _##_name ) - 2,                               \
-  .type = USB_STRING_DESCRIPTOR,                                \
-  .name = {__VA_ARGS__},                                        \
-  .name[ ( ( sizeof( _##_name ) - 2 ) / 2 ) - 1 ] = '\0'        \
-}                                                               \
-EFM32_PACK_END()
+#define STATIC_CONST_STRING_DESC(_name, ...)                    \
+  SL_PACK_START(1)                                              \
+  typedef struct                                                \
+  {                                                             \
+    uint8_t  len;                                               \
+    uint8_t  type;                                              \
+    char16_t name[1 + sizeof((char16_t[]){ __VA_ARGS__ }) / 2]; \
+  } SL_ATTRIBUTE_PACKED _##_name;                               \
+  SL_PACK_END()                                                 \
+  SL_ALIGN(4)                                                   \
+  SL_PACK_START(1)                                              \
+  static const _##_name _name SL_ATTRIBUTE_ALIGN(4) =           \
+  {                                                             \
+    .len  = sizeof(_##_name) - 2,                               \
+    .type = USB_STRING_DESCRIPTOR,                              \
+    .name = { __VA_ARGS__ },                                    \
+    .name[((sizeof(_##_name) - 2) / 2) - 1] = '\0'              \
+  }                                                             \
+  SL_PACK_END()
 
 /** Macro for creating USB compliant language string descriptors.
- *  @n Example: STATIC_CONST_STRING_DESC_LANGID( langID, 0x04, 0x09 );
+ *  @n Example: STATIC_CONST_STRING_DESC_LANGID(langID, 0x04, 0x09);
  */
-#define STATIC_CONST_STRING_DESC_LANGID( _name, x, y )      \
-EFM32_PACK_START( 1 )                                       \
-typedef struct                                              \
-{                                                           \
-  uint8_t len;                                              \
-  uint8_t type;                                             \
-  uint8_t name[ 2 ];                                        \
-} __attribute__ ((packed)) _##_name;                        \
-EFM32_PACK_END()                                            \
-EFM32_ALIGN( 4 )                                            \
-EFM32_PACK_START( 1 )                                       \
-static const _##_name _name __attribute__ ((aligned(4)))=   \
-{                                                           \
-  .len = 4,                                                 \
-  .type = USB_STRING_DESCRIPTOR,                            \
-  .name = { y, x }                                          \
-}                                                           \
-EFM32_PACK_END()
+#define STATIC_CONST_STRING_DESC_LANGID(_name, x, y)  \
+  SL_PACK_START(1)                                    \
+  typedef struct                                      \
+  {                                                   \
+    uint8_t len;                                      \
+    uint8_t type;                                     \
+    uint8_t name[2];                                  \
+  } SL_ATTRIBUTE_PACKED _##_name;                     \
+  SL_PACK_END()                                       \
+  SL_ALIGN(4)                                         \
+  SL_PACK_START(1)                                    \
+  static const _##_name _name SL_ATTRIBUTE_ALIGN(4) = \
+  {                                                   \
+    .len = 4,                                         \
+    .type = USB_STRING_DESCRIPTOR,                    \
+    .name = { y, x }                                  \
+  }                                                   \
+  SL_PACK_END()
 
 /** Macro for creating WORD (4 byte) aligned uint8_t array with size which
  *  is a multiple of WORD size.
- *  @n Example: @n UBUF( rxBuffer, 37 );  =>  uint8_t rxBuffer[ 40 ];
+ *  @n Example: @n UBUF(rxBuffer, 37);  =>  uint8_t rxBuffer[40];
  */
-#if !defined(__GNUC__)
-#define        UBUF( x, y ) EFM32_ALIGN( 4 )        uint8_t x[((y)+3)&~3]
-#define STATIC_UBUF( x, y ) EFM32_ALIGN( 4 ) static uint8_t x[((y)+3)&~3]
-#else
-#define        UBUF( x, y ) uint8_t x[((y)+3)&~3] __attribute__ ((aligned(4)))
+#define UBUF(x, y) SL_ALIGN(4) uint8_t x[((y) + 3) & ~3] SL_ATTRIBUTE_ALIGN(4)
 
 /** Macro for creating WORD (4 byte) aligned static uint8_t arrays with size which
  *  is a multiple of WORD size.
- *  @n Example: @n STATIC_UBUF( rxBuffer, 37 );  =>  static uint8_t rxBuffer[ 40 ];
+ *  @n Example: @n STATIC_UBUF(rxBuffer, 37);  =>  static uint8_t rxBuffer[40];
  */
-#define STATIC_UBUF( x, y ) static uint8_t x[((y)+3)&~3] __attribute__ ((aligned(4)))
-#endif
-
+#define STATIC_UBUF(x, y) SL_ALIGN(4) static uint8_t x[((y) + 3) & ~3] SL_ATTRIBUTE_ALIGN(4)
 
 /** @brief USB transfer status enumerator. */
-typedef enum
-{
+typedef enum {
   /* NOTE: Please keep in sync with table errMsg[] in em_usbhal.c */
   USB_STATUS_OK              = 0,               /**< No errors detected.                               */
   USB_STATUS_REQ_ERR         = -1,              /**< Setup request error.                              */
@@ -336,11 +337,9 @@ typedef enum
 } USB_Status_TypeDef;
 /** @} (end addtogroup USB_COMMON) */
 
-
-#if defined( USB_DEVICE )
+#if defined(USB_DEVICE)
 /***************************************************************************//**
  * @addtogroup USB_DEVICE
- * @brief USB DEVICE protocol stack, see @ref usb_device page for detailed documentation.
  * @{
  ******************************************************************************/
 
@@ -353,8 +352,7 @@ typedef enum
 #define USB_USBC_32kHz_CLK_LFRCO   1 /**< Use 32kHz LFRCO clock while in powersave mode.        */
 
 /** @brief USB device state enumerator. */
-typedef enum
-{
+typedef enum {
   USBD_STATE_NONE       = 0,                    /**< Device state is undefined/unknown.                */
   USBD_STATE_ATTACHED   = 1,                    /**< Device state is ATTACHED.                         */
   USBD_STATE_POWERED    = 2,                    /**< Device state is POWERED.                          */
@@ -365,23 +363,18 @@ typedef enum
   USBD_STATE_LASTMARKER = 7,                    /**< Device state enum end marker.                     */
 } USBD_State_TypeDef;
 /** @} (end addtogroup USB_DEVICE) */
-#endif /* defined( USB_DEVICE ) */
+#endif /* defined(USB_DEVICE) */
 
 /** @addtogroup USB_COMMON
  *  @{*/
 
 /** @brief USB Setup request package. */
-EFM32_PACK_START( 1 )
-typedef struct
-{
-  union
-  {
-    struct
-    {
-      union
-      {
-        struct
-        {
+SL_PACK_START(1)
+typedef struct {
+  union {
+    struct {
+      union {
+        struct {
           uint8_t Recipient : 5;                /**< Request recipient (device, interface, endpoint or other).*/
           uint8_t Type      : 2;                /**< Request type (standard, class or vendor).         */
           uint8_t Direction : 1;                /**< Transfer direction of SETUP data phase.           */
@@ -395,14 +388,12 @@ typedef struct
     };
     uint32_t  dw[2];
   };
-} __attribute__ ((packed)) USB_Setup_TypeDef;
-EFM32_PACK_END()
-
+} SL_ATTRIBUTE_PACKED USB_Setup_TypeDef;
+SL_PACK_END()
 
 /** @brief USB Device Descriptor. */
-EFM32_PACK_START( 1 )
-typedef struct
-{
+SL_PACK_START(1)
+typedef struct {
   uint8_t  bLength;                             /**< Size of this descriptor in bytes                  */
   uint8_t  bDescriptorType;                     /**< Constant DEVICE Descriptor Type                   */
   uint16_t bcdUSB;                              /**< USB Specification Release Number in Binary-Coded
@@ -419,14 +410,12 @@ typedef struct
   uint8_t  iSerialNumber;                       /**< Index of string descriptor describing the device
                                                      serialnumber                                      */
   uint8_t  bNumConfigurations;                  /**< Number of possible configurations                 */
-} __attribute__ ((packed)) USB_DeviceDescriptor_TypeDef;
-EFM32_PACK_END()
-
+} SL_ATTRIBUTE_PACKED USB_DeviceDescriptor_TypeDef;
+SL_PACK_END()
 
 /** @brief USB Configuration Descriptor. */
-EFM32_PACK_START( 1 )
-typedef struct
-{
+SL_PACK_START(1)
+typedef struct {
   uint8_t  bLength;                             /**< Size of this descriptor in bytes                  */
   uint8_t  bDescriptorType;                     /**< Constant CONFIGURATION Descriptor Type            */
   uint16_t wTotalLength;                        /**< Total length of data returned for this
@@ -448,14 +437,12 @@ typedef struct
                                                      @n D4...0: Reserved (reset to zero)               */
   uint8_t  bMaxPower;                           /**< Maximum power consumption of the USB device, unit
                                                      is 2mA per LSB                                    */
-} __attribute__ ((packed)) USB_ConfigurationDescriptor_TypeDef;
-EFM32_PACK_END()
-
+} SL_ATTRIBUTE_PACKED USB_ConfigurationDescriptor_TypeDef;
+SL_PACK_END()
 
 /** @brief USB Interface Descriptor. */
-EFM32_PACK_START( 1 )
-typedef struct
-{
+SL_PACK_START(1)
+typedef struct {
   uint8_t bLength;                              /**< Size of this descriptor in bytes.                 */
   uint8_t bDescriptorType;                      /**< Constant INTERFACE Descriptor Type.               */
   uint8_t bInterfaceNumber;                     /**< Number of this interface. Zero-based value
@@ -489,39 +476,35 @@ typedef struct
                                                      uses a vendor-specific protocol for this interface*/
   uint8_t iInterface;                           /**< Index of string descriptor describing this
                                                      interface.                                        */
-} __attribute__ ((packed)) USB_InterfaceDescriptor_TypeDef;
-EFM32_PACK_END()
-
+} SL_ATTRIBUTE_PACKED USB_InterfaceDescriptor_TypeDef;
+SL_PACK_END()
 
 /** @brief USB Endpoint Descriptor. */
-EFM32_PACK_START( 1 )
-typedef struct
-{
+SL_PACK_START(1)
+typedef struct {
   uint8_t   bLength;                            /**< Size of this descriptor in bytes                  */
   uint8_t   bDescriptorType;                    /**< Constant ENDPOINT Descriptor Type                 */
   uint8_t   bEndpointAddress;                   /**< The address of the endpoint                       */
   uint8_t   bmAttributes;                       /**< This field describes the endpoint attributes      */
   uint16_t  wMaxPacketSize;                     /**< Maximum packet size for the endpoint              */
   uint8_t   bInterval;                          /**< Interval for polling EP for data transfers        */
-} __attribute__ ((packed)) USB_EndpointDescriptor_TypeDef;
-EFM32_PACK_END()
-
+} SL_ATTRIBUTE_PACKED USB_EndpointDescriptor_TypeDef;
+SL_PACK_END()
 
 /** @brief USB String Descriptor. */
-EFM32_PACK_START( 1 )
-typedef struct
-{
+SL_PACK_START(1)
+typedef struct {
   uint8_t len;                                  /**< Size of this descriptor in bytes.                 */
   uint8_t type;                                 /**< Constant STRING Descriptor Type.                  */
   char16_t name[];                              /**< The string encoded with UTF-16LE UNICODE charset. */
-} __attribute__ ((packed)) USB_StringDescriptor_TypeDef;
-EFM32_PACK_END()
+} SL_ATTRIBUTE_PACKED USB_StringDescriptor_TypeDef;
+SL_PACK_END()
 
 /** @} (end addtogroup USB_COMMON) */
 
 /*** -------------------- Serial port debug configuration ---------------- ***/
 
-#if defined( DOXY_DOC_ONLY )
+#if defined(DOXY_DOC_ONLY)
 /** @addtogroup USB_COMMON
  *  @{*/
 
@@ -541,7 +524,7 @@ EFM32_PACK_END()
  * @return
  *   The char transmitted.
  ******************************************************************************/
-int  USB_PUTCHAR( char c );
+int USB_PUTCHAR(char c);
 
 /***************************************************************************//**
  * @brief
@@ -556,7 +539,7 @@ int  USB_PUTCHAR( char c );
  * @param[in] p
  *   Pointer to string to transmit.
  ******************************************************************************/
-void USB_PUTS( const char *p );
+void USB_PUTS(const char *p);
 
 /***************************************************************************//**
  * @brief
@@ -570,11 +553,14 @@ void USB_PUTS( const char *p );
  *
  * @param[in] format
  *   Format string (as in printf). No floating point format support.
+ *
+ * @return
+ *   Number of chars transmitted.
  ******************************************************************************/
-int  USB_PRINTF( const char *format, ... );
+int USB_PRINTF(const char *format, ...);
 
 /** @} (end addtogroup USB_COMMON) */
-#endif /* defined( DOXY_DOC_ONLY ) */
+#endif /* defined(DOXY_DOC_ONLY) */
 
 /** @cond DO_NOT_INCLUDE_WITH_DOXYGEN */
 
@@ -582,35 +568,30 @@ int  USB_PRINTF( const char *format, ... );
 #define MAX_NUM_HOSTCHANNELS  14
 
 /* The DMA engine use one FIFO ram word for each host channel. */
-#define MAX_HOST_FIFO_SIZE_INWORDS (512-MAX_NUM_HOSTCHANNELS)/*Unit is 4 bytes*/
+#define MAX_HOST_FIFO_SIZE_INWORDS (512 - MAX_NUM_HOSTCHANNELS)/*Unit is 4 bytes*/
 
-#if defined ( USER_PUTCHAR )
-  void USB_Puts( const char *p );
-  #define USB_PUTS( s )            USB_Puts( s )
-  #define USB_PUTCHAR( c )         USER_PUTCHAR( c )
+#if defined (USER_PUTCHAR)
+void USB_Puts(const char *p);
+  #define USB_PUTS(s)            USB_Puts(s)
+  #define USB_PUTCHAR(c)         USER_PUTCHAR(c)
 #else
-  #define USB_PUTS( s )
-  #define USB_PUTCHAR( c )
+  #define USB_PUTS(s)
+  #define USB_PUTCHAR(c)
 #endif
 
-#if defined( USB_USE_PRINTF )
-  /* Use a printf which don't support floating point formatting */
-  #if defined(__ICCARM__) || defined (__CC_ARM) || defined (__CROSSWORKS_ARM)
-    #define USB_PRINTF                  printf
-  #else
-    #define USB_PRINTF                  iprintf
-  #endif
+#if defined(USB_USE_PRINTF)
+  #define USB_PRINTF                  printf
 #else
   #define USB_PRINTF(...)
-#endif /* defined( USB_USE_PRINTF ) */
+#endif /* defined(USB_USE_PRINTF) */
 
-#if defined( DEBUG_USB_API )
-  #define DEBUG_USB_API_PUTS( s )       USB_PUTS( s )
-  #define DEBUG_USB_API_PUTCHAR( c )    USB_PUTCHAR( c )
+#if defined(DEBUG_USB_API)
+  #define DEBUG_USB_API_PUTS(s)       USB_PUTS(s)
+  #define DEBUG_USB_API_PUTCHAR(c)    USB_PUTCHAR(c)
 #else
-  #define DEBUG_USB_API_PUTS( s )
-  #define DEBUG_USB_API_PUTCHAR( c )
-#endif /* defined( DEBUG_USB_API ) */
+  #define DEBUG_USB_API_PUTS(s)
+  #define DEBUG_USB_API_PUTCHAR(c)
+#endif /* defined(DEBUG_USB_API) */
 
 /** @endcond */
 
@@ -618,20 +599,20 @@ int  USB_PRINTF( const char *format, ... );
 
 /** @cond DO_NOT_INCLUDE_WITH_DOXYGEN */
 
-#if defined( USB_HOST )
-  #if defined( NUM_APP_TIMERS )
-    #define NUM_QTIMERS ( NUM_HC_USED + 2 + NUM_APP_TIMERS + 1 )
+#if defined(USB_HOST)
+  #if defined(NUM_APP_TIMERS)
+    #define NUM_QTIMERS (NUM_HC_USED + 2 + NUM_APP_TIMERS + 1)
   #else
-    #define NUM_QTIMERS ( NUM_HC_USED + 2 + 1 )
+    #define NUM_QTIMERS (NUM_HC_USED + 2 + 1)
   #endif
-  /* + 2 for default ctrl. host ch. 0 & 1, + 1 for host port timer  */
+/* + 2 for default ctrl. host ch. 0 & 1, + 1 for host port timer  */
 #else
-  #if defined( NUM_APP_TIMERS )
-    #define NUM_QTIMERS ( NUM_APP_TIMERS )
+  #if defined(NUM_APP_TIMERS)
+    #define NUM_QTIMERS (NUM_APP_TIMERS)
   #else
     #define NUM_QTIMERS 0
   #endif
-#endif /* defined( USB_HOST ) */
+#endif /* defined(USB_HOST) */
 /** @endcond */
 
 /** @addtogroup USB_COMMON
@@ -660,7 +641,7 @@ int  USB_PRINTF( const char *format, ... );
  * @return
  *   @ref USB_STATUS_OK on success, else an appropriate error code.
  ******************************************************************************/
-typedef int  (*USB_XferCompleteCb_TypeDef)( USB_Status_TypeDef status, uint32_t xferred, uint32_t remaining );
+typedef int (*USB_XferCompleteCb_TypeDef)(USB_Status_TypeDef status, uint32_t xferred, uint32_t remaining);
 
 /***************************************************************************//**
  * @brief
@@ -670,27 +651,27 @@ typedef int  (*USB_XferCompleteCb_TypeDef)( USB_Status_TypeDef status, uint32_t 
  *  The callback function is called when an USBTIMER has expired. The callback
  *  is done with interrupts disabled.
  ******************************************************************************/
-typedef void (*USBTIMER_Callback_TypeDef)(  void );
+typedef void (*USBTIMER_Callback_TypeDef)(void);
 
-char *USB_GetErrorMsgString(            int error );
+char *USB_GetErrorMsgString(int error);
 
-#if defined( USB_USE_PRINTF )
-  void USB_PrintErrorMsgString(         char *pre, int error );
+#if defined(USB_USE_PRINTF)
+void USB_PrintErrorMsgString(char *pre, int error);
 #else
-  #define USB_PrintErrorMsgString(      pre, error )
+  #define USB_PrintErrorMsgString(pre, error)
 #endif
 
-void  USBTIMER_DelayMs(                 uint32_t msec );
-void  USBTIMER_DelayUs(                 uint32_t usec );
-void  USBTIMER_Init(                    void );
+void  USBTIMER_DelayMs(uint32_t msec);
+void  USBTIMER_DelayUs(uint32_t usec);
+void  USBTIMER_Init(void);
 
-#if ( NUM_QTIMERS > 0 )
-  void  USBTIMER_Start(                 uint32_t id, uint32_t timeout, USBTIMER_Callback_TypeDef callback );
-  void  USBTIMER_Stop(                  uint32_t id );
-#endif /* ( NUM_QTIMERS > 0 ) */
+#if (NUM_QTIMERS > 0)
+void  USBTIMER_Start(uint32_t id, uint32_t timeout, USBTIMER_Callback_TypeDef callback);
+void  USBTIMER_Stop(uint32_t id);
+#endif /* (NUM_QTIMERS > 0) */
 /** @} (end addtogroup USB_COMMON) */
 
-#if defined( USB_DEVICE )
+#if defined(USB_DEVICE)
 /** @addtogroup USB_DEVICE
  *  @{*/
 /*** -------------------- DEVICE mode API definitions -------------------- ***/
@@ -701,7 +682,7 @@ void  USBTIMER_Init(                    void );
  * @details
  *  Called whenever USB reset signalling is detected on the USB port.
  ******************************************************************************/
-typedef void (*USBD_UsbResetCb_TypeDef)( void );
+typedef void (*USBD_UsbResetCb_TypeDef)(void);
 
 /***************************************************************************//**
  * @brief
@@ -713,7 +694,7 @@ typedef void (*USBD_UsbResetCb_TypeDef)( void );
  * @param[in] sofNr
  *   Current frame number. The value rolls over to 0 after 16383 (0x3FFF).
  ******************************************************************************/
-typedef void (*USBD_SofIntCb_TypeDef)( uint16_t sofNr );
+typedef void (*USBD_SofIntCb_TypeDef)(uint16_t sofNr);
 
 /***************************************************************************//**
  * @brief
@@ -728,7 +709,7 @@ typedef void (*USBD_SofIntCb_TypeDef)( uint16_t sofNr );
  * @param[in] newState
  *   New (the current) USB device state. See @ref USBD_State_TypeDef.
  ******************************************************************************/
-typedef void (*USBD_DeviceStateChangeCb_TypeDef)( USBD_State_TypeDef oldState, USBD_State_TypeDef newState );
+typedef void (*USBD_DeviceStateChangeCb_TypeDef)(USBD_State_TypeDef oldState, USBD_State_TypeDef newState);
 
 /***************************************************************************//**
  * @brief
@@ -742,7 +723,7 @@ typedef void (*USBD_DeviceStateChangeCb_TypeDef)( USBD_State_TypeDef oldState, U
  * @return
  *  True if self-powered, false otherwise.
  ******************************************************************************/
-typedef bool (*USBD_IsSelfPoweredCb_TypeDef)( void );
+typedef bool (*USBD_IsSelfPoweredCb_TypeDef)(void);
 
 /***************************************************************************//**
  * @brief
@@ -762,19 +743,17 @@ typedef bool (*USBD_IsSelfPoweredCb_TypeDef)( void );
  * @return
  *  An appropriate status/error code. See @ref USB_Status_TypeDef.
  ******************************************************************************/
-typedef int  (*USBD_SetupCmdCb_TypeDef)( const USB_Setup_TypeDef *setup );
+typedef int (*USBD_SetupCmdCb_TypeDef)(const USB_Setup_TypeDef *setup);
 
 /** @cond DO_NOT_INCLUDE_WITH_DOXYGEN */
 struct USBD_Callbacks_TypeDef;
 typedef struct USBD_Callbacks_TypeDef const *USBD_Callbacks_TypeDef_Pointer;
 /** @endcond */
 
-
 /** @brief USB Device stack initialization structure.
  *  @details This structure is passed to @ref USBD_Init() when starting up
  *  the device.                                                             */
-typedef struct
-{
+typedef struct {
   const USB_DeviceDescriptor_TypeDef      *deviceDescriptor;      /**< Pointer to a device descriptor.                */
   const uint8_t                           *configDescriptor;      /**< Pointer to a configuration descriptor.         */
   const void * const                      *stringDescriptors;     /**< Pointer to an array of string descriptor pointers.*/
@@ -791,13 +770,11 @@ typedef struct
   const uint32_t                          reserved;               /**< Reserved for future use.                       */
 } USBD_Init_TypeDef;
 
-
 /** @brief USB Device stack callback structure.
  *  @details Callback functions used by the device stack to signal events or
  *  query status to/from the application. See @ref USBD_Init_TypeDef. Assign
  *  members to NULL if your application don't need a specific callback. */
-typedef struct USBD_Callbacks_TypeDef
-{
+typedef struct USBD_Callbacks_TypeDef{
   const USBD_UsbResetCb_TypeDef           usbReset;               /**< Called whenever USB reset signalling is detected
                                                                        on the USB port.                                */
   const USBD_DeviceStateChangeCb_TypeDef  usbStateChange;         /**< Called whenever the device change state.        */
@@ -809,33 +786,30 @@ typedef struct USBD_Callbacks_TypeDef
                                                                        stack will not enable the SOF interrupt.        */
 } USBD_Callbacks_TypeDef;
 
-
 /*** -------------------- DEVICE mode API -------------------------------- ***/
 
-void                USBD_AbortAllTransfers( void );
-int                 USBD_AbortTransfer(     int epAddr );
-void                USBD_Connect(           void );
-void                USBD_Disconnect(        void );
-bool                USBD_EpIsBusy(          int epAddr );
-USBD_State_TypeDef  USBD_GetUsbState(       void );
-const char *        USBD_GetUsbStateName(   USBD_State_TypeDef state );
-int                 USBD_Init(              const USBD_Init_TypeDef *p );
-int                 USBD_Read(              int epAddr, void *data, int byteCount, USB_XferCompleteCb_TypeDef callback );
-int                 USBD_RemoteWakeup(      void );
-bool                USBD_SafeToEnterEM2(    void );
-int                 USBD_StallEp(           int epAddr );
-void                USBD_Stop(              void );
-int                 USBD_UnStallEp(         int epAddr );
-int                 USBD_Write(             int epAddr, void *data, int byteCount, USB_XferCompleteCb_TypeDef callback );
+void                USBD_AbortAllTransfers(void);
+int                 USBD_AbortTransfer(int epAddr);
+void                USBD_Connect(void);
+void                USBD_Disconnect(void);
+bool                USBD_EpIsBusy(int epAddr);
+USBD_State_TypeDef  USBD_GetUsbState(void);
+const char *        USBD_GetUsbStateName(USBD_State_TypeDef state);
+int                 USBD_Init(const USBD_Init_TypeDef *p);
+int                 USBD_Read(int epAddr, void *data, int byteCount, USB_XferCompleteCb_TypeDef callback);
+int                 USBD_RemoteWakeup(void);
+bool                USBD_SafeToEnterEM2(void);
+int                 USBD_StallEp(int epAddr);
+void                USBD_Stop(void);
+int                 USBD_UnStallEp(int epAddr);
+int                 USBD_Write(int epAddr, void *data, int byteCount, USB_XferCompleteCb_TypeDef callback);
 
 /** @} (end addtogroup USB_DEVICE) */
-#endif /* defined( USB_DEVICE ) */
+#endif /* defined(USB_DEVICE) */
 
-
-#if defined( USB_HOST )
+#if defined(USB_HOST)
 /***************************************************************************//**
  * @addtogroup USB_HOST
- * @brief USB HOST protocol stack, see @ref usb_host page for detailed documentation.
  * @{
  ******************************************************************************/
 /*** -------------------- HOST mode API definitions ---------------------- ***/
@@ -845,8 +819,7 @@ int                 USBD_Write(             int epAddr, void *data, int byteCoun
 #define USB_VBUSOVRCUR_POLARITY_HIGH 1        /**< Overcurrent flag pin polarity is high.               */
 
 /** USB HOST endpoint status enumerator. */
-typedef enum
-{
+typedef enum {
   H_EP_IDLE             = 0,                      /**< The endpoint is idle.                            */
   H_EP_SETUP            = 1,                      /**< The endpoint is in SETUP stage.                  */
   H_EP_DATA_IN          = 2,                      /**< The endpoint is in DATA IN stage.                */
@@ -855,12 +828,10 @@ typedef enum
   H_EP_STATUS_OUT       = 5,                      /**< The endpoint is in STATUS OUT stage.             */
 } USBH_EpState_TypeDef;
 
-
 /** @brief USB HOST endpoint status data.
  *  @details A host application should not manipulate the contents of
  * this struct.                                                             */
-typedef struct
-{
+typedef struct {
   USB_Setup_TypeDef               setup;          /**< A SETUP package.                                 */
   uint8_t                         setupErrCnt;    /**< Error counter for SETUP transfers.               */
   USB_EndpointDescriptor_TypeDef  epDesc;         /**< Endpoint descriptor.                             */
@@ -882,12 +853,10 @@ typedef struct
   uint32_t                        timeout;        /**< Transfer timeout.                                */
 } USBH_Ep_TypeDef;
 
-
 /** @brief USB HOST device definition.
  *  @details A host application should not manipulate the contents of
  *  this struct.                                                            */
-typedef struct USBH_Device_TypeDef
-{
+typedef struct USBH_Device_TypeDef{
   USB_DeviceDescriptor_TypeDef          devDesc;  /**< The device device descriptor.                    */
   USB_ConfigurationDescriptor_TypeDef   confDesc; /**< The device configuration descriptor.             */
   USB_InterfaceDescriptor_TypeDef       itfDesc;  /**< The device interface descriptor.                 */
@@ -898,87 +867,84 @@ typedef struct USBH_Device_TypeDef
   uint8_t                               speed;    /**< The device speed (low or full speed).            */
 } USBH_Device_TypeDef;
 
-
 /** @brief USB Host stack initialization structure.
  *  @details This structure is passed to @ref USBH_Init() when starting up the
  *  device. Max accumulated FIFO size is 2K bytes.                          */
-typedef struct
-{
+typedef struct {
   uint32_t                  rxFifoSize;     /**< Number of FIFO bytes set aside for IN endpoints.            */
   uint32_t                  nptxFifoSize;   /**< Number of FIFO bytes set aside for OUT CTRL/BULK endoints.  */
   uint32_t                  ptxFifoSize;    /**< Number of FIFO bytes set aside for OUT INTR/ISO endoints.   */
   uint32_t                  reserved;       /**< Reserved for future use.                                    */
 } USBH_Init_TypeDef;
 
-
 /** Default @ref USBH_Init_TypeDef values, provides reasonable Tx/Rx FIFO
  *  partitioning.                                                         */
 /* In DMA mode the total available FIFO space is smaller.       */
 /* The DMA controller use one FIFO word pr. channel for status. */
 /* The unit in the table is byte.                               */
-#define USBH_INIT_DEFAULT                                                    \
-{                                                                            \
-  MAX_HOST_FIFO_SIZE_INWORDS * 2,/* 1024 bytes Rx FIFO size.             */  \
-  MAX_HOST_FIFO_SIZE_INWORDS,    /* 512 bytes non-periodic Tx FIFO size. */  \
-  MAX_HOST_FIFO_SIZE_INWORDS,    /* 512 bytes periodic Tx FIFO size.     */  \
-  0                              /* Reserved.                            */  \
-}
+#define USBH_INIT_DEFAULT                                                        \
+  {                                                                              \
+    (MAX_HOST_FIFO_SIZE_INWORDS * 2), /* 1024 bytes Rx FIFO size.             */ \
+    MAX_HOST_FIFO_SIZE_INWORDS,       /* 512 bytes non-periodic Tx FIFO size. */ \
+    MAX_HOST_FIFO_SIZE_INWORDS,       /* 512 bytes periodic Tx FIFO size.     */ \
+    0                                 /* Reserved.                            */ \
+  }
 
 /*** -------------------- HOST mode API ---------------------------------- ***/
 
-int     USBH_AssignHostChannel(            USBH_Ep_TypeDef *ep, uint8_t hcnum );
-int     USBH_ControlMsg(                   USBH_Ep_TypeDef *ep, uint8_t bmRequestType, uint8_t bRequest, uint16_t wValue, uint16_t wIndex, uint16_t wLength, void *data, int timeout, USB_XferCompleteCb_TypeDef callback );
-int     USBH_ControlMsgB(                  USBH_Ep_TypeDef *ep, uint8_t bmRequestType, uint8_t bRequest, uint16_t wValue, uint16_t wIndex, uint16_t wLength, void *data, int timeout );
-bool    USBH_DeviceConnected(              void );
-int     USBH_GetConfigurationDescriptorB(  USBH_Device_TypeDef *device, void *buf, int len, uint8_t configIndex );
-int     USBH_GetDeviceDescriptorB(         USBH_Device_TypeDef *device, void *buf, int len );
-uint8_t USBH_GetPortSpeed(                 void );
-int     USBH_GetStringB(                   USBH_Device_TypeDef *device, uint8_t *buf, int bufLen, uint8_t stringIndex, uint16_t langID );
-int     USBH_Init(                         const USBH_Init_TypeDef *p );
-int     USBH_InitDeviceData(               USBH_Device_TypeDef *device, const uint8_t *buf, USBH_Ep_TypeDef *ep, int numEp, uint8_t deviceSpeed );
-int     USBH_PortReset(                    void );
-int     USBH_PortResume(                   void );
-void    USBH_PortSuspend(                  void );
-void    USBH_PrintString(                  const char *pre, const USB_StringDescriptor_TypeDef *s, const char *post );
+int     USBH_AssignHostChannel(USBH_Ep_TypeDef *ep, uint8_t hcnum);
+int     USBH_ControlMsg(USBH_Ep_TypeDef *ep, uint8_t bmRequestType, uint8_t bRequest, uint16_t wValue, uint16_t wIndex, uint16_t wLength, void *data, int timeout, USB_XferCompleteCb_TypeDef callback);
+int     USBH_ControlMsgB(USBH_Ep_TypeDef *ep, uint8_t bmRequestType, uint8_t bRequest, uint16_t wValue, uint16_t wIndex, uint16_t wLength, void *data, int timeout);
+bool    USBH_DeviceConnected(void);
+int     USBH_GetConfigurationDescriptorB(USBH_Device_TypeDef *device, void *buf, int len, uint8_t configIndex);
+int     USBH_GetDeviceDescriptorB(USBH_Device_TypeDef *device, void *buf, int len);
+uint8_t USBH_GetPortSpeed(void);
+int     USBH_GetStringB(USBH_Device_TypeDef *device, uint8_t *buf, int bufLen, uint8_t stringIndex, uint16_t langID);
+int     USBH_Init(const USBH_Init_TypeDef *p);
+int     USBH_InitDeviceData(USBH_Device_TypeDef *device, const uint8_t *buf, USBH_Ep_TypeDef *ep, int numEp, uint8_t deviceSpeed);
+int     USBH_PortReset(void);
+int     USBH_PortResume(void);
+void    USBH_PortSuspend(void);
+void    USBH_PrintString(const char *pre, const USB_StringDescriptor_TypeDef *s, const char *post);
 
-#if defined( USB_USE_PRINTF )
-int     USBH_PrintConfigurationDescriptor( const USB_ConfigurationDescriptor_TypeDef *config, int maxLen );
-int     USBH_PrintDeviceDescriptor(        const USB_DeviceDescriptor_TypeDef *device );
-int     USBH_PrintEndpointDescriptor(      const USB_EndpointDescriptor_TypeDef *endpoint );
-int     USBH_PrintInterfaceDescriptor(     const USB_InterfaceDescriptor_TypeDef *interface );
+#if defined(USB_USE_PRINTF)
+int     USBH_PrintConfigurationDescriptor(const USB_ConfigurationDescriptor_TypeDef *config, int maxLen);
+int     USBH_PrintDeviceDescriptor(const USB_DeviceDescriptor_TypeDef *device);
+int     USBH_PrintEndpointDescriptor(const USB_EndpointDescriptor_TypeDef *endpoint);
+int     USBH_PrintInterfaceDescriptor(const USB_InterfaceDescriptor_TypeDef *interface);
 #else
-#define USBH_PrintConfigurationDescriptor( config, maxLen )
-#define USBH_PrintDeviceDescriptor(        device )
-#define USBH_PrintEndpointDescriptor(      endpoint )
-#define USBH_PrintInterfaceDescriptor(     interface )
-#endif /* defined( USB_USE_PRINTF ) */
+#define USBH_PrintConfigurationDescriptor(config, maxLen)
+#define USBH_PrintDeviceDescriptor(device)
+#define USBH_PrintEndpointDescriptor(endpoint)
+#define USBH_PrintInterfaceDescriptor(interface)
+#endif /* defined(USB_USE_PRINTF) */
 
-int                                  USBH_QueryDeviceB(                uint8_t *buf, size_t bufsize, uint8_t deviceSpeed );
-USB_ConfigurationDescriptor_TypeDef* USBH_QGetConfigurationDescriptor( const uint8_t *buf, int configIndex );
-USB_DeviceDescriptor_TypeDef*        USBH_QGetDeviceDescriptor(        const uint8_t *buf );
-USB_EndpointDescriptor_TypeDef*      USBH_QGetEndpointDescriptor(      const uint8_t *buf, int configIndex, int interfaceIndex, int endpointIndex );
-USB_InterfaceDescriptor_TypeDef*     USBH_QGetInterfaceDescriptor(     const uint8_t *buf, int configIndex, int interfaceIndex );
+int                                  USBH_QueryDeviceB(uint8_t *buf, size_t bufsize, uint8_t deviceSpeed);
+USB_ConfigurationDescriptor_TypeDef* USBH_QGetConfigurationDescriptor(const uint8_t *buf, int configIndex);
+USB_DeviceDescriptor_TypeDef*        USBH_QGetDeviceDescriptor(const uint8_t *buf);
+USB_EndpointDescriptor_TypeDef*      USBH_QGetEndpointDescriptor(const uint8_t *buf, int configIndex, int interfaceIndex, int endpointIndex);
+USB_InterfaceDescriptor_TypeDef*     USBH_QGetInterfaceDescriptor(const uint8_t *buf, int configIndex, int interfaceIndex);
 
-int     USBH_Read(                         USBH_Ep_TypeDef *ep, void *data, int byteCount, int timeout, USB_XferCompleteCb_TypeDef callback );
-int     USBH_ReadB(                        USBH_Ep_TypeDef *ep, void *data, int byteCount, int timeout );
-int     USBH_SetAddressB(                  USBH_Device_TypeDef *device, uint8_t deviceAddress );
-int     USBH_SetAltInterfaceB(             USBH_Device_TypeDef *device, uint8_t interfaceIndex, uint8_t alternateSetting );
-int     USBH_SetConfigurationB(            USBH_Device_TypeDef *device, uint8_t configValue );
-int     USBH_StallEpB(                     USBH_Ep_TypeDef *ep );
-void    USBH_Stop(                         void );
-int     USBH_UnStallEpB(                   USBH_Ep_TypeDef *ep );
-int     USBH_WaitForDeviceConnectionB(     uint8_t *buf, int timeoutInSeconds );
-int     USBH_Write(                        USBH_Ep_TypeDef *ep, void *data, int byteCount, int timeout, USB_XferCompleteCb_TypeDef callback );
-int     USBH_WriteB(                       USBH_Ep_TypeDef *ep, void *data, int byteCount, int timeout );
+int     USBH_Read(USBH_Ep_TypeDef *ep, void *data, int byteCount, int timeout, USB_XferCompleteCb_TypeDef callback);
+int     USBH_ReadB(USBH_Ep_TypeDef *ep, void *data, int byteCount, int timeout);
+int     USBH_SetAddressB(USBH_Device_TypeDef *device, uint8_t deviceAddress);
+int     USBH_SetAltInterfaceB(USBH_Device_TypeDef *device, uint8_t interfaceIndex, uint8_t alternateSetting);
+int     USBH_SetConfigurationB(USBH_Device_TypeDef *device, uint8_t configValue);
+int     USBH_StallEpB(USBH_Ep_TypeDef *ep);
+void    USBH_Stop(void);
+int     USBH_UnStallEpB(USBH_Ep_TypeDef *ep);
+int     USBH_WaitForDeviceConnectionB(uint8_t *buf, int timeoutInSeconds);
+int     USBH_Write(USBH_Ep_TypeDef *ep, void *data, int byteCount, int timeout, USB_XferCompleteCb_TypeDef callback);
+int     USBH_WriteB(USBH_Ep_TypeDef *ep, void *data, int byteCount, int timeout);
 
 /** @} (end addtogroup USB_HOST) */
-#endif /* defined( USB_HOST ) */
+#endif /* defined(USB_HOST) */
 /** @} (end addtogroup USB) */
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* defined( USB_DEVICE ) || defined( USB_HOST ) */
-#endif /* defined( USB_PRESENT ) && ( USB_COUNT == 1 ) */
+#endif /* defined(USB_DEVICE) || defined(USB_HOST) */
+#endif /* defined(USB_PRESENT) && (USB_COUNT == 1) */
 #endif /* __EM_USB_H */

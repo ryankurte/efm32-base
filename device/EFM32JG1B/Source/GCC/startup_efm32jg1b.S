@@ -1,7 +1,7 @@
 /* @file startup_efm32jg1b.S
  * @brief startup file for Silicon Labs EFM32JG1B devices.
  *        For use with GCC for ARM Embedded Processors
- * @version 4.2.1
+ * @version 5.2.1
  * Date:    12 June 2014
  *
  */
@@ -211,7 +211,7 @@ Reset_Handler:
 #ifdef __STARTUP_CLEAR_BSS_MULTIPLE
 /*  Multiple sections scheme.
  *
- *  Between symbol address __copy_table_start__ and __copy_table_end__,
+ *  Between symbol address __zero_table_start__ and __zero_table_end__,
  *  there are array of tuples specifying:
  *    offset 0: Start of a BSS section
  *    offset 4: Size of this BSS section. Must be multiply of 4

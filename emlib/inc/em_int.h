@@ -1,10 +1,10 @@
 /***************************************************************************//**
  * @file em_int.h
  * @brief Interrupt enable/disable unit API
- * @version 4.2.1
+ * @version 5.2.1
  *******************************************************************************
- * @section License
- * <b>(C) Copyright 2015 Silicon Labs, http://www.silabs.com</b>
+ * # License
+ * <b>Copyright 2016 Silicon Laboratories, Inc. http://www.silabs.com</b>
  *******************************************************************************
  *
  * Permission is granted to anyone to use this software for any purpose,
@@ -30,8 +30,8 @@
  *
  ******************************************************************************/
 
-#ifndef __SILICON_LABS_EM_INT_H__
-#define __SILICON_LABS_EM_INT_H__
+#ifndef EM_INT_H
+#define EM_INT_H
 
 #include "em_device.h"
 
@@ -45,10 +45,13 @@ extern "C" {
 #ifndef UINT32_MAX
 #define UINT32_MAX ((uint32_t)(0xFFFFFFFF))
 #endif
+
+#warning "The INT module is deprecated and marked for removal in a later release. Please use the new CORE module instead. See \"Porting from em_int\" in the CORE documentation for instructions."
+
 /** @endcond */
 
 /***************************************************************************//**
- * @addtogroup EM_Library
+ * @addtogroup emlib
  * @{
  ******************************************************************************/
 
@@ -61,6 +64,10 @@ extern "C" {
  * @brief
  *   Disable interrupts.
  *
+ * @deprecated
+ *   This function is deprecated and marked for removal in a later release.
+ *   Please use the new CORE module instead.
+ *
  * @details
  *   Disable interrupts and increment lock level counter.
  *
@@ -71,8 +78,7 @@ extern "C" {
 __STATIC_INLINE uint32_t INT_Disable(void)
 {
   __disable_irq();
-  if (INT_LockCnt < UINT32_MAX)
-  {
+  if (INT_LockCnt < UINT32_MAX) {
     INT_LockCnt++;
   }
 
@@ -82,6 +88,10 @@ __STATIC_INLINE uint32_t INT_Disable(void)
 /***************************************************************************//**
  * @brief
  *   Enable interrupts.
+ *
+ * @deprecated
+ *   This function is deprecated and marked for removal in a later release.
+ *   Please use the new CORE module instead.
  *
  * @return
  *   The resulting interrupt disable nesting level.
@@ -95,27 +105,23 @@ __STATIC_INLINE uint32_t INT_Enable(void)
 {
   uint32_t retVal;
 
-  if (INT_LockCnt > 0)
-  {
+  if (INT_LockCnt > 0) {
     INT_LockCnt--;
     retVal = INT_LockCnt;
-    if (retVal == 0)
-    {
+    if (retVal == 0) {
       __enable_irq();
     }
     return retVal;
-  }
-  else
-  {
+  } else {
     return 0;
   }
 }
 
 /** @} (end addtogroup INT) */
-/** @} (end addtogroup EM_Library) */
+/** @} (end addtogroup emlib) */
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* __SILICON_LABS_EM_INT_H__ */
+#endif /* EM_INT_H */

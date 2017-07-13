@@ -10,7 +10,7 @@
 **
 **  Target      : Silicon Labs EZR32WG devices.
 **
-**  Version     : 4.2.0
+**  Version     : 5.2.1
 **
 **  Environment : Atollic TrueSTUDIO(R)
 **

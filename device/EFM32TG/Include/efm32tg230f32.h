@@ -2,10 +2,10 @@
  * @file efm32tg230f32.h
  * @brief CMSIS Cortex-M3 Peripheral Access Layer Header File
  *        for EFM EFM32TG230F32
- * @version 4.2.1
+ * @version 5.2.1
  ******************************************************************************
- * @section License
- * <b>Copyright 2015 Silicon Laboratories, Inc. http://www.silabs.com</b>
+ * # License
+ * <b>Copyright 2017 Silicon Laboratories, Inc. http://www.silabs.com</b>
  ******************************************************************************
  *
  * Permission is granted to anyone to use this software for any purpose,
@@ -31,6 +31,12 @@
  *
  *****************************************************************************/
 
+#if defined(__ICCARM__)
+#pragma system_include       /* Treat file as system include file. */
+#elif defined(__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050)
+#pragma clang system_header  /* Treat file as system include file. */
+#endif
+
 #ifndef EFM32TG230F32_H
 #define EFM32TG230F32_H
 
@@ -51,40 +57,40 @@ extern "C" {
 /** Interrupt Number Definition */
 typedef enum IRQn
 {
-/******  Cortex-M3 Processor Exceptions Numbers *******************************************/
-  NonMaskableInt_IRQn   = -14,              /*!< 2 Cortex-M3 Non Maskable Interrupt       */
-  HardFault_IRQn        = -13,              /*!< 3 Cortex-M3 Hard Fault Interrupt         */
-  MemoryManagement_IRQn = -12,              /*!< 4 Cortex-M3 Memory Management Interrupt  */
-  BusFault_IRQn         = -11,              /*!< 5 Cortex-M3 Bus Fault Interrupt          */
-  UsageFault_IRQn       = -10,              /*!< 6 Cortex-M3 Usage Fault Interrupt        */
-  SVCall_IRQn           = -5,               /*!< 11 Cortex-M3 SV Call Interrupt           */
-  DebugMonitor_IRQn     = -4,               /*!< 12 Cortex-M3 Debug Monitor Interrupt     */
-  PendSV_IRQn           = -2,               /*!< 14 Cortex-M3 Pend SV Interrupt           */
-  SysTick_IRQn          = -1,               /*!< 15 Cortex-M3 System Tick Interrupt       */
+/******  Cortex-M3 Processor Exceptions Numbers ********************************************/
+  NonMaskableInt_IRQn   = -14,              /*!< -14 Cortex-M3 Non Maskable Interrupt      */
+  HardFault_IRQn        = -13,              /*!< -13 Cortex-M3 Hard Fault Interrupt        */
+  MemoryManagement_IRQn = -12,              /*!< -12 Cortex-M3 Memory Management Interrupt */
+  BusFault_IRQn         = -11,              /*!< -11 Cortex-M3 Bus Fault Interrupt         */
+  UsageFault_IRQn       = -10,              /*!< -10 Cortex-M3 Usage Fault Interrupt       */
+  SVCall_IRQn           = -5,               /*!< -5  Cortex-M3 SV Call Interrupt           */
+  DebugMonitor_IRQn     = -4,               /*!< -4  Cortex-M3 Debug Monitor Interrupt     */
+  PendSV_IRQn           = -2,               /*!< -2  Cortex-M3 Pend SV Interrupt           */
+  SysTick_IRQn          = -1,               /*!< -1  Cortex-M3 System Tick Interrupt       */
 
-/******  EFM32G Peripheral Interrupt Numbers **********************************************/
-  DMA_IRQn              = 0,  /*!< 16+0 EFM32 DMA Interrupt */
-  GPIO_EVEN_IRQn        = 1,  /*!< 16+1 EFM32 GPIO_EVEN Interrupt */
-  TIMER0_IRQn           = 2,  /*!< 16+2 EFM32 TIMER0 Interrupt */
-  USART0_RX_IRQn        = 3,  /*!< 16+3 EFM32 USART0_RX Interrupt */
-  USART0_TX_IRQn        = 4,  /*!< 16+4 EFM32 USART0_TX Interrupt */
-  ACMP0_IRQn            = 5,  /*!< 16+5 EFM32 ACMP0 Interrupt */
-  ADC0_IRQn             = 6,  /*!< 16+6 EFM32 ADC0 Interrupt */
-  DAC0_IRQn             = 7,  /*!< 16+7 EFM32 DAC0 Interrupt */
-  I2C0_IRQn             = 8,  /*!< 16+8 EFM32 I2C0 Interrupt */
-  GPIO_ODD_IRQn         = 9,  /*!< 16+9 EFM32 GPIO_ODD Interrupt */
-  TIMER1_IRQn           = 10, /*!< 16+10 EFM32 TIMER1 Interrupt */
-  USART1_RX_IRQn        = 11, /*!< 16+11 EFM32 USART1_RX Interrupt */
-  USART1_TX_IRQn        = 12, /*!< 16+12 EFM32 USART1_TX Interrupt */
-  LESENSE_IRQn          = 13, /*!< 16+13 EFM32 LESENSE Interrupt */
-  LEUART0_IRQn          = 14, /*!< 16+14 EFM32 LEUART0 Interrupt */
-  LETIMER0_IRQn         = 15, /*!< 16+15 EFM32 LETIMER0 Interrupt */
-  PCNT0_IRQn            = 16, /*!< 16+16 EFM32 PCNT0 Interrupt */
-  RTC_IRQn              = 17, /*!< 16+17 EFM32 RTC Interrupt */
-  CMU_IRQn              = 18, /*!< 16+18 EFM32 CMU Interrupt */
-  VCMP_IRQn             = 19, /*!< 16+19 EFM32 VCMP Interrupt */
-  MSC_IRQn              = 21, /*!< 16+21 EFM32 MSC Interrupt */
-  AES_IRQn              = 22, /*!< 16+22 EFM32 AES Interrupt */
+/******  EFM32G Peripheral Interrupt Numbers ***********************************************/
+  DMA_IRQn              = 0,  /*!< 0 EFM32 DMA Interrupt */
+  GPIO_EVEN_IRQn        = 1,  /*!< 1 EFM32 GPIO_EVEN Interrupt */
+  TIMER0_IRQn           = 2,  /*!< 2 EFM32 TIMER0 Interrupt */
+  USART0_RX_IRQn        = 3,  /*!< 3 EFM32 USART0_RX Interrupt */
+  USART0_TX_IRQn        = 4,  /*!< 4 EFM32 USART0_TX Interrupt */
+  ACMP0_IRQn            = 5,  /*!< 5 EFM32 ACMP0 Interrupt */
+  ADC0_IRQn             = 6,  /*!< 6 EFM32 ADC0 Interrupt */
+  DAC0_IRQn             = 7,  /*!< 7 EFM32 DAC0 Interrupt */
+  I2C0_IRQn             = 8,  /*!< 8 EFM32 I2C0 Interrupt */
+  GPIO_ODD_IRQn         = 9,  /*!< 9 EFM32 GPIO_ODD Interrupt */
+  TIMER1_IRQn           = 10, /*!< 10 EFM32 TIMER1 Interrupt */
+  USART1_RX_IRQn        = 11, /*!< 11 EFM32 USART1_RX Interrupt */
+  USART1_TX_IRQn        = 12, /*!< 12 EFM32 USART1_TX Interrupt */
+  LESENSE_IRQn          = 13, /*!< 13 EFM32 LESENSE Interrupt */
+  LEUART0_IRQn          = 14, /*!< 14 EFM32 LEUART0 Interrupt */
+  LETIMER0_IRQn         = 15, /*!< 15 EFM32 LETIMER0 Interrupt */
+  PCNT0_IRQn            = 16, /*!< 16 EFM32 PCNT0 Interrupt */
+  RTC_IRQn              = 17, /*!< 17 EFM32 RTC Interrupt */
+  CMU_IRQn              = 18, /*!< 18 EFM32 CMU Interrupt */
+  VCMP_IRQn             = 19, /*!< 19 EFM32 VCMP Interrupt */
+  MSC_IRQn              = 21, /*!< 21 EFM32 MSC Interrupt */
+  AES_IRQn              = 22, /*!< 22 EFM32 AES Interrupt */
 } IRQn_Type;
 
 /**************************************************************************//**
@@ -93,6 +99,7 @@ typedef enum IRQn
  * @brief Processor and Core Peripheral Section
  *****************************************************************************/
 #define __MPU_PRESENT             0 /**< MPU not present */
+#define __VTOR_PRESENT            1 /**< Presence of VTOR register in SCB */
 #define __NVIC_PRIO_BITS          3 /**< NVIC interrupt priority bits */
 #define __Vendor_SysTickConfig    0 /**< Is 1 if different SysTick counter is used */
 
@@ -104,10 +111,14 @@ typedef enum IRQn
 ******************************************************************************/
 
 /** Part family */
-#define _EFM32_TINY_FAMILY              1 /**< Tiny Gecko EFM32TG MCU Family */
-#define _EFM_DEVICE                       /**< Silicon Labs EFM-type microcontroller */
-#define _SILICON_LABS_32B_PLATFORM_1      /**< Silicon Labs platform name */
-#define _SILICON_LABS_32B_PLATFORM      1 /**< Silicon Labs platform name */
+#define _EFM32_TINY_FAMILY                      1  /**< Tiny Gecko EFM32TG MCU Family */
+#define _EFM_DEVICE                                /**< Silicon Labs EFM-type microcontroller */
+#define _SILICON_LABS_32B_SERIES_0                 /**< Silicon Labs series number */
+#define _SILICON_LABS_32B_SERIES                0  /**< Silicon Labs series number */
+#define _SILICON_LABS_GECKO_INTERNAL_SDID       73 /**< Silicon Labs internal use only, may change any time */
+#define _SILICON_LABS_GECKO_INTERNAL_SDID_73       /**< Silicon Labs internal use only, may change any time */
+#define _SILICON_LABS_32B_PLATFORM_1               /**< @deprecated Silicon Labs platform name */
+#define _SILICON_LABS_32B_PLATFORM              1  /**< @deprecated Silicon Labs platform name */
 
 /* If part number is not defined as compiler option, define it */
 #if !defined(EFM32TG230F32)
@@ -146,12 +157,13 @@ typedef enum IRQn
 /** Flash and SRAM limits for EFM32TG230F32 */
 #define FLASH_BASE           (0x00000000UL) /**< Flash Base Address */
 #define FLASH_SIZE           (0x00008000UL) /**< Available Flash Memory */
-#define FLASH_PAGE_SIZE      512            /**< Flash Memory page size */
+#define FLASH_PAGE_SIZE      512U           /**< Flash Memory page size */
 #define SRAM_BASE            (0x20000000UL) /**< SRAM Base Address */
 #define SRAM_SIZE            (0x00001000UL) /**< Available SRAM Memory */
 #define __CM3_REV            0x201          /**< Cortex-M3 Core revision r2p1 */
 #define PRS_CHAN_COUNT       8              /**< Number of PRS channels */
 #define DMA_CHAN_COUNT       8              /**< Number of DMA channels */
+#define EXT_IRQ_COUNT        23             /**< Number of External (NVIC) interrupts */
 
 /** AF channels connect the different on-chip peripherals with the af-mux */
 #define AFCHAN_MAX           63
@@ -161,65 +173,65 @@ typedef enum IRQn
 
 /* Part number capabilities */
 
-#define ACMP_PRESENT          /**< ACMP is available in this part */
-#define ACMP_COUNT          2 /**< 2 ACMPs available  */
-#define USART_PRESENT         /**< USART is available in this part */
-#define USART_COUNT         2 /**< 2 USARTs available  */
-#define TIMER_PRESENT         /**< TIMER is available in this part */
-#define TIMER_COUNT         2 /**< 2 TIMERs available  */
-#define LEUART_PRESENT        /**< LEUART is available in this part */
-#define LEUART_COUNT        1 /**< 1 LEUARTs available  */
-#define LETIMER_PRESENT       /**< LETIMER is available in this part */
-#define LETIMER_COUNT       1 /**< 1 LETIMERs available  */
-#define PCNT_PRESENT          /**< PCNT is available in this part */
-#define PCNT_COUNT          1 /**< 1 PCNTs available  */
-#define ADC_PRESENT           /**< ADC is available in this part */
-#define ADC_COUNT           1 /**< 1 ADCs available  */
-#define DAC_PRESENT           /**< DAC is available in this part */
-#define DAC_COUNT           1 /**< 1 DACs available  */
-#define I2C_PRESENT           /**< I2C is available in this part */
-#define I2C_COUNT           1 /**< 1 I2Cs available  */
-#define AES_PRESENT
-#define AES_COUNT           1
-#define DMA_PRESENT
-#define DMA_COUNT           1
-#define LE_PRESENT
-#define LE_COUNT            1
-#define MSC_PRESENT
-#define MSC_COUNT           1
-#define EMU_PRESENT
-#define EMU_COUNT           1
-#define RMU_PRESENT
-#define RMU_COUNT           1
-#define CMU_PRESENT
-#define CMU_COUNT           1
-#define LESENSE_PRESENT
-#define LESENSE_COUNT       1
-#define RTC_PRESENT
-#define RTC_COUNT           1
-#define GPIO_PRESENT
-#define GPIO_COUNT          1
-#define VCMP_PRESENT
-#define VCMP_COUNT          1
-#define PRS_PRESENT
-#define PRS_COUNT           1
-#define OPAMP_PRESENT
-#define OPAMP_COUNT         1
-#define HFXTAL_PRESENT
-#define HFXTAL_COUNT        1
-#define LFXTAL_PRESENT
-#define LFXTAL_COUNT        1
-#define WDOG_PRESENT
-#define WDOG_COUNT          1
-#define DBG_PRESENT
-#define DBG_COUNT           1
-#define BOOTLOADER_PRESENT
-#define BOOTLOADER_COUNT    1
-#define ANALOG_PRESENT
-#define ANALOG_COUNT        1
+#define ACMP_PRESENT            /**< ACMP is available in this part */
+#define ACMP_COUNT            2 /**< 2 ACMPs available  */
+#define USART_PRESENT           /**< USART is available in this part */
+#define USART_COUNT           2 /**< 2 USARTs available  */
+#define TIMER_PRESENT           /**< TIMER is available in this part */
+#define TIMER_COUNT           2 /**< 2 TIMERs available  */
+#define LEUART_PRESENT          /**< LEUART is available in this part */
+#define LEUART_COUNT          1 /**< 1 LEUARTs available  */
+#define LETIMER_PRESENT         /**< LETIMER is available in this part */
+#define LETIMER_COUNT         1 /**< 1 LETIMERs available  */
+#define PCNT_PRESENT            /**< PCNT is available in this part */
+#define PCNT_COUNT            1 /**< 1 PCNTs available  */
+#define ADC_PRESENT             /**< ADC is available in this part */
+#define ADC_COUNT             1 /**< 1 ADCs available  */
+#define DAC_PRESENT             /**< DAC is available in this part */
+#define DAC_COUNT             1 /**< 1 DACs available  */
+#define I2C_PRESENT             /**< I2C is available in this part */
+#define I2C_COUNT             1 /**< 1 I2Cs available  */
+#define AES_PRESENT             /**< AES is available in this part */
+#define AES_COUNT             1 /**< 1 AES available */
+#define DMA_PRESENT             /**< DMA is available in this part */
+#define DMA_COUNT             1 /**< 1 DMA available */
+#define LE_PRESENT              /**< LE is available in this part */
+#define LE_COUNT              1 /**< 1 LE available */
+#define MSC_PRESENT             /**< MSC is available in this part */
+#define MSC_COUNT             1 /**< 1 MSC available */
+#define EMU_PRESENT             /**< EMU is available in this part */
+#define EMU_COUNT             1 /**< 1 EMU available */
+#define RMU_PRESENT             /**< RMU is available in this part */
+#define RMU_COUNT             1 /**< 1 RMU available */
+#define CMU_PRESENT             /**< CMU is available in this part */
+#define CMU_COUNT             1 /**< 1 CMU available */
+#define LESENSE_PRESENT         /**< LESENSE is available in this part */
+#define LESENSE_COUNT         1 /**< 1 LESENSE available */
+#define RTC_PRESENT             /**< RTC is available in this part */
+#define RTC_COUNT             1 /**< 1 RTC available */
+#define GPIO_PRESENT            /**< GPIO is available in this part */
+#define GPIO_COUNT            1 /**< 1 GPIO available */
+#define VCMP_PRESENT            /**< VCMP is available in this part */
+#define VCMP_COUNT            1 /**< 1 VCMP available */
+#define PRS_PRESENT             /**< PRS is available in this part */
+#define PRS_COUNT             1 /**< 1 PRS available */
+#define OPAMP_PRESENT           /**< OPAMP is available in this part */
+#define OPAMP_COUNT           1 /**< 1 OPAMP available */
+#define HFXTAL_PRESENT          /**< HFXTAL is available in this part */
+#define HFXTAL_COUNT          1 /**< 1 HFXTAL available */
+#define LFXTAL_PRESENT          /**< LFXTAL is available in this part */
+#define LFXTAL_COUNT          1 /**< 1 LFXTAL available */
+#define WDOG_PRESENT            /**< WDOG is available in this part */
+#define WDOG_COUNT            1 /**< 1 WDOG available */
+#define DBG_PRESENT             /**< DBG is available in this part */
+#define DBG_COUNT             1 /**< 1 DBG available */
+#define BOOTLOADER_PRESENT      /**< BOOTLOADER is available in this part */
+#define BOOTLOADER_COUNT      1 /**< 1 BOOTLOADER available */
+#define ANALOG_PRESENT          /**< ANALOG is available in this part */
+#define ANALOG_COUNT          1 /**< 1 ANALOG available */
 
-#include "core_cm3.h"       /* Cortex-M3 processor and core peripherals */
-#include "system_efm32tg.h" /* System Header */
+#include "core_cm3.h"           /* Cortex-M3 processor and core peripherals */
+#include "system_efm32tg.h"     /* System Header */
 
 /** @} End of group EFM32TG230F32_Part */
 
@@ -243,40 +255,40 @@ typedef enum IRQn
  *****************************************************************************/
 typedef struct
 {
-  __IO uint32_t CTRL;         /**< CMU Control Register  */
-  __IO uint32_t HFCORECLKDIV; /**< High Frequency Core Clock Division Register  */
-  __IO uint32_t HFPERCLKDIV;  /**< High Frequency Peripheral Clock Division Register  */
-  __IO uint32_t HFRCOCTRL;    /**< HFRCO Control Register  */
-  __IO uint32_t LFRCOCTRL;    /**< LFRCO Control Register  */
-  __IO uint32_t AUXHFRCOCTRL; /**< AUXHFRCO Control Register  */
-  __IO uint32_t CALCTRL;      /**< Calibration Control Register  */
-  __IO uint32_t CALCNT;       /**< Calibration Counter Register  */
-  __IO uint32_t OSCENCMD;     /**< Oscillator Enable/Disable Command Register  */
-  __IO uint32_t CMD;          /**< Command Register  */
-  __IO uint32_t LFCLKSEL;     /**< Low Frequency Clock Select Register  */
-  __I uint32_t  STATUS;       /**< Status Register  */
-  __I uint32_t  IF;           /**< Interrupt Flag Register  */
-  __IO uint32_t IFS;          /**< Interrupt Flag Set Register  */
-  __IO uint32_t IFC;          /**< Interrupt Flag Clear Register  */
-  __IO uint32_t IEN;          /**< Interrupt Enable Register  */
-  __IO uint32_t HFCORECLKEN0; /**< High Frequency Core Clock Enable Register 0  */
-  __IO uint32_t HFPERCLKEN0;  /**< High Frequency Peripheral Clock Enable Register 0  */
-  uint32_t      RESERVED0[2]; /**< Reserved for future use **/
-  __I uint32_t  SYNCBUSY;     /**< Synchronization Busy Register  */
-  __IO uint32_t FREEZE;       /**< Freeze Register  */
-  __IO uint32_t LFACLKEN0;    /**< Low Frequency A Clock Enable Register 0  (Async Reg)  */
-  uint32_t      RESERVED1[1]; /**< Reserved for future use **/
-  __IO uint32_t LFBCLKEN0;    /**< Low Frequency B Clock Enable Register 0 (Async Reg)  */
-  uint32_t      RESERVED2[1]; /**< Reserved for future use **/
-  __IO uint32_t LFAPRESC0;    /**< Low Frequency A Prescaler Register 0 (Async Reg)  */
-  uint32_t      RESERVED3[1]; /**< Reserved for future use **/
-  __IO uint32_t LFBPRESC0;    /**< Low Frequency B Prescaler Register 0  (Async Reg)  */
-  uint32_t      RESERVED4[1]; /**< Reserved for future use **/
-  __IO uint32_t PCNTCTRL;     /**< PCNT Control Register  */
-  uint32_t      RESERVED5[1]; /**< Reserved for future use **/
-  __IO uint32_t ROUTE;        /**< I/O Routing Register  */
-  __IO uint32_t LOCK;         /**< Configuration Lock Register  */
-} CMU_TypeDef;                /** @} */
+  __IOM uint32_t CTRL;         /**< CMU Control Register  */
+  __IOM uint32_t HFCORECLKDIV; /**< High Frequency Core Clock Division Register  */
+  __IOM uint32_t HFPERCLKDIV;  /**< High Frequency Peripheral Clock Division Register  */
+  __IOM uint32_t HFRCOCTRL;    /**< HFRCO Control Register  */
+  __IOM uint32_t LFRCOCTRL;    /**< LFRCO Control Register  */
+  __IOM uint32_t AUXHFRCOCTRL; /**< AUXHFRCO Control Register  */
+  __IOM uint32_t CALCTRL;      /**< Calibration Control Register  */
+  __IOM uint32_t CALCNT;       /**< Calibration Counter Register  */
+  __IOM uint32_t OSCENCMD;     /**< Oscillator Enable/Disable Command Register  */
+  __IOM uint32_t CMD;          /**< Command Register  */
+  __IOM uint32_t LFCLKSEL;     /**< Low Frequency Clock Select Register  */
+  __IM uint32_t  STATUS;       /**< Status Register  */
+  __IM uint32_t  IF;           /**< Interrupt Flag Register  */
+  __IOM uint32_t IFS;          /**< Interrupt Flag Set Register  */
+  __IOM uint32_t IFC;          /**< Interrupt Flag Clear Register  */
+  __IOM uint32_t IEN;          /**< Interrupt Enable Register  */
+  __IOM uint32_t HFCORECLKEN0; /**< High Frequency Core Clock Enable Register 0  */
+  __IOM uint32_t HFPERCLKEN0;  /**< High Frequency Peripheral Clock Enable Register 0  */
+  uint32_t       RESERVED0[2]; /**< Reserved for future use **/
+  __IM uint32_t  SYNCBUSY;     /**< Synchronization Busy Register  */
+  __IOM uint32_t FREEZE;       /**< Freeze Register  */
+  __IOM uint32_t LFACLKEN0;    /**< Low Frequency A Clock Enable Register 0  (Async Reg)  */
+  uint32_t       RESERVED1[1]; /**< Reserved for future use **/
+  __IOM uint32_t LFBCLKEN0;    /**< Low Frequency B Clock Enable Register 0 (Async Reg)  */
+  uint32_t       RESERVED2[1]; /**< Reserved for future use **/
+  __IOM uint32_t LFAPRESC0;    /**< Low Frequency A Prescaler Register 0 (Async Reg)  */
+  uint32_t       RESERVED3[1]; /**< Reserved for future use **/
+  __IOM uint32_t LFBPRESC0;    /**< Low Frequency B Prescaler Register 0  (Async Reg)  */
+  uint32_t       RESERVED4[1]; /**< Reserved for future use **/
+  __IOM uint32_t PCNTCTRL;     /**< PCNT Control Register  */
+  uint32_t       RESERVED5[1]; /**< Reserved for future use **/
+  __IOM uint32_t ROUTE;        /**< I/O Routing Register  */
+  __IOM uint32_t LOCK;         /**< Configuration Lock Register  */
+} CMU_TypeDef;                 /**< CMU Register Declaration *//** @} */
 
 #include "efm32tg_lesense_st.h"
 #include "efm32tg_lesense_buf.h"

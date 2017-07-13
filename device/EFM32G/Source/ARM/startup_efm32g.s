@@ -2,7 +2,7 @@
 ; * @file startup_efm32g.s
 ; * @brief    CMSIS Core Device Startup File for
 ; *           Silicon Labs EFM32G Device Series
-; * @version 4.2.1
+; * @version 5.2.1
 ; * @date     03. February 2012
 ; *
 ; * @note
@@ -28,8 +28,11 @@
 ; <h> Stack Configuration
 ;   <o> Stack Size (in Bytes) <0x0-0xFFFFFFFF:8>
 ; </h>
-
+                IF :DEF: __STACK_SIZE
+Stack_Size      EQU     __STACK_SIZE
+                ELSE
 Stack_Size      EQU     0x00000400
+                ENDIF
 
                 AREA    STACK, NOINIT, READWRITE, ALIGN=3
 Stack_Mem       SPACE   Stack_Size
@@ -39,8 +42,11 @@ __initial_sp
 ; <h> Heap Configuration
 ;   <o>  Heap Size (in Bytes) <0x0-0xFFFFFFFF:8>
 ; </h>
-
+                IF :DEF: __HEAP_SIZE
+Heap_Size       EQU     __HEAP_SIZE
+                ELSE
 Heap_Size       EQU     0x00000C00
+                ENDIF
 
                 AREA    HEAP, NOINIT, READWRITE, ALIGN=3
 __heap_base

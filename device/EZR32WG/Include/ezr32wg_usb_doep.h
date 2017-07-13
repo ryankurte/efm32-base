@@ -1,10 +1,10 @@
 /**************************************************************************//**
  * @file ezr32wg_usb_doep.h
  * @brief EZR32WG_USB_DOEP register and bit field definitions
- * @version 4.2.1
+ * @version 5.2.1
  ******************************************************************************
- * @section License
- * <b>Copyright 2015 Silicon Laboratories, Inc. http://www.silabs.com</b>
+ * # License
+ * <b>Copyright 2017 Silicon Laboratories, Inc. http://www.silabs.com</b>
  ******************************************************************************
  *
  * Permission is granted to anyone to use this software for any purpose,
@@ -29,6 +29,13 @@
  * any third party, arising from your use of this Software.
  *
  *****************************************************************************/
+
+#if defined(__ICCARM__)
+#pragma system_include       /* Treat file as system include file. */
+#elif defined(__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050)
+#pragma clang system_header  /* Treat file as system include file. */
+#endif
+
 /**************************************************************************//**
 * @addtogroup Parts
 * @{
@@ -38,13 +45,13 @@
  *****************************************************************************/
 typedef struct
 {
-  __IO uint32_t CTL;          /**< Device OUT Endpoint x+1 Control Register  */
-  uint32_t      RESERVED0[1]; /**< Reserved for future use **/
-  __IO uint32_t INT;          /**< Device OUT Endpoint x+1 Interrupt Register  */
-  uint32_t      RESERVED1[1]; /**< Reserved for future use **/
-  __IO uint32_t TSIZ;         /**< Device OUT Endpoint x+1 Transfer Size Register  */
-  __IO uint32_t DMAADDR;      /**< Device OUT Endpoint x+1 DMA Address Register  */
-  uint32_t      RESERVED2[2]; /**< Reserved future */
+  __IOM uint32_t CTL;          /**< Device OUT Endpoint x+1 Control Register  */
+  uint32_t       RESERVED0[1]; /**< Reserved for future use **/
+  __IOM uint32_t INT;          /**< Device OUT Endpoint x+1 Interrupt Register  */
+  uint32_t       RESERVED1[1]; /**< Reserved for future use **/
+  __IOM uint32_t TSIZ;         /**< Device OUT Endpoint x+1 Transfer Size Register  */
+  __IOM uint32_t DMAADDR;      /**< Device OUT Endpoint x+1 DMA Address Register  */
+  uint32_t       RESERVED2[2]; /**< Reserved future */
 } USB_DOEP_TypeDef;
 
 /** @} End of group Parts */

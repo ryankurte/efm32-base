@@ -1,10 +1,10 @@
 /***************************************************************************//**
  * @file em_i2c.h
  * @brief Inter-intergrated circuit (I2C) peripheral API
- * @version 4.2.1
+ * @version 5.2.1
  *******************************************************************************
- * @section License
- * <b>(C) Copyright 2015 Silicon Labs, http://www.silabs.com</b>
+ * # License
+ * <b>Copyright 2016 Silicon Laboratories, Inc. http://www.silabs.com</b>
  *******************************************************************************
  *
  * Permission is granted to anyone to use this software for any purpose,
@@ -30,8 +30,8 @@
  *
  ******************************************************************************/
 
-#ifndef __SILICON_LABS_EM_I2C_H__
-#define __SILICON_LABS_EM_I2C_H__
+#ifndef EM_I2C_H
+#define EM_I2C_H
 
 #include "em_device.h"
 #if defined(I2C_COUNT) && (I2C_COUNT > 0)
@@ -43,7 +43,7 @@ extern "C" {
 #endif
 
 /***************************************************************************//**
- * @addtogroup EM_Library
+ * @addtogroup emlib
  * @{
  ******************************************************************************/
 
@@ -68,12 +68,17 @@ extern "C" {
  * @note
  *   Due to chip characteristics, the max value is somewhat reduced.
  */
-#if defined(_EFM32_GECKO_FAMILY) || defined(_EFM32_TINY_FAMILY) \
-    || defined(_EFM32_ZERO_FAMILY) || defined(_EFM32_HAPPY_FAMILY)
+#if defined(_SILICON_LABS_32B_SERIES_0) \
+  && (defined(_EFM32_GECKO_FAMILY)      \
+  || defined(_EFM32_TINY_FAMILY)        \
+  || defined(_EFM32_ZERO_FAMILY)        \
+  || defined(_EFM32_HAPPY_FAMILY))
 #define I2C_FREQ_STANDARD_MAX    93000
-#elif defined(_EFM32_GIANT_FAMILY) || defined(_EFM32_WONDER_FAMILY)
+#elif defined(_SILICON_LABS_32B_SERIES_0) \
+  && (defined(_EFM32_GIANT_FAMILY)        \
+  || defined(_EFM32_WONDER_FAMILY))
 #define I2C_FREQ_STANDARD_MAX    92000
-#elif defined(_SILICON_LABS_32B_PLATFORM_2)
+#elif defined(_SILICON_LABS_32B_SERIES_1)
 // None of the chips on this platform has been characterized on this parameter.
 // Use same value as on Wonder until further notice.
 #define I2C_FREQ_STANDARD_MAX    92000
@@ -93,7 +98,6 @@ extern "C" {
  */
 #define I2C_FREQ_FAST_MAX        392157
 
-
 /**
  * @brief
  *   Fast mode+ max frequency assuming using 11:6 ratio for Nlow:Nhigh.
@@ -105,7 +109,6 @@ extern "C" {
  *   1/(Tlow + Thigh + 0.12us + 0.12us) = 1/(0.5 + 0.273 + 0.24)us = 987167Hz
  */
 #define I2C_FREQ_FASTPLUS_MAX    987167
-
 
 /**
  * @brief
@@ -156,23 +159,19 @@ extern "C" {
 /** Use 10 bit address. */
 #define I2C_FLAG_10BIT_ADDR     0x0010
 
-
 /*******************************************************************************
  ********************************   ENUMS   ************************************
  ******************************************************************************/
 
 /** Clock low to high ratio settings. */
-typedef enum
-{
+typedef enum {
   i2cClockHLRStandard  = _I2C_CTRL_CLHR_STANDARD,      /**< Ratio is 4:4 */
   i2cClockHLRAsymetric = _I2C_CTRL_CLHR_ASYMMETRIC,    /**< Ratio is 6:3 */
   i2cClockHLRFast      = _I2C_CTRL_CLHR_FAST           /**< Ratio is 11:3 */
 } I2C_ClockHLR_TypeDef;
 
-
 /** Return codes for single master mode transfer function. */
-typedef enum
-{
+typedef enum {
   /* In progress code (>0) */
   i2cTransferInProgress = 1,    /**< Transfer in progress. */
 
@@ -187,14 +186,12 @@ typedef enum
   i2cTransferSwFault    = -5    /**< SW fault. */
 } I2C_TransferReturn_TypeDef;
 
-
 /*******************************************************************************
  *******************************   STRUCTS   ***********************************
  ******************************************************************************/
 
 /** I2C initialization structure. */
-typedef struct
-{
+typedef struct {
   /** Enable I2C peripheral when init completed. */
   bool                 enable;
 
@@ -220,15 +217,14 @@ typedef struct
 
 /** Suggested default config for I2C init structure. */
 #define I2C_INIT_DEFAULT                                                  \
-{                                                                         \
-  true,                    /* Enable when init done */                    \
-  true,                    /* Set to master mode */                       \
-  0,                       /* Use currently configured reference clock */ \
-  I2C_FREQ_STANDARD_MAX,   /* Set to standard rate assuring being */      \
-                           /* within I2C spec */                          \
-  i2cClockHLRStandard      /* Set to use 4:4 low/high duty cycle */       \
-}
-
+  {                                                                       \
+    true,                  /* Enable when init done */                    \
+    true,                  /* Set to master mode */                       \
+    0,                     /* Use currently configured reference clock */ \
+    I2C_FREQ_STANDARD_MAX, /* Set to standard rate assuring being */      \
+    /*                        within I2C spec */                          \
+    i2cClockHLRStandard    /* Set to use 4:4 low/high duty cycle */       \
+  }
 
 /**
  * @brief
@@ -244,8 +240,7 @@ typedef struct
  *   @li #I2C_FLAG_WRITE_WRITE - data written from buf[0].data and
  *     buf[1].data
  */
-typedef struct
-{
+typedef struct {
   /**
    * @brief
    *   Address to use after (repeated) start.
@@ -263,8 +258,7 @@ typedef struct
    * Buffers used to hold data to send from or receive into depending
    * on sequence type.
    */
-  struct
-  {
+  struct {
     /** Buffer used for data to transmit/receive, must be @p len long. */
     uint8_t  *data;
 
@@ -278,7 +272,6 @@ typedef struct
     uint16_t len;
   } buf[2];
 } I2C_TransferSeq_TypeDef;
-
 
 /*******************************************************************************
  *****************************   PROTOTYPES   **********************************
@@ -308,7 +301,6 @@ __STATIC_INLINE void I2C_IntClear(I2C_TypeDef *i2c, uint32_t flags)
   i2c->IFC = flags;
 }
 
-
 /***************************************************************************//**
  * @brief
  *   Disable one or more I2C interrupts.
@@ -324,7 +316,6 @@ __STATIC_INLINE void I2C_IntDisable(I2C_TypeDef *i2c, uint32_t flags)
 {
   i2c->IEN &= ~(flags);
 }
-
 
 /***************************************************************************//**
  * @brief
@@ -347,7 +338,6 @@ __STATIC_INLINE void I2C_IntEnable(I2C_TypeDef *i2c, uint32_t flags)
   i2c->IEN |= flags;
 }
 
-
 /***************************************************************************//**
  * @brief
  *   Get pending I2C interrupt flags.
@@ -366,7 +356,6 @@ __STATIC_INLINE uint32_t I2C_IntGet(I2C_TypeDef *i2c)
 {
   return i2c->IF;
 }
-
 
 /***************************************************************************//**
  * @brief
@@ -392,7 +381,6 @@ __STATIC_INLINE uint32_t I2C_IntGetEnabled(I2C_TypeDef *i2c)
   ien = i2c->IEN;
   return i2c->IF & ien;
 }
-
 
 /***************************************************************************//**
  * @brief
@@ -434,7 +422,6 @@ __STATIC_INLINE uint8_t I2C_SlaveAddressGet(I2C_TypeDef *i2c)
   return ((uint8_t)(i2c->SADDR));
 }
 
-
 /***************************************************************************//**
  * @brief
  *   Set slave address to use for I2C peripheral (when operating in slave mode).
@@ -456,7 +443,6 @@ __STATIC_INLINE void I2C_SlaveAddressSet(I2C_TypeDef *i2c, uint8_t addr)
 {
   i2c->SADDR = (uint32_t)addr & 0xfe;
 }
-
 
 /***************************************************************************//**
  * @brief
@@ -486,7 +472,6 @@ __STATIC_INLINE uint8_t I2C_SlaveAddressMaskGet(I2C_TypeDef *i2c)
   return ((uint8_t)(i2c->SADDRMASK));
 }
 
-
 /***************************************************************************//**
  * @brief
  *   Set slave address mask used for I2C peripheral (when operating in slave
@@ -515,17 +500,16 @@ __STATIC_INLINE void I2C_SlaveAddressMaskSet(I2C_TypeDef *i2c, uint8_t mask)
   i2c->SADDRMASK = (uint32_t)mask & 0xfe;
 }
 
-
 I2C_TransferReturn_TypeDef I2C_Transfer(I2C_TypeDef *i2c);
 I2C_TransferReturn_TypeDef I2C_TransferInit(I2C_TypeDef *i2c,
                                             I2C_TransferSeq_TypeDef *seq);
 
 /** @} (end addtogroup I2C) */
-/** @} (end addtogroup EM_Library) */
+/** @} (end addtogroup emlib) */
 
 #ifdef __cplusplus
 }
 #endif
 
 #endif /* defined(I2C_COUNT) && (I2C_COUNT > 0) */
-#endif /* __SILICON_LABS_EM_I2C_H__ */
+#endif /* EM_I2C_H */

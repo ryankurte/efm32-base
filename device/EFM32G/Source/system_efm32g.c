@@ -1,10 +1,10 @@
 /***************************************************************************//**
  * @file system_efm32g.c
  * @brief CMSIS Cortex-M3 System Layer for EFM32G devices.
- * @version 4.2.1
+ * @version 5.2.1
  ******************************************************************************
- * @section License
- * <b>Copyright 2015 Silicon Laboratories, Inc. http://www.silabs.com</b>
+ * # License
+ * <b>Copyright 2017 Silicon Laboratories, Inc. http://www.silabs.com</b>
  ******************************************************************************
  *
  * Permission is granted to anyone to use this software for any purpose,
@@ -39,6 +39,7 @@
 
 /** LFRCO frequency, tuned to below frequency during manufacturing. */
 #define EFM32_LFRCO_FREQ  (32768UL)
+/** ULFRCO frequency. */
 #define EFM32_ULFRCO_FREQ (1000UL)
 
 /*******************************************************************************
@@ -54,9 +55,11 @@
 /* SW footprint. */
 
 #ifndef EFM32_HFXO_FREQ
+/** HFXO frequency. */
 #define EFM32_HFXO_FREQ (32000000UL)
 #endif
 
+/** Maximum HFRCO frequency. */
 #define EFM32_HFRCO_MAX_FREQ (28000000UL)
 
 /* Do not define variable if HF crystal oscillator not present */
@@ -68,6 +71,7 @@ static uint32_t SystemHFXOClock = EFM32_HFXO_FREQ;
 #endif
 
 #ifndef EFM32_LFXO_FREQ
+/** LFXO frequency. */
 #define EFM32_LFXO_FREQ (EFM32_LFRCO_FREQ)
 #endif
 
@@ -97,7 +101,7 @@ __STATIC_INLINE uint8_t GetProdRev(void)
  * @details
  *   Required CMSIS global variable that must be kept up-to-date.
  */
-uint32_t SystemCoreClock;
+uint32_t SystemCoreClock = 14000000UL;
 
 /*******************************************************************************
  **************************   GLOBAL FUNCTIONS   *******************************
@@ -140,7 +144,7 @@ uint32_t SystemCoreClockGet(void)
  *   Get the maximum core clock frequency.
  *
  * @note
- *   This is an EFR32 proprietary function, not part of the CMSIS definition.
+ *   This is an EFM32 proprietary function, not part of the CMSIS definition.
  *
  * @return
  *   The maximum core clock frequency in Hz.

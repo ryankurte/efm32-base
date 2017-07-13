@@ -1,9 +1,9 @@
 /***************************************************************************//**
  * @file em_usbtypes.h
  * @brief USB protocol stack library, internal type definitions.
- * @version 4.2.1
+ * @version 5.2.1
  *******************************************************************************
- * @section License
+ * # License
  * <b>(C) Copyright 2014 Silicon Labs, http://www.silabs.com</b>
  *******************************************************************************
  *
@@ -17,9 +17,9 @@
 #define __EM_USBTYPES_H
 
 #include "em_device.h"
-#if defined( USB_PRESENT ) && ( USB_COUNT == 1 )
+#if defined(USB_PRESENT) && (USB_COUNT == 1)
 #include "em_usb.h"
-#if defined( USB_DEVICE ) || defined( USB_HOST )
+#if defined(USB_DEVICE) || defined(USB_HOST)
 
 #ifdef __cplusplus
 extern "C" {
@@ -32,7 +32,7 @@ extern "C" {
 #define HP_RX_QUE_DEPTH       8
 #define MAX_XFER_LEN          524287L         /* 2^19 - 1 bytes             */
 #define MAX_PACKETS_PR_XFER   1023            /* 2^10 - 1 packets           */
-#if defined( _USB_DIEPTXF6_MASK )
+#if defined(_USB_DIEPTXF6_MASK)
   #define MAX_NUM_TX_FIFOS      6             /* In addition to EP0 Tx FIFO */
   #define MAX_NUM_IN_EPS        6             /* In addition to EP0         */
   #define MAX_NUM_OUT_EPS       6             /* In addition to EP0         */
@@ -47,40 +47,40 @@ extern "C" {
 #define MIN_EP_FIFO_SIZE_INBYTES  64U         /* Unit is bytes (8bit)       */
 
 /* For MCU's without USB host capability. */
-#if !defined( USB_ROUTE_VBUSENPEN )
+#if !defined(USB_ROUTE_VBUSENPEN)
 #define USB_VBUS_SWITCH_NOT_PRESENT
 #endif
 
 /* Limit imposed by the USB standard */
 #define MAX_USB_EP_NUM      15
 
-#if defined( USB_DEVICE )
-  /* Check power saving modes. */
+#if defined(USB_DEVICE)
+/* Check power saving modes. */
   #ifndef USB_PWRSAVE_MODE
-    /* Default powersave-mode is OFF. */
+/* Default powersave-mode is OFF. */
     #define USB_PWRSAVE_MODE  USB_PWRSAVE_MODE_OFF
   #else
-    #if ( USB_PWRSAVE_MODE                                               &  \
-          ~( USB_PWRSAVE_MODE_ONSUSPEND | USB_PWRSAVE_MODE_ONVBUSOFF |      \
-             USB_PWRSAVE_MODE_ENTEREM2                                 )    )
+    #if (USB_PWRSAVE_MODE                                            \
+         & ~(USB_PWRSAVE_MODE_ONSUSPEND | USB_PWRSAVE_MODE_ONVBUSOFF \
+             | USB_PWRSAVE_MODE_ENTEREM2)    )
       #error "Illegal USB powersave mode."
     #endif
   #endif /* ifndef USB_PWRSAVE_MODE */
 
-  /* Check power saving low frequency clock selection. */
+/* Check power saving low frequency clock selection. */
   #ifndef USB_USBC_32kHz_CLK
-    /* Default clock source is LFXO. */
+/* Default clock source is LFXO. */
     #define USB_USBC_32kHz_CLK USB_USBC_32kHz_CLK_LFXO
   #else
-    #if ( ( USB_USBC_32kHz_CLK != USB_USBC_32kHz_CLK_LFXO  ) &&  \
-          ( USB_USBC_32kHz_CLK != USB_USBC_32kHz_CLK_LFRCO )     )
+    #if ( (USB_USBC_32kHz_CLK != USB_USBC_32kHz_CLK_LFXO) \
+  && (USB_USBC_32kHz_CLK != USB_USBC_32kHz_CLK_LFRCO)     )
       #error "Illegal USB 32kHz powersave clock selection."
     #endif
   #endif /* ifndef USB_USBC_32kHz_CLK */
 #endif /* defined( USB_DEVICE ) */
 
-#if defined( USB_HOST )
-  /* Check VBUS overcurrent definitions. */
+#if defined(USB_HOST)
+/* Check VBUS overcurrent definitions. */
   #ifndef USB_VBUSOVRCUR_PORT
     #define USB_VBUSOVRCUR_PORT       gpioPortE
     #define USB_VBUSOVRCUR_PIN        2
@@ -89,29 +89,29 @@ extern "C" {
 #endif
 
 /* Developer mode debugging macro's */
-#if defined( DEBUG_USB_INT_LO )
-  #define DEBUG_USB_INT_LO_PUTS( s )    USB_PUTS( s )
-  #define DEBUG_USB_INT_LO_PUTCHAR( c ) USB_PUTCHAR( c )
+#if defined(DEBUG_USB_INT_LO)
+  #define DEBUG_USB_INT_LO_PUTS(s)    USB_PUTS(s)
+  #define DEBUG_USB_INT_LO_PUTCHAR(c) USB_PUTCHAR(c)
 #else
-  #define DEBUG_USB_INT_LO_PUTS( s )
-  #define DEBUG_USB_INT_LO_PUTCHAR( c )
+  #define DEBUG_USB_INT_LO_PUTS(s)
+  #define DEBUG_USB_INT_LO_PUTCHAR(c)
 #endif /* defined( DEBUG_USB_INT_LO ) */
 
-#if defined( DEBUG_USB_INT_HI )
-  #define DEBUG_USB_INT_HI_PUTS( s )    USB_PUTS( s )
-  #define DEBUG_USB_INT_HI_PUTCHAR( c ) USB_PUTCHAR( c )
+#if defined(DEBUG_USB_INT_HI)
+  #define DEBUG_USB_INT_HI_PUTS(s)    USB_PUTS(s)
+  #define DEBUG_USB_INT_HI_PUTCHAR(c) USB_PUTCHAR(c)
 #else
-  #define DEBUG_USB_INT_HI_PUTS( s )
-  #define DEBUG_USB_INT_HI_PUTCHAR( c )
+  #define DEBUG_USB_INT_HI_PUTS(s)
+  #define DEBUG_USB_INT_HI_PUTCHAR(c)
 #endif /* defined( DEBUG_USB_INT_HI ) */
 
-#if defined( USB_HOST )
-  #if defined( NUM_APP_TIMERS )
+#if defined(USB_HOST)
+  #if defined(NUM_APP_TIMERS)
     #define HOSTPORT_TIMER_INDEX  (NUM_APP_TIMERS)
   #else
     #define HOSTPORT_TIMER_INDEX  (0)
   #endif
-  #define HOSTCH_TIMER_INDEX      (HOSTPORT_TIMER_INDEX + 1 )
+  #define HOSTCH_TIMER_INDEX      (HOSTPORT_TIMER_INDEX + 1)
 #endif
 
 /* Macros for selecting a hardware timer. */
@@ -120,7 +120,7 @@ extern "C" {
 #define USB_TIMER2 2
 #define USB_TIMER3 3
 
-#if defined( USB_HOST )
+#if defined(USB_HOST)
 #define HCS_NAK       0x01
 #define HCS_STALL     0x02
 #define HCS_XACT      0x04
@@ -131,9 +131,8 @@ extern "C" {
 #define HCS_RETRY     0x80
 #endif
 
-#if defined( USB_DEVICE )
-typedef enum
-{
+#if defined(USB_DEVICE)
+typedef enum {
   D_EP_IDLE          = 0,
   D_EP_TRANSMITTING  = 1,
   D_EP_RECEIVING     = 2,
@@ -141,8 +140,7 @@ typedef enum
   D_EP0_OUT_STATUS   = 4
 } USBD_EpState_TypeDef;
 
-typedef struct
-{
+typedef struct {
   bool                        in;
   uint8_t                     zlp;
   uint8_t                     num;
@@ -160,8 +158,7 @@ typedef struct
   USB_XferCompleteCb_TypeDef  xferCompleteCb;
 } USBD_Ep_TypeDef;
 
-typedef struct
-{
+typedef struct {
   USB_Setup_TypeDef                     *setup;
   USB_Setup_TypeDef                     setupPkt[3];
   uint8_t                               configurationValue; /* Must be DWORD aligned */
@@ -175,16 +172,15 @@ typedef struct
   const USB_ConfigurationDescriptor_TypeDef *configDescriptor;
   const void * const                    *stringDescriptors;
   const USBD_Callbacks_TypeDef          *callbacks;
-  USBD_Ep_TypeDef                       ep[ NUM_EP_USED + 1 ];
-  uint8_t                               inEpAddr2EpIndex[  MAX_USB_EP_NUM + 1 ];
-  uint8_t                               outEpAddr2EpIndex[ MAX_USB_EP_NUM + 1 ];
+  USBD_Ep_TypeDef                       ep[NUM_EP_USED + 1];
+  uint8_t                               inEpAddr2EpIndex[MAX_USB_EP_NUM + 1];
+  uint8_t                               outEpAddr2EpIndex[MAX_USB_EP_NUM + 1];
   uint32_t                              ep0MpsCode;
 } USBD_Device_TypeDef;
 #endif /* defined( USB_DEVICE ) */
 
-#if defined( USB_HOST )
-typedef enum
-{
+#if defined(USB_HOST)
+typedef enum {
   H_PORT_DISCONNECTED         = 0,
   H_PORT_CONNECTED_DEBOUNCING = 1,
   H_PORT_CONNECTED_RESETTING  = 2,
@@ -192,14 +188,12 @@ typedef enum
   H_PORT_OVERCURRENT          = 4
 } USBH_PortState_TypeDef;
 
-typedef struct
-{
+typedef struct {
   int   debounceTime;
   int   resetTime;
 } USBH_AttachTiming_TypeDef;
 
-typedef struct
-{
+typedef struct {
   uint8_t                 *buf;
   int                     errorCnt;
   uint32_t                remaining;

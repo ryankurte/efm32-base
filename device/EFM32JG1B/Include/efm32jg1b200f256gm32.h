@@ -2,10 +2,10 @@
  * @file efm32jg1b200f256gm32.h
  * @brief CMSIS Cortex-M Peripheral Access Layer Header File
  *        for EFM32JG1B200F256GM32
- * @version 4.2.1
+ * @version 5.2.1
  ******************************************************************************
- * @section License
- * <b>Copyright 2015 Silicon Laboratories, Inc. http://www.silabs.com</b>
+ * # License
+ * <b>Copyright 2017 Silicon Laboratories, Inc. http://www.silabs.com</b>
  ******************************************************************************
  *
  * Permission is granted to anyone to use this software for any purpose,
@@ -31,8 +31,14 @@
  *
  *****************************************************************************/
 
-#ifndef SILICON_LABS_EFM32JG1B200F256GM32_H
-#define SILICON_LABS_EFM32JG1B200F256GM32_H
+#if defined(__ICCARM__)
+#pragma system_include       /* Treat file as system include file. */
+#elif defined(__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050)
+#pragma clang system_header  /* Treat file as system include file. */
+#endif
+
+#ifndef EFM32JG1B200F256GM32_H
+#define EFM32JG1B200F256GM32_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -51,7 +57,7 @@ extern "C" {
 /** Interrupt Number Definition */
 typedef enum IRQn
 {
-/******  Cortex-M3 Processor Exceptions Numbers *******************************************/
+/******  Cortex-M3 Processor Exceptions Numbers ********************************************/
   NonMaskableInt_IRQn   = -14,              /*!< 2  Cortex-M3 Non Maskable Interrupt      */
   HardFault_IRQn        = -13,              /*!< 3  Cortex-M3 Hard Fault Interrupt        */
   MemoryManagement_IRQn = -12,              /*!< 4  Cortex-M3 Memory Management Interrupt */
@@ -62,7 +68,7 @@ typedef enum IRQn
   PendSV_IRQn           = -2,               /*!< 14 Cortex-M3 Pend SV Interrupt           */
   SysTick_IRQn          = -1,               /*!< 15 Cortex-M3 System Tick Interrupt       */
 
-/******  EFM32JG1B Peripheral Interrupt Numbers *********************************************/
+/******  EFM32JG1B Peripheral Interrupt Numbers ********************************************/
 
   EMU_IRQn              = 0,  /*!< 16+0 EFM32 EMU Interrupt */
   WDOG0_IRQn            = 2,  /*!< 16+2 EFM32 WDOG0 Interrupt */
@@ -90,26 +96,35 @@ typedef enum IRQn
 } IRQn_Type;
 
 /**************************************************************************//**
- * @defgroup EFM32JG1B200F256GM32_Core EFM32JG1B200F256GM32 Core
+ * @defgroup EFM32JG1B200F256GM32_Core Core
  * @{
  * @brief Processor and Core Peripheral Section
  *****************************************************************************/
 #define __MPU_PRESENT             1 /**< Presence of MPU  */
+#define __VTOR_PRESENT            1 /**< Presence of VTOR register in SCB */
 #define __NVIC_PRIO_BITS          3 /**< NVIC interrupt priority bits */
 #define __Vendor_SysTickConfig    0 /**< Is 1 if different SysTick counter is used */
 
 /** @} End of group EFM32JG1B200F256GM32_Core */
 
 /**************************************************************************//**
-* @defgroup EFM32JG1B200F256GM32_Part EFM32JG1B200F256GM32 Part
+* @defgroup EFM32JG1B200F256GM32_Part Part
 * @{
 ******************************************************************************/
 
 /** Part family */
-#define _EFM32_JADE_FAMILY              1 /**< JADE Gecko MCU Family  */
-#define _EFM_DEVICE                       /**< Silicon Labs EFM-type microcontroller */
-#define _SILICON_LABS_32B_PLATFORM_2      /**< Silicon Labs platform name */
-#define _SILICON_LABS_32B_PLATFORM      2 /**< Silicon Labs platform name */
+#define _EFM32_JADE_FAMILY                      1  /**< JADE Gecko MCU Family  */
+#define _EFM_DEVICE                                /**< Silicon Labs EFM-type microcontroller */
+#define _SILICON_LABS_32B_SERIES_1                 /**< Silicon Labs series number */
+#define _SILICON_LABS_32B_SERIES                1  /**< Silicon Labs series number */
+#define _SILICON_LABS_32B_SERIES_1_CONFIG_1        /**< Series 1, Configuration 1 */
+#define _SILICON_LABS_32B_SERIES_1_CONFIG       1  /**< Series 1, Configuration 1 */
+#define _SILICON_LABS_GECKO_INTERNAL_SDID       80 /**< Silicon Labs internal use only, may change any time */
+#define _SILICON_LABS_GECKO_INTERNAL_SDID_80       /**< Silicon Labs internal use only, may change any time */
+#define _SILICON_LABS_32B_PLATFORM_2               /**< @deprecated Silicon Labs platform name */
+#define _SILICON_LABS_32B_PLATFORM              2  /**< @deprecated Silicon Labs platform name */
+#define _SILICON_LABS_32B_PLATFORM_2_GEN_1         /**< @deprecated Platform 2, generation 1 */
+#define _SILICON_LABS_32B_PLATFORM_2_GEN        1  /**< @deprecated Platform 2, generation 1 */
 
 /* If part number is not defined as compiler option, define it */
 #if !defined(EFM32JG1B200F256GM32)
@@ -123,39 +138,39 @@ typedef enum IRQn
 #define FLASH_MEM_BASE            ((uint32_t) 0x00000000UL) /**< FLASH base address  */
 #define FLASH_MEM_SIZE            ((uint32_t) 0x10000000UL) /**< FLASH available address space  */
 #define FLASH_MEM_END             ((uint32_t) 0x0FFFFFFFUL) /**< FLASH end address  */
-#define FLASH_MEM_BITS            ((uint32_t) 0x28UL)       /**< FLASH used bits  */
+#define FLASH_MEM_BITS            ((uint32_t) 0x0000001CUL) /**< FLASH used bits  */
 #define RAM_CODE_MEM_BASE         ((uint32_t) 0x10000000UL) /**< RAM_CODE base address  */
 #define RAM_CODE_MEM_SIZE         ((uint32_t) 0x7C00UL)     /**< RAM_CODE available address space  */
 #define RAM_CODE_MEM_END          ((uint32_t) 0x10007BFFUL) /**< RAM_CODE end address  */
-#define RAM_CODE_MEM_BITS         ((uint32_t) 0x15UL)       /**< RAM_CODE used bits  */
+#define RAM_CODE_MEM_BITS         ((uint32_t) 0x0000000FUL) /**< RAM_CODE used bits  */
 #define PER_BITCLR_MEM_BASE       ((uint32_t) 0x44000000UL) /**< PER_BITCLR base address  */
 #define PER_BITCLR_MEM_SIZE       ((uint32_t) 0xE8000UL)    /**< PER_BITCLR available address space  */
 #define PER_BITCLR_MEM_END        ((uint32_t) 0x440E7FFFUL) /**< PER_BITCLR end address  */
-#define PER_BITCLR_MEM_BITS       ((uint32_t) 0x20UL)       /**< PER_BITCLR used bits  */
+#define PER_BITCLR_MEM_BITS       ((uint32_t) 0x00000014UL) /**< PER_BITCLR used bits  */
 #define CRYPTO_BITSET_MEM_BASE    ((uint32_t) 0x460F0000UL) /**< CRYPTO_BITSET base address  */
 #define CRYPTO_BITSET_MEM_SIZE    ((uint32_t) 0x400UL)      /**< CRYPTO_BITSET available address space  */
 #define CRYPTO_BITSET_MEM_END     ((uint32_t) 0x460F03FFUL) /**< CRYPTO_BITSET end address  */
-#define CRYPTO_BITSET_MEM_BITS    ((uint32_t) 0x10UL)       /**< CRYPTO_BITSET used bits  */
+#define CRYPTO_BITSET_MEM_BITS    ((uint32_t) 0x0000000AUL) /**< CRYPTO_BITSET used bits  */
 #define CRYPTO_MEM_BASE           ((uint32_t) 0x400F0000UL) /**< CRYPTO base address  */
 #define CRYPTO_MEM_SIZE           ((uint32_t) 0x400UL)      /**< CRYPTO available address space  */
 #define CRYPTO_MEM_END            ((uint32_t) 0x400F03FFUL) /**< CRYPTO end address  */
-#define CRYPTO_MEM_BITS           ((uint32_t) 0x10UL)       /**< CRYPTO used bits  */
+#define CRYPTO_MEM_BITS           ((uint32_t) 0x0000000AUL) /**< CRYPTO used bits  */
 #define CRYPTO_BITCLR_MEM_BASE    ((uint32_t) 0x440F0000UL) /**< CRYPTO_BITCLR base address  */
 #define CRYPTO_BITCLR_MEM_SIZE    ((uint32_t) 0x400UL)      /**< CRYPTO_BITCLR available address space  */
 #define CRYPTO_BITCLR_MEM_END     ((uint32_t) 0x440F03FFUL) /**< CRYPTO_BITCLR end address  */
-#define CRYPTO_BITCLR_MEM_BITS    ((uint32_t) 0x10UL)       /**< CRYPTO_BITCLR used bits  */
+#define CRYPTO_BITCLR_MEM_BITS    ((uint32_t) 0x0000000AUL) /**< CRYPTO_BITCLR used bits  */
 #define PER_BITSET_MEM_BASE       ((uint32_t) 0x46000000UL) /**< PER_BITSET base address  */
 #define PER_BITSET_MEM_SIZE       ((uint32_t) 0xE8000UL)    /**< PER_BITSET available address space  */
 #define PER_BITSET_MEM_END        ((uint32_t) 0x460E7FFFUL) /**< PER_BITSET end address  */
-#define PER_BITSET_MEM_BITS       ((uint32_t) 0x20UL)       /**< PER_BITSET used bits  */
+#define PER_BITSET_MEM_BITS       ((uint32_t) 0x00000014UL) /**< PER_BITSET used bits  */
 #define PER_MEM_BASE              ((uint32_t) 0x40000000UL) /**< PER base address  */
 #define PER_MEM_SIZE              ((uint32_t) 0xE8000UL)    /**< PER available address space  */
 #define PER_MEM_END               ((uint32_t) 0x400E7FFFUL) /**< PER end address  */
-#define PER_MEM_BITS              ((uint32_t) 0x20UL)       /**< PER used bits  */
+#define PER_MEM_BITS              ((uint32_t) 0x00000014UL) /**< PER used bits  */
 #define RAM_MEM_BASE              ((uint32_t) 0x20000000UL) /**< RAM base address  */
 #define RAM_MEM_SIZE              ((uint32_t) 0x7C00UL)     /**< RAM available address space  */
 #define RAM_MEM_END               ((uint32_t) 0x20007BFFUL) /**< RAM end address  */
-#define RAM_MEM_BITS              ((uint32_t) 0x15UL)       /**< RAM used bits  */
+#define RAM_MEM_BITS              ((uint32_t) 0x0000000FUL) /**< RAM used bits  */
 
 /** Bit banding area */
 #define BITBAND_PER_BASE          ((uint32_t) 0x42000000UL) /**< Peripheral Address Space bit-band area */
@@ -164,73 +179,75 @@ typedef enum IRQn
 /** Flash and SRAM limits for EFM32JG1B200F256GM32 */
 #define FLASH_BASE                (0x00000000UL) /**< Flash Base Address */
 #define FLASH_SIZE                (0x00040000UL) /**< Available Flash Memory */
-#define FLASH_PAGE_SIZE           2048           /**< Flash Memory page size */
+#define FLASH_PAGE_SIZE           2048U          /**< Flash Memory page size */
 #define SRAM_BASE                 (0x20000000UL) /**< SRAM Base Address */
 #define SRAM_SIZE                 (0x00008000UL) /**< Available SRAM Memory */
 #define __CM3_REV                 0x201          /**< Cortex-M3 Core revision r2p1 */
 #define PRS_CHAN_COUNT            12             /**< Number of PRS channels */
 #define DMA_CHAN_COUNT            8              /**< Number of DMA channels */
+#define EXT_IRQ_COUNT             34             /**< Number of External (NVIC) interrupts */
 
 /** AF channels connect the different on-chip peripherals with the af-mux */
 #define AFCHAN_MAX                72
+/** AF channel maximum location number */
 #define AFCHANLOC_MAX             32
 /** Analog AF channels */
 #define AFACHAN_MAX               61
 
 /* Part number capabilities */
 
-#define TIMER_PRESENT         /**< TIMER is available in this part */
-#define TIMER_COUNT         2 /**< 2 TIMERs available  */
-#define USART_PRESENT         /**< USART is available in this part */
-#define USART_COUNT         2 /**< 2 USARTs available  */
-#define LEUART_PRESENT        /**< LEUART is available in this part */
-#define LEUART_COUNT        1 /**< 1 LEUARTs available  */
-#define LETIMER_PRESENT       /**< LETIMER is available in this part */
-#define LETIMER_COUNT       1 /**< 1 LETIMERs available  */
-#define PCNT_PRESENT          /**< PCNT is available in this part */
-#define PCNT_COUNT          1 /**< 1 PCNTs available  */
-#define I2C_PRESENT           /**< I2C is available in this part */
-#define I2C_COUNT           1 /**< 1 I2Cs available  */
-#define ADC_PRESENT           /**< ADC is available in this part */
-#define ADC_COUNT           1 /**< 1 ADCs available  */
-#define ACMP_PRESENT          /**< ACMP is available in this part */
-#define ACMP_COUNT          2 /**< 2 ACMPs available  */
-#define IDAC_PRESENT          /**< IDAC is available in this part */
-#define IDAC_COUNT          1 /**< 1 IDACs available  */
-#define WDOG_PRESENT          /**< WDOG is available in this part */
-#define WDOG_COUNT          1 /**< 1 WDOGs available  */
-#define MSC_PRESENT
-#define MSC_COUNT           1
-#define EMU_PRESENT
-#define EMU_COUNT           1
-#define RMU_PRESENT
-#define RMU_COUNT           1
-#define CMU_PRESENT
-#define CMU_COUNT           1
-#define CRYPTO_PRESENT
-#define CRYPTO_COUNT        1
-#define GPIO_PRESENT
-#define GPIO_COUNT          1
-#define PRS_PRESENT
-#define PRS_COUNT           1
-#define LDMA_PRESENT
-#define LDMA_COUNT          1
-#define GPCRC_PRESENT
-#define GPCRC_COUNT         1
-#define CRYOTIMER_PRESENT
-#define CRYOTIMER_COUNT     1
-#define RTCC_PRESENT
-#define RTCC_COUNT          1
-#define BOOTLOADER_PRESENT
-#define BOOTLOADER_COUNT    1
+#define TIMER_PRESENT           /**< TIMER is available in this part */
+#define TIMER_COUNT           2 /**< 2 TIMERs available  */
+#define USART_PRESENT           /**< USART is available in this part */
+#define USART_COUNT           2 /**< 2 USARTs available  */
+#define LEUART_PRESENT          /**< LEUART is available in this part */
+#define LEUART_COUNT          1 /**< 1 LEUARTs available  */
+#define LETIMER_PRESENT         /**< LETIMER is available in this part */
+#define LETIMER_COUNT         1 /**< 1 LETIMERs available  */
+#define PCNT_PRESENT            /**< PCNT is available in this part */
+#define PCNT_COUNT            1 /**< 1 PCNTs available  */
+#define I2C_PRESENT             /**< I2C is available in this part */
+#define I2C_COUNT             1 /**< 1 I2Cs available  */
+#define ADC_PRESENT             /**< ADC is available in this part */
+#define ADC_COUNT             1 /**< 1 ADCs available  */
+#define ACMP_PRESENT            /**< ACMP is available in this part */
+#define ACMP_COUNT            2 /**< 2 ACMPs available  */
+#define IDAC_PRESENT            /**< IDAC is available in this part */
+#define IDAC_COUNT            1 /**< 1 IDACs available  */
+#define WDOG_PRESENT            /**< WDOG is available in this part */
+#define WDOG_COUNT            1 /**< 1 WDOGs available  */
+#define MSC_PRESENT             /**< MSC is available in this part */
+#define MSC_COUNT             1 /**< 1 MSC available */
+#define EMU_PRESENT             /**< EMU is available in this part */
+#define EMU_COUNT             1 /**< 1 EMU available */
+#define RMU_PRESENT             /**< RMU is available in this part */
+#define RMU_COUNT             1 /**< 1 RMU available */
+#define CMU_PRESENT             /**< CMU is available in this part */
+#define CMU_COUNT             1 /**< 1 CMU available */
+#define CRYPTO_PRESENT          /**< CRYPTO is available in this part */
+#define CRYPTO_COUNT          1 /**< 1 CRYPTO available */
+#define GPIO_PRESENT            /**< GPIO is available in this part */
+#define GPIO_COUNT            1 /**< 1 GPIO available */
+#define PRS_PRESENT             /**< PRS is available in this part */
+#define PRS_COUNT             1 /**< 1 PRS available */
+#define LDMA_PRESENT            /**< LDMA is available in this part */
+#define LDMA_COUNT            1 /**< 1 LDMA available */
+#define GPCRC_PRESENT           /**< GPCRC is available in this part */
+#define GPCRC_COUNT           1 /**< 1 GPCRC available */
+#define CRYOTIMER_PRESENT       /**< CRYOTIMER is available in this part */
+#define CRYOTIMER_COUNT       1 /**< 1 CRYOTIMER available */
+#define RTCC_PRESENT            /**< RTCC is available in this part */
+#define RTCC_COUNT            1 /**< 1 RTCC available */
+#define BOOTLOADER_PRESENT      /**< BOOTLOADER is available in this part */
+#define BOOTLOADER_COUNT      1 /**< 1 BOOTLOADER available */
 
-#include "core_cm3.h"         /* Cortex-M3 processor and core peripherals */
-#include "system_efm32jg1b.h" /* System Header File */
+#include "core_cm3.h"           /* Cortex-M3 processor and core peripherals */
+#include "system_efm32jg1b.h"   /* System Header File */
 
 /** @} End of group EFM32JG1B200F256GM32_Part */
 
 /**************************************************************************//**
- * @defgroup EFM32JG1B200F256GM32_Peripheral_TypeDefs EFM32JG1B200F256GM32 Peripheral TypeDefs
+ * @defgroup EFM32JG1B200F256GM32_Peripheral_TypeDefs Peripheral TypeDefs
  * @{
  * @brief Device Specific Peripheral Register Structures
  *****************************************************************************/
@@ -270,7 +287,7 @@ typedef enum IRQn
 /** @} End of group EFM32JG1B200F256GM32_Peripheral_TypeDefs  */
 
 /**************************************************************************//**
- * @defgroup EFM32JG1B200F256GM32_Peripheral_Base EFM32JG1B200F256GM32 Peripheral Memory Map
+ * @defgroup EFM32JG1B200F256GM32_Peripheral_Base Peripheral Memory Map
  * @{
  *****************************************************************************/
 
@@ -306,7 +323,7 @@ typedef enum IRQn
 /** @} End of group EFM32JG1B200F256GM32_Peripheral_Base */
 
 /**************************************************************************//**
- * @defgroup EFM32JG1B200F256GM32_Peripheral_Declaration  EFM32JG1B200F256GM32 Peripheral Declarations
+ * @defgroup EFM32JG1B200F256GM32_Peripheral_Declaration Peripheral Declarations
  * @{
  *****************************************************************************/
 
@@ -340,7 +357,7 @@ typedef enum IRQn
 /** @} End of group EFM32JG1B200F256GM32_Peripheral_Declaration */
 
 /**************************************************************************//**
- * @defgroup EFM32JG1B200F256GM32_Peripheral_Offsets  EFM32JG1B200F256GM32 Peripheral Offsets
+ * @defgroup EFM32JG1B200F256GM32_Peripheral_Offsets Peripheral Offsets
  * @{
  *****************************************************************************/
 
@@ -359,7 +376,7 @@ typedef enum IRQn
 
 
 /**************************************************************************//**
- * @defgroup EFM32JG1B200F256GM32_BitFields EFM32JG1B200F256GM32 Bit Fields
+ * @defgroup EFM32JG1B200F256GM32_BitFields Bit Fields
  * @{
  *****************************************************************************/
 
@@ -367,7 +384,7 @@ typedef enum IRQn
 #include "efm32jg1b_dmareq.h"
 
 /**************************************************************************//**
- * @defgroup EFM32JG1B200F256GM32_UNLOCK EFM32JG1B200F256GM32 Unlock Codes
+ * @defgroup EFM32JG1B200F256GM32_UNLOCK Unlock Codes
  * @{
  *****************************************************************************/
 #define MSC_UNLOCK_CODE      0x1B71 /**< MSC unlock code */
@@ -382,15 +399,8 @@ typedef enum IRQn
 
 /** @} End of group EFM32JG1B200F256GM32_BitFields */
 
-/**************************************************************************//**
- * @defgroup EFM32JG1B200F256GM32_Alternate_Function EFM32JG1B200F256GM32 Alternate Function
- * @{
- *****************************************************************************/
-
 #include "efm32jg1b_af_ports.h"
 #include "efm32jg1b_af_pins.h"
-
-/** @} End of group EFM32JG1B200F256GM32_Alternate_Function */
 
 /**************************************************************************//**
  *  @brief Set the value of a bit field within a register.
@@ -415,4 +425,4 @@ typedef enum IRQn
 #ifdef __cplusplus
 }
 #endif
-#endif /* SILICON_LABS_EFM32JG1B200F256GM32_H */
+#endif /* EFM32JG1B200F256GM32_H */

@@ -2,10 +2,10 @@
  * @file em_leuart.h
  * @brief Low Energy Universal Asynchronous Receiver/Transmitter (LEUART)
  *   peripheral API
- * @version 4.2.1
+ * @version 5.2.1
  *******************************************************************************
- * @section License
- * <b>(C) Copyright 2015 Silicon Labs, http://www.silabs.com</b>
+ * # License
+ * <b>Copyright 2016 Silicon Laboratories, Inc. http://www.silabs.com</b>
  *******************************************************************************
  *
  * Permission is granted to anyone to use this software for any purpose,
@@ -31,8 +31,8 @@
  *
  ******************************************************************************/
 
-#ifndef __SILICON_LABS_EM_LEUART_H__
-#define __SILICON_LABS_EM_LEUART_H__
+#ifndef EM_LEUART_H
+#define EM_LEUART_H
 
 #include "em_device.h"
 #if defined(LEUART_COUNT) && (LEUART_COUNT > 0)
@@ -44,7 +44,7 @@ extern "C" {
 #endif
 
 /***************************************************************************//**
- * @addtogroup EM_Library
+ * @addtogroup emlib
  * @{
  ******************************************************************************/
 
@@ -58,16 +58,13 @@ extern "C" {
  ******************************************************************************/
 
 /** Databit selection. */
-typedef enum
-{
+typedef enum {
   leuartDatabits8 = LEUART_CTRL_DATABITS_EIGHT,     /**< 8 databits. */
   leuartDatabits9 = LEUART_CTRL_DATABITS_NINE       /**< 9 databits. */
 } LEUART_Databits_TypeDef;
 
-
 /** Enable selection. */
-typedef enum
-{
+typedef enum {
   /** Disable both receiver and transmitter. */
   leuartDisable  = 0x0,
 
@@ -81,31 +78,25 @@ typedef enum
   leuartEnable   = (LEUART_CMD_RXEN | LEUART_CMD_TXEN)
 } LEUART_Enable_TypeDef;
 
-
 /** Parity selection. */
-typedef enum
-{
+typedef enum {
   leuartNoParity   = LEUART_CTRL_PARITY_NONE,    /**< No parity. */
   leuartEvenParity = LEUART_CTRL_PARITY_EVEN,    /**< Even parity. */
   leuartOddParity  = LEUART_CTRL_PARITY_ODD      /**< Odd parity. */
 } LEUART_Parity_TypeDef;
 
-
 /** Stopbits selection. */
-typedef enum
-{
+typedef enum {
   leuartStopbits1 = LEUART_CTRL_STOPBITS_ONE,           /**< 1 stopbits. */
   leuartStopbits2 = LEUART_CTRL_STOPBITS_TWO            /**< 2 stopbits. */
 } LEUART_Stopbits_TypeDef;
-
 
 /*******************************************************************************
  *******************************   STRUCTS   ***********************************
  ******************************************************************************/
 
 /** Init structure. */
-typedef struct
-{
+typedef struct {
   /** Specifies whether TX and/or RX shall be enabled when init completed. */
   LEUART_Enable_TypeDef   enable;
 
@@ -130,15 +121,14 @@ typedef struct
 
 /** Default config for LEUART init structure. */
 #define LEUART_INIT_DEFAULT                                                                 \
-{                                                                                           \
-  leuartEnable,      /* Enable RX/TX when init completed. */                                \
-  0,                 /* Use current configured reference clock for configuring baudrate. */ \
-  9600,              /* 9600 bits/s. */                                                     \
-  leuartDatabits8,   /* 8 databits. */                                                      \
-  leuartNoParity,    /* No parity. */                                                       \
-  leuartStopbits1    /* 1 stopbit. */                                                       \
-}
-
+  {                                                                                         \
+    leuartEnable,    /* Enable RX/TX when init completed. */                                \
+    0,               /* Use current configured reference clock for configuring baudrate. */ \
+    9600,            /* 9600 bits/s. */                                                     \
+    leuartDatabits8, /* 8 databits. */                                                      \
+    leuartNoParity,  /* No parity. */                                                       \
+    leuartStopbits1  /* 1 stopbit. */                                                       \
+  }
 
 /*******************************************************************************
  *****************************   PROTOTYPES   **********************************
@@ -171,7 +161,6 @@ __STATIC_INLINE void LEUART_IntClear(LEUART_TypeDef *leuart, uint32_t flags)
   leuart->IFC = flags;
 }
 
-
 /***************************************************************************//**
  * @brief
  *   Disable one or more LEUART interrupts.
@@ -187,7 +176,6 @@ __STATIC_INLINE void LEUART_IntDisable(LEUART_TypeDef *leuart, uint32_t flags)
 {
   leuart->IEN &= ~flags;
 }
-
 
 /***************************************************************************//**
  * @brief
@@ -210,7 +198,6 @@ __STATIC_INLINE void LEUART_IntEnable(LEUART_TypeDef *leuart, uint32_t flags)
   leuart->IEN |= flags;
 }
 
-
 /***************************************************************************//**
  * @brief
  *   Get pending LEUART interrupt flags.
@@ -229,7 +216,6 @@ __STATIC_INLINE uint32_t LEUART_IntGet(LEUART_TypeDef *leuart)
 {
   return leuart->IF;
 }
-
 
 /***************************************************************************//**
  * @brief
@@ -262,7 +248,6 @@ __STATIC_INLINE uint32_t LEUART_IntGetEnabled(LEUART_TypeDef *leuart)
   return leuart->IF & tmp;
 }
 
-
 /***************************************************************************//**
  * @brief
  *   Set one or more pending LEUART interrupts from SW.
@@ -278,7 +263,6 @@ __STATIC_INLINE void LEUART_IntSet(LEUART_TypeDef *leuart, uint32_t flags)
 {
   leuart->IFS = flags;
 }
-
 
 /***************************************************************************//**
  * @brief
@@ -301,7 +285,6 @@ uint8_t LEUART_Rx(LEUART_TypeDef *leuart);
 uint16_t LEUART_RxExt(LEUART_TypeDef *leuart);
 void LEUART_Tx(LEUART_TypeDef *leuart, uint8_t data);
 void LEUART_TxExt(LEUART_TypeDef *leuart, uint16_t data);
-
 
 /***************************************************************************//**
  * @brief
@@ -336,7 +319,6 @@ __STATIC_INLINE uint8_t LEUART_RxDataGet(LEUART_TypeDef *leuart)
   return (uint8_t)leuart->RXDATA;
 }
 
-
 /***************************************************************************//**
  * @brief
  *   Receive one 8-9 bit frame, with extended information.
@@ -370,13 +352,12 @@ __STATIC_INLINE uint16_t LEUART_RxDataXGet(LEUART_TypeDef *leuart)
   return (uint16_t)leuart->RXDATAX;
 }
 
-
 /** @} (end addtogroup LEUART) */
-/** @} (end addtogroup EM_Library) */
+/** @} (end addtogroup emlib) */
 
 #ifdef __cplusplus
 }
 #endif
 
 #endif /* defined(LEUART_COUNT) && (LEUART_COUNT > 0) */
-#endif /* __SILICON_LABS_EM_LEUART_H__ */
+#endif /* EM_LEUART_H */

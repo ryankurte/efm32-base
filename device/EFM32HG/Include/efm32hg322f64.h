@@ -2,10 +2,10 @@
  * @file efm32hg322f64.h
  * @brief CMSIS Cortex-M Peripheral Access Layer Header File
  *        for EFM32HG322F64
- * @version 4.2.1
+ * @version 5.2.1
  ******************************************************************************
- * @section License
- * <b>Copyright 2015 Silicon Laboratories, Inc. http://www.silabs.com</b>
+ * # License
+ * <b>Copyright 2017 Silicon Laboratories, Inc. http://www.silabs.com</b>
  ******************************************************************************
  *
  * Permission is granted to anyone to use this software for any purpose,
@@ -31,6 +31,12 @@
  *
  *****************************************************************************/
 
+#if defined(__ICCARM__)
+#pragma system_include       /* Treat file as system include file. */
+#elif defined(__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050)
+#pragma clang system_header  /* Treat file as system include file. */
+#endif
+
 #ifndef EFM32HG322F64_H
 #define EFM32HG322F64_H
 
@@ -52,34 +58,34 @@ extern "C" {
 typedef enum IRQn
 {
 /******  Cortex-M0+ Processor Exceptions Numbers *****************************************/
-  NonMaskableInt_IRQn = -14,                /*!< 2 Cortex-M0+ Non Maskable Interrupt     */
-  HardFault_IRQn      = -13,                /*!< 3 Cortex-M0+ Hard Fault Interrupt       */
-  SVCall_IRQn         = -5,                 /*!< 11 Cortex-M0+ SV Call Interrupt         */
-  PendSV_IRQn         = -2,                 /*!< 14 Cortex-M0+ Pend SV Interrupt         */
-  SysTick_IRQn        = -1,                 /*!< 15 Cortex-M0+ System Tick Interrupt     */
+  NonMaskableInt_IRQn = -14,                /*!< -14 Cortex-M0+ Non Maskable Interrupt   */
+  HardFault_IRQn      = -13,                /*!< -13 Cortex-M0+ Hard Fault Interrupt     */
+  SVCall_IRQn         = -5,                 /*!< -5  Cortex-M0+ SV Call Interrupt        */
+  PendSV_IRQn         = -2,                 /*!< -2  Cortex-M0+ Pend SV Interrupt        */
+  SysTick_IRQn        = -1,                 /*!< -1  Cortex-M0+ System Tick Interrupt    */
 
-/******  EFM32HG Peripheral Interrupt Numbers *********************************************/
-  DMA_IRQn            = 0,  /*!< 16+0 EFM32 DMA Interrupt */
-  GPIO_EVEN_IRQn      = 1,  /*!< 16+1 EFM32 GPIO_EVEN Interrupt */
-  TIMER0_IRQn         = 2,  /*!< 16+2 EFM32 TIMER0 Interrupt */
-  ACMP0_IRQn          = 3,  /*!< 16+3 EFM32 ACMP0 Interrupt */
-  ADC0_IRQn           = 4,  /*!< 16+4 EFM32 ADC0 Interrupt */
-  I2C0_IRQn           = 5,  /*!< 16+5 EFM32 I2C0 Interrupt */
-  GPIO_ODD_IRQn       = 6,  /*!< 16+6 EFM32 GPIO_ODD Interrupt */
-  TIMER1_IRQn         = 7,  /*!< 16+7 EFM32 TIMER1 Interrupt */
-  USART1_RX_IRQn      = 8,  /*!< 16+8 EFM32 USART1_RX Interrupt */
-  USART1_TX_IRQn      = 9,  /*!< 16+9 EFM32 USART1_TX Interrupt */
-  LEUART0_IRQn        = 10, /*!< 16+10 EFM32 LEUART0 Interrupt */
-  PCNT0_IRQn          = 11, /*!< 16+11 EFM32 PCNT0 Interrupt */
-  RTC_IRQn            = 12, /*!< 16+12 EFM32 RTC Interrupt */
-  CMU_IRQn            = 13, /*!< 16+13 EFM32 CMU Interrupt */
-  VCMP_IRQn           = 14, /*!< 16+14 EFM32 VCMP Interrupt */
-  MSC_IRQn            = 15, /*!< 16+15 EFM32 MSC Interrupt */
-  AES_IRQn            = 16, /*!< 16+16 EFM32 AES Interrupt */
-  USART0_RX_IRQn      = 17, /*!< 16+17 EFM32 USART0_RX Interrupt */
-  USART0_TX_IRQn      = 18, /*!< 16+18 EFM32 USART0_TX Interrupt */
-  USB_IRQn            = 19, /*!< 16+19 EFM32 USB Interrupt */
-  TIMER2_IRQn         = 20, /*!< 16+20 EFM32 TIMER2 Interrupt */
+/******  EFM32HG Peripheral Interrupt Numbers ********************************************/
+  DMA_IRQn            = 0,  /*!< 0 EFM32 DMA Interrupt */
+  GPIO_EVEN_IRQn      = 1,  /*!< 1 EFM32 GPIO_EVEN Interrupt */
+  TIMER0_IRQn         = 2,  /*!< 2 EFM32 TIMER0 Interrupt */
+  ACMP0_IRQn          = 3,  /*!< 3 EFM32 ACMP0 Interrupt */
+  ADC0_IRQn           = 4,  /*!< 4 EFM32 ADC0 Interrupt */
+  I2C0_IRQn           = 5,  /*!< 5 EFM32 I2C0 Interrupt */
+  GPIO_ODD_IRQn       = 6,  /*!< 6 EFM32 GPIO_ODD Interrupt */
+  TIMER1_IRQn         = 7,  /*!< 7 EFM32 TIMER1 Interrupt */
+  USART1_RX_IRQn      = 8,  /*!< 8 EFM32 USART1_RX Interrupt */
+  USART1_TX_IRQn      = 9,  /*!< 9 EFM32 USART1_TX Interrupt */
+  LEUART0_IRQn        = 10, /*!< 10 EFM32 LEUART0 Interrupt */
+  PCNT0_IRQn          = 11, /*!< 11 EFM32 PCNT0 Interrupt */
+  RTC_IRQn            = 12, /*!< 12 EFM32 RTC Interrupt */
+  CMU_IRQn            = 13, /*!< 13 EFM32 CMU Interrupt */
+  VCMP_IRQn           = 14, /*!< 14 EFM32 VCMP Interrupt */
+  MSC_IRQn            = 15, /*!< 15 EFM32 MSC Interrupt */
+  AES_IRQn            = 16, /*!< 16 EFM32 AES Interrupt */
+  USART0_RX_IRQn      = 17, /*!< 17 EFM32 USART0_RX Interrupt */
+  USART0_TX_IRQn      = 18, /*!< 18 EFM32 USART0_TX Interrupt */
+  USB_IRQn            = 19, /*!< 19 EFM32 USB Interrupt */
+  TIMER2_IRQn         = 20, /*!< 20 EFM32 TIMER2 Interrupt */
 } IRQn_Type;
 
 /**************************************************************************//**
@@ -100,10 +106,14 @@ typedef enum IRQn
 ******************************************************************************/
 
 /** Part family */
-#define _EFM32_HAPPY_FAMILY             1 /**< Happy Gecko EFM32HG MCU Family */
-#define _EFM_DEVICE                       /**< Silicon Labs EFM-type microcontroller */
-#define _SILICON_LABS_32B_PLATFORM_1      /**< Silicon Labs platform name */
-#define _SILICON_LABS_32B_PLATFORM      1 /**< Silicon Labs platform name */
+#define _EFM32_HAPPY_FAMILY                     1  /**< Happy Gecko EFM32HG MCU Family */
+#define _EFM_DEVICE                                /**< Silicon Labs EFM-type microcontroller */
+#define _SILICON_LABS_32B_SERIES_0                 /**< Silicon Labs series number */
+#define _SILICON_LABS_32B_SERIES                0  /**< Silicon Labs series number */
+#define _SILICON_LABS_GECKO_INTERNAL_SDID       77 /**< Silicon Labs internal use only, may change any time */
+#define _SILICON_LABS_GECKO_INTERNAL_SDID_77       /**< Silicon Labs internal use only, may change any time */
+#define _SILICON_LABS_32B_PLATFORM_1               /**< @deprecated Silicon Labs platform name */
+#define _SILICON_LABS_32B_PLATFORM              1  /**< @deprecated Silicon Labs platform name */
 
 /* If part number is not defined as compiler option, define it */
 #if !defined(EFM32HG322F64)
@@ -146,12 +156,13 @@ typedef enum IRQn
 /** Flash and SRAM limits for EFM32HG322F64 */
 #define FLASH_BASE           (0x00000000UL) /**< Flash Base Address */
 #define FLASH_SIZE           (0x00010000UL) /**< Available Flash Memory */
-#define FLASH_PAGE_SIZE      1024           /**< Flash Memory page size */
+#define FLASH_PAGE_SIZE      1024U          /**< Flash Memory page size */
 #define SRAM_BASE            (0x20000000UL) /**< SRAM Base Address */
 #define SRAM_SIZE            (0x00002000UL) /**< Available SRAM Memory */
 #define __CM0PLUS_REV        0x001          /**< Cortex-M0+ Core revision r0p1 */
 #define PRS_CHAN_COUNT       6              /**< Number of PRS channels */
 #define DMA_CHAN_COUNT       6              /**< Number of DMA channels */
+#define EXT_IRQ_COUNT        21             /**< Number of External (NVIC) interrupts */
 
 /** AF channels connect the different on-chip peripherals with the af-mux */
 #define AFCHAN_MAX           42
@@ -161,66 +172,66 @@ typedef enum IRQn
 
 /* Part number capabilities */
 
-#define TIMER_PRESENT         /**< TIMER is available in this part */
-#define TIMER_COUNT         3 /**< 3 TIMERs available  */
-#define ACMP_PRESENT          /**< ACMP is available in this part */
-#define ACMP_COUNT          1 /**< 1 ACMPs available  */
-#define USART_PRESENT         /**< USART is available in this part */
-#define USART_COUNT         2 /**< 2 USARTs available  */
-#define IDAC_PRESENT          /**< IDAC is available in this part */
-#define IDAC_COUNT          1 /**< 1 IDACs available  */
-#define ADC_PRESENT           /**< ADC is available in this part */
-#define ADC_COUNT           1 /**< 1 ADCs available  */
-#define LEUART_PRESENT        /**< LEUART is available in this part */
-#define LEUART_COUNT        1 /**< 1 LEUARTs available  */
-#define PCNT_PRESENT          /**< PCNT is available in this part */
-#define PCNT_COUNT          1 /**< 1 PCNTs available  */
-#define I2C_PRESENT           /**< I2C is available in this part */
-#define I2C_COUNT           1 /**< 1 I2Cs available  */
-#define AES_PRESENT
-#define AES_COUNT           1
-#define DMA_PRESENT
-#define DMA_COUNT           1
-#define LE_PRESENT
-#define LE_COUNT            1
-#define USBC_PRESENT
-#define USBC_COUNT          1
-#define USBLE_PRESENT
-#define USBLE_COUNT         1
-#define USB_PRESENT
-#define USB_COUNT           1
-#define MSC_PRESENT
-#define MSC_COUNT           1
-#define EMU_PRESENT
-#define EMU_COUNT           1
-#define RMU_PRESENT
-#define RMU_COUNT           1
-#define CMU_PRESENT
-#define CMU_COUNT           1
-#define PRS_PRESENT
-#define PRS_COUNT           1
-#define GPIO_PRESENT
-#define GPIO_COUNT          1
-#define VCMP_PRESENT
-#define VCMP_COUNT          1
-#define RTC_PRESENT
-#define RTC_COUNT           1
-#define HFXTAL_PRESENT
-#define HFXTAL_COUNT        1
-#define LFXTAL_PRESENT
-#define LFXTAL_COUNT        1
-#define USHFRCO_PRESENT
-#define USHFRCO_COUNT       1
-#define WDOG_PRESENT
-#define WDOG_COUNT          1
-#define DBG_PRESENT
-#define DBG_COUNT           1
-#define MTB_PRESENT
-#define MTB_COUNT           1
-#define BOOTLOADER_PRESENT
-#define BOOTLOADER_COUNT    1
-#define ANALOG_PRESENT
-#define ANALOG_COUNT        1
+#define TIMER_PRESENT           /**< TIMER is available in this part */
+#define TIMER_COUNT           3 /**< 3 TIMERs available  */
+#define ACMP_PRESENT            /**< ACMP is available in this part */
+#define ACMP_COUNT            1 /**< 1 ACMPs available  */
+#define USART_PRESENT           /**< USART is available in this part */
+#define USART_COUNT           2 /**< 2 USARTs available  */
+#define IDAC_PRESENT            /**< IDAC is available in this part */
+#define IDAC_COUNT            1 /**< 1 IDACs available  */
+#define ADC_PRESENT             /**< ADC is available in this part */
+#define ADC_COUNT             1 /**< 1 ADCs available  */
+#define LEUART_PRESENT          /**< LEUART is available in this part */
+#define LEUART_COUNT          1 /**< 1 LEUARTs available  */
+#define PCNT_PRESENT            /**< PCNT is available in this part */
+#define PCNT_COUNT            1 /**< 1 PCNTs available  */
+#define I2C_PRESENT             /**< I2C is available in this part */
+#define I2C_COUNT             1 /**< 1 I2Cs available  */
+#define AES_PRESENT             /**< AES is available in this part */
+#define AES_COUNT             1 /**< 1 AES available */
+#define DMA_PRESENT             /**< DMA is available in this part */
+#define DMA_COUNT             1 /**< 1 DMA available */
+#define LE_PRESENT              /**< LE is available in this part */
+#define LE_COUNT              1 /**< 1 LE available */
+#define USBC_PRESENT            /**< USBC is available in this part */
+#define USBC_COUNT            1 /**< 1 USBC available */
+#define USBLE_PRESENT           /**< USBLE is available in this part */
+#define USBLE_COUNT           1 /**< 1 USBLE available */
+#define USB_PRESENT             /**< USB is available in this part */
+#define USB_COUNT             1 /**< 1 USB available */
+#define MSC_PRESENT             /**< MSC is available in this part */
+#define MSC_COUNT             1 /**< 1 MSC available */
+#define EMU_PRESENT             /**< EMU is available in this part */
+#define EMU_COUNT             1 /**< 1 EMU available */
+#define RMU_PRESENT             /**< RMU is available in this part */
+#define RMU_COUNT             1 /**< 1 RMU available */
+#define CMU_PRESENT             /**< CMU is available in this part */
+#define CMU_COUNT             1 /**< 1 CMU available */
+#define PRS_PRESENT             /**< PRS is available in this part */
+#define PRS_COUNT             1 /**< 1 PRS available */
+#define GPIO_PRESENT            /**< GPIO is available in this part */
+#define GPIO_COUNT            1 /**< 1 GPIO available */
+#define VCMP_PRESENT            /**< VCMP is available in this part */
+#define VCMP_COUNT            1 /**< 1 VCMP available */
+#define RTC_PRESENT             /**< RTC is available in this part */
+#define RTC_COUNT             1 /**< 1 RTC available */
+#define HFXTAL_PRESENT          /**< HFXTAL is available in this part */
+#define HFXTAL_COUNT          1 /**< 1 HFXTAL available */
+#define LFXTAL_PRESENT          /**< LFXTAL is available in this part */
+#define LFXTAL_COUNT          1 /**< 1 LFXTAL available */
+#define USHFRCO_PRESENT         /**< USHFRCO is available in this part */
+#define USHFRCO_COUNT         1 /**< 1 USHFRCO available */
+#define WDOG_PRESENT            /**< WDOG is available in this part */
+#define WDOG_COUNT            1 /**< 1 WDOG available */
+#define DBG_PRESENT             /**< DBG is available in this part */
+#define DBG_COUNT             1 /**< 1 DBG available */
+#define MTB_PRESENT             /**< MTB is available in this part */
+#define MTB_COUNT             1 /**< 1 MTB available */
+#define BOOTLOADER_PRESENT      /**< BOOTLOADER is available in this part */
+#define BOOTLOADER_COUNT      1 /**< 1 BOOTLOADER available */
+#define ANALOG_PRESENT          /**< ANALOG is available in this part */
+#define ANALOG_COUNT          1 /**< 1 ANALOG available */
 
 /** @} End of group EFM32HG322F64_Part */
 

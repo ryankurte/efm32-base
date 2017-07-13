@@ -15,7 +15,9 @@ string(TOUPPER ${DEVICE} DEVICE_U)
 message("Processor: ${DEVICE_U}")
 
 # Determine device family
-string(REGEX MATCH "^((EFM|EZR)32[A-Z]+([0-9][A-Z])?)" CPU_FAMILY_U "${DEVICE_U}")
+# Ideally this regex would be ^((EFM|EZR|EFR)32[A-Z]{1,2}([0-9]{1,2}[A-Z])?), but it appears to be
+# too complex for CMake...
+string(REGEX MATCH "^((EFM|EZR|EFR)32[A-Z]+([0-9]([0-9])?[A-Z])?)" CPU_FAMILY_U "${DEVICE_U}")
 string(TOLOWER ${CPU_FAMILY_U} CPU_FAMILY_L)
 message("Family: ${CPU_FAMILY_U}")
 
@@ -26,14 +28,18 @@ endif(NOT DEFINED FLASH_START)
 
 # Determine core type
 if(CPU_FAMILY_U STREQUAL "EFM32ZG" OR CPU_FAMILY_U STREQUAL "EFM32HG")
-set(CPU_TYPE "m0plus")
-set(CPU_FIX "")
-elseif(CPU_FAMILY_U STREQUAL "EFM32WG" OR CPU_FAMILY_U STREQUAL "EZR32WG")
-set(CPU_TYPE "m4")
+	message("Architecture: cortex-m0plus")
+	set(CPU_TYPE "m0plus")
+	set(CPU_FIX "")
+elseif(CPU_FAMILY_U STREQUAL "EFM32WG" OR CPU_FAMILY_U STREQUAL "EZR32WG" 
+		OR CPU_FAMILY_U STREQUAL "EFM32PG" OR CPU_FAMILY_U STREQUAL "ERF32FG")
+	message("Architecture: cortex-m4")
+	set(CPU_TYPE "m4")
 set(CPU_FIX "")
 else()
-set(CPU_TYPE "m3")
-set(CPU_FIX "-mfix-cortex-m3-ldrd")
+	message("Architecture: cortex-m3 (default)")
+	set(CPU_TYPE "m3")
+	set(CPU_FIX "-mfix-cortex-m3-ldrd")
 endif()
 
 # Include libraries

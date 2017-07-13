@@ -1,10 +1,10 @@
 /***************************************************************************//**
  * @file em_msc.h
- * @brief Flash controller module (MSC) peripheral API
- * @version 4.2.1
+ * @brief Flash controller (MSC) peripheral API
+ * @version 5.2.1
  *******************************************************************************
- * @section License
- * <b>(C) Copyright 2015 Silicon Labs, http://www.silabs.com</b>
+ * # License
+ * <b>Copyright 2016 Silicon Laboratories, Inc. http://www.silabs.com</b>
  *******************************************************************************
  *
  * Permission is granted to anyone to use this software for any purpose,
@@ -30,8 +30,8 @@
  *
  ******************************************************************************/
 
-#ifndef __SILICON_LABS_EM_MSC_H__
-#define __SILICON_LABS_EM_MSC_H__
+#ifndef EM_MSC_H
+#define EM_MSC_H
 
 #include "em_device.h"
 #if defined(MSC_COUNT) && (MSC_COUNT > 0)
@@ -39,19 +39,57 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "em_bus.h"
+#include "em_ramfunc.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 /***************************************************************************//**
- * @addtogroup EM_Library
+ * @addtogroup emlib
  * @{
  ******************************************************************************/
 
 /***************************************************************************//**
  * @addtogroup MSC
- * @brief Flash controller (MSC) peripheral API
+ * @brief Memory System Controller API
+ * @details
+ *  This module contain functions to control the MSC, primarily the Flash.
+ *  The user can perform Flash memory write and erase operations as well as
+ *  optimization of the CPU instruction fetch interface for the application.
+ *  Available instruction fetch features depends on the MCU or SoC family, but
+ *  features such as instruction pre-fetch, cache and configurable branch prediction
+ *  are typically available.
+ *
+ * @note Flash wait-state configuration is handled by the @ref CMU module.
+ *       When the core clock configuration is changed by a calls to functions such as
+ *       @ref CMU_ClockSelectSet() or @ref CMU_HFRCOBandSet(), then Flash wait-state
+ *       configuration is also updated.
+ *
+ *  The MSC resets into a safe state. To initialize the instruction interface
+ *  to recommended settings:
+ *  @include em_msc_init_exec.c
+ *
+ * @note The optimal configuration is highly application dependent. Performance
+ *       benchmarking is supported by most families. See @ref MSC_StartCacheMeasurement()
+ *       and @ref MSC_GetCacheMeasurement() for more details.
+ *
+ * Support for Flash write and erase runs from RAM by default. This code may be
+ * allocated to Flash by defining @ref EM_MSC_RUN_FROM_FLASH.
+ *
+ * @note
+ *   Flash erase may add ms of delay to interrupt latency if executing from Flash.
+ *
+ * Flash write and erase operations are supported by @ref MSC_WriteWord(),
+ * @ref MSC_WriteWordFast(), @ref MSC_ErasePage() and @ref MSC_MassErase().
+ * Fast write is not supported for EFM32G and mass erase is supported for MCU and
+ * SoC families with larger Flash sizes.
+ *
+ * @note
+ *  @ref MSC_Init() must be called prior to any Flash write or erase operation.
+ *
+ *  The following steps are necessary to perform a page erase and write:
+ *  @include em_msc_erase_write.c
  * @{
  ******************************************************************************/
 
@@ -64,29 +102,27 @@ extern "C" {
  *    The timeout used while waiting for the flash to become ready after
  *    a write. This number indicates the number of iterations to perform before
  *    issuing a timeout.
+ *
  * @note
  *    This timeout is set very large (in the order of 100x longer than
  *    necessary). This is to avoid any corner cases.
- *
  */
 #define MSC_PROGRAM_TIMEOUT    10000000ul
 
 /**
  * @brief
- *    By compiling with the define EM_MSC_RUN_FROM_FLASH the Flash
- *    controller (MSC) peripheral will remain in and execute from flash.
+ *    By compiling with the define EM_MSC_RUN_FROM_FLASH, the functions
+ *    performing erase or write operations will remain in and execute from Flash.
  *    This is useful for targets that don't want to allocate RAM space to
- *    hold the flash functions.  Without this define the MSC peripheral
- *    functions will be copied into and run out of RAM.
- * @note
- *    This define is commented out by default so the MSC controller API
- *    will run from RAM by default.
+ *    hold the flash functions.  Without this define, code for Flash operations
+ *    will be copied into RAM at startup.
  *
+ * @note
+ *    This define is not present by default. The MSC controller API
+ *    will run from RAM by default.
  */
-#if defined( DOXY_DOC_ONLY )
+#if defined(DOXY_DOC_ONLY)
 #define EM_MSC_RUN_FROM_FLASH
-#else
-//#define EM_MSC_RUN_FROM_FLASH
 #endif
 
 /*******************************************************************************
@@ -94,20 +130,17 @@ extern "C" {
  ******************************************************************************/
 
 /** Return codes for writing/erasing the flash */
-typedef enum
-{
-  mscReturnOk          = 0,  /**< Flash write/erase successful. */
+typedef enum {
+  mscReturnOk          =  0, /**< Flash write/erase successful. */
   mscReturnInvalidAddr = -1, /**< Invalid address. Write to an address that is not flash. */
   mscReturnLocked      = -2, /**< Flash address is locked. */
   mscReturnTimeOut     = -3, /**< Timeout while writing to flash. */
   mscReturnUnaligned   = -4  /**< Unaligned access to flash. */
 } MSC_Status_TypeDef;
 
-
-#if defined( _MSC_READCTRL_BUSSTRATEGY_MASK )
+#if defined(_MSC_READCTRL_BUSSTRATEGY_MASK)
 /** Strategy for prioritized bus access */
-typedef enum
-{
+typedef enum {
   mscBusStrategyCPU = MSC_READCTRL_BUSSTRATEGY_CPU,       /**< Prioritize CPU bus accesses */
   mscBusStrategyDMA = MSC_READCTRL_BUSSTRATEGY_DMA,       /**< Prioritize DMA bus accesses */
   mscBusStrategyDMAEM1 = MSC_READCTRL_BUSSTRATEGY_DMAEM1, /**< Prioritize DMAEM1 for bus accesses */
@@ -116,8 +149,7 @@ typedef enum
 #endif
 
 /** Code execution configuration */
-typedef struct
-{
+typedef struct {
   bool scbtEn;          /**< Enable Suppressed Conditional Branch Target Prefetch */
   bool prefetchEn;      /**< Enable MSC prefetching */
   bool ifcDis;          /**< Disable instruction cache */
@@ -127,31 +159,21 @@ typedef struct
 } MSC_ExecConfig_TypeDef;
 
 /** Default MSC ExecConfig initialization */
-#define MSC_EXECCONFIG_DEFAULT  \
-{                               \
-  false,                        \
-  true,                         \
-  false,                        \
-  false,                        \
-  false,                        \
-  false,                        \
-}
+#define MSC_EXECCONFIG_DEFAULT \
+  {                            \
+    false,                     \
+    true,                      \
+    false,                     \
+    false,                     \
+    false,                     \
+    false,                     \
+  }
 
 /** @cond DO_NOT_INCLUDE_WITH_DOXYGEN */
-/* Legacy type names */
+/* Deprecated type names */
 #define mscBusStrategy_Typedef MSC_BusStrategy_Typedef
 #define msc_Return_TypeDef MSC_Status_TypeDef
 /** @endcond */
-
-/*******************************************************************************
- *************************   PROTOTYPES   **************************************
- ******************************************************************************/
-
-void MSC_Init(void);
-void MSC_Deinit(void);
-#if !defined( _EFM32_GECKO_FAMILY )
-void MSC_ExecConfigSet(MSC_ExecConfig_TypeDef *execConfig);
-#endif
 
 /***************************************************************************//**
  * @brief
@@ -179,7 +201,6 @@ __STATIC_INLINE void MSC_IntDisable(uint32_t flags)
   MSC->IEN &= ~(flags);
 }
 
-
 /***************************************************************************//**
  * @brief
  *   Enable one or more MSC interrupts.
@@ -198,7 +219,6 @@ __STATIC_INLINE void MSC_IntEnable(uint32_t flags)
   MSC->IEN |= flags;
 }
 
-
 /***************************************************************************//**
  * @brief
  *   Get pending MSC interrupt flags.
@@ -214,7 +234,6 @@ __STATIC_INLINE uint32_t MSC_IntGet(void)
 {
   return(MSC->IF);
 }
-
 
 /***************************************************************************//**
  * @brief
@@ -238,7 +257,6 @@ __STATIC_INLINE uint32_t MSC_IntGetEnabled(void)
   return MSC->IF & ien;
 }
 
-
 /***************************************************************************//**
  * @brief
  *   Set one or more pending MSC interrupts from SW.
@@ -252,8 +270,7 @@ __STATIC_INLINE void MSC_IntSet(uint32_t flags)
   MSC->IFS = flags;
 }
 
-
-#if defined( MSC_IF_CHOF ) && defined( MSC_IF_CMOF )
+#if defined(MSC_IF_CHOF) && defined(MSC_IF_CMOF)
 /***************************************************************************//**
  * @brief
  *   Starts measuring cache hit ratio.
@@ -267,13 +284,12 @@ __STATIC_INLINE void MSC_StartCacheMeasurement(void)
   MSC->IFC = MSC_IF_CHOF | MSC_IF_CMOF;
 
   /* Start performance counters */
-#if defined( _MSC_CACHECMD_MASK )
+#if defined(_MSC_CACHECMD_MASK)
   MSC->CACHECMD = MSC_CACHECMD_STARTPC;
 #else
   MSC->CMD = MSC_CMD_STARTPC;
 #endif
 }
-
 
 /***************************************************************************//**
  * @brief
@@ -294,13 +310,11 @@ __STATIC_INLINE void MSC_StartCacheMeasurement(void)
  * {
  *   uint32_t flags;
  *   flags = MSC->IF;
- *   if (flags & MSC_IF_CHOF)
- *   {
+ *   if (flags & MSC_IF_CHOF) {
  *      MSC->IFC = MSC_IF_CHOF;
  *      hitOverflows++;
  *   }
- *   if (flags & MSC_IF_CMOF)
- *   {
+ *   if (flags & MSC_IF_CMOF) {
  *     MSC->IFC = MSC_IF_CMOF;
  *     missOverflows++;
  *   }
@@ -325,30 +339,29 @@ __STATIC_INLINE void MSC_StartCacheMeasurement(void)
 __STATIC_INLINE int32_t MSC_GetCacheMeasurement(void)
 {
   int32_t total;
+  int32_t hits;
   /* Stop the counter before computing the hit-rate */
-#if defined( _MSC_CACHECMD_MASK )
+#if defined(_MSC_CACHECMD_MASK)
   MSC->CACHECMD = MSC_CACHECMD_STOPPC;
 #else
   MSC->CMD = MSC_CMD_STOPPC;
 #endif
 
   /* Check for overflows in performance counters */
-  if (MSC->IF & (MSC_IF_CHOF | MSC_IF_CMOF))
+  if (MSC->IF & (MSC_IF_CHOF | MSC_IF_CMOF)) {
     return -2;
+  }
 
-  /* Because the hits and misses are volatile, we need to split this up into
-   * two statements to avoid a compiler warning regarding the order of volatile
-   * accesses. */
-  total  = MSC->CACHEHITS;
-  total += MSC->CACHEMISSES;
+  hits  = MSC->CACHEHITS;
+  total = MSC->CACHEMISSES + hits;
 
   /* To avoid a division by zero. */
-  if (total == 0)
+  if (total == 0) {
     return -1;
+  }
 
-  return (MSC->CACHEHITS * 100) / total;
+  return (hits * 100) / total;
 }
-
 
 /***************************************************************************//**
  * @brief
@@ -356,13 +369,12 @@ __STATIC_INLINE int32_t MSC_GetCacheMeasurement(void)
  ******************************************************************************/
 __STATIC_INLINE void MSC_FlushCache(void)
 {
-#if defined( _MSC_CACHECMD_MASK )
+#if defined(_MSC_CACHECMD_MASK)
   MSC->CACHECMD = MSC_CACHECMD_INVCACHE;
 #else
   MSC->CMD = MSC_CMD_INVCACHE;
 #endif
 }
-
 
 /***************************************************************************//**
  * @brief
@@ -375,8 +387,7 @@ __STATIC_INLINE void MSC_EnableCache(bool enable)
   BUS_RegBitWrite(&(MSC->READCTRL), _MSC_READCTRL_IFCDIS_SHIFT, !enable);
 }
 
-
-#if defined( MSC_READCTRL_ICCDIS )
+#if defined(MSC_READCTRL_ICCDIS)
 /***************************************************************************//**
  * @brief
  *   Enable or disable instruction cache functionality in IRQs
@@ -388,7 +399,6 @@ __STATIC_INLINE void MSC_EnableCacheIRQs(bool enable)
   BUS_RegBitWrite(&(MSC->READCTRL), _MSC_READCTRL_ICCDIS_SHIFT, !enable);
 }
 #endif
-
 
 /***************************************************************************//**
  * @brief
@@ -402,8 +412,7 @@ __STATIC_INLINE void MSC_EnableAutoCacheFlush(bool enable)
 }
 #endif /* defined( MSC_IF_CHOF ) && defined( MSC_IF_CMOF ) */
 
-
-#if defined( _MSC_READCTRL_BUSSTRATEGY_MASK )
+#if defined(_MSC_READCTRL_BUSSTRATEGY_MASK)
 /***************************************************************************//**
  * @brief
  *   Configure which unit should get priority on system bus.
@@ -416,50 +425,55 @@ __STATIC_INLINE void MSC_BusStrategy(mscBusStrategy_Typedef mode)
 }
 #endif
 
+/*******************************************************************************
+ *************************   PROTOTYPES   **************************************
+ ******************************************************************************/
+
+void MSC_Init(void);
+void MSC_Deinit(void);
+void MSC_ExecConfigSet(MSC_ExecConfig_TypeDef *execConfig);
+
 #if defined(EM_MSC_RUN_FROM_FLASH)
-#define MSC_FUNC_PREFIX
-#define MSC_FUNC_POSTFIX
-#elif defined(__CC_ARM)
-#define MSC_FUNC_PREFIX
-#define MSC_FUNC_POSTFIX
-#elif defined(__ICCARM__)
-#define MSC_FUNC_PREFIX   __ramfunc
-#define MSC_FUNC_POSTFIX
-#elif defined(__GNUC__) && defined(__CROSSWORKS_ARM)
-#define MSC_FUNC_PREFIX
-#define MSC_FUNC_POSTFIX  __attribute__ ((section(".fast")))
-#elif defined(__GNUC__)
-#define MSC_FUNC_PREFIX
-#define MSC_FUNC_POSTFIX  __attribute__ ((section(".ram")))
+/** @brief Expands to @ref SL_RAMFUNC_DECLARATOR if @ref EM_MSC_RUN_FROM_FLASH is undefined and to nothing if @ref EM_MSC_RUN_FROM_FLASH is defined. */
+#define MSC_RAMFUNC_DECLARATOR
+/** @brief Expands to @ref SL_RAMFUNC_DEFINITION_BEGIN if @ref EM_MSC_RUN_FROM_FLASH is undefined and to nothing if @ref EM_MSC_RUN_FROM_FLASH is defined. */
+#define MSC_RAMFUNC_DEFINITION_BEGIN
+/** @brief Expands to @ref SL_RAMFUNC_DEFINITION_END if @ref EM_MSC_RUN_FROM_FLASH is undefined and to nothing if @ref EM_MSC_RUN_FROM_FLASH is defined. */
+#define MSC_RAMFUNC_DEFINITION_END
+#else
+#define MSC_RAMFUNC_DECLARATOR          SL_RAMFUNC_DECLARATOR
+#define MSC_RAMFUNC_DEFINITION_BEGIN    SL_RAMFUNC_DEFINITION_BEGIN
+#define MSC_RAMFUNC_DEFINITION_END      SL_RAMFUNC_DEFINITION_END
 #endif
 
+MSC_RAMFUNC_DECLARATOR MSC_Status_TypeDef
+MSC_WriteWord(uint32_t *address,
+              void const *data,
+              uint32_t numBytes);
 
-MSC_FUNC_PREFIX MSC_Status_TypeDef
-  MSC_WriteWord(uint32_t *address,
-                void const *data,
-                uint32_t numBytes) MSC_FUNC_POSTFIX;
-
-#if !defined( _EFM32_GECKO_FAMILY )
-MSC_FUNC_PREFIX MSC_Status_TypeDef
-  MSC_WriteWordFast(uint32_t *address,
-                    void const *data,
-                    uint32_t numBytes) MSC_FUNC_POSTFIX;
-
+#if !defined(_EFM32_GECKO_FAMILY)
+#if !defined (EM_MSC_RUN_FROM_FLASH) || (_SILICON_LABS_GECKO_INTERNAL_SDID < 84)
+MSC_RAMFUNC_DECLARATOR MSC_Status_TypeDef
+MSC_WriteWordFast(uint32_t *address,
+                  void const *data,
+                  uint32_t numBytes);
+#endif
 #endif
 
-MSC_FUNC_PREFIX MSC_Status_TypeDef
-  MSC_ErasePage(uint32_t *startAddress) MSC_FUNC_POSTFIX;
+MSC_RAMFUNC_DECLARATOR MSC_Status_TypeDef
+MSC_ErasePage(uint32_t *startAddress);
 
-#if defined( _MSC_MASSLOCK_MASK )
-MSC_FUNC_PREFIX MSC_Status_TypeDef MSC_MassErase(void) MSC_FUNC_POSTFIX;
+#if defined(_MSC_MASSLOCK_MASK)
+MSC_RAMFUNC_DECLARATOR MSC_Status_TypeDef
+MSC_MassErase(void);
 #endif
 
 /** @} (end addtogroup MSC) */
-/** @} (end addtogroup EM_Library) */
+/** @} (end addtogroup emlib) */
 
 #ifdef __cplusplus
 }
 #endif
 
 #endif /* defined(MSC_COUNT) && (MSC_COUNT > 0) */
-#endif /* __SILICON_LABS_EM_MSC_H__ */
+#endif /* EM_MSC_H */

@@ -1,0 +1,38 @@
+plugin(rail-library) {
+  name=RAIL Library
+  description=This plugin provides core RAIL library.
+  category=RAIL
+  quality=production
+  root=$RAIL_LIB
+
+  architecture=efr32,em341,em342,em346,em351,em355,em3555,em357,em3581,em3582,em3585,em3586,em3587,em3588,em3591,em3592,em3595,em3596,em3597,em3598,simulation
+
+  providedApis=rail-library
+  api.rail-library.header=$RAIL_LIB/common/rail.h
+
+  # I think we should include these callbacks here, but when I do that it means
+  # that the stack libraries need to properly list out what callbacks they
+  # implement. So I'm holding off until then.
+  #callbacks=$RAIL_LIB/plugin/rail-library/rail-library-callbacks.info
+
+  # Include a bunch of additional include paths that are needed for RAIL
+  setup(additionalFiles) {
+    (efr32)=$RAIL_LIB/chip/efr32
+    (efr32)=$RAIL_LIB/chip/efr32/rf/common/cortex
+    (efr32)=$RAIL_LIB/common
+    (efr32)=$RAIL_LIB/protocol/ble
+    (efr32)=$RAIL_LIB/protocol/ieee802154
+  }
+
+  # Include the actual RAIL library for the appropriate generation. This should
+  # really be conditionalized better (compiler, chip, etc.) in one include.
+  precompiled(efr32~series[1]~device_configuration[1]) {
+    file=$RAIL_LIB/autogen/librail_release/librail_efr32xg1_iar_release.a
+  }
+  precompiled(efr32~series[1]~device_configuration[2]) {
+    file=$RAIL_LIB/autogen/librail_release/librail_efr32xg12_iar_release.a
+  }
+  precompiled(efr32~series[1]~device_configuration[3]) {
+    file=$RAIL_LIB/autogen/librail_release/librail_efr32xg13_iar_release.a
+  }
+}

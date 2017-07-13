@@ -1,10 +1,10 @@
 /**************************************************************************//**
  * @file efm32jg1b_crypto.h
  * @brief EFM32JG1B_CRYPTO register and bit field definitions
- * @version 4.2.1
+ * @version 5.2.1
  ******************************************************************************
- * @section License
- * <b>Copyright 2015 Silicon Laboratories, Inc. http://www.silabs.com</b>
+ * # License
+ * <b>Copyright 2017 Silicon Laboratories, Inc. http://www.silabs.com</b>
  ******************************************************************************
  *
  * Permission is granted to anyone to use this software for any purpose,
@@ -29,80 +29,90 @@
  * any third party, arising from your use of this Software.
  *
  *****************************************************************************/
+
+#if defined(__ICCARM__)
+#pragma system_include       /* Treat file as system include file. */
+#elif defined(__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050)
+#pragma clang system_header  /* Treat file as system include file. */
+#endif
+
 /**************************************************************************//**
 * @addtogroup Parts
 * @{
 ******************************************************************************/
 /**************************************************************************//**
- * @defgroup EFM32JG1B_CRYPTO
+ * @defgroup EFM32JG1B_CRYPTO CRYPTO
  * @{
  * @brief EFM32JG1B_CRYPTO Register Declaration
  *****************************************************************************/
+/** CRYPTO Register Declaration */
 typedef struct
 {
-  __IO uint32_t CTRL;           /**< Control Register  */
-  __IO uint32_t WAC;            /**< Wide Arithmetic Configuration  */
-  __IO uint32_t CMD;            /**< Command Register  */
-  uint32_t      RESERVED0[1];   /**< Reserved for future use **/
-  __I uint32_t  STATUS;         /**< Status Register  */
-  __I uint32_t  DSTATUS;        /**< Data Status Register  */
-  __I uint32_t  CSTATUS;        /**< Control Status Register  */
-  uint32_t      RESERVED1[1];   /**< Reserved for future use **/
-  __IO uint32_t KEY;            /**< KEY Register Access  */
-  __IO uint32_t KEYBUF;         /**< KEY Buffer Register Access  */
-  uint32_t      RESERVED2[2];   /**< Reserved for future use **/
-  __IO uint32_t SEQCTRL;        /**< Sequence Control  */
-  __IO uint32_t SEQCTRLB;       /**< Sequence Control B  */
-  uint32_t      RESERVED3[2];   /**< Reserved for future use **/
-  __I uint32_t  IF;             /**< AES Interrupt Flags  */
-  __IO uint32_t IFS;            /**< Interrupt Flag Set Register  */
-  __IO uint32_t IFC;            /**< Interrupt Flag Clear Register  */
-  __IO uint32_t IEN;            /**< Interrupt Enable Register  */
-  __IO uint32_t SEQ0;           /**< Sequence register 0  */
-  __IO uint32_t SEQ1;           /**< Sequence Register 1  */
-  __IO uint32_t SEQ2;           /**< Sequence Register 2  */
-  __IO uint32_t SEQ3;           /**< Sequence Register 3  */
-  __IO uint32_t SEQ4;           /**< Sequence Register 4  */
-  uint32_t      RESERVED4[7];   /**< Reserved for future use **/
-  __IO uint32_t DATA0;          /**< DATA0 Register Access  */
-  __IO uint32_t DATA1;          /**< DATA1 Register Access  */
-  __IO uint32_t DATA2;          /**< DATA2 Register Access  */
-  __IO uint32_t DATA3;          /**< DATA3 Register Access  */
-  uint32_t      RESERVED5[4];   /**< Reserved for future use **/
-  __IO uint32_t DATA0XOR;       /**< DATA0XOR Register Access  */
-  uint32_t      RESERVED6[3];   /**< Reserved for future use **/
-  __IO uint32_t DATA0BYTE;      /**< DATA0 Register Byte Access  */
-  __IO uint32_t DATA1BYTE;      /**< DATA1 Register Byte Access  */
-  uint32_t      RESERVED7[1];   /**< Reserved for future use **/
-  __IO uint32_t DATA0XORBYTE;   /**< DATA0 Register Byte XOR Access  */
-  __IO uint32_t DATA0BYTE12;    /**< DATA0 Register Byte 12 Access  */
-  __IO uint32_t DATA0BYTE13;    /**< DATA0 Register Byte 13 Access  */
-  __IO uint32_t DATA0BYTE14;    /**< DATA0 Register Byte 14 Access  */
-  __IO uint32_t DATA0BYTE15;    /**< DATA0 Register Byte 15 Access  */
-  uint32_t      RESERVED8[12];  /**< Reserved for future use **/
-  __IO uint32_t DDATA0;         /**< DDATA0 Register Access  */
-  __IO uint32_t DDATA1;         /**< DDATA1 Register Access  */
-  __IO uint32_t DDATA2;         /**< DDATA2 Register Access  */
-  __IO uint32_t DDATA3;         /**< DDATA3 Register Access  */
-  __IO uint32_t DDATA4;         /**< DDATA4 Register Access  */
-  uint32_t      RESERVED9[7];   /**< Reserved for future use **/
-  __IO uint32_t DDATA0BIG;      /**< DDATA0 Register Big Endian Access  */
-  uint32_t      RESERVED10[3];  /**< Reserved for future use **/
-  __IO uint32_t DDATA0BYTE;     /**< DDATA0 Register Byte Access  */
-  __IO uint32_t DDATA1BYTE;     /**< DDATA1 Register Byte Access  */
-  __IO uint32_t DDATA0BYTE32;   /**< DDATA0 Register Byte 32 access.  */
-  uint32_t      RESERVED11[13]; /**< Reserved for future use **/
-  __IO uint32_t QDATA0;         /**< QDATA0 Register Access  */
-  __IO uint32_t QDATA1;         /**< QDATA1 Register Access  */
-  uint32_t      RESERVED12[7];  /**< Reserved for future use **/
-  __IO uint32_t QDATA1BIG;      /**< QDATA1 Register Big Endian Access  */
-  uint32_t      RESERVED13[6];  /**< Reserved for future use **/
-  __IO uint32_t QDATA0BYTE;     /**< QDATA0 Register Byte Access  */
-  __IO uint32_t QDATA1BYTE;     /**< QDATA1 Register Byte Access  */
-} CRYPTO_TypeDef;               /** @} */
+  __IOM uint32_t CTRL;           /**< Control Register  */
+  __IOM uint32_t WAC;            /**< Wide Arithmetic Configuration  */
+  __IOM uint32_t CMD;            /**< Command Register  */
+  uint32_t       RESERVED0[1];   /**< Reserved for future use **/
+  __IM uint32_t  STATUS;         /**< Status Register  */
+  __IM uint32_t  DSTATUS;        /**< Data Status Register  */
+  __IM uint32_t  CSTATUS;        /**< Control Status Register  */
+  uint32_t       RESERVED1[1];   /**< Reserved for future use **/
+  __IOM uint32_t KEY;            /**< KEY Register Access  */
+  __IOM uint32_t KEYBUF;         /**< KEY Buffer Register Access  */
+  uint32_t       RESERVED2[2];   /**< Reserved for future use **/
+  __IOM uint32_t SEQCTRL;        /**< Sequence Control  */
+  __IOM uint32_t SEQCTRLB;       /**< Sequence Control B  */
+  uint32_t       RESERVED3[2];   /**< Reserved for future use **/
+  __IM uint32_t  IF;             /**< AES Interrupt Flags  */
+  __IOM uint32_t IFS;            /**< Interrupt Flag Set Register  */
+  __IOM uint32_t IFC;            /**< Interrupt Flag Clear Register  */
+  __IOM uint32_t IEN;            /**< Interrupt Enable Register  */
+  __IOM uint32_t SEQ0;           /**< Sequence register 0  */
+  __IOM uint32_t SEQ1;           /**< Sequence Register 1  */
+  __IOM uint32_t SEQ2;           /**< Sequence Register 2  */
+  __IOM uint32_t SEQ3;           /**< Sequence Register 3  */
+  __IOM uint32_t SEQ4;           /**< Sequence Register 4  */
+  uint32_t       RESERVED4[7];   /**< Reserved for future use **/
+  __IOM uint32_t DATA0;          /**< DATA0 Register Access  */
+  __IOM uint32_t DATA1;          /**< DATA1 Register Access  */
+  __IOM uint32_t DATA2;          /**< DATA2 Register Access  */
+  __IOM uint32_t DATA3;          /**< DATA3 Register Access  */
+  uint32_t       RESERVED5[4];   /**< Reserved for future use **/
+  __IOM uint32_t DATA0XOR;       /**< DATA0XOR Register Access  */
+  uint32_t       RESERVED6[3];   /**< Reserved for future use **/
+  __IOM uint32_t DATA0BYTE;      /**< DATA0 Register Byte Access  */
+  __IOM uint32_t DATA1BYTE;      /**< DATA1 Register Byte Access  */
+  uint32_t       RESERVED7[1];   /**< Reserved for future use **/
+  __IOM uint32_t DATA0XORBYTE;   /**< DATA0 Register Byte XOR Access  */
+  __IOM uint32_t DATA0BYTE12;    /**< DATA0 Register Byte 12 Access  */
+  __IOM uint32_t DATA0BYTE13;    /**< DATA0 Register Byte 13 Access  */
+  __IOM uint32_t DATA0BYTE14;    /**< DATA0 Register Byte 14 Access  */
+  __IOM uint32_t DATA0BYTE15;    /**< DATA0 Register Byte 15 Access  */
+  uint32_t       RESERVED8[12];  /**< Reserved for future use **/
+  __IOM uint32_t DDATA0;         /**< DDATA0 Register Access  */
+  __IOM uint32_t DDATA1;         /**< DDATA1 Register Access  */
+  __IOM uint32_t DDATA2;         /**< DDATA2 Register Access  */
+  __IOM uint32_t DDATA3;         /**< DDATA3 Register Access  */
+  __IOM uint32_t DDATA4;         /**< DDATA4 Register Access  */
+  uint32_t       RESERVED9[7];   /**< Reserved for future use **/
+  __IOM uint32_t DDATA0BIG;      /**< DDATA0 Register Big Endian Access  */
+  uint32_t       RESERVED10[3];  /**< Reserved for future use **/
+  __IOM uint32_t DDATA0BYTE;     /**< DDATA0 Register Byte Access  */
+  __IOM uint32_t DDATA1BYTE;     /**< DDATA1 Register Byte Access  */
+  __IOM uint32_t DDATA0BYTE32;   /**< DDATA0 Register Byte 32 access.  */
+  uint32_t       RESERVED11[13]; /**< Reserved for future use **/
+  __IOM uint32_t QDATA0;         /**< QDATA0 Register Access  */
+  __IOM uint32_t QDATA1;         /**< QDATA1 Register Access  */
+  uint32_t       RESERVED12[7];  /**< Reserved for future use **/
+  __IOM uint32_t QDATA1BIG;      /**< QDATA1 Register Big Endian Access  */
+  uint32_t       RESERVED13[6];  /**< Reserved for future use **/
+  __IOM uint32_t QDATA0BYTE;     /**< QDATA0 Register Byte Access  */
+  __IOM uint32_t QDATA1BYTE;     /**< QDATA1 Register Byte Access  */
+} CRYPTO_TypeDef;                /** @} */
 
 /**************************************************************************//**
- * @defgroup EFM32JG1B_CRYPTO_BitFields
+ * @addtogroup EFM32JG1B_CRYPTO
+ * @{
+ * @defgroup EFM32JG1B_CRYPTO_BitFields  CRYPTO Bit Fields
  * @{
  *****************************************************************************/
 
@@ -843,7 +853,7 @@ typedef struct
 
 /* Bit fields for CRYPTO IFS */
 #define _CRYPTO_IFS_RESETVALUE                       0x00000000UL                         /**< Default value for CRYPTO_IFS */
-#define _CRYPTO_IFS_MASK                             0x0000000FUL                         /**< Mask for CRYPTO_IFS */
+#define _CRYPTO_IFS_MASK                             0x00000003UL                         /**< Mask for CRYPTO_IFS */
 #define CRYPTO_IFS_INSTRDONE                         (0x1UL << 0)                         /**< Set INSTRDONE Interrupt Flag */
 #define _CRYPTO_IFS_INSTRDONE_SHIFT                  0                                    /**< Shift value for CRYPTO_INSTRDONE */
 #define _CRYPTO_IFS_INSTRDONE_MASK                   0x1UL                                /**< Bit mask for CRYPTO_INSTRDONE */
@@ -854,20 +864,10 @@ typedef struct
 #define _CRYPTO_IFS_SEQDONE_MASK                     0x2UL                                /**< Bit mask for CRYPTO_SEQDONE */
 #define _CRYPTO_IFS_SEQDONE_DEFAULT                  0x00000000UL                         /**< Mode DEFAULT for CRYPTO_IFS */
 #define CRYPTO_IFS_SEQDONE_DEFAULT                   (_CRYPTO_IFS_SEQDONE_DEFAULT << 1)   /**< Shifted mode DEFAULT for CRYPTO_IFS */
-#define CRYPTO_IFS_BUFOF                             (0x1UL << 2)                         /**< Set BUFOF Interrupt Flag */
-#define _CRYPTO_IFS_BUFOF_SHIFT                      2                                    /**< Shift value for CRYPTO_BUFOF */
-#define _CRYPTO_IFS_BUFOF_MASK                       0x4UL                                /**< Bit mask for CRYPTO_BUFOF */
-#define _CRYPTO_IFS_BUFOF_DEFAULT                    0x00000000UL                         /**< Mode DEFAULT for CRYPTO_IFS */
-#define CRYPTO_IFS_BUFOF_DEFAULT                     (_CRYPTO_IFS_BUFOF_DEFAULT << 2)     /**< Shifted mode DEFAULT for CRYPTO_IFS */
-#define CRYPTO_IFS_BUFUF                             (0x1UL << 3)                         /**< Set BUFUF Interrupt Flag */
-#define _CRYPTO_IFS_BUFUF_SHIFT                      3                                    /**< Shift value for CRYPTO_BUFUF */
-#define _CRYPTO_IFS_BUFUF_MASK                       0x8UL                                /**< Bit mask for CRYPTO_BUFUF */
-#define _CRYPTO_IFS_BUFUF_DEFAULT                    0x00000000UL                         /**< Mode DEFAULT for CRYPTO_IFS */
-#define CRYPTO_IFS_BUFUF_DEFAULT                     (_CRYPTO_IFS_BUFUF_DEFAULT << 3)     /**< Shifted mode DEFAULT for CRYPTO_IFS */
 
 /* Bit fields for CRYPTO IFC */
 #define _CRYPTO_IFC_RESETVALUE                       0x00000000UL                         /**< Default value for CRYPTO_IFC */
-#define _CRYPTO_IFC_MASK                             0x0000000FUL                         /**< Mask for CRYPTO_IFC */
+#define _CRYPTO_IFC_MASK                             0x00000003UL                         /**< Mask for CRYPTO_IFC */
 #define CRYPTO_IFC_INSTRDONE                         (0x1UL << 0)                         /**< Clear INSTRDONE Interrupt Flag */
 #define _CRYPTO_IFC_INSTRDONE_SHIFT                  0                                    /**< Shift value for CRYPTO_INSTRDONE */
 #define _CRYPTO_IFC_INSTRDONE_MASK                   0x1UL                                /**< Bit mask for CRYPTO_INSTRDONE */
@@ -878,20 +878,10 @@ typedef struct
 #define _CRYPTO_IFC_SEQDONE_MASK                     0x2UL                                /**< Bit mask for CRYPTO_SEQDONE */
 #define _CRYPTO_IFC_SEQDONE_DEFAULT                  0x00000000UL                         /**< Mode DEFAULT for CRYPTO_IFC */
 #define CRYPTO_IFC_SEQDONE_DEFAULT                   (_CRYPTO_IFC_SEQDONE_DEFAULT << 1)   /**< Shifted mode DEFAULT for CRYPTO_IFC */
-#define CRYPTO_IFC_BUFOF                             (0x1UL << 2)                         /**< Clear BUFOF Interrupt Flag */
-#define _CRYPTO_IFC_BUFOF_SHIFT                      2                                    /**< Shift value for CRYPTO_BUFOF */
-#define _CRYPTO_IFC_BUFOF_MASK                       0x4UL                                /**< Bit mask for CRYPTO_BUFOF */
-#define _CRYPTO_IFC_BUFOF_DEFAULT                    0x00000000UL                         /**< Mode DEFAULT for CRYPTO_IFC */
-#define CRYPTO_IFC_BUFOF_DEFAULT                     (_CRYPTO_IFC_BUFOF_DEFAULT << 2)     /**< Shifted mode DEFAULT for CRYPTO_IFC */
-#define CRYPTO_IFC_BUFUF                             (0x1UL << 3)                         /**< Clear BUFUF Interrupt Flag */
-#define _CRYPTO_IFC_BUFUF_SHIFT                      3                                    /**< Shift value for CRYPTO_BUFUF */
-#define _CRYPTO_IFC_BUFUF_MASK                       0x8UL                                /**< Bit mask for CRYPTO_BUFUF */
-#define _CRYPTO_IFC_BUFUF_DEFAULT                    0x00000000UL                         /**< Mode DEFAULT for CRYPTO_IFC */
-#define CRYPTO_IFC_BUFUF_DEFAULT                     (_CRYPTO_IFC_BUFUF_DEFAULT << 3)     /**< Shifted mode DEFAULT for CRYPTO_IFC */
 
 /* Bit fields for CRYPTO IEN */
 #define _CRYPTO_IEN_RESETVALUE                       0x00000000UL                         /**< Default value for CRYPTO_IEN */
-#define _CRYPTO_IEN_MASK                             0x0000000FUL                         /**< Mask for CRYPTO_IEN */
+#define _CRYPTO_IEN_MASK                             0x00000003UL                         /**< Mask for CRYPTO_IEN */
 #define CRYPTO_IEN_INSTRDONE                         (0x1UL << 0)                         /**< INSTRDONE Interrupt Enable */
 #define _CRYPTO_IEN_INSTRDONE_SHIFT                  0                                    /**< Shift value for CRYPTO_INSTRDONE */
 #define _CRYPTO_IEN_INSTRDONE_MASK                   0x1UL                                /**< Bit mask for CRYPTO_INSTRDONE */
@@ -902,16 +892,6 @@ typedef struct
 #define _CRYPTO_IEN_SEQDONE_MASK                     0x2UL                                /**< Bit mask for CRYPTO_SEQDONE */
 #define _CRYPTO_IEN_SEQDONE_DEFAULT                  0x00000000UL                         /**< Mode DEFAULT for CRYPTO_IEN */
 #define CRYPTO_IEN_SEQDONE_DEFAULT                   (_CRYPTO_IEN_SEQDONE_DEFAULT << 1)   /**< Shifted mode DEFAULT for CRYPTO_IEN */
-#define CRYPTO_IEN_BUFOF                             (0x1UL << 2)                         /**< BUFOF Interrupt Enable */
-#define _CRYPTO_IEN_BUFOF_SHIFT                      2                                    /**< Shift value for CRYPTO_BUFOF */
-#define _CRYPTO_IEN_BUFOF_MASK                       0x4UL                                /**< Bit mask for CRYPTO_BUFOF */
-#define _CRYPTO_IEN_BUFOF_DEFAULT                    0x00000000UL                         /**< Mode DEFAULT for CRYPTO_IEN */
-#define CRYPTO_IEN_BUFOF_DEFAULT                     (_CRYPTO_IEN_BUFOF_DEFAULT << 2)     /**< Shifted mode DEFAULT for CRYPTO_IEN */
-#define CRYPTO_IEN_BUFUF                             (0x1UL << 3)                         /**< BUFUF Interrupt Enable */
-#define _CRYPTO_IEN_BUFUF_SHIFT                      3                                    /**< Shift value for CRYPTO_BUFUF */
-#define _CRYPTO_IEN_BUFUF_MASK                       0x8UL                                /**< Bit mask for CRYPTO_BUFUF */
-#define _CRYPTO_IEN_BUFUF_DEFAULT                    0x00000000UL                         /**< Mode DEFAULT for CRYPTO_IEN */
-#define CRYPTO_IEN_BUFUF_DEFAULT                     (_CRYPTO_IEN_BUFUF_DEFAULT << 3)     /**< Shifted mode DEFAULT for CRYPTO_IEN */
 
 /* Bit fields for CRYPTO SEQ0 */
 #define _CRYPTO_SEQ0_RESETVALUE                      0x00000000UL                        /**< Default value for CRYPTO_SEQ0 */
@@ -1221,6 +1201,7 @@ typedef struct
 #define _CRYPTO_QDATA1BYTE_QDATA1BYTE_DEFAULT        0x00000000UL                                 /**< Mode DEFAULT for CRYPTO_QDATA1BYTE */
 #define CRYPTO_QDATA1BYTE_QDATA1BYTE_DEFAULT         (_CRYPTO_QDATA1BYTE_QDATA1BYTE_DEFAULT << 0) /**< Shifted mode DEFAULT for CRYPTO_QDATA1BYTE */
 
+/** @} */
 /** @} End of group EFM32JG1B_CRYPTO */
 /** @} End of group Parts */
 
