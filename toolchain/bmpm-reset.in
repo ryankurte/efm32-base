@@ -1,0 +1,3 @@
+target remote ${BMPM_PORT}
+monitor swdp_scan
+reset
