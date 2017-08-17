@@ -1,5 +1,4 @@
 target extended-remote ${BMPM_PORT}
-mon debug enable
 mon swdp_scan
 attach 1
 load

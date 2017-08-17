@@ -1,3 +1,6 @@
-target remote ${BMPM_PORT}
+target extended-remote ${BMPM_PORT}
 monitor swdp_scan
-reset
+attach 1
+k
+q
+

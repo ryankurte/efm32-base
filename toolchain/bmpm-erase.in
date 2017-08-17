@@ -1,2 +1,7 @@
-target remote ${BMPM_PORT}
-erase
+target extended-remote ${BMPM_PORT}
+mon swdp_scan
+attach 1
+mon erase_mass
+k
+q
+
