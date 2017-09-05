@@ -1,0 +1,183 @@
+#ISD afv6
+# ISD version: 4.17.0.qualifier
+
+# Application configuration
+appId: flex
+architecture: efr32~family[F]~series[1]~device_configuration[1]~performance[P]~radio[132]~flash[256K]~temp[G]~package[M]~pins[48]+BRD4252A+iar
+deviceName: rangetest
+generationDirectory: PATH(ISC_RELATIVE):.
+
+# Devices
+
+# Plugin configuration
+appPlugin: ash-v3=false
+appPlugin: bootloader-interface=false
+appPlugin: buffer-pool-memory-manager=true
+appPlugin: circular-queue=false
+appPlugin: command-interpreter=false
+appPlugin: command-interpreter-rail=true
+appPlugin: csp-host=false
+appPlugin: csp-ncp=false
+appPlugin: debug-print=false
+appPlugin: diagnostic=false
+appPlugin: diagnostic-stub=false
+appPlugin: free-rtos=false
+appPlugin: frequency-hopping=false
+appPlugin: frequency-hopping-stub=false
+appPlugin: hal=false
+appPlugin: hal-config=false
+appPlugin: hal-efr32=true
+appPlugin: heartbeat=false
+appPlugin: host-network-management-cli=false
+appPlugin: idle-sleep=false
+appPlugin: lcd-graphics=false
+appPlugin: mailbox-client=false
+appPlugin: mailbox-server=false
+appPlugin: main=false
+appPlugin: ncp-main=false
+appPlugin: ncp-uart-link=false
+appPlugin: ota-bootloader-client=false
+appPlugin: ota-bootloader-server=false
+appPlugin: ota-bootloader-test=false
+appPlugin: ota-bootloader-test-common=false
+appPlugin: ota-unicast-bootloader-client=false
+appPlugin: ota-unicast-bootloader-server=false
+appPlugin: ota-unicast-bootloader-test=false
+appPlugin: packet-trace=false
+appPlugin: phy=false
+appPlugin: phy-rtos=false
+appPlugin: poll=false
+appPlugin: rail-lib=true
+appPlugin: railtest-base=false
+appPlugin: rangetest-base=true
+appPlugin: response-printf=true
+appPlugin: serial=false
+appPlugin: serial-bootloader-cli=false
+appPlugin: sim-eeprom1=false
+appPlugin: spi-flash=false
+appPlugin: stack-aes-security=false
+appPlugin: stack-aes-security-stub=false
+appPlugin: stack-common=false
+appPlugin: stack-counters=false
+appPlugin: stack-counters-stub=false
+appPlugin: stack-form-and-join=false
+appPlugin: stack-mac-queue=false
+appPlugin: stack-mac-queue-stub=false
+appPlugin: stack-parent-support=false
+appPlugin: stack-parent-support-stub=false
+appPlugin: stack-xxtea-security=false
+appPlugin: stack-xxtea-security-stub=false
+appPlugin: unix-library=false
+appPlugin: usb-cdc=false
+appPlugin: usb-common=false
+appPlugin: usb-hidkbd=false
+appPlugin: wstk-sensors=false
+
+# Setup configurations
+{setupId:additionalFiles
+PATH(ISC_RELATIVE):graphics.c
+PATH(ISC_RELATIVE):menu.c
+PATH(ISC_RELATIVE):pushButton.c
+PATH(ISC_RELATIVE):rangeTest.c
+PATH(ISC_RELATIVE):rangetestconfig.c
+PATH(ISC_RELATIVE):seq.c
+}
+{setupId:boardHeader
+allowMissingHeader:true
+useHeaderInPlace:true
+}
+{setupId:bookkeeping
+}
+{setupId:bootloader
+efr32~series[1]~device_configuration[1]=null,
+efr32~series[1]~device_configuration[2]=null,
+efr32~series[1]~device_configuration[3]=null,
+}
+{setupId:callbackConfiguration
+main:false
+}
+{setupId:commandLineConfiguration
+off
+}
+{setupId:debugConfiguration
+off
+area name off
+appSerial=1
+}
+{setupId:efr32RadioConfig
+AGC_HYSTERESIS=int:0
+AGC_POWER_TARGET=int:-6
+AGC_SETTLING_DELAY=int:40
+ASYNCHRONOUS_RX_ENABLE=bool:false
+BASE_FREQUENCY_HZ=long:2405000000
+BAUDRATE_TOL_PPM=int:4000
+BITRATE=int:250000
+CHANNEL_SPACING_HZ=int:5000000
+CONFIGURATOR_VERSION=string:2.3.1
+CRC_BIT_ENDIAN=serializableObject:EnumDataItem:1
+CRC_BYTE_ENDIAN=serializableObject:EnumDataItem:1
+DEVIATION=int:500000
+DIFF_ENCODING_MODE=serializableObject:EnumDataItem:0
+DSSS_CHIPPING_CODE=long:1951056795
+DSSS_LEN=int:32
+DSSS_SPREADING_FACTOR=int:8
+FSK_SYMBOL_MAP=serializableObject:EnumDataItem:0
+MODULATION_TYPE=serializableObject:EnumDataItem:7
+PHY=serializableObject:Efr32RadioConfiguratorPhy:DUMBO:Connect:PHY_Connect_2_4GHz_802154
+PLL_BANDWIDTH_TX=serializableObject:EnumDataItem:14
+PREAMBLE_LENGTH=int:32
+PREAMBLE_PATTERN=int:0
+PREAMBLE_PATTERN_LEN=int:4
+PROFILE=serializableObject:Efr32RadioConfiguratorProfile:DUMBO:Connect
+RSSI_PERIOD=int:8
+RX_XTAL_ERROR_PPM=int:0
+SHAPING_FILTER=serializableObject:EnumDataItem:4
+SHAPING_FILTER_PARAM=float:0.5
+SYMBOL_ENCODING=serializableObject:EnumDataItem:2
+SYNCWORD_0=long:229
+SYNCWORD_1=long:0
+SYNCWORD_LENGTH=int:8
+SYNCWORD_TX_SKIP=bool:false
+TEST_BER=bool:false
+TIMING_DETECTION_THRESHOLD=int:65
+TIMING_RESYNC_PERIOD=int:2
+TIMING_SAMPLE_THRESHOLD=int:0
+TX_XTAL_ERROR_PPM=int:0
+WHITE_POLY=serializableObject:EnumDataItem:0
+XTAL_FREQUENCY_HZ=int:38400000
+}
+{setupId:eventConfiguration
+}
+{setupId:information
+\{key:description
+This is a customizable Range Test Sample Application that demonstrates over the air range of the EFR32.
+
+This sample app can act as a Transmitter and a Recevier. The role can be selected in the LCD menu. Flashing this app into two separate boards makes it possible to test the features and specification of the radio. The sample also provides an example how the RAIL API can be used.
+
+A menu is displayed in the LCD, which allows the user to see the most important information about the settings and also change some of them. The left button navigates in the menu and the right button selects or changes options. The bottom line always shows what the buttons do in the particular context.
+
+In Tx Mode, the user can send packets. Packet length (7..64 bytes) and the number of packets to transmit (from 500 up to continuous) can be set.
+
+Output power can be set in the LCD menu, in 0.5dBm steps (power setpoint), between -15..+20dBm. Actual minimum and maximum power may vary in different frequencies as well as the power that is actually set by RAIL. The LCD menu informs the user about the setpoint and the actual power. In the LCD menu, the Power item displays the setpoint first, then actual value.
+
+In Rx Mode, the radio listens on the given channel and inspects the packets recevied. Only packets that are sent with the expected device ID, will be processed. Packet Error Rate, Bit Error Rate and RSSI of the packets is displayed to inform about the quality of the transmission.
+
+For both modes, the channel on which the Tx/Rx radio will operate and the device IDs of the transmitters and receiver radio, can be set.
+
+Radio related events can be logged on UART on demand.
+
+NOTE: Due to the higher current consumption of the continuous radio usage (especially in Rx Mode), it is not recommended to power the boards from a coin cell. Instead, an USB power bank can be used if portability is needed.
+\}
+}
+{setupId:macros
+}
+{setupId:phyOptions
+}
+{setupId:template
+linkerIcfFile=generic_cortex.icf
+linkerLdFile=$--halDir--$/../../Device/SiliconLabs/$--chipFamilyUpperCase--$/Source/GCC/$--chipFamilyLowerCase--$.ld
+}
+{setupId:token
+}
+
+# Plugin options

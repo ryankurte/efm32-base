@@ -1,0 +1,108 @@
+#include PLATFORM_HEADER
+#include "mailbox/mailbox-client/mailbox-client.h"
+
+/** @brief Mailbox Client Message Submit
+ *
+ * A callback that is invoked after a successful
+ * ::emberAfPluginMailboxClientMessageSubmit() API call.
+ *
+ *  @param status   An ::EmberAfMailboxStatus value of:
+ *  - ::EMBER_MAILBOX_STATUS_SUCCESS if the data message was accepted by the
+ *  mailbox server.
+ *  - ::EMBER_MAILBOX_STATUS_STACK_ERROR if the message couldn't be delivered
+ *  to the mailbox server.
+ *  - ::EMBER_MAILBOX_STATUS_MESSAGE_NO_RESPONSE if the client timed-out
+ *  waiting for a response from the server.
+ *  - ::EMBER_MAILBOX_STATUS_MESSAGE_TABLE_FULL if the mailbox server table is
+ *  currently full.
+ *  - ::EMBER_MAILBOX_STATUS_MESSAGE_NO_BUFFERS if the server could not
+ *  allocate enough memory to store the message.
+ *
+ *  @param mailboxServer   The mailbox server short ID.
+ *
+ *  @param messageDestination   The message destination short ID.
+ *
+ *  @param tag   The tag value passed in the
+ *  ::emberAfPluginMailboxClientMessageSubmit() API.
+ */
+void emberAfPluginMailboxClientMessageSubmitCallback(EmberAfMailboxStatus status,
+                                                     EmberNodeId mailboxServer,
+                                                     EmberNodeId messageDestination,
+                                                     uint8_t tag)
+{
+}
+
+/** @brief Mailbox Client Message Delivered
+ *
+ * A callback that might be invoked if the a message that was submitted
+ * to a mailbox server has reached its final destination or it timed-out.
+ * Notice that this callback is not guaranteed to be called, if the status
+ * message from the server is lost, this callback won't be called.
+ *
+ * @param status    An ::EmberAfMailboxStatus value of:
+ * - ::EMBER_MAILBOX_STATUS_SUCCESS indicates that the message was successfully
+ *   delivered to the final destination.
+ * - ::EMBER_MAILBOX_STATUS_MESSAGE_TIMED_OUT indicates that the message
+ *   timed-out and was removed from the server queue.
+ *
+ * @param mailboxServer   The mailbox server short ID the message was submitted
+ * to.
+ *
+ * @param messageDestination   The message destination.
+ *
+ * @param tag   The message tag.
+ */
+void emberAfPluginMailboxClientMessageDeliveredCallback(EmberAfMailboxStatus status,
+                                                        EmberNodeId mailboxServer,
+                                                        EmberNodeId messageDestination,
+                                                        uint8_t tag)
+{
+}
+
+/** @brief Mailbox Client Check Inbox
+ *
+ * This callback is invoked asynchronously after a successful call to the
+ * ::emberAfPluginMailboxClientCheckInbox() API. If a message was retrieved
+ * from the mailbox server, this callback passes it to the application,
+ * otherwise it indicates to the application the reason of failure.
+ *
+ *  @param status    An ::EmberAfMailboxStatus value of:
+ * - ::EMBER_MAILBOX_STATUS_SUCCESS if a message was retrieved from the mailbox
+ * server.
+ * - ::EMBER_MAILBOX_STATUS_MESSAGE_NO_DATA if the server has currently no
+ * message for this mailbox client.
+ * - ::EMBER_MAILBOX_STATUS_MESSAGE_NO_RESPONSE if the client timed-out waiting
+ * for a query response from the mailbox server.
+ * - ::EMBER_MAILBOX_STATUS_STACK_ERROR if the stack failed to deliver the
+ * query message to the mailbox server.
+ *
+ *  @param messageSource   The source node address of the retrieved message.
+ *  Notice that this parameter is meaningful only if the status parameter has
+ *  an ::EmberAfMailboxStatus value of ::EMBER_MAILBOX_STATUS_SUCCESS.
+ *
+ *  @param message   A pointer to the retrieved message payload. Notice that
+ *  this parameter is meaningful only if the status parameter has an
+ *  ::EmberAfMailboxStatus value of ::EMBER_MAILBOX_STATUS_SUCCESS.
+ *
+ *  @param messageLength   The length in bytes of the retrived message payload.
+ *  Notice that this parameter is meaningful only if the status parameter has
+ *  an ::EmberAfMailboxStatus value of ::EMBER_MAILBOX_STATUS_SUCCESS.
+ *
+ *  @param tag   The tag value used by the source mailbox client.
+ *  Notice that this parameter is meaningful only if the status parameter has
+ *  an ::EmberAfMailboxStatus value of ::EMBER_MAILBOX_STATUS_SUCCESS.
+ *
+ *  @param moreMessages   This flag indicates whether the mailbox server has
+ *  more pending messages for this mailbox client. Notice that this parameter
+ *  is meaningful only if the status parameter has an ::EmberAfMailboxStatus
+ *  value of ::EMBER_MAILBOX_STATUS_SUCCESS.
+ */
+void emberAfPluginMailboxClientCheckInboxCallback(EmberAfMailboxStatus status,
+                                                  EmberNodeId mailboxServer,
+                                                  EmberNodeId messageSource,
+                                                  uint8_t *message,
+                                                  EmberMessageLength messageLength,
+                                                  uint8_t tag,
+                                                  bool moreMessages)
+{
+}

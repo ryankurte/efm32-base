@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project id="com.silabs.ember.stack.connect.addition" partCompatibility="com.silabs.mcu.si32.ezr32.ezr32lg" toolchainCompatibility="" sdkCompatibility="" contentRoot=".">
+  <macroDefinition languageCompatibility="c asm" name="$--bootloader--$" value="1"/>
+  <macroDefinition name="$(partName:toUpper)"/>
+  <toolOption toolId="iar.arm.toolchain.linker.v5.4.0" optionId="iar.arm.toolchain.linker.option.icfFile.v5.4.0" value="$--halDir--$/micro/cortexm3/efm32/ezr32lg/iar-cfg.icf"/>
+</project>

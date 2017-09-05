@@ -1,0 +1,29 @@
+
+void emberChildJoinHandler(EmberNodeType nodeType,
+                           EmberNodeId nodeId)
+{
+  UNUSED_VAR(nodeType);
+  UNUSED_VAR(nodeId);
+}
+
+void emberIncomingBeaconHandler(EmberPanId panId,
+                                EmberNodeId nodeId,
+                                uint8_t payloadLength,
+                                uint8_t *payload)
+{
+  UNUSED_VAR(panId);
+  UNUSED_VAR(nodeId);
+  UNUSED_VAR(payloadLength);
+  UNUSED_VAR(payload);
+}
+
+void emberActiveScanCompleteHandler(void)
+{
+}
+
+void emberEnergyScanCompleteHandler(int8_t mean,
+                                    int8_t min,
+                                    int8_t max,
+                                    uint16_t variance)
+{
+}

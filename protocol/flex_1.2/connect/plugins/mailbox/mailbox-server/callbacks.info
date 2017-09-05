@@ -1,0 +1,23 @@
+#include PLATFORM_HEADER
+#include "mailbox/mailbox-server/mailbox-server.h"
+
+/** @brief Mailbox Server Message Delivered
+ *
+ * This callback is invoked at the server when a message submitted locally by
+ * the server was successfully delivered or timed-out.
+ *
+ * @param status    An ::EmberAfMailboxStatus value of:
+ * - ::EMBER_MAILBOX_STATUS_SUCCESS indicates that the message was successfully
+ *   delivered to the final destination.
+ * - ::EMBER_MAILBOX_STATUS_MESSAGE_TIMED_OUT indicates that the message
+ *   timed-out and was removed from the server queue.
+ *
+ * @param messageDestination   The message destination.
+ *
+ * @param tag   The message tag.
+ */
+void emberAfPluginMailboxServerMessageDeliveredCallback(EmberAfMailboxStatus status,
+                                                        EmberNodeId messageDestination,
+                                                        uint8_t tag)
+{
+}

@@ -1,0 +1,47 @@
+#include PLATFORM_HEADER
+
+/** @brief Ok To Sleep
+ *
+ * This function is called by the Idle/Sleep plugin before sleeping.  It is
+ * called with interrupts disabled.  The application should return TRUE if the
+ * device may sleep or FALSE otherwise.
+ *
+ * @param durationMs The maximum duration in milliseconds that the device will
+ * sleep.  Ver.: always
+ */
+bool emberAfPluginIdleSleepOkToSleepCallback(uint32_t durationMs)
+{
+  return TRUE;
+}
+
+/** @brief Wake Up
+ *
+ * This function is called by the Idle/Sleep plugin after sleeping.
+ *
+ * @param durationMs The duration in milliseconds that the device slept.  Ver.:
+ * always
+ */
+void emberAfPluginIdleSleepWakeUpCallback(uint32_t durationMs)
+{
+}
+
+/** @brief Ok To Idle
+ *
+ * This function is called by the Idle/Sleep plugin before idling.  It is called
+ * with interrupts disabled.  The application should return TRUE if the device
+ * may idle or FALSE otherwise.
+ *
+ */
+bool emberAfPluginIdleSleepOkToIdleCallback(void)
+{
+  return TRUE;
+}
+
+/** @brief Active
+ *
+ * This function is called by the Idle/Sleep plugin after idling.
+ *
+ */
+void emberAfPluginIdleSleepActiveCallback(void)
+{
+}

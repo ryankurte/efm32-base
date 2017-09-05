@@ -1,0 +1,10 @@
+#include PLATFORM_HEADER
+#include CONFIGURATION_HEADER
+#include "stack/include/ember.h"
+
+/** @brief Main Application Entry Point
+ *
+ * This is the main application entry point. All applications
+ * must implement this function.
+ */
+int main(MAIN_FUNCTION_PARAMETERS);

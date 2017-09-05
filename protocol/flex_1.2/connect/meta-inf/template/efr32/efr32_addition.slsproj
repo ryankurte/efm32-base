@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project id="com.silabs.ember.stack.connect.addition" partCompatibility=".*efr32.* com.silabs.mcu.si32.ezr32.ezr32lg com.silabs.mcu.si32.ezr32.ezr32wg com.silabs.mcu.si32.ezr32.ezr32hg" toolchainCompatibility="com.silabs.ide.si32.iar com.silabs.ide.si32.gcc" sdkCompatibility="" contentRoot=".">
+  <macroDefinition name="$(partName:toUpper)"/>  
+
+  <!-- Dynamic Macro Definitions -->
+  <macroDefinition languageCompatibility="c asm" name="$--bootloader--$" value="1"/>    
+  <macroDefinition languageCompatibility="c asm" name="$(partName:toUpper)"/>
+  <macroDefinition languageCompatibility="c asm" name="CONFIGURATION_HEADER" value="&quot;$--generatedHeader--$&quot;"/>
+
+  <!--                       -->
+  <!-- Dynamic Include Paths -->
+  <!--                       -->
+  <includePath languageCompatibility="c asm" uri="$--pathVar_DEVICE--$/SiliconLabs-Restricted/$--chipFamily;U--$/Include/" partCompatibility=".*efr32.*"/>
+  <includePath languageCompatibility="c asm" uri="$--pathVar_DEVICE--$/SiliconLabs/$--chipFamily;U--$/Include/" partCompatibility=".*efr32.*"/>
+
+  <!--                         -->
+  <!-- Dynamic File Definitions -->
+  <!--                         -->
+  <folder name="CMSIS" partCompatibility=".*efr32.*">
+    <file name="system_$(partGroupName:toLower).c" uri="$--pathVar_DEVICE--$/SiliconLabs/$(partGroupName:toUpper)/Source/system_$(partGroupName:toLower).c" partCompatibility=".*efr32.*"/>
+  </folder>
+  
+  <!-- Dynamic Tool Options -->
+  <!-- IAR -->
+  <toolOption partCompatibility=".*efr32.* com.silabs.mcu.si32.ezr32.ezr32lg com.silabs.mcu.si32.ezr32.ezr32wg com.silabs.mcu.si32.ezr32.ezr32hg" toolId="iar.arm.toolchain.linker.v5.4.0" optionId="iar.arm.toolchain.linker.option.icfFile.v5.4.0" value="$--linkerIcfFile--$"/>
+  <toolOption toolId="iar.arm.toolchain.linker.v5.4.0" optionId="iar.arm.toolchain.linker.option.configSymbolDefs.v6.2.0">
+    <toolListOption partCompatibility=".*efr32.*" value="$--bootloader--$=1" />
+    <toolListOption partCompatibility=".*efr32.*" value="$--linkerOptionsSlsproj--$" />
+    <toolListOption partCompatibility=".*efr32.*" value="FLASH_SIZE=$--flashSize--$" />
+    <toolListOption partCompatibility=".*efr32.*" value="RAM_SIZE=$--ramSize--$" />
+    <toolListOption partCompatibility="com.silabs.mcu.si32.ezr32"         value="BTL_SIZE=0K" />
+    <toolListOption partCompatibility="com.silabs.mcu.si32.ezr32"         value="NULL_BTL=1" />
+    <toolListOption partCompatibility="com.silabs.mcu.si32.ezr32.ezr32hg" value="FLASH_SIZE=64K" />
+    <toolListOption partCompatibility="com.silabs.mcu.si32.ezr32.ezr32hg" value="RAM_SIZE=8K" />
+  </toolOption>
+  <!-- GCC -->
+  <toolOption toolId="com.silabs.ide.si32.gcc.cdt.managedbuild.toolchain.exe" optionId="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.c.linker.script" value="$--linkerLdFile--$"/>
+  <toolOption toolId="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.c.linker.base" optionId="gnu.c.link.option.other">
+    <toolListOption partCompatibility=".*efr32.*" value="--defsym=FLASH_SIZE=$--flashSize--$"/>
+    <toolListOption partCompatibility=".*efr32.*" value="--defsym=RAM_SIZE=$--ramSize--$"/>
+    <toolListOption partCompatibility=".*efr32.*" value="--defsym=&quot;SIMEEPROM_SIZE=8K&quot;"/>
+  </toolOption>
+
+
+  <!-- Replacement Misc Options -->
+  <postbuildStep>$--runBatchOrShellCmd--$ '$--genDir--$/$--deviceName--$-postbuild.$--shellOrBatch--$' '${BuildArtifactFileBaseName}' '$--projectLocation--$' '${TOOLKIT_DIR}'</postbuildStep>
+</project>

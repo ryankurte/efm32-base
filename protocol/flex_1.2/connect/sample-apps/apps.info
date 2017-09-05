@@ -1,0 +1,121 @@
+# Internal Test Application
+
+mustang {
+  name=Connect (SoC): Mustang
+  dir=mustang-app/
+  isc=mustang-app/mustang-app.isc
+  architecture=efr32,ezr32,simulation
+  include=simulation/flex-callbacks.c
+  Flex: This internal application provides extensive hooks and commands for testing purposes.
+}
+
+
+# SoC Applications
+
+commissioned-direct-device {
+  name=Connect (SoC): Commissioned Direct Device
+  dir=commissioned-direct-device/
+  isc=commissioned-direct-device/commissioned-direct-device.isc
+  architecture=efr32,ezr32,simulation
+  include=flex-callbacks.c
+  Flex: This application demonstrates direct communication between nodes in
+  range. The network parameters are commissioned by the application.
+}
+
+sensor {
+  name=Connect (SoC): Sensor
+  dir=sensor-sink/sensor
+  isc=sensor-sink/sensor/sensor.isc
+  architecture=efr32,ezr32,simulation
+  include=flex-callbacks.c
+  Flex: This application demonstrates a star network topology setup.
+  Bi-directional communication is possible between the sensor(s) and the sink nodes.
+}
+
+sink {
+  name=Connect (SoC): Sink
+  dir=sensor-sink/sink
+  isc=sensor-sink/sink/sink.isc
+  architecture=efr32,ezr32,simulation
+  include=flex-callbacks.c
+  Flex: This application demonstrates a star network topology setup.
+  Bi-directional communication is possible between the sensor(s) and the sink nodes.
+}
+
+wire-replacement {
+  name=Connect (SoC): Wire-Replacement
+  dir=wire-replacement/
+  isc=wire-replacement/wire-replacement.isc
+  architecture=efr32,ezr32,simulation
+  include=flex-callbacks.c
+  Flex: This application demonstrates point to point bi-directional direct or
+  indirect communication between two nodes.
+}
+
+
+# Host Applications
+
+commissioned-direct-device-host {
+  name=Connect (Host): Commissioned Direct Device
+  dir=commissioned-direct-device/
+  isc=commissioned-direct-device/commissioned-direct-device-host.isc
+  architecture=unix,simulation
+  include=flex-callbacks.c
+  Flex: This application demonstrates direct communication between nodes in
+  range. The network parameters are commissioned by the application.
+  It runs on Unix UART Host, with EFR32 NCP.
+}
+
+sensor-host {
+  name=Connect (Host): Sensor
+  dir=sensor-sink/sensor
+  isc=sensor-sink/sensor/sensor-host.isc
+  architecture=unix,simulation
+  include=flex-callbacks.c
+  Flex: This application demonstrates a star network topology setup.
+  Bi-directional communication is possible between the sensor(s) and the sink nodes.
+  It runs on Unix UART Host, with EFR32 NCP.
+}
+
+sink-host {
+  name=Connect (Host): Sink
+  dir=sensor-sink/sink
+  isc=sensor-sink/sink/sink-host.isc
+  architecture=unix,simulation
+  include=flex-callbacks.c
+  Flex: This application demonstrates a star network topology setup.
+  Bi-directional communication is possible between the sensor(s) and the sink nodes.
+  It runs on Unix UART Host, with EFR32 NCP
+}
+
+wire-replacement-host {
+  name=Connect (Host): Wire-Replacement
+  dir=wire-replacement/
+  isc=wire-replacement/wire-replacement-host.isc
+  architecture=unix,simulation
+  include=flex-callbacks.c
+  Flex: This application demonstrates point to point bi-directional direct or
+  indirect communication between two nodes. It runs on Unix UART Host, with EFR32 NCP.
+}
+
+# NCP Applications
+
+ncp-uart-hw {
+  name=Connect (NCP): UART HW (Hardware Flow Control)
+  dir=ncp/ncp-uart-hw
+  isc=ncp/ncp-uart-hw/ncp-uart-hw.isc
+  architecture=efr32,simulation
+  include=
+  Flex: This network coprocessor (NCP) application supports communication with
+  a host application over a UART interface with hardware flow control.
+}
+
+ncp-uart-sw {
+  name=Connect (NCP): UART SW (Software Flow Control)
+  dir=ncp/ncp-uart-sw
+  isc=ncp/ncp-uart-sw/ncp-uart-sw.isc
+  architecture=efr32,simulation
+  include=
+  Flex: This network coprocessor (NCP) application supports communication with
+  a host application over a UART interface with software flow control.
+}

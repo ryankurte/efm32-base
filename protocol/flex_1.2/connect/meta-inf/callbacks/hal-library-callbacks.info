@@ -1,0 +1,28 @@
+
+// Handler called whenever the radio is powered on.
+void halRadioPowerUpHandler(void)
+{
+}
+
+// Handler called whenever the radio is powered off.
+void halRadioPowerDownHandler(void)
+{
+}
+
+/** @brief COM Power Down
+ *
+ * A callback invoked by the Serial plugin before powering down.
+ *
+ */
+void emberAfPluginSerialComPowerDownCallback(void)
+{
+}
+
+/** @brief COM Power Up
+ *
+ * A callback invoked by the Serial plugin after powering up.
+ *
+ */
+void emberAfPluginSerialComPowerUpCallback(void)
+{
+}

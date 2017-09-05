@@ -1,0 +1,5 @@
+
+void emberFrequencyHoppingStartClientCompleteHandler(EmberStatus status)
+{
+  UNUSED_VAR(status);
+}

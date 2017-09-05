@@ -1,0 +1,36 @@
+#include PLATFORM_HEADER
+
+/** @brief Main
+ *
+ * This function is called immediately after the application starts executing
+ * and can be used to perform initialization that should occur before any other
+ * components are initialized.
+ */
+void emberAfMainCallback(void)
+{
+}
+
+/** @brief Init
+ *
+ * This function is called after the stack initializes and can be used to
+ * perform any additional initialization required at stack startup.  On SoCs,
+ * this will generally be called only once: at system startup.  On hosts, this
+ * will be called when the NCP initializes, and may be called multiple times
+ * during the lifetime of the host application.
+ */
+void emberAfInitCallback(void)
+{
+}
+
+/** @brief Tick
+ *
+ * This function is called in each iteration of the main application loop and
+ * can be used to perform periodic functions.  The frequency with which this
+ * function is called depends on how quickly the main loop runs.  If the
+ * application blocks at any time during the main loop, this function will not
+ * be called until execution resumes.  On SoC platforms, sleeping and idling
+ * will block.  On Unix hosts, process yielding (e.g., via select) will block.
+ */
+void emberAfTickCallback(void)
+{
+}

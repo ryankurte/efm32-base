@@ -1,0 +1,24 @@
+
+void emberIncomingMessageHandler(EmberIncomingMessage *message)
+{
+  UNUSED_VAR(message);
+}
+
+void emberMessageSentHandler(EmberStatus status, EmberOutgoingMessage *message)
+{
+  UNUSED_VAR(status);
+  UNUSED_VAR(message);
+}
+
+void emberStackStatusHandler(EmberStatus status)
+{
+  UNUSED_VAR(status);
+}
+
+void emberStackIsrHandler(void)
+{
+}
+
+void emberMarkApplicationBuffersHandler(void)
+{
+}

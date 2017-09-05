@@ -1,0 +1,77 @@
+[Version]
+Signature="$WINDOWS NT$"
+Class=Ports
+ClassGUID={4D36E978-E325-11CE-BFC1-08002BE10318}
+Provider=%SILICONLABS%
+DriverVer=03/26/2014,6.1.7601.17514
+CatalogFile=SiLabs-CDC.cat
+
+[Manufacturer]
+%SILICONLABS%=DeviceList, NT, NTAMD64, NTIA64
+
+;------------------------------------------------------------------------------
+
+[DeviceList]
+%CDCDEVICE_1BA4_0002%=DriverInstall,USB\VID_1BA4&PID_0002
+%CDCDEVICE_2544_0003%=DriverInstall,USB\VID_2544&PID_0003
+%CDCDEVICE_10C4_0003%=DriverInstall,USB\VID_10C4&PID_0003
+%CDCDEVICE_2544_0008_02%=DriverInstall,USB\VID_2544&PID_0008&MI_02
+%CDCDEVICE_10C4_0008_02%=DriverInstall,USB\VID_10C4&PID_0008&MI_02
+%CDCDEVICE_10C4_0008_02%=DriverInstall,USB\VID_10C4&PID_000C&MI_02
+
+[DeviceList.NT]
+%CDCDEVICE_1BA4_0002%=DriverInstall,USB\VID_1BA4&PID_0002
+%CDCDEVICE_2544_0003%=DriverInstall,USB\VID_2544&PID_0003
+%CDCDEVICE_10C4_0003%=DriverInstall,USB\VID_10C4&PID_0003
+%CDCDEVICE_2544_0008_02%=DriverInstall,USB\VID_2544&PID_0008&MI_02
+%CDCDEVICE_10C4_0008_02%=DriverInstall,USB\VID_10C4&PID_0008&MI_02
+%CDCDEVICE_10C4_0008_02%=DriverInstall,USB\VID_10C4&PID_000C&MI_02
+
+[DeviceList.NTAMD64]
+%CDCDEVICE_1BA4_0002%=DriverInstall,USB\VID_1BA4&PID_0002
+%CDCDEVICE_2544_0003%=DriverInstall,USB\VID_2544&PID_0003
+%CDCDEVICE_10C4_0003%=DriverInstall,USB\VID_10C4&PID_0003
+%CDCDEVICE_2544_0008_02%=DriverInstall,USB\VID_2544&PID_0008&MI_02
+%CDCDEVICE_10C4_0008_02%=DriverInstall,USB\VID_10C4&PID_0008&MI_02
+%CDCDEVICE_10C4_0008_02%=DriverInstall,USB\VID_10C4&PID_000C&MI_02
+
+[DeviceList.NTIA64]
+%CDCDEVICE_1BA4_0002%=DriverInstall,USB\VID_1BA4&PID_0002
+%CDCDEVICE_2544_0003%=DriverInstall,USB\VID_2544&PID_0003
+%CDCDEVICE_10C4_0003%=DriverInstall,USB\VID_10C4&PID_0003
+%CDCDEVICE_2544_0008_02%=DriverInstall,USB\VID_2544&PID_0008&MI_02
+%CDCDEVICE_10C4_0008_02%=DriverInstall,USB\VID_10C4&PID_0008&MI_02
+%CDCDEVICE_10C4_0008_02%=DriverInstall,USB\VID_10C4&PID_000C&MI_02
+
+;------------------------------------------------------------------------------
+
+[DriverInstall]
+Include=mdmcpq.inf
+CopyFiles=FakeModemCopyFileSection
+AddReg=SerialPropPageAddReg
+
+[DriverInstall.Services]
+Include=mdmcpq.inf
+AddService = usbser, 0x00000002, DriverServiceInst
+
+[DriverServiceInst]
+DisplayName=%SERVICE%
+ServiceType=1
+StartType=3
+ErrorControl=1
+ServiceBinary=%12%\usbser.sys
+
+[SerialPropPageAddReg]
+HKR,,EnumPropPages32,,"MsPorts.dll,SerialPortPropPageProvider"
+
+;------------------------------------------------------------------------------
+
+[Strings]
+SILICONLABS = "Silicon Laboratories, Inc."
+CDCDEVICE_1BA4_0002 = "Silicon Labs CDC Serial port"
+CDCDEVICE_2544_0003 = "Silicon Labs CDC Serial port"
+CDCDEVICE_10C4_0003 = "Silicon Labs CDC Serial port"
+CDCDEVICE_2544_0008_02 = "Silicon Labs CDC Serial port"
+CDCDEVICE_10C4_0008_02 = "Silicon Labs CDC Serial port"
+CDCDEVICE_10C4_000C_02 = "Silicon Labs CDC Serial port"
+SERVICE   = "USB CDC Serial Port Driver"

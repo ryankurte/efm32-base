@@ -1,0 +1,172 @@
+<?xml version="1.0" ?>
+<dpinst>
+<enableNotListedLanguages/>
+<language code="0x0401">
+<dpinstTitle>Silicon Labs CDC Driver Installer</dpinstTitle>
+<welcomeTitle>Welcome to the Silicon Labs CDC Driver Installer</welcomeTitle>
+<welcomeIntro>This wizard will help you install the drivers for your Silicon Labs CDC device.</welcomeIntro>
+<eula type="txt" path="Silabs_License_Agreement.txt"/>
+<finishTitle>Completing the Installation of the Silicon Labs CDC Driver</finishTitle>
+</language>
+<language code="0x0804">
+<dpinstTitle>Silicon Labs CDC Driver Installer</dpinstTitle>
+<welcomeTitle>Welcome to the Silicon Labs CDC Driver Installer</welcomeTitle>
+<welcomeIntro>This wizard will help you install the drivers for your Silicon Labs CDC device.</welcomeIntro>
+<eula type="txt" path="Silabs_License_Agreement.txt"/>
+<finishTitle>Completing the Installation of the Silicon Labs CDC Driver</finishTitle>
+</language>
+<language code="0x0404">
+<dpinstTitle>Silicon Labs CDC Driver Installer</dpinstTitle>
+<welcomeTitle>Welcome to the Silicon Labs CDC Driver Installer</welcomeTitle>	
+<welcomeIntro>This wizard will help you install the drivers for your Silicon Labs CDC device.</welcomeIntro>
+<eula type="txt" path="Silabs_License_Agreement.txt"/>
+<finishTitle>Completing the Installation of the Silicon Labs CDC Driver</finishTitle>
+</language>
+<language code="0x0405">
+<dpinstTitle>Silicon Labs CDC Driver Installer</dpinstTitle>
+<welcomeTitle>Welcome to the Silicon Labs CDC Driver Installer</welcomeTitle>
+<welcomeIntro>This wizard will help you install the drivers for your Silicon Labs CDC device.</welcomeIntro>
+<eula type="txt" path="Silabs_License_Agreement.txt"/>
+<finishTitle>Completing the Installation of the Silicon Labs CDC Driver</finishTitle>
+</language>
+<language code="0x0406">
+<dpinstTitle>Silicon Labs CDC Driver Installer</dpinstTitle>
+<welcomeTitle>Welcome to the Silicon Labs CDC Driver Installer</welcomeTitle>
+<welcomeIntro>This wizard will help you install the drivers for your Silicon Labs CDC device.</welcomeIntro>
+<eula type="txt" path="Silabs_License_Agreement.txt"/>
+<finishTitle>Completing the Installation of the Silicon Labs CDC Driver</finishTitle>
+</language>
+<language code="0x0407">
+<dpinstTitle>Silicon Labs CDC Driver Installer</dpinstTitle>
+<welcomeTitle>Welcome to the Silicon Labs CDC Driver Installer</welcomeTitle>
+<welcomeIntro>This wizard will help you install the drivers for your Silicon Labs CDC device.</welcomeIntro>
+<eula type="txt" path="Silabs_License_Agreement.txt"/>
+<finishTitle>Completing the Installation of the Silicon Labs CDC Driver</finishTitle>
+</language>
+<language code="0x0408">
+<dpinstTitle>Silicon Labs CDC Driver Installer</dpinstTitle>
+<welcomeTitle>Welcome to the Silicon Labs CDC Driver Installer</welcomeTitle>
+<welcomeIntro>This wizard will help you install the drivers for your Silicon Labs CDC device.</welcomeIntro>
+<eula type="txt" path="Silabs_License_Agreement.txt"/>
+<finishTitle>Completing the Installation of the Silicon Labs CDC Driver</finishTitle>
+</language>
+<language code="0x0409">
+<dpinstTitle>Silicon Labs CDC Driver Installer</dpinstTitle>
+<welcomeTitle>Welcome to the Silicon Labs CDC Driver Installer</welcomeTitle>
+<welcomeIntro>This wizard will help you install the drivers for your Silicon Labs CDC device.</welcomeIntro>
+<eula type="txt" path="Silabs_License_Agreement.txt"/>
+<finishTitle>Completing the Installation of the Silicon Labs CDC Driver</finishTitle>
+</language>
+<language code="0x0C0A">
+<dpinstTitle>Silicon Labs CDC Driver Installer</dpinstTitle>
+<welcomeTitle>Welcome to the Silicon Labs CDC Driver Installer</welcomeTitle>
+<welcomeIntro>This wizard will help you install the drivers for your Silicon Labs CDC device.</welcomeIntro>
+<eula type="txt" path="Silabs_License_Agreement.txt"/>
+<finishTitle>Completing the Installation of the Silicon Labs CDC Driver</finishTitle>
+</language>
+<language code="0x040B">
+<dpinstTitle>Silicon Labs CDC Driver Installer</dpinstTitle>
+<welcomeTitle>Welcome to the Silicon Labs CDC Driver Installer</welcomeTitle>
+<welcomeIntro>This wizard will help you install the drivers for your Silicon Labs CDC device.</welcomeIntro>
+<eula type="txt" path="Silabs_License_Agreement.txt"/>
+<finishTitle>Completing the Installation of the Silicon Labs CDC Driver</finishTitle>
+</language>
+<language code="0x040C">
+<dpinstTitle>Silicon Labs CDC Driver Installer</dpinstTitle>
+<welcomeTitle>Welcome to the Silicon Labs CDC Driver Installer</welcomeTitle>
+<welcomeIntro>This wizard will help you install the drivers for your Silicon Labs CDC device.</welcomeIntro>
+<eula type="txt" path="Silabs_License_Agreement.txt"/>
+<finishTitle>Completing the Installation of the Silicon Labs CDC Driver</finishTitle>
+</language>
+<language code="0x040D">
+<dpinstTitle>Silicon Labs CDC Driver Installer</dpinstTitle>
+<welcomeTitle>Welcome to the Silicon Labs CDC Driver Installer</welcomeTitle>
+<welcomeIntro>This wizard will help you install the drivers for your Silicon Labs CDC device.</welcomeIntro>
+<eula type="txt" path="Silabs_License_Agreement.txt"/>
+<finishTitle>Completing the Installation of the Silicon Labs CDC Driver</finishTitle>
+</language>
+<language code="0x040E">
+<dpinstTitle>Silicon Labs CDC Driver Installer</dpinstTitle>
+<welcomeTitle>Welcome to the Silicon Labs CDC Driver Installer</welcomeTitle>
+<welcomeIntro>This wizard will help you install the drivers for your Silicon Labs CDC device.</welcomeIntro>
+<eula type="txt" path="Silabs_License_Agreement.txt"/>
+<finishTitle>Completing the Installation of the Silicon Labs CDC Driver</finishTitle>
+</language>
+<language code="0x0410">
+<dpinstTitle>Silicon Labs CDC Driver Installer</dpinstTitle>
+<welcomeTitle>Welcome to the Silicon Labs CDC Driver Installer</welcomeTitle>
+<welcomeIntro>This wizard will help you install the drivers for your Silicon Labs CDC device.</welcomeIntro>
+<eula type="txt" path="Silabs_License_Agreement.txt"/>
+<finishTitle>Completing the Installation of the Silicon Labs CDC Driver</finishTitle>
+</language>
+<language code="0x0411">
+<dpinstTitle>Silicon Labs CDC Driver Installer</dpinstTitle>
+<welcomeTitle>Welcome to the Silicon Labs CDC Driver Installer</welcomeTitle>
+<welcomeIntro>This wizard will help you install the drivers for your Silicon Labs CDC device.</welcomeIntro>
+<eula type="txt" path="Silabs_License_Agreement.txt"/>
+<finishTitle>Completing the Installation of the Silicon Labs CDC Driver</finishTitle>
+</language>
+<language code="0x0412">
+<dpinstTitle>Silicon Labs CDC Driver Installer</dpinstTitle>
+<welcomeTitle>Welcome to the Silicon Labs CDC Driver Installer</welcomeTitle>
+<welcomeIntro>This wizard will help you install the drivers for your Silicon Labs CDC device.</welcomeIntro>
+<eula type="txt" path="Silabs_License_Agreement.txt"/>
+<finishTitle>Completing the Installation of the Silicon Labs CDC Driver</finishTitle>
+</language>
+<language code="0x0414">
+<dpinstTitle>Silicon Labs CDC Driver Installer</dpinstTitle>
+<welcomeTitle>Welcome to the Silicon Labs CDC Driver Installer</welcomeTitle>
+<welcomeIntro>This wizard will help you install the drivers for your Silicon Labs CDC device.</welcomeIntro>
+<eula type="txt" path="Silabs_License_Agreement.txt"/>
+<finishTitle>Completing the Installation of the Silicon Labs CDC Driver</finishTitle>
+</language>
+<language code="0x0413">
+<dpinstTitle>Silicon Labs CDC Driver Installer</dpinstTitle>
+<welcomeTitle>Welcome to the Silicon Labs CDC Driver Installer</welcomeTitle>
+<welcomeIntro>This wizard will help you install the drivers for your Silicon Labs CDC device.</welcomeIntro>
+<eula type="txt" path="Silabs_License_Agreement.txt"/>
+<finishTitle>Completing the Installation of the Silicon Labs CDC Driver</finishTitle>
+</language>
+<language code="0x0415">
+<dpinstTitle>Silicon Labs CDC Driver Installer</dpinstTitle>
+<welcomeTitle>Welcome to the Silicon Labs CDC Driver Installer</welcomeTitle>
+<welcomeIntro>This wizard will help you install the drivers for your Silicon Labs CDC device.</welcomeIntro>
+<eula type="txt" path="Silabs_License_Agreement.txt"/>
+<finishTitle>Completing the Installation of the Silicon Labs CDC Driver</finishTitle>
+</language>
+<language code="0x0416">
+<dpinstTitle>Silicon Labs CDC Driver Installer</dpinstTitle>
+<welcomeTitle>Welcome to the Silicon Labs CDC Driver Installer</welcomeTitle>
+<welcomeIntro>This wizard will help you install the drivers for your Silicon Labs CDC device.</welcomeIntro>
+<eula type="txt" path="Silabs_License_Agreement.txt"/>
+<finishTitle>Completing the Installation of the Silicon Labs CDC Driver</finishTitle>
+</language>
+<language code="0x0816">
+<dpinstTitle>Silicon Labs CDC Driver Installer</dpinstTitle>
+<welcomeTitle>Welcome to the Silicon Labs CDC Driver Installer</welcomeTitle>
+<welcomeIntro>This wizard will help you install the drivers for your Silicon Labs CDC device.</welcomeIntro>
+<eula type="txt" path="Silabs_License_Agreement.txt"/>
+<finishTitle>Completing the Installation of the Silicon Labs CDC Driver</finishTitle>
+</language>
+<language code="0x0419">
+<dpinstTitle>Silicon Labs CDC Driver Installer</dpinstTitle>
+<welcomeTitle>Welcome to the Silicon Labs CDC Driver Installer</welcomeTitle>
+<welcomeIntro>This wizard will help you install the drivers for your Silicon Labs CDC device.</welcomeIntro>
+<eula type="txt" path="Silabs_License_Agreement.txt"/>
+<finishTitle>Completing the Installation of the Silicon Labs CDC Driver</finishTitle>
+</language>
+<language code="0x041D">
+<dpinstTitle>Silicon Labs CDC Driver Installer</dpinstTitle>
+<welcomeTitle>Welcome to the Silicon Labs CDC Driver Installer</welcomeTitle>
+<welcomeIntro>This wizard will help you install the drivers for your Silicon Labs CDC device.</welcomeIntro>
+<eula type="txt" path="Silabs_License_Agreement.txt"/>
+<finishTitle>Completing the Installation of the Silicon Labs CDC Driver</finishTitle>
+</language>
+<language code="0x041F">
+<dpinstTitle>Silicon Labs CDC Driver Installer</dpinstTitle>
+<welcomeTitle>Welcome to the Silicon Labs CDC Driver Installer</welcomeTitle>
+<welcomeIntro>This wizard will help you install the drivers for your Silicon Labs CDC device.</welcomeIntro>
+<eula type="txt" path="Silabs_License_Agreement.txt"/>
+<finishTitle>Completing the Installation of the Silicon Labs CDC Driver</finishTitle>
+</language>
+</dpinst>

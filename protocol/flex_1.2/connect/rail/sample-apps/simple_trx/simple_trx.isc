@@ -1,0 +1,221 @@
+#ISD afv6
+# ISD version: 4.17.0.qualifier
+
+# Application configuration
+appId: flex
+architecture: efr32~family[F]~series[1]~device_configuration[1]~performance[P]~radio[132]~flash[256K]~temp[G]~package[M]~pins[48]+BRD4252A+iar
+deviceName: simple_trx
+generationDirectory: PATH(ISC_RELATIVE):.
+
+# Devices
+
+# Plugin configuration
+appPlugin: ash-v3=false
+appPlugin: bootloader-interface=false
+appPlugin: buffer-pool-memory-manager=false
+appPlugin: circular-queue=false
+appPlugin: command-interpreter=false
+appPlugin: command-interpreter-rail=false
+appPlugin: csp-host=false
+appPlugin: csp-ncp=false
+appPlugin: debug-print=false
+appPlugin: diagnostic=false
+appPlugin: diagnostic-stub=false
+appPlugin: free-rtos=false
+appPlugin: frequency-hopping=false
+appPlugin: frequency-hopping-stub=false
+appPlugin: hal=false
+appPlugin: hal-config=false
+appPlugin: hal-efr32=true
+appPlugin: heartbeat=false
+appPlugin: host-network-management-cli=false
+appPlugin: idle-sleep=false
+appPlugin: lcd-graphics=false
+appPlugin: mailbox-client=false
+appPlugin: mailbox-server=false
+appPlugin: main=false
+appPlugin: ncp-main=false
+appPlugin: ncp-uart-link=false
+appPlugin: ota-bootloader-client=false
+appPlugin: ota-bootloader-server=false
+appPlugin: ota-bootloader-test=false
+appPlugin: ota-bootloader-test-common=false
+appPlugin: ota-unicast-bootloader-client=false
+appPlugin: ota-unicast-bootloader-server=false
+appPlugin: ota-unicast-bootloader-test=false
+appPlugin: packet-trace=false
+appPlugin: phy=false
+appPlugin: phy-rtos=false
+appPlugin: poll=false
+appPlugin: rail-lib=true
+appPlugin: railtest-base=false
+appPlugin: rangetest-base=false
+appPlugin: response-printf=false
+appPlugin: serial=false
+appPlugin: serial-bootloader-cli=false
+appPlugin: sim-eeprom1=false
+appPlugin: spi-flash=false
+appPlugin: stack-aes-security=false
+appPlugin: stack-aes-security-stub=false
+appPlugin: stack-common=false
+appPlugin: stack-counters=false
+appPlugin: stack-counters-stub=false
+appPlugin: stack-form-and-join=false
+appPlugin: stack-mac-queue=false
+appPlugin: stack-mac-queue-stub=false
+appPlugin: stack-parent-support=false
+appPlugin: stack-parent-support-stub=false
+appPlugin: stack-xxtea-security=false
+appPlugin: stack-xxtea-security-stub=false
+appPlugin: unix-library=false
+appPlugin: usb-cdc=false
+appPlugin: usb-common=false
+appPlugin: usb-hidkbd=false
+appPlugin: wstk-sensors=false
+
+# Setup configurations
+{setupId:additionalFiles
+PATH(ISC_RELATIVE):main.c
+}
+{setupId:boardHeader
+allowMissingHeader:true
+useHeaderInPlace:true
+}
+{setupId:bookkeeping
+}
+{setupId:bootloader
+efr32~series[1]~device_configuration[1]=null,
+efr32~series[1]~device_configuration[2]=null,
+efr32~series[1]~device_configuration[3]=null,
+}
+{setupId:callbackConfiguration
+RAILCb_TxPacketSent:false
+RAILCb_TxRadioStatus:false
+RAILCb_RxPacketReceived:false
+RAILCb_RxRadioStatus:false
+RAILCb_AllocateMemory:false
+RAILCb_BeginWriteMemory:false
+RAILCb_EndWriteMemory:false
+RAILCb_FreeMemory:false
+RAILCb_CalNeeded:false
+RAILCb_RadioStateChanged:false
+RAILCb_RfReady:false
+RAILCb_TimerExpired:false
+main:false
+}
+{setupId:commandLineConfiguration
+off
+}
+{setupId:debugConfiguration
+off
+area name off
+appSerial=1
+}
+{setupId:efr32RadioConfig
+AGC_PERIOD=int:0
+AGC_POWER_TARGET=int:-8
+AGC_SETTLING_DELAY=int:39
+AGC_SPEED=serializableObject:EnumDataItem:1
+ASYNCHRONOUS_RX_ENABLE=bool:false
+BASE_FREQUENCY_HZ=long:2450000000
+BAUDRATE_TOL_PPM=int:0
+BITRATE=int:1000000
+CHANNEL_SPACING_HZ=int:1000000
+CONFIGURATOR_VERSION=string:2.3.1
+CRC_BIT_ENDIAN=serializableObject:EnumDataItem:1
+CRC_BYTE_ENDIAN=serializableObject:EnumDataItem:0
+CRC_INPUT_ORDER=serializableObject:EnumDataItem:0
+CRC_INVERT=bool:false
+CRC_PAD_INPUT=bool:false
+CRC_POLY=serializableObject:EnumDataItem:2
+CRC_SEED=long:0
+DEVIATION=int:500000
+DIFF_ENCODING_MODE=serializableObject:EnumDataItem:0
+DSSS_CHIPPING_CODE=long:0
+DSSS_LEN=int:0
+DSSS_SPREADING_FACTOR=int:0
+FEC_EN=serializableObject:EnumDataItem:0
+FIXED_LENGTH_SIZE=int:16
+FRAME_BITENDIAN=serializableObject:EnumDataItem:0
+FRAME_CODING=serializableObject:EnumDataItem:0
+FRAME_LENGTH_TYPE=serializableObject:EnumDataItem:0
+FRAME_TYPE_0_LENGTH=int:0
+FRAME_TYPE_0_VALID=bool:false
+FRAME_TYPE_1_LENGTH=int:0
+FRAME_TYPE_1_VALID=bool:false
+FRAME_TYPE_2_LENGTH=int:0
+FRAME_TYPE_2_VALID=bool:false
+FRAME_TYPE_3_LENGTH=int:0
+FRAME_TYPE_3_VALID=bool:false
+FRAME_TYPE_4_LENGTH=int:0
+FRAME_TYPE_4_VALID=bool:false
+FRAME_TYPE_5_LENGTH=int:0
+FRAME_TYPE_5_VALID=bool:false
+FRAME_TYPE_6_LENGTH=int:0
+FRAME_TYPE_6_VALID=bool:false
+FRAME_TYPE_7_LENGTH=int:0
+FRAME_TYPE_7_VALID=bool:false
+FRAME_TYPE_BITS=int:0
+FRAME_TYPE_LOC=int:0
+FRAME_TYPE_LSBIT=int:0
+FREQ_OFFSET_HZ=int:90014
+FSK_SYMBOL_MAP=serializableObject:EnumDataItem:0
+HEADER_CALC_CRC=bool:false
+HEADER_EN=bool:false
+HEADER_SIZE=int:1
+HEADER_WHITE_EN=bool:false
+MODULATION_TYPE=serializableObject:EnumDataItem:0
+PAYLOAD_CRC_EN=bool:true
+PAYLOAD_WHITE_EN=bool:false
+PHY=serializableObject:Efr32RadioConfiguratorPhy:DUMBO:Base:PHY_Datasheet_2450M_2GFSK_1Mbps_500K
+PREAMBLE_LENGTH=int:40
+PREAMBLE_PATTERN=int:1
+PREAMBLE_PATTERN_LEN=int:2
+PROFILE=serializableObject:Efr32RadioConfiguratorProfile:DUMBO:Base
+RX_XTAL_ERROR_PPM=int:20
+SHAPING_FILTER=serializableObject:EnumDataItem:1
+SHAPING_FILTER_PARAM=float:0.5
+SYMBOLS_IN_TIMING_WINDOW=int:14
+SYMBOL_ENCODING=serializableObject:EnumDataItem:0
+SYNCWORD_0=long:63117
+SYNCWORD_1=long:0
+SYNCWORD_LENGTH=int:16
+SYNCWORD_TX_SKIP=bool:false
+TEST_BER=bool:false
+TIMING_DETECTION_THRESHOLD=int:20
+TIMING_SAMPLE_THRESHOLD=int:12
+TX_XTAL_ERROR_PPM=int:0
+VAR_LENGTH_ADJUST=int:0
+VAR_LENGTH_BITENDIAN=serializableObject:EnumDataItem:0
+VAR_LENGTH_BYTEENDIAN=serializableObject:EnumDataItem:0
+VAR_LENGTH_INCLUDECRC=bool:false
+VAR_LENGTH_MAXLENGTH=int:0
+VAR_LENGTH_MINLENGTH=int:0
+VAR_LENGTH_NUMBITS=int:0
+VAR_LENGTH_SHIFT=int:0
+WHITE_OUTPUT_BIT=int:0
+WHITE_POLY=serializableObject:EnumDataItem:0
+WHITE_SEED=int:0
+XTAL_FREQUENCY_HZ=int:38400000
+}
+{setupId:eventConfiguration
+}
+{setupId:information
+\{key:description
+This application demonstrates the simplest exchange of transmit and receive operation between two nodes. Both nodes are capable of sending and receiving messages. On the WSTK, any button press (PB0/PB1) will send a message. LED0 will toggle on message send and LED1 will toggle on message receive.
+
+NOTE: Due to the higher current consumption of the continuous radio usage (especially in Rx Mode), it is not recommended to power the boards from a coin cell. Instead, an USB power bank can be used if portability is needed.
+\}
+}
+{setupId:macros
+}
+{setupId:phyOptions
+}
+{setupId:template
+linkerIcfFile=generic_cortex.icf
+linkerLdFile=$--halDir--$/../../Device/SiliconLabs/$--chipFamilyUpperCase--$/Source/GCC/$--chipFamilyLowerCase--$.ld
+}
+{setupId:token
+}
+
+# Plugin options

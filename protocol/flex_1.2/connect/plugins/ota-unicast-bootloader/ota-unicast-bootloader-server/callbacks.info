@@ -1,0 +1,63 @@
+#include PLATFORM_HEADER
+#include "ota-unicast-bootloader/ota-unicast-bootloader-server/ota-unicast-bootloader-server.h"
+
+/** @brief  A callback invoked by the OTA Unicast Bootloader Server plugin during an
+ * image distribution process to retrieve a contiguous segment of the image
+ * being distributed.
+ *
+ * @param   startIndex    The index of first byte the application should copy
+ * into the passed array.
+ *
+ * @param   endIndex      The index of the last byte the application should copy
+ * into the passed array.
+ *
+ * @param   imageTag    A 1-byte tag of the image for which a segment is being
+ * requested.
+ *
+ * @param   imageSegment    An array of (endIndex - startIndex + 1) length to
+ * which the application should copy the requested image segment.
+ *
+ * @return A boolean indicating whether the application successfully copied the
+ * requested bytes into the passed array. If the application returns FALSE, the
+ * OTA Unicast Server plugin shall abort the ongoing distribution process.
+ */
+bool emberAfPluginOtaUnicastBootloaderServerGetImageSegmentCallback(
+  uint32_t startIndex,
+  uint32_t endIndex,
+  uint8_t imageTag,
+  uint8_t *imageSegment
+  )
+{
+  return false;
+}
+
+/** @brief  A callback invoked by the OTA Bootloader Unicast Server plugin when the
+ * image distribution process is terminated..
+ *
+ * use the ::emberAfPluginBoootloaderServerGetTargetStatus() API to retrieve the
+ * @param   status    An ::EmberAfOtaBootloaderStatus value of:
+ */
+void emberAfPluginOtaUnicastBootloaderServerImageDistributionCompleteCallback(
+  EmberAfOtaUnicastBootloaderStatus status)
+{
+}
+
+/** @brief  A callback invoked by the OTA Unicast Bootloader Server plugin when a
+ * bootload request process has completed.
+ *
+ * @param   status    An ::EmberAfOtaUnicastBootloaderStatus value of:
+ * - ::EMBER_OTA_BOOTLOADER_STATUS_SUCCESS if all the targets have been
+ * requested to perform a bootload. Notice that some targets might have been
+ * declared unreachable.
+ * - ::EMBER_OTA_BOOTLOADER_STATUS_STACK_ERROR if the server encountered
+ * multiple consecutive transmission errors. The Server shall give up the
+ * bootload request process if
+ * ::EMBER_AF_PLUGIN_OTA_UNICAST_BOOTLOADER_SERVER_MAX_STACK_ERRORS consecutive
+ * transmission errors are encountered.
+ * - ::EMBER_OTA_BOOTLOADER_STATUS_ABORTED if the application aborted the
+ * current bootload request process.
+ */
+void emberAfPluginOtaUnicastBootloaderServerRequestTargetBootloadCompleteCallback(
+  EmberAfOtaUnicastBootloaderStatus status)
+{
+}

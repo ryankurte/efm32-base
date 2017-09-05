@@ -1,0 +1,173 @@
+#ISD afv6
+# ISD version: 4.17.0.qualifier
+
+# Application configuration
+appId: flex
+architecture: pc
+deviceName: wire-replacement
+generationDirectory: PATH(ISC_RELATIVE):.
+
+# Devices
+device: Unix UART Host
+
+# Plugin configuration
+appPlugin: ash-v3=true
+appPlugin: bootloader-interface=false
+appPlugin: buffer-pool-memory-manager=false
+appPlugin: circular-queue=false
+appPlugin: command-interpreter=true
+appPlugin: command-interpreter-rail=false
+appPlugin: csp-host=true
+appPlugin: csp-ncp=false
+appPlugin: debug-print=true
+appPlugin: diagnostic=false
+appPlugin: diagnostic-stub=false
+appPlugin: free-rtos=false
+appPlugin: frequency-hopping=false
+appPlugin: frequency-hopping-stub=false
+appPlugin: hal=false
+appPlugin: hal-config=false
+appPlugin: hal-efr32=false
+appPlugin: heartbeat=false
+appPlugin: host-network-management-cli=false
+appPlugin: idle-sleep=false
+appPlugin: lcd-graphics=false
+appPlugin: mailbox-client=false
+appPlugin: mailbox-server=false
+appPlugin: main=true
+appPlugin: ncp-main=false
+appPlugin: ncp-uart-link=false
+appPlugin: ota-bootloader-client=false
+appPlugin: ota-bootloader-server=false
+appPlugin: ota-bootloader-test=false
+appPlugin: ota-bootloader-test-common=false
+appPlugin: ota-unicast-bootloader-client=false
+appPlugin: ota-unicast-bootloader-server=false
+appPlugin: ota-unicast-bootloader-test=false
+appPlugin: packet-trace=false
+appPlugin: phy=false
+appPlugin: phy-rtos=false
+appPlugin: poll=true
+appPlugin: rail-lib=false
+appPlugin: railtest-base=false
+appPlugin: rangetest-base=false
+appPlugin: response-printf=false
+appPlugin: serial=true
+appPlugin: serial-bootloader-cli=true
+appPlugin: sim-eeprom1=false
+appPlugin: spi-flash=false
+appPlugin: stack-aes-security=false
+appPlugin: stack-aes-security-stub=false
+appPlugin: stack-common=false
+appPlugin: stack-counters=false
+appPlugin: stack-counters-stub=false
+appPlugin: stack-form-and-join=false
+appPlugin: stack-mac-queue=false
+appPlugin: stack-mac-queue-stub=false
+appPlugin: stack-parent-support=false
+appPlugin: stack-parent-support-stub=false
+appPlugin: stack-xxtea-security=false
+appPlugin: stack-xxtea-security-stub=false
+appPlugin: unix-library=true
+appPlugin: usb-cdc=false
+appPlugin: usb-common=false
+appPlugin: usb-hidkbd=false
+appPlugin: wstk-sensors=false
+
+# Setup configurations
+{setupId:additionalFiles
+}
+{setupId:boardHeader
+allowMissingHeader:false
+useHeaderInPlace:false
+}
+{setupId:bookkeeping
+}
+{setupId:bootloader
+}
+{setupId:callbackConfiguration
+emberIncomingMessageHandler:true
+emberMessageSentHandler:true
+emberStackStatusHandler:true
+emberChildJoinHandler:true
+emberAfMainInitCallback:false
+emberAfMainTickCallback:false
+emberAfStackStatusCallback:false
+emberAfIncomingMessageCallback:false
+emberAfMessageSentCallback:false
+emberAfChildJoinCallback:false
+emberFrequencyHoppingStartClientCompleteHandler:false
+emberAfEnergyScanCompleteCallback:false
+}
+{setupId:commandLineConfiguration
+on
+start-master,startMasterCommand,u,unlocked
+start-slave,startSlaveCommand,u,unlocked
+start-sleepy-slave,startSleepySlaveCommand,u,unlocked
+set-tx-power,setTxPowerCommand,s,unlocked
+set-tx-options,setTxOptionsCommand,u,unlocked
+set-key,setSecurityKeyCommand,b,unlocked
+leave,emberResetNetworkState,,unlocked
+data,dataCommand,b,unlocked
+info,infoCommand,,unlocked
+poll,pollCommand,,unlocked
+counter,counterCommand,u,unlocked
+reset,halReboot,,unlocked
+set-phy-mode,setPhyModeCommand,u,unlocked
+get-phy-mode,getPhyModeCommand,,unlocked
+start-fh-server,startFrequencyHoppingServerCommand,,unlocked
+start-fh-client,startFrequencyHoppingClientCommand,vv,unlocked
+stop-fh,stopFrequencyHoppingCommand,,unlocked
+}
+{setupId:connectStackConfig
+Radio board: BRD4502
+}
+{setupId:debugConfiguration
+on
+area name off
+appSerial=1
+}
+{setupId:efr32RadioConfig
+PHY=serializableObject:Efr32RadioConfiguratorPhy:null:null:Custom settings
+PROFILE=serializableObject:Efr32RadioConfiguratorProfile:DUMBO:Base
+}
+{setupId:eventConfiguration
+}
+{setupId:hwConfig
+active=false
+}
+{setupId:information
+\{key:description
+The wire-replacement application demonstrates point to point bi-directional direct or indirect communication between two nodes.
+
+One node should be started as master, using the "start-master" CLI command, while the other node can be started either as regular slave or as sleepy slave using the "start-slave" or "start-sleepy-slave" CLI commands respectively (the master should always be started first since it is the node creating the network). The only parameter passed to each of these CLI commands is the channel. For instance "start-master 10" causes the node to start a network on channel 10. Similarly, "start-slave 15" or "start-sleepy-slave 15" cause the node to join the master's network on channel 15 as regular end device or sleepy end device respectively. 
+
+If the slave is started as sleepy, the master node shall require the parent support plugin to be enabled in order to support indirect communication with sleepy nodes.
+
+Both master and slave nodes can send data to the peer node using the "data" CLI command. For example, "data \\{AABBCCDD\\}" causes the node to send a 4-byte payload AABBCCDD to the peer node. Notice that if the master sends data to a sleepy slave, the data packet(s) will be enqueued in the indirect queue. A sleepy slave periodically polls for pending data. The "poll" CLI command can also be used to trigger a poll at the sleepy slave at any moment.
+
+The "set-tx-options" CLI command sets the TX options bitmask. Bit 0x01 indicates whether packets should be secured. Bit 0x02 indicates whether packets should require an acknowledgment. Bit 0x04 indicates whether packets should be sent out with priority. For instance, "set-tx-options 0x03" causes packets to be transmitted secured and using acknowledgments. See stack/include/ember-types.h for more info on TX options.
+
+The "set-tx-power" CLI command changes the TX power of the radio. By default, the node joins the network with TX power 0.
+
+The "set-key" CLI command sets the security key. The passed parameter is a 16-byte string. For instance, "set-key \\{AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\\}" sets the security key to all 0xAAs. 
+
+The "leave" CLI command causes the node to leave the current network and go back to initial state.
+
+The "reset" CLI command power cycles the node (notice that the network parameters are stored in persistent memory, after power cycling the node will go back up to the stored network if the node was previously up on a network).   
+
+The "info" CLI command prints out node information such as network state, node type, short ID, long ID, PAN ID, channel and TX power. 
+
+The "counter" CLI command prints out the passed stack counter. For instance, "counter 2" prints out the incoming MAC unicast frames that have been received so far (see EMBER_COUNTER_MAC_IN_UNICAST in ember-types.h). 
+\}
+}
+{setupId:macros
+}
+{setupId:phyOptions
+}
+{setupId:template
+}
+{setupId:token
+}
+
+# Plugin options

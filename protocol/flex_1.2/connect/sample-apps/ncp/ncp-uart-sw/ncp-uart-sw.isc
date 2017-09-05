@@ -1,0 +1,143 @@
+#ISD afv6
+# ISD version: 4.17.0.qualifier
+
+# Application configuration
+appId: flex
+architecture: efr32~family[M]~series[1]~device_configuration[1]~performance[P]~radio[233]~flash[256K]~temp[G]~package[M]~pins[48]+BRD4150B+iar
+deviceName: ncp-uart-sw
+generationDirectory: PATH(ISC_RELATIVE):.
+
+# Devices
+
+# Plugin configuration
+appPlugin: ash-v3=true
+appPlugin: bootloader-interface=false
+appPlugin: buffer-pool-memory-manager=false
+appPlugin: circular-queue=false
+appPlugin: command-interpreter=true
+appPlugin: command-interpreter-rail=false
+appPlugin: csp-host=false
+appPlugin: csp-ncp=true
+appPlugin: debug-print=true
+appPlugin: diagnostic=true
+appPlugin: diagnostic-stub=false
+appPlugin: free-rtos=false
+appPlugin: frequency-hopping=false
+appPlugin: frequency-hopping-stub=true
+appPlugin: hal=true
+appPlugin: hal-config=true
+appPlugin: hal-efr32=false
+appPlugin: heartbeat=true
+appPlugin: host-network-management-cli=false
+appPlugin: idle-sleep=false
+appPlugin: lcd-graphics=false
+appPlugin: mailbox-client=false
+appPlugin: mailbox-server=false
+appPlugin: main=false
+appPlugin: ncp-main=true
+appPlugin: ncp-uart-link=true
+appPlugin: ota-bootloader-client=false
+appPlugin: ota-bootloader-server=false
+appPlugin: ota-bootloader-test=false
+appPlugin: ota-bootloader-test-common=false
+appPlugin: ota-unicast-bootloader-client=false
+appPlugin: ota-unicast-bootloader-server=false
+appPlugin: ota-unicast-bootloader-test=false
+appPlugin: packet-trace=false
+appPlugin: phy=true
+appPlugin: phy-rtos=false
+appPlugin: poll=false
+appPlugin: rail-lib=false
+appPlugin: railtest-base=false
+appPlugin: rangetest-base=false
+appPlugin: response-printf=false
+appPlugin: serial=true
+appPlugin: serial-bootloader-cli=false
+appPlugin: sim-eeprom1=true
+appPlugin: spi-flash=false
+appPlugin: stack-aes-security=true
+appPlugin: stack-aes-security-stub=false
+appPlugin: stack-common=true
+appPlugin: stack-counters=true
+appPlugin: stack-counters-stub=false
+appPlugin: stack-form-and-join=true
+appPlugin: stack-mac-queue=true
+appPlugin: stack-mac-queue-stub=false
+appPlugin: stack-parent-support=true
+appPlugin: stack-parent-support-stub=false
+appPlugin: stack-xxtea-security=true
+appPlugin: stack-xxtea-security-stub=false
+appPlugin: unix-library=false
+appPlugin: usb-cdc=false
+appPlugin: usb-common=false
+appPlugin: usb-hidkbd=false
+appPlugin: wstk-sensors=true
+
+# Setup configurations
+{setupId:additionalFiles
+}
+{setupId:boardHeader
+allowMissingHeader:false
+useHeaderInPlace:false
+ezr32=DEFAULT,,PATH(STACK_RELATIVE):submodules/base/hal/micro/cortexm3/efm32/board/ezr32.h,
+}
+{setupId:bookkeeping
+}
+{setupId:bootloader
+efr32~series[1]~device_configuration[1]=standalone,
+efr32~series[1]~device_configuration[2]=standalone,
+efr32~series[1]~device_configuration[3]=standalone,
+em357=null,
+em357p2p=null,
+}
+{setupId:callbackConfiguration
+}
+{setupId:commandLineConfiguration
+off
+}
+{setupId:connectStackConfig
+Radio board: BRD4502
+}
+{setupId:debugConfiguration
+on
+area name off
+appSerial=1
+}
+{setupId:efr32RadioConfig
+PHY=serializableObject:Efr32RadioConfiguratorPhy:DUMBO:Connect:PHY_Connect_902MHz_2GFSK_200kbps
+PROFILE=serializableObject:Efr32RadioConfiguratorProfile:DUMBO:Connect
+}
+{setupId:eventConfiguration
+}
+{setupId:genConfig
+}
+{setupId:hwConfig
+active=false
+}
+{setupId:information
+\{key:description
+NCP UART Application
+
+This network coprocessor (NCP) application supports communication with a host application over a UART interface with software flow control. This NCP application can be built as configured, or optionally can be augmented with customizations for target hardware, initialization, main loop processing, event definition/handling, and messaging with the host.
+\}
+}
+{setupId:macros
+}
+{setupId:phyOptions
+}
+{setupId:template
+linkerIcfFile=$--halDir--$/micro/cortexm3/efm32/iar-cfg.icf
+linkerLdFile=$--halDir--$/micro/cortexm3/efm32/gcc-cfg.ld
+}
+{setupId:token
+}
+
+# Plugin options
+pluginOption(efr32): EMBER_APPLICATION_USES_SOFTWARE_FLOW_CONTROL,true
+pluginOption(efr32): EMBER_AF_PLUGIN_HAL_CONFIG_VUART_ENABLE,1
+pluginOption(efr32~device_configuration[1]): EMBER_AF_PLUGIN_HAL_CONFIG_USART0_FLOW_CONTROL,HAL_USART_FLOW_CONTROL_SW
+pluginOption(efr32~device_configuration[3]): EMBER_AF_PLUGIN_HAL_CONFIG_USART0_FLOW_CONTROL,HAL_USART_FLOW_CONTROL_SW
+pluginOption(efr32~device_configuration[2]): EMBER_AF_PLUGIN_HAL_CONFIG_USART0_ENABLE,0
+pluginOption(efr32~device_configuration[2]): EMBER_AF_PLUGIN_HAL_CONFIG_USART0_FLOW_CONTROL,HAL_USART_FLOW_CONTROL_NONE
+pluginOption(efr32~device_configuration[2]): EMBER_AF_PLUGIN_HAL_CONFIG_USART3_ENABLE,1
+pluginOption(efr32~device_configuration[2]): EMBER_AF_PLUGIN_HAL_CONFIG_USART3_FLOW_CONTROL,HAL_USART_FLOW_CONTROL_SW

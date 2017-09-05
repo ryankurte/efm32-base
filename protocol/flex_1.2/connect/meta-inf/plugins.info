@@ -1,0 +1,1661 @@
+# This file can list directories where to load plugins from or
+# declare virtual plugins.
+# Any line that says: pluginDirectory=RELATIVE/PATH/
+# will cause appbuilder to read in that directory for plugin subdirectories.
+#
+# Virtual plugins are declared with sections:
+# plugin(xxx) {
+#   BLOCK IDENTICAL TO plugin.properties
+# }
+
+
+pluginDirectory=../plugins/
+
+plugin(hal) {
+  root=$HAL/../../
+  name=HAL library
+  category=Connect HAL
+  architecture=ezr32,efr32,simulation
+  description=HAL library
+
+  callbacks= $FRAMEWORK/meta-inf/callbacks/hal-library-callbacks.info
+
+  providedApis=hal,token,board,button,led
+  requiredApis=sim-eeprom,diagnostic,hal-config
+  api.hal.header=$HAL/hal.h
+  api.hal-config.condition=conf.architectureMatches("efr32,ezr32")
+
+  # Files that are released in source
+
+  # Common files
+  $HAL/micro/cortexm3/efm32/button.c
+  $HAL/plugin/buzzer/buzzer-efr32.c
+  $HAL/micro/cortexm3/efm32/cstartup-common.c
+  $HAL/micro/cortexm3/efm32/ext-device.c
+  (ezr32~HG320):$HAL/micro/cortexm3/efm32/faults-v6m.s79
+  (ezr32~LG330,ezr32~WG330,efr32):$HAL/micro/cortexm3/efm32/faults-v7m.s79
+  $HAL/micro/cortexm3/efm32/isr-stubs.s79
+  $HAL/micro/cortexm3/efm32/led.c
+  $HAL/micro/cortexm3/efm32/mfg-token.c
+  $HAL/micro/cortexm3/efm32/micro.c
+  $HAL/micro/cortexm3/efm32/micro-common.c
+  $HAL/micro/cortexm3/efm32/sleep-efm32.c
+  $HAL/micro/cortexm3/efm32/symbol-timer.c
+  $HAL/micro/cortexm3/efm32/token.c
+  $HAL/micro/cortexm3/efm32/hal-config.c
+  $HAL/micro/generic/crc.c
+  $HAL/micro/generic/endian.c
+  $HAL/micro/generic/mem-util.c
+  $HAL/micro/generic/random.c
+  $HAL/micro/generic/token-def.c
+  $EMLIB/src/em_adc.c
+  $EMLIB/src/em_cmu.c
+  $EMLIB/src/em_core.c
+  $EMLIB/src/em_emu.c
+  $EMLIB/src/em_gpio.c
+  $EMLIB/src/em_leuart.c
+  $EMLIB/src/em_mpu.c
+  $EMLIB/src/em_msc.c
+  $EMLIB/src/em_prs.c
+  $EMLIB/src/em_rmu.c
+  $EMLIB/src/em_system.c
+  $EMLIB/src/em_timer.c
+  $EMLIB/src/em_usart.c
+  $EMLIB/src/em_wdog.c
+  $EMDRV/dmadrv/src/dmadrv.c
+  $EMDRV/gpiointerrupt/src/gpiointerrupt.c
+  $EMDRV/rtcdrv/src/rtcdriver.c
+  $EMDRV/sleep/src/sleep.c
+  $EMDRV/uartdrv/src/uartdrv.c
+  $EMDRV/ustimer/src/ustimer.c
+  $KIT/common/bsp/bsp_stk_leds.c
+  $KIT/common/drivers/dmactrl.c
+  $KIT/common/drivers/udelay.c
+  $HAL/plugin/serial/cortexm/efm32/com.c
+  
+  # EZR-specific files
+  (ezr32):$EMLIB/src/em_aes.c
+  (ezr32):$EMLIB/src/em_acmp.c
+  (ezr32):$EMLIB/src/em_burtc.c
+  (ezr32):$EMLIB/src/em_dac.c
+  (ezr32):$EMLIB/src/em_dbg.c
+  (ezr32):$EMLIB/src/em_dma.c
+  (ezr32):$EMLIB/src/em_ebi.c
+  (ezr32):$EMLIB/src/em_idac.c
+  (ezr32):$EMLIB/src/em_lesense.c
+  (ezr32):$EMLIB/src/em_letimer.c
+  (ezr32):$EMLIB/src/em_opamp.c
+  (ezr32):$EMLIB/src/em_pcnt.c
+  (ezr32):$EMLIB/src/em_rtc.c
+  (ezr32):$EMLIB/src/em_vcmp.c
+  (ezr32):$EMDRV/spidrv/src/spidrv.c
+  (ezr32~LG330):$DEVICE/SiliconLabs/EZR32LG/Source/system_ezr32lg.c
+  (ezr32~WG330):$DEVICE/SiliconLabs/EZR32WG/Source/system_ezr32wg.c
+  (ezr32~HG320):$DEVICE/SiliconLabs/EZR32HG/Source/system_ezr32hg.c
+  
+  # EFR-specific files
+  (efr32):base/hal/plugin/adc/adc-efr32.c
+  (efr32):$EMLIB/src/em_crypto.c
+  (efr32):$EMLIB/src/em_ldma.c
+  (efr32):$EMLIB/src/em_rtcc.c
+  (efr32):$EMDRV/tempdrv/src/tempdrv.c
+  (efr32):$KIT/common/bsp/bsp_bcc.c
+  (efr32):$KIT/common/bsp/bsp_stk.c
+
+  # Do not build for EZR32HG as this doesn't have MPU
+  (efr32,ezr32~WG330,ezr32~LG330):$HAL/micro/cortexm3/efm32/mpu.c
+
+  #Files that go to the HAL library
+  (efr32+iar,ezr32+iar):$HAL/micro/cortexm3/efm32/cstartup-iar.c
+  (efr32+gcc):$HAL/micro/cortexm3/efm32/cstartup-gcc.c
+  (ezr32~HG320):$HAL/micro/cortexm3/efm32/context-switch-v6m.s79
+  (ezr32~LG330,ezr32~WG330,efr32):$HAL/micro/cortexm3/efm32/context-switch-v7m.s79
+  $HAL/micro/cortexm3/efm32/flash.c
+  $HAL/micro/cortexm3/efm32/micro-common-internal.c
+  $HAL/micro/cortexm3/efm32/micro-internal.c
+  $HAL/micro/cortexm3/efm32/register-access.c
+  $HAL/micro/cortexm3/efm32/system-timer.c
+  (ezr32):$FRAMEWORK/plugins/stack/platform/micro/cortexm3/efm32/ezr32/aes.c
+  (efr32):$FRAMEWORK/plugins/stack/platform/micro/cortexm3/efm32/efr32/aes.c
+
+  precompiled(efr32+iar){
+    file= $FRAMEWORK/plugins/libraries/hal-$--chipFamily--$-library-iar.a
+
+    $HAL/micro/cortexm3/efm32/cstartup-iar.c
+    $HAL/micro/cortexm3/efm32/context-switch-v7m.s79
+    $HAL/micro/cortexm3/efm32/flash.c
+    $HAL/micro/cortexm3/efm32/micro-common-internal.c
+    $HAL/micro/cortexm3/efm32/micro-internal.c
+    $HAL/micro/cortexm3/efm32/register-access.c
+    $HAL/micro/cortexm3/efm32/system-timer.c
+    $FRAMEWORK/plugins/stack/platform/micro/cortexm3/efm32/efr32/aes.c
+  }
+
+  precompiled(efr32+gcc){
+    file= $FRAMEWORK/plugins/libraries/hal-$--chipFamily--$-library-gcc.a
+
+    $HAL/micro/cortexm3/efm32/cstartup-gcc.c
+    $HAL/micro/cortexm3/efm32/context-switch-v7m.s79
+    $HAL/micro/cortexm3/efm32/flash.c
+    $HAL/micro/cortexm3/efm32/micro-common-internal.c
+    $HAL/micro/cortexm3/efm32/micro-internal.c
+    $HAL/micro/cortexm3/efm32/register-access.c
+    $HAL/micro/cortexm3/efm32/system-timer.c
+    $FRAMEWORK/plugins/stack/platform/micro/cortexm3/efm32/efr32/aes.c
+  }
+
+  precompiled(ezr32~LG330,ezr32~WG330) {
+    file= $FRAMEWORK/plugins/libraries/hal-ezr32-library-iar-m3.a
+
+    $HAL/micro/cortexm3/efm32/cstartup-iar.c
+    $HAL/micro/cortexm3/efm32/context-switch-v7m.s79
+    $HAL/micro/cortexm3/efm32/flash.c
+    $HAL/micro/cortexm3/efm32/micro-common-internal.c
+    $HAL/micro/cortexm3/efm32/micro-internal.c
+    $HAL/micro/cortexm3/efm32/register-access.c
+    $HAL/micro/cortexm3/efm32/system-timer.c
+    $FRAMEWORK/plugins/stack/platform/micro/cortexm3/efm32/ezr32/aes.c
+   }
+
+  precompiled(ezr32~HG320) {
+    file= $FRAMEWORK/plugins/libraries/hal-ezr32-library-iar-m0.a
+
+    $HAL/micro/cortexm3/efm32/cstartup-iar.c
+    $HAL/micro/cortexm3/efm32/context-switch-v6m.s79
+    $HAL/micro/cortexm3/efm32/flash.c
+    $HAL/micro/cortexm3/efm32/micro-common-internal.c
+    $HAL/micro/cortexm3/efm32/micro-internal.c
+    $HAL/micro/cortexm3/efm32/register-access.c
+    $HAL/micro/cortexm3/efm32/system-timer.c
+    $FRAMEWORK/plugins/stack/platform/micro/cortexm3/efm32/ezr32/aes.c
+   }
+
+  setup(additionalFiles) {
+    PATH(FRAMEWORK_RELATIVE):../
+    PATH(FRAMEWORK_RELATIVE):plugins
+    PATH(FRAMEWORK_RELATIVE):plugins/stack
+    PATH(HAL_RELATIVE):../../
+    PATH(ABSOLUTE):$CMSIS/Include
+    PATH(HAL_RELATIVE):..
+    PATH(HAL_RELATIVE):
+    PATH(HAL_RELATIVE):micro
+    PATH(HAL_RELATIVE):micro/cortexm3/common
+    PATH(HAL_RELATIVE):micro/cortexm3/efm32/board
+    PATH(HAL_RELATIVE):micro/cortexm3/efm32/config
+    PATH(HAL_RELATIVE):micro/cortexm3/efm32
+    PATH(ABSOLUTE):$EMLIB/inc
+    PATH(ABSOLUTE):$EMDRV/common/inc
+    PATH(ABSOLUTE):$EMDRV/dmadrv/config
+    PATH(ABSOLUTE):$EMDRV/dmadrv/inc
+    PATH(ABSOLUTE):$EMDRV/gpiointerrupt/inc
+    PATH(ABSOLUTE):$EMDRV/rtcdrv/config
+    PATH(ABSOLUTE):$EMDRV/rtcdrv/inc
+    PATH(ABSOLUTE):$EMDRV/sleep/inc
+    PATH(ABSOLUTE):$EMDRV/uartdrv/config
+    PATH(ABSOLUTE):$EMDRV/uartdrv/inc
+    PATH(ABSOLUTE):$EMDRV/ustimer/config
+    PATH(ABSOLUTE):$EMDRV/ustimer/inc
+    PATH(ABSOLUTE):$KIT/common/bsp
+    PATH(ABSOLUTE):$KIT/common/drivers
+    PATH(HAL_RELATIVE):plugin/
+
+    # EZR32 specific include paths
+    (ezr32~LG230,ezr32~LG330)=PATH(ABSOLUTE):$DEVICE/SiliconLabs/EZR32LG/Include
+    (ezr32~WG230,ezr32~WG330)=PATH(ABSOLUTE):$DEVICE/SiliconLabs/EZR32WG/Include
+    (ezr32~HG320)=PATH(ABSOLUTE):$DEVICE/SiliconLabs/EZR32HG/Include
+    (ezr32)=PATH(ABSOLUTE):$EMDRV/spidrv/config
+    (ezr32)=PATH(ABSOLUTE):$EMDRV/spidrv/inc
+    (ezr32)=PATH(ABSOLUTE):$DEVICE/SiliconLabs
+  
+    # EFR32 specific include paths
+    (efr32)=PATH(HAL_RELATIVE):/micro/cortexm3/efm32/efr32
+    (efr32)=PATH(ABSOLUTE):$EMDRV/tempdrv/config
+    (efr32)=PATH(ABSOLUTE):$EMDRV/tempdrv/inc
+    (efr32)=PATH(ABSOLUTE):$GLIB
+    (efr32)=PATH(ABSOLUTE):$GLIB/glib
+    (efr32)=PATH(ABSOLUTE):$GLIB/dmd
+
+  }
+
+  setup(template) {
+    linkerIcfFile=$--halDir--$/micro/cortexm3/efm32/iar-cfg.icf
+    linkerLdFile=$--halDir--$/micro/cortexm3/efm32/gcc-cfg.ld
+  }
+  
+  setup(macros) {
+    -DEMLIB_USER_CONFIG
+  }  
+}
+
+plugin(hal-config) {
+  root=$HAL
+  name=HAL Configuration
+  category=Connect HAL
+  architecture=ezr32,efr32
+  description=This plugin provides the HAL configuration options.
+
+  providedApis=hal-config
+  requiredApis=hal
+
+  micro/cortexm3/efm32/hal-config.c
+  micro/cortexm3/efm32/hal-config-gpio.c
+
+  options=                                                                   \
+    antdivEnable,ptaEnable,rhoEnable,rxWakeEnable,vcomEnable,vuartEnable,    \
+    wdogEnable,leuart0Enable,leuart0FlowControl,leuart1Enable,               \
+    leuart1FlowControl,usart0Enable,usart0FlowControl,usart1Enable,          \
+    usart1FlowControl,usart2Enable,usart2FlowControl,usart3Enable,           \
+    usart3FlowControl,bspUartNcpPort
+
+  antdivEnable.name=Antenna Diversity
+  antdivEnable.description=Enable Antenna Diversity
+  antdivEnable.type=LIST:0,1
+  antdivEnable.default=0
+  antdivEnable.mode=subset_match
+  antdivEnable.macro=-DHAL_ANTDIV_ENABLE
+
+  bspUartNcpPort.name=UART NCP port
+  bspUartNcpPort.description=UART NCP port
+  bspUartNcpPort.type=LIST:HAL_SERIAL_PORT_VCP,     \
+                           HAL_SERIAL_PORT_USART0,  \
+                           HAL_SERIAL_PORT_USART1,  \
+                           HAL_SERIAL_PORT_USART2,  \
+                           HAL_SERIAL_PORT_USART3,  \
+                           HAL_SERIAL_PORT_LEUART0, \
+                           HAL_SERIAL_PORT_LEUART1, \
+                           HAL_SERIAL_PORT_USB
+  bspUartNcpPort.default(efr32~device_configuration[1])=HAL_SERIAL_PORT_USART0
+  bspUartNcpPort.default(efr32~device_configuration[2])=HAL_SERIAL_PORT_USART3
+  bspUartNcpPort.default(efr32~device_configuration[3])=HAL_SERIAL_PORT_USART0
+  bspUartNcpPort.mode=subset_match
+  bspUartNcpPort.macro=-DBSP_UARTNCP_USART_PORT
+
+  leuart0Enable.name=Enable LEUART0
+  leuart0Enable.description=Enable LEUART0
+  leuart0Enable.type=LIST:0,1
+  leuart0Enable.default=0
+  leuart0Enable.default(ezr32~mcu[HG320])=1
+  leuart0Enable.mode=subset_match
+  leuart0Enable.macro=-DHAL_SERIAL_LEUART0_ENABLE
+
+  leuart0FlowControl.name=LEUART0 flow control mode
+  leuart0FlowControl.description=LEUART0 flow control mode
+  leuart0FlowControl.type=LIST:HAL_USART_FLOW_CONTROL_NONE,\
+                               HAL_USART_FLOW_CONTROL_SW,  \
+                               HAL_USART_FLOW_CONTROL_HW,  \
+                               HAL_USART_FLOW_CONTROL_HWUART
+  leuart0FlowControl.default=HAL_USART_FLOW_CONTROL_NONE
+  leuart0FlowControl.default(ezr32~mcu[HG320])=HAL_USART_FLOW_CONTROL_HW
+  leuart0FlowControl.mode=subset_match
+  leuart0FlowControl.macro=-DHAL_LEUART0_FLOW_CONTROL
+
+  leuart1Enable.name=Enable LEUART1
+  leuart1Enable.description=Enable LEUART1
+  leuart1Enable.type=LIST:0,1
+  leuart1Enable.default=0
+  leuart1Enable.mode=subset_match
+  leuart1Enable.macro=-DHAL_SERIAL_LEUART1_ENABLE
+
+  leuart1FlowControl.name=LEUART1 flow control mode
+  leuart1FlowControl.description=LEUART1 flow control mode
+  leuart1FlowControl.type=LIST:HAL_USART_FLOW_CONTROL_NONE, \
+                               HAL_USART_FLOW_CONTROL_SW,   \
+                               HAL_USART_FLOW_CONTROL_HW,   \
+                               HAL_USART_FLOW_CONTROL_HWUART
+  leuart1FlowControl.default=HAL_USART_FLOW_CONTROL_NONE
+  leuart1FlowControl.mode=subset_match
+  leuart1FlowControl.macro=-DHAL_LEUART1_FLOW_CONTROL
+
+  ptaEnable.name=Packet Trace Arbitration
+  ptaEnable.description=Enable Packet Trace Arbitration
+  ptaEnable.type=LIST:0,1
+  ptaEnable.default=0
+  ptaEnable.mode=subset_match
+  ptaEnable.macro=-DHAL_PTA_ENABLE
+
+  rhoEnable.name=Radio Hold Off
+  rhoEnable.description=Enable Radio Hold Off
+  rhoEnable.type=LIST:0,1
+  rhoEnable.default=0
+  rhoEnable.mode=subset_match
+  rhoEnable.macro=-DHAL_RHO_ENABLE
+
+  rxWakeEnable.name=Enable GPIO RX wakeup from application serial port
+  rxWakeEnable.description=Enable GPIO RX wakeup from application serial port
+  rxWakeEnable.type=LIST:0,1
+  rxWakeEnable.default=0
+  rxWakeEnable.mode=subset_match
+  rxWakeEnable.macro=-DHAL_SERIAL_RXWAKE_ENABLE
+
+  usart0Enable.name=Enable USART0
+  usart0Enable.description=Enable USART0
+  usart0Enable.type=LIST:0,1
+  usart0Enable.default(efr32)=1
+  usart0Enable.default(ezr32)=0
+  usart0Enable.mode=subset_match
+  usart0Enable.macro=-DHAL_SERIAL_USART0_ENABLE
+
+  usart0FlowControl.name=UART0 flow control mode
+  usart0FlowControl.description=UART0 flow control mode
+  usart0FlowControl.type=LIST:HAL_USART_FLOW_CONTROL_NONE, \
+                              HAL_USART_FLOW_CONTROL_SW,   \
+                              HAL_USART_FLOW_CONTROL_HW,   \
+                              HAL_USART_FLOW_CONTROL_HWUART
+  usart0FlowControl.default(efr32)=HAL_USART_FLOW_CONTROL_HW
+  usart0FlowControl.default(ezr32)=HAL_USART_FLOW_CONTROL_NONE
+  usart0FlowControl.mode=subset_match
+  usart0FlowControl.macro=-DHAL_USART0_FLOW_CONTROL
+
+  usart1Enable.name=Enable USART1
+  usart1Enable.description=Enable USART1
+  usart1Enable.type=LIST:0,1
+  usart1Enable.default=0
+  usart1Enable.mode=subset_match
+  usart1Enable.macro=-DHAL_SERIAL_USART1_ENABLE
+
+  usart1FlowControl.name=UART1 flow control mode
+  usart1FlowControl.description=UART1 flow control mode
+  usart1FlowControl.type=LIST:HAL_USART_FLOW_CONTROL_NONE, \
+                              HAL_USART_FLOW_CONTROL_SW,   \
+                              HAL_USART_FLOW_CONTROL_HW,   \
+                              HAL_USART_FLOW_CONTROL_HWUART
+  usart1FlowControl.default=HAL_USART_FLOW_CONTROL_NONE
+  usart1FlowControl.mode=subset_match
+  usart1FlowControl.macro=-DHAL_USART1_FLOW_CONTROL
+
+  usart2Enable.name=Enable USART2
+  usart2Enable.description=Enable USART2
+  usart2Enable.type=LIST:0,1
+  usart2Enable.default(efr32)=0
+  usart2Enable.default(ezr32~mcu[HG320])=0
+  usart2Enable.default(ezr32~mcu[LG230])=1
+  usart2Enable.default(ezr32~mcu[LG330])=1
+  usart2Enable.default(ezr32~mcu[WG230])=1
+  usart2Enable.default(ezr32~mcu[WG330])=1
+  usart2Enable.mode=subset_match
+  usart2Enable.macro=-DHAL_SERIAL_USART2_ENABLE
+
+  usart2FlowControl.name=UART2 flow control mode
+  usart2FlowControl.description=UART2 flow control mode
+  usart2FlowControl.type=LIST:HAL_USART_FLOW_CONTROL_NONE, \
+                              HAL_USART_FLOW_CONTROL_SW,   \
+                              HAL_USART_FLOW_CONTROL_HW,   \
+                              HAL_USART_FLOW_CONTROL_HWUART
+  usart2FlowControl.default(efr32)=HAL_USART_FLOW_CONTROL_NONE
+  usart2FlowControl.default(ezr32~mcu[HG320])=HAL_USART_FLOW_CONTROL_NONE
+  usart2FlowControl.default(ezr32~mcu[LG230])=HAL_USART_FLOW_CONTROL_HW
+  usart2FlowControl.default(ezr32~mcu[LG330])=HAL_USART_FLOW_CONTROL_HW
+  usart2FlowControl.default(ezr32~mcu[WG230])=HAL_USART_FLOW_CONTROL_HW
+  usart2FlowControl.default(ezr32~mcu[WG330])=HAL_USART_FLOW_CONTROL_HW
+  usart2FlowControl.mode=subset_match
+  usart2FlowControl.macro=-DHAL_USART2_FLOW_CONTROL
+
+  usart3Enable.name=Enable USART3
+  usart3Enable.description=Enable USART3
+  usart3Enable.type=LIST:0,1
+  usart3Enable.default=0
+  usart3Enable.mode=subset_match
+  usart3Enable.macro=-DHAL_SERIAL_USART3_ENABLE
+
+  usart3FlowControl.name=UART3 flow control mode
+  usart3FlowControl.description=UART3 flow control mode
+  usart3FlowControl.type=LIST:HAL_USART_FLOW_CONTROL_NONE, \
+                              HAL_USART_FLOW_CONTROL_SW,   \
+                              HAL_USART_FLOW_CONTROL_HW,   \
+                              HAL_USART_FLOW_CONTROL_HWUART
+  usart3FlowControl.default=HAL_USART_FLOW_CONTROL_NONE
+  usart3FlowControl.mode=subset_match
+  usart3FlowControl.macro=-DHAL_USART3_FLOW_CONTROL
+
+  vcomEnable.name=Enable VCOM
+  vcomEnable.description=Enable VCOM(Does not enable underlying UART)
+  vcomEnable.type=LIST:0,1
+  vcomEnable.default=1
+  vcomEnable.mode=subset_match
+  vcomEnable.macro=-DHAL_SERIAL_VCOM_ENABLE
+
+  vuartEnable.name=Enable VUART
+  vuartEnable.description=Enable VUART
+  vuartEnable.type=LIST:0,1
+  vuartEnable.default=0
+  vuartEnable.mode=subset_match
+  vuartEnable.macro=-DHAL_SERIAL_VUART_ENABLE
+
+  wdogEnable.name=Enable Watchdog
+  wdogEnable.description=Enable Watchdog
+  wdogEnable.type=LIST:0,1
+  wdogEnable.default=1
+  wdogEnable.mode=subset_match
+  wdogEnable.macro=-DHAL_WDOG_ENABLE
+}
+
+plugin(diagnostic) {
+  name=Diagnostic
+  description=Program counter diagnostic functions.
+  category=Connect Debug
+  quality=production
+  root=$HAL
+  requiredApis=hal
+
+  architecture=ezr32,efr32,simulation
+
+  providedApis=diagnostic,diagnostic-cortexm3
+  api.diagnostic.header=micro/diagnostic.h
+  api.diagnostic-cortexm3.header=micro/cortexm3/diagnostic.h
+  
+  requiredApis=hal,serial
+  micro/cortexm3/efm32/diagnostic.c
+  micro/cortexm3/efm32/assert-crash-handlers.c
+  
+  setup(macros) {
+    -DDEBUG_EFM
+  }
+}
+
+plugin(diagnostic-stub) {
+  name=Diagnostic Stub
+  description=Stub implementation of the diagnostic API for devices that do not use diagnostics.
+  category=Connect Debug
+  quality=stub
+  root=$HAL
+  requiredApis=hal
+
+  architecture=ezr32,efr32,simulation
+
+  providedApis=diagnostic
+  api.diagnostic.header=micro/diagnostic.h
+
+  micro/cortexm3/efm32/diagnostic-stub.c
+}
+
+plugin(sim-eeprom1) {
+  name=Simulated EEPROM version 1 Library
+  description=This library simulates an EEPROM within the internal flash of the chip to maximize the lifetime of flash pages and reduce write cycles.  The simulated EEPROM extends the lifetime of flash by wear leveling writes across the flash.  It is used for persistent storage of tokens for the network and application layers.  The network tokens are automatically managed by the network stack.  The application may add its own tokens.  See Application note AN703 for more information.
+  category=Connect HAL
+  quality=production
+  root=$HAL
+  requiredApis=hal
+
+  callbacks= $HAL/config/sim-eeprom-callback.info
+
+  architecture=ezr32,efr32,simulation
+
+  providedApis=sim-eeprom
+  api.sim-eeprom.header=plugin/sim-eeprom/sim-eeprom.h
+
+  options=simEeprom2k,simEeprom4k
+
+  simEeprom2k.name=SimEEPROM_2k
+  simEeprom2k.description=Defines the simulated EERPOM size to 2 kB instead of the default 8 kB.
+  simEeprom2k.type=BOOLEAN
+  simEeprom2k.default=0
+  simEeprom2k.default(ezr32~HG320)=1
+  simEeprom2k.define=EMBER_SIMEE1_2KB
+
+  simEeprom4k.name=SimEEPROM_4k
+  simEeprom4k.description=Defines the simulated EERPOM size to 4 kB instead of the default 8 kB.
+  simEeprom4k.type=BOOLEAN
+  simEeprom4k.default=0
+  simEeprom4k.define=EMBER_SIMEE1_4KB
+
+  plugin/sim-eeprom1/sim-eeprom.c
+  plugin/sim-eeprom1/sim-eeprom-internal.c
+
+  #TODO: Precompiled library for EFR32 as well.
+  precompiled(ezr32~LG330,ezr32~WG330,efr32+iar) {
+    file=$FRAMEWORK/plugins/libraries/sim-eeprom1-library-iar-m3.a
+
+    plugin/sim-eeprom1/sim-eeprom-internal.c
+  }
+
+  precompiled(ezr32~HG320) {
+    file=$FRAMEWORK/plugins/libraries/sim-eeprom1-library-iar-m0.a 
+
+    plugin/sim-eeprom1/sim-eeprom-internal.c
+  }
+
+  precompiled(efr32+gcc) {
+    file=$FRAMEWORK/plugins/libraries/libsim-eeprom1-library-gcc.a 
+
+    plugin/sim-eeprom1/sim-eeprom-internal.c
+  }
+
+} 
+
+# TODO: Removing for Connect 2.0, should be added back later.
+#plugin(psstore) {
+#  name=PS Store
+#  description=Persistent Store (PS Store) can be used to manage the data in the flash memory of the device. Data stored in PS keys within the flash memory is persistent across reset and power cycling of the #device.
+#  category=Connect HAL
+#  architecture=efr32
+#  quality=development
+#  root=$HAL
+#
+#  providedApis=psstore
+#  api.psstore.header=plugin/psstore/store.h
+#
+#  requiredApis=hal
+#
+#  plugin/psstore/store.c          (efr32)
+#  plugin/psstore/psstore-flash.c  (efr32)
+#  plugin/psstore/bg_crc.c         (efr32)
+#}
+
+plugin(spi-flash) {
+  name=SPI Flash
+  description=SPI flash interface plugin. Either on-board or add-on board solutions are supported.
+  category=Connect I/O
+  quality=production
+  root=$HAL
+  requiredApis=hal
+  architecture=efr32
+
+  providedApis=spi-flash
+
+  options=spiFlashTypeMX25R8035F,spiFlashTypeMX25R6435F
+
+  spiFlashTypeMX25R8035F.name=Macronix MX25R8035F
+  spiFlashTypeMX25R8035F.description=Macronix MX25R8035F SPI flash part support.
+  spiFlashTypeMX25R8035F.type=BOOLEAN
+  spiFlashTypeMX25R8035F.default=1
+  spiFlashTypeMX25R8035F.-D=SPIFLASH_MACRONIX_MX25R8035F
+
+  spiFlashTypeMX25R6435F.name=Macronix MX25R6435F
+  spiFlashTypeMX25R6435F.description=Macronix MX25R6435F SPI flash part support.
+  spiFlashTypeMX25R6435F.type=BOOLEAN
+  spiFlashTypeMX25R6435F.default=1
+  spiFlashTypeMX25R6435F.-D=SPIFLASH_MACRONIX_MX25R6435F
+
+  micro/cortexm3/common/spiflash-class1.c
+  micro/cortexm3/efm32/bootloader/spiflash-low-level.c
+
+  setup(additionalFiles) {
+    PATH(HAL_RELATIVE):micro/cortexm3/efm32/bootloader/
+  }
+}
+
+plugin(wstk-sensors) {
+  name=WSTK Sensors
+  description=This plugin provides access to the WSTK Si7013 sensor IC.
+  includedByDefault=false
+  category=Connect I/O
+  architecture=efr32,ezr32
+  quality=production
+  root=$HAL/../../
+  requiredApis=hal
+
+  providesApis=wstk-sensors
+  api.wstk-sensors.header=$FRAMEWORK/plugins/wstk-sensors.h
+  
+  $FRAMEWORK/plugins/wstk-sensors/wstk-sensors.c
+  $EMLIB/src/em_i2c.c
+  $KIT/common/drivers/i2cspm.c
+  $KIT/common/drivers/si7013.c
+  
+  setup(bookkeeping) {
+    init=emberAfPluginWstkSensorsInit
+  }
+}
+
+plugin(phy) {
+  root=$HAL/../phy
+  name=PHY library
+  category=Connect PHY
+  architecture=efr32,BRD4502A,BRD4502B,BRD4502C,BRD4502D,BRD4502E,BRD4503A,BRD4503B,BRD4503C,BRD4504A,BRD4504B,BRD4505A,BRD4505B,BRD4506A,BRD4542B,BRD4543B,BRD4544A,BRD4545A,BRD4546A,simulation
+  description=This plugin provides the radio driver for the selected part.
+  providedApis=phy
+  requiredApis=hal
+  
+  options=ccaThreshold,phyRail
+
+  ccaThreshold.name=MAC CCA Threshold
+  ccaThreshold.description=CCA Threshold value in dBm.
+  ccaThreshold.type=NUMBER
+  ccaThreshold.default=-65
+  ccaThreshold.define=EMBER_RADIO_CCA_THRESHOLD
+
+  phyRail.name=Phy for RAIL
+  phyRail.description=Phy for RAIL
+  phyRail.type=NUMBER:0,1
+  phyRail.default=0
+  phyRail.override(ezr32)=0
+  phyRail.override(efr32)=1
+  phyRail.hidden=TRUE
+  phyRail.define=EMBER_PHY_PLUGIN_RAIL
+
+  ###########
+  #  EZR32  #
+  ###########
+
+  # Common files provided in source
+  (ezr32):pro2class/phy-config-connect.c
+
+  # Common files provided in library
+  (ezr32):$FRAMEWORK/plugins/stack/mac/lower-mac-pro2class-common.c
+  (ezr32):pro2class/sipro2.c
+  (ezr32):plugin/duty-cycle/duty-cycle-stub.c
+
+  # EZRadio files provided in library
+  (ezr32~radio_chip[SI4455-REVC2A]):ezr2/phy.c
+  (ezr32~radio_chip[SI4455-REVC2A]):$FRAMEWORK/plugins/stack/mac/lower-mac-pro2.c
+  (ezr32~radio_chip[SI4455-REVC2A]):$FRAMEWORK/plugins/stack/mac/lower-mac-802.15.4-filtering.c
+
+  # EZRadioPRO files provided in library
+  (ezr32~radio_chip[SI4460-REVC2A],ezr32~radio_chip[SI4463-REVC2A]):pro2/phy.c
+  (ezr32~radio_chip[SI4460-REVC2A],ezr32~radio_chip[SI4463-REVC2A]):$FRAMEWORK/plugins/stack/mac/lower-mac-pro2.c
+  (ezr32~radio_chip[SI4460-REVC2A],ezr32~radio_chip[SI4463-REVC2A]):$FRAMEWORK/plugins/stack/mac/lower-mac-802.15.4-filtering.c
+
+  # EZRadioPRO+ files provided in library
+  (ezr32~radio_chip[SI4467-REVA2A],ezr32~radio_chip[SI4468-REVA2A]):pro2plus/phy.c
+  (ezr32~radio_chip[SI4467-REVA2A],ezr32~radio_chip[SI4468-REVA2A]):$FRAMEWORK/plugins/stack/mac/lower-mac-pro2plus.c
+  
+  # EZRadio library
+  # Fancying can be added back, if replacement macro for board is supported.
+  # precompiled(ezr32~radio_chip[SI4455-REVC2A]) {
+  precompiled(BRD4502B,BRD4502D) {
+    file= $FRAMEWORK/plugins/libraries/phy-ezr2-$--architectureId;L--$-library-iar-m3.a
+
+    ezr2/phy.c
+    pro2class/sipro2.c
+    plugin/duty-cycle/duty-cycle-stub.c
+    $FRAMEWORK/plugins/stack/mac/lower-mac-pro2.c
+    $FRAMEWORK/plugins/stack/mac/lower-mac-pro2class-common.c
+    $FRAMEWORK/plugins/stack/mac/lower-mac-802.15.4-filtering.c
+  }
+
+  precompiled(BRD4542B) {
+    file= $FRAMEWORK/plugins/libraries/phy-ezr2-$--architectureId;L--$-library-iar-m0.a
+
+    ezr2/phy.c
+    pro2class/sipro2.c
+    plugin/duty-cycle/duty-cycle-stub.c
+    $FRAMEWORK/plugins/stack/mac/lower-mac-pro2.c
+    $FRAMEWORK/plugins/stack/mac/lower-mac-pro2class-common.c
+    $FRAMEWORK/plugins/stack/mac/lower-mac-802.15.4-filtering.c
+  }
+
+  # EZRadioPRO library
+  # Fancying can be added back, if replacement macro for board is supported.
+  # precompiled(ezr32~radio_chip[SI4460-REVC2A],ezr32~radio_chip[SI4463-REVC2A]) {
+  precompiled(BRD4502A,BRD4502C,BRD4503A,BRD4503B,BRD4504A,BRD4504B,BRD4505A,BRD4505B) {
+    file= $FRAMEWORK/plugins/libraries/phy-pro2-$--architectureId;L--$-library-iar-m3.a
+
+    pro2/phy.c
+    pro2class/sipro2.c
+    plugin/duty-cycle/duty-cycle-stub.c
+    $FRAMEWORK/plugins/stack/mac/lower-mac-pro2.c
+    $FRAMEWORK/plugins/stack/mac/lower-mac-pro2class-common.c
+    $FRAMEWORK/plugins/stack/mac/lower-mac-802.15.4-filtering.c
+  }
+
+  precompiled(BRD4544A,BRD4545A) {
+    file= $FRAMEWORK/plugins/libraries/phy-pro2-$--architectureId;L--$-library-iar-m0.a
+
+    pro2/phy.c
+    pro2class/sipro2.c
+    plugin/duty-cycle/duty-cycle-stub.c
+    $FRAMEWORK/plugins/stack/mac/lower-mac-pro2.c
+    $FRAMEWORK/plugins/stack/mac/lower-mac-pro2class-common.c
+    $FRAMEWORK/plugins/stack/mac/lower-mac-802.15.4-filtering.c
+  }
+
+  # EZRadioPRO+ library
+  # Fancying can be added back, if replacement macro for board is supported.
+  # precompiled(ezr32~radio_chip[SI4467-REVA2A],ezr32~radio_chip[SI4468-REVA2A]) {
+  precompiled(BRD4502E,BRD4503C,BRD4506A) {
+    file= $FRAMEWORK/plugins/libraries/phy-pro2plus-$--architectureId;L--$-library-iar-m3.a
+
+    pro2plus/phy.c
+    pro2class/sipro2.c
+    plugin/duty-cycle/duty-cycle-stub.c
+    $FRAMEWORK/plugins/stack/mac/lower-mac-pro2plus.c
+    $FRAMEWORK/plugins/stack/mac/lower-mac-pro2class-common.c
+  }
+
+  precompiled(BRD4543B,BRD4546A) {
+    file= $FRAMEWORK/plugins/libraries/phy-pro2plus-$--architectureId;L--$-library-iar-m0.a
+
+    pro2plus/phy.c
+    pro2class/sipro2.c
+    plugin/duty-cycle/duty-cycle-stub.c
+    $FRAMEWORK/plugins/stack/mac/lower-mac-pro2plus.c
+    $FRAMEWORK/plugins/stack/mac/lower-mac-pro2class-common.c
+  }
+
+  ###########
+  #  EFR32  #
+  ###########
+
+  # Lower MAC source files
+  (efr32):$FRAMEWORK/plugins/stack/mac/lower-mac-rail-802.15.4.c
+  (efr32):$FRAMEWORK/plugins/stack/mac/lower-mac-802.15.4-filtering.c
+
+  # RAIL additional library
+  precompiled(efr32) {
+    file= $FRAMEWORK/plugins/libraries/phy-rail-add-$--chipFamily--$-library-$--toolchainName--$.a
+
+    $FRAMEWORK/plugins/stack/mac/lower-mac-rail-802.15.4.c
+    $FRAMEWORK/plugins/stack/mac/lower-mac-802.15.4-filtering.c
+  }
+
+  # RAIL-EFR32 library for IAR
+  precompiled(efr32) {
+    file= $FRAMEWORK/plugins/libraries/phy-rail-efr32xg$--partHardware.series--$$--partHardware.device_configuration--$-library-$--toolchainName--$.a
+  }
+
+  setup(additionalFiles) {
+    PATH(HAL_RELATIVE):../phy
+    (efr32)=PATH(ABSOLUTE):$RAIL_LIB/common
+    (efr32)=PATH(ABSOLUTE):$RAIL_LIB/protocol/ieee802154/
+    (efr32)=PATH(ABSOLUTE):$RAIL_LIB/chip/efr32
+    (efr32)=PATH(ABSOLUTE):$RAIL_LIB/chip/efr32/rf/common
+    (efr32)=PATH(ABSOLUTE):$RAIL_LIB/chip/efr32/rf/common/cortex
+  }
+}
+
+plugin(stack-common) {
+  root= $FRAMEWORK/plugins/stack
+  name=Stack Common
+  category=Connect Stack
+  architecture=efr32,ezr32,simulation
+  description=This plugin provides common functionalities such as 15.4-like MAC layer, events system, dynamic memory allocation, and other required infrastracture functions. It also provides the configuration file, which allocates all the sizable RAM data structures.    
+
+  callbacks= $FRAMEWORK/meta-inf/callbacks/stack-common-callbacks.info
+  requiredApis=hal,phy,security-aes,security-xxtea,network-configuration,cooordinator-support,parent-support,child-table,indirect-queue,mac-queue,counters,frequency-hopping
+    
+  providedApis=stack-common,buffers
+  
+  options = minHeapSize
+  
+  minHeapSize.name=Minimum Heap Size
+  minHeapSize.description=Minimum size in bytes of the memory heap.
+  minHeapSize.type=NUMBER:250,10000
+  minHeapSize.default=4000
+  minHeapSize.default(ezr32~HG320)=1100
+  minHeapSize.define=EMBER_HEAP_SIZE
+
+  config/ember-configuration.c
+
+  core/stack.c
+  core/ember-library.c
+  framework/event-control.c
+  framework/eui64.c
+  framework/packet-header.c
+  network/network.c
+  network/network-command.c
+  network/multi-address-filtering.c
+  mac/upper-mac.c
+  mac/command.c
+  security/security-common.c
+  security/packet-validate.c
+  framework/buffer-management.c
+  framework/buffer-queue.c
+  framework/buffers-bookkeeping.c
+  framework/byte-utilities.c
+
+  precompiled(ezr32~LG330,ezr32~WG330,efr32+iar) {
+    file= $FRAMEWORK/plugins/libraries/stack-common-library-iar-m3.a
+
+    core/stack.c
+    core/ember-library.c
+    framework/event-control.c
+    framework/eui64.c
+    framework/packet-header.c
+    network/network.c
+    network/network-command.c
+    network/multi-address-filtering.c
+    mac/upper-mac.c
+    mac/command.c
+    security/security-common.c
+    security/packet-validate.c
+    framework/buffer-management.c
+    framework/buffer-queue.c
+    framework/buffers-bookkeeping.c
+    framework/byte-utilities.c
+  }
+
+  precompiled(ezr32~HG320) {
+    file= $FRAMEWORK/plugins/libraries/stack-common-library-iar-m0.a
+
+    core/stack.c
+    core/ember-library.c
+    framework/event-control.c
+    framework/eui64.c
+    framework/packet-header.c
+    network/network.c
+    network/network-command.c
+    network/multi-address-filtering.c
+    mac/upper-mac.c
+    mac/command.c
+    security/security-common.c
+    security/packet-validate.c
+    framework/buffer-management.c
+    framework/buffer-queue.c
+    framework/buffers-bookkeeping.c
+    framework/byte-utilities.c
+  }
+
+  precompiled(efr32+gcc) {
+    file= $FRAMEWORK/plugins/libraries/libstack-common-library-gcc.a
+
+    core/stack.c
+    core/ember-library.c
+    framework/event-control.c
+    framework/eui64.c
+    framework/packet-header.c
+    network/network.c
+    network/network-command.c
+    network/multi-address-filtering.c
+    mac/upper-mac.c
+    mac/command.c
+    security/security-common.c
+    security/packet-validate.c
+    framework/buffer-management.c
+    framework/buffer-queue.c
+    framework/buffers-bookkeeping.c
+    framework/byte-utilities.c
+  }
+
+
+  setup(additionalFiles) {
+    PATH(FRAMEWORK_RELATIVE):plugins/stack
+    PATH(FRAMEWORK_RELATIVE):plugins/stack/include/
+    PATH(FRAMEWORK_RELATIVE):plugins/usb
+  }
+}
+
+plugin(stack-aes-security) {
+  root= $FRAMEWORK/plugins/stack
+  name=Security AES
+  category=Connect Stack
+  architecture=efr32,ezr32,simulation
+  description=This plugin provides encryption and authentication functionality based on the AES encryption algorithm (hardware acceleration).
+  requiredApis=stack-common
+  
+  providedApis=security-aes
+
+  security/security-aes.c
+
+  precompiled(ezr32~LG330,ezr32~WG330,efr32+iar) {
+    file= $FRAMEWORK/plugins/libraries/aes-security-library-iar-m3.a
+
+    security/security-aes.c
+  }
+
+  precompiled(ezr32~HG320) {
+    file= $FRAMEWORK/plugins/libraries/aes-security-library-iar-m0.a
+
+    security/security-aes.c
+  }
+
+  precompiled(efr32+gcc) {
+    file= $FRAMEWORK/plugins/libraries/libaes-security-library-gcc.a 
+
+    security/security-aes.c
+  }
+
+}
+
+plugin(stack-aes-security-stub) {
+  root= $FRAMEWORK/plugins/stack
+  name=Security AES Stub
+  category=Connect Stack
+  architecture=efr32,ezr32,simulation
+  description=AES-based Encryption and authentication stub.
+  requiredApis=stack-common
+  
+  providedApis=security-aes
+
+  security/security-aes-stub.c
+
+  precompiled(ezr32~LG330,ezr32~WG330,efr32+iar) {
+    file= $FRAMEWORK/plugins/libraries/aes-security-stub-library-iar-m3.a 
+
+    security/security-aes-stub.c
+  }
+
+  precompiled(ezr32~HG320) {
+    file= $FRAMEWORK/plugins/libraries/aes-security-stub-library-iar-m0.a 
+
+    security/security-aes-stub.c
+  }
+
+  precompiled(efr32+gcc) {
+    file= $FRAMEWORK/plugins/libraries/libaes-security-stub-library-gcc.a 
+
+    security/security-aes-stub.c
+  }
+
+}
+
+plugin(stack-xxtea-security) {
+  root= $FRAMEWORK/plugins/stack
+  name=Security XXTEA
+  category=Connect Stack
+  architecture=efr32,ezr32,simulation
+  description=This plugin provides encryption and authentication functionality based on the XXTEA encryption algorithm (software encryption).
+  requiredApis=stack-common
+  
+  providedApis=security-xxtea
+
+  security/security-xxtea.c
+  security/xxtea.c
+
+  precompiled(ezr32~LG330,ezr32~WG330,efr32+iar) {
+    file= $FRAMEWORK/plugins/libraries/xxtea-security-library-iar-m3.a 
+
+    security/security-xxtea.c
+    security/xxtea.c
+  }
+
+  precompiled(ezr32~HG320) {
+    file= $FRAMEWORK/plugins/libraries/xxtea-security-library-iar-m0.a 
+
+    security/security-xxtea.c
+    security/xxtea.c
+  }
+
+  precompiled(efr32+gcc) {
+    file= $FRAMEWORK/plugins/libraries/libxxtea-security-library-gcc.a 
+
+    security/security-xxtea.c
+    security/xxtea.c
+  }
+}
+
+plugin(stack-xxtea-security-stub) {
+  root= $FRAMEWORK/plugins/stack
+  name=Security XXTEA Stub
+  category=Connect Stack
+  architecture=efr32,ezr32,simulation
+  description=XXTEA-based Encryption and authentication stub.
+  requiredApis=stack-common
+
+  providedApis=security-xxtea
+
+  security/security-xxtea-stub.c
+
+  precompiled(ezr32~LG330,ezr32~WG330,efr32+iar) {
+    file= $FRAMEWORK/plugins/libraries/xxtea-security-stub-library-iar-m3.a 
+
+    security/security-xxtea-stub.c
+  }
+
+  precompiled(ezr32~HG320) {
+    file= $FRAMEWORK/plugins/libraries/xxtea-security-stub-library-iar-m0.a 
+
+    security/security-xxtea-stub.c
+  }
+
+  precompiled(efr32+gcc) {
+    file= $FRAMEWORK/plugins/libraries/libxxtea-security-stub-library-gcc.a 
+
+    security/security-xxtea-stub.c
+  }
+
+}
+
+plugin(stack-form-and-join) {
+  root= $FRAMEWORK/plugins/stack
+  name=Form and Join
+  category=Connect Stack
+  architecture=efr32,ezr32,simulation
+  description=This plugin provides run-time network configuration functionalities such as 15.4-like scanning, network formation, network joining, network commissioning.  
+  requiredApis=stack-common
+
+  callbacks= $FRAMEWORK/meta-inf/callbacks/form-and-join-callbacks.info
+
+  providedApis=network-configuration
+
+  network/association.c  
+  mac/scan.c
+
+  precompiled(ezr32~LG330,ezr32~WG330,efr32+iar) {
+    file= $FRAMEWORK/plugins/libraries/form-and-join-library-iar-m3.a 
+
+    network/association.c  
+    mac/scan.c
+  }
+
+  precompiled(ezr32~HG320) {
+    file= $FRAMEWORK/plugins/libraries/form-and-join-library-iar-m0.a 
+
+    network/association.c  
+    mac/scan.c
+  }
+
+  precompiled(efr32+gcc) {
+    file= $FRAMEWORK/plugins/libraries/libform-and-join-library-gcc.a 
+
+    network/association.c  
+    mac/scan.c
+  }
+}
+
+plugin(stack-parent-support) {
+  root= $FRAMEWORK/plugins/stack
+  name=Parent Support
+  category=Connect Stack
+  architecture=efr32,ezr32,simulation
+  description=This plugin provides parent functionalities such as indirect communication (communication with sleepy devices) and child table. It should be included for any coordinator or range extender node intended to support multiple end-device and/or sleepy end-device nodes. This plugin requires the dynamic memory allocation functionality and the MAC queuing functionality which is currently provided with the MAC queue plugin.
+  requiredApis=stack-common,buffers
+  
+  requiredApis=mac-queue,buffers
+  providedApis=cooordinator-support,parent-support,child-table,indirect-queue
+
+  options=childTableSize, indirectQueueSize, indirectTransmissionTimoutMS 
+    
+  childTableSize.name=Child Table Size
+  childTableSize.description=The maximum numbers of children the coordinator can manage. While the maximum size is 64, for range extenders the child table size can not exceed 32 entries.
+  childTableSize.type=NUMBER:1,64
+  childTableSize.default=16
+  childTableSize.define=EMBER_CHILD_TABLE_SIZE
+
+  indirectQueueSize.name=Indirect Queue Size
+  indirectQueueSize.description=The maximum number of outgoing packets that can be enqueued at the coordinator indirect queue.  
+  indirectQueueSize.type=NUMBER:1,16
+  indirectQueueSize.default=8
+  indirectQueueSize.define=EMBER_INDIRECT_QUEUE_SIZE
+
+  indirectTransmissionTimoutMS.name=Indirect Transmission Timout MS
+  indirectTransmissionTimoutMS.description=Timeout of the indirect transmission in milliseconds.
+  indirectTransmissionTimoutMS.type=NUMBER:1000,30000
+  indirectTransmissionTimoutMS.default=8000
+  indirectTransmissionTimoutMS.define=EMBER_INDIRECT_TRANSMISSION_TIMEOUT_MS
+
+  network/parent-support.c
+  network/child-table.c
+  network/indirect-queue.c
+  network/coordinator-support.c
+
+  precompiled(ezr32~LG330,ezr32~WG330,efr32+iar) {
+    file= $FRAMEWORK/plugins/libraries/parent-support-library-iar-m3.a
+
+    network/parent-support.c
+    network/child-table.c
+    network/indirect-queue.c
+    network/coordinator-support.c
+  }
+
+  precompiled(ezr32~HG320) {
+    file= $FRAMEWORK/plugins/libraries/parent-support-library-iar-m0.a
+
+    network/parent-support.c
+    network/child-table.c
+    network/indirect-queue.c
+    network/coordinator-support.c
+  }
+
+  precompiled(efr32+gcc) {
+    file= $FRAMEWORK/plugins/libraries/libparent-support-library-gcc.a
+
+    network/parent-support.c
+    network/child-table.c
+    network/indirect-queue.c
+    network/coordinator-support.c
+  }
+}
+
+plugin(stack-parent-support-stub) {
+  root= $FRAMEWORK/plugins/stack
+  name=Parent Support Stub
+  category=Connect Stack
+  architecture=efr32,ezr32,simulation
+  description=Parent functionality stub.
+  requiredApis=stack-common
+  
+  providedApis=cooordinator-support,parent-support,child-table,indirect-queue
+
+  network/parent-support-stub.c
+
+  precompiled(ezr32~LG330,ezr32~WG330,efr32+iar) {
+    file= $FRAMEWORK/plugins/libraries/parent-support-stub-library-iar-m3.a
+
+    network/parent-support-stub.c
+  }
+
+  precompiled(ezr32~HG320) {
+    file= $FRAMEWORK/plugins/libraries/parent-support-stub-library-iar-m0.a
+
+    network/parent-support-stub.c
+  }
+
+  precompiled(efr32+gcc) {
+    file= $FRAMEWORK/plugins/libraries/libparent-support-stub-library-gcc.a
+
+    network/parent-support-stub.c
+  }
+}
+
+plugin(stack-mac-queue) {
+  root= $FRAMEWORK/plugins/stack
+  name=MAC Packet Queue
+  category=Connect Stack
+  architecture=efr32,ezr32,simulation
+  description=This plugin provides MAC queue functionality. If this plugin is enabled, the application is able to send multiple packets in bursts, whereas if this plugin is not included, only one packet at the time can be submitted to the Connect stack.
+  requiredApis=stack-common
+  
+  providedApis=mac-queue
+
+  options=macOutgoingQueueSize
+
+  macOutgoingQueueSize.name=Outgoing Packet Queue Size
+  macOutgoingQueueSize.description=The maximum number of outgoing packets that can be enqueued at the MAC layer.
+  macOutgoingQueueSize.type=NUMBER:1,16
+  macOutgoingQueueSize.default=8
+  macOutgoingQueueSize.define=EMBER_MAC_OUTGOING_QUEUE_SIZE
+
+  mac/mac-queue.c
+
+  precompiled(ezr32~LG330,ezr32~WG330,efr32+iar) {
+    file= $FRAMEWORK/plugins/libraries/packet-queue-library-iar-m3.a
+
+    mac/mac-queue.c
+  }
+
+  precompiled(ezr32~HG320) {
+    file= $FRAMEWORK/plugins/libraries/packet-queue-library-iar-m0.a
+
+    mac/mac-queue.c
+  }
+
+  precompiled(efr32+gcc) {
+    file= $FRAMEWORK/plugins/libraries/libpacket-queue-library-gcc.a
+
+    mac/mac-queue.c
+  }
+}
+
+plugin(stack-mac-queue-stub) {
+  root= $FRAMEWORK/plugins/stack
+  name=MAC Packet Queue Stub
+  category=Connect Stack
+  architecture=efr32,ezr32,simulation
+  description=MAC queue functionality stub
+  requiredApis=stack-common
+  
+  providedApis=mac-queue
+
+  mac/mac-queue-stub.c
+
+  precompiled(ezr32~LG330,ezr32~WG330,efr32+iar) {
+    file= $FRAMEWORK/plugins/libraries/packet-queue-stub-library-iar-m3.a
+
+    mac/mac-queue-stub.c
+  }
+
+  precompiled(ezr32~HG320) {
+    file= $FRAMEWORK/plugins/libraries/packet-queue-stub-library-iar-m0.a
+
+    mac/mac-queue-stub.c
+  }
+
+  precompiled(efr32+gcc) {
+    file= $FRAMEWORK/plugins/libraries/libpacket-queue-stub-library-gcc.a
+
+    mac/mac-queue-stub.c
+  }
+}
+
+plugin(stack-counters) {
+  root= $FRAMEWORK/plugins/stack
+  name=Stack packet counters
+  category=Connect Debug
+  architecture=efr32,ezr32,simulation
+  description=This plugin provides stack packet counters functionality. If this plugin is enabled, the stack shall keep track of successful and failed transmissions as well as successful received packets and dropped incoming packets.
+  requiredApis=stack-common
+  includedByDefault=true
+  
+  providedApis=counters
+
+  framework/counters.c
+
+  precompiled(ezr32~LG330,ezr32~WG330,efr32+iar) {
+    file= $FRAMEWORK/plugins/libraries/stack-counters-library-iar-m3.a
+
+    framework/counters.c
+  }
+
+  precompiled(ezr32~HG320) {
+    file= $FRAMEWORK/plugins/libraries/stack-counters-library-iar-m0.a
+
+    framework/counters.c
+  }
+
+  precompiled(efr32+gcc) {
+    file= $FRAMEWORK/plugins/libraries/libstack-counters-library-gcc.a
+
+    framework/counters.c
+  }
+}
+
+plugin(stack-counters-stub) {
+  root= $FRAMEWORK/plugins/stack
+  name=Stack packet counters Stub
+  category=Connect Debug
+  architecture=efr32,ezr32,simulation
+  description=Stack counters functionality stub.
+  requiredApis=stack-common
+  includedByDefault=false
+  
+  providedApis=counters
+
+  framework/counters-stub.c
+
+  precompiled(ezr32~LG330,ezr32~WG330,efr32+iar) {
+    file= $FRAMEWORK/plugins/libraries/stack-counters-stub-library-iar-m3.a
+
+    framework/counters-stub.c
+  }
+
+  precompiled(ezr32~HG320) {
+    file= $FRAMEWORK/plugins/libraries/stack-counters-stub-library-iar-m0.a
+
+    framework/counters-stub.c
+  }
+
+  precompiled(efr32+gcc) {
+    file= $FRAMEWORK/plugins/libraries/libstack-counters-stub-library-gcc.a
+
+    framework/counters-stub.c
+  }
+}
+
+plugin(usb-common) {
+  root=$USB_GECKO
+  name=USB Common
+  category=Connect I/O
+  architecture=ezr32
+  description=This plugin provides the common APIs that are needed to implement various USB interfaces.
+  includedByDefault=false
+  requiredApis=hal
+  providedApis=usb-common
+
+  api.usb-cdc.header=usb-common.h
+
+  src/em_usbd.c
+  src/em_usbdch9.c
+  src/em_usbdep.c
+  src/em_usbdint.c
+  src/em_usbhal.c
+  src/em_usbtimer.c
+  $FRAMEWORK/plugins/usb/descriptors.c
+  $FRAMEWORK/plugins/usb/usb-common.c
+
+  setup(additionalFiles) {
+    PATH(FRAMEWORK_RELATIVE):plugins/usb/
+    PATH(ABSOLUTE):$USB_GECKO/inc
+  }
+
+  setup(bookkeeping) {
+    init=emberAfPluginUsbCommonInit
+  }
+}
+
+plugin(usb-cdc) {
+  root= $FRAMEWORK/plugins/usb/usb-cdc
+  name=USB CDC
+  category=Connect I/O
+  architecture=ezr32
+  includedByDefault=false
+  description=This plugin provides the USB CDC functionality.
+  includedByDefault=false
+  requiredApis=hal, usb-common
+  providedApis=usb-cdc, usb-endpoint
+  options=autoEcho, outputRxData
+
+  autoEcho.name=Echo back recieved characters
+  autoEcho.type=BOOLEAN
+  autoEcho.default=TRUE
+  autoEcho.define=USB_CDC_AUTO_ECHO
+
+  outputRxData.name=Send all RX data to USB
+  outputRxData.type=BOOLEAN
+  outputRxData.default=TRUE
+  outputRxData.define=USB_CDC_SEND_RX_DATA
+
+  api.usb-cdc.header=usb-cdc.h
+
+  usb-cdc.c
+  usb-cdc-cli.c
+
+  setup(additionalFiles) {
+    PATH(FRAMEWORK_RELATIVE):plugins/usb/usb-cdc/
+  }
+
+  setup(bookkeeping) {
+    init=emberAfPluginUsbCdcInit
+    incomingMessage=emberAfPluginUsbCdcIncomingMessage
+  }
+
+  setup(macros) {
+    -DNUM_EP_USED=3
+    -DNUM_APP_TIMERS=0
+  }
+
+  setup(commandLineConfiguration) {
+    usbdata,usbCdcDataCommand,b,unlocked
+    usbinfo,usbCdcInfoCommand,,unlocked
+    usbpeek,usbCdcPeekCommand,uu,unlocked
+  }
+}
+
+plugin(usb-hidkbd) {
+  root= $FRAMEWORK/plugins/usb/usb-hidkbd
+  name=USB HIDKBD
+  category=Connect I/O
+  architecture=ezr32
+  includedByDefault=false
+  description=This plugin provides the USB HIDKBD functionality.
+  includedByDefault=false
+  requiredApis=hal, usb-common
+  providedApis=usb-hidkbd, usb-endpoint
+  options=outputRxData
+
+  outputRxData.name=Send all RX data to USB
+  outputRxData.type=BOOLEAN
+  outputRxData.default=TRUE
+  outputRxData.define=USB_HIDKBD_SEND_RX_DATA
+
+  api.usb-hidkbd.header=usb-hidkbd.h
+  api.hidkbd.header=hidkbd.h
+  api.usbkbdscancodes.header=usbkbdscancodes.h
+
+  usb-hidkbd.c
+  usb-hidkbd-cli.c
+  usbkbdscancodes.c
+
+  setup(additionalFiles) {
+    PATH(FRAMEWORK_RELATIVE):plugins/usb/usb-hidkbd/
+  }
+
+  setup(bookkeeping) {
+    init=emberAfPluginUsbHidkbdInit
+    incomingMessage=emberAfPluginUsbHidIncomingMessage
+  }
+
+  setup(macros) {
+    -DNUM_EP_USED=1
+    -DNUM_APP_TIMERS=1
+  }
+
+  setup(commandLineConfiguration) {
+    set-usb-delay,setUsbDelayCommand,v,unlocked
+    set-usb-idlerate,setUsbIdlerateCommand,v,unlocked
+    usbhid-data,usbHidDataCommand,b,unlocked
+    usbinfo,usbHidInfoCommand,,unlocked
+    usbpeek,usbHidPeekCommand,uu,unlocked
+    usbkey,usbkeyCommand,ub,unlocked
+  }
+}
+
+plugin(unix-library) {
+  name=Unix Library
+  description=Common functionality for Unix hosts.
+  category=Connect HAL
+  architecture=unix
+  quality=production
+  root=$HAL
+
+  requiredApis=csp-host
+
+  providedApis=crc,endian,hal,random,system-timer
+  api.crc.header=micro/crc.h
+  api.endian.header=micro/endian.h
+  api.hal.header=hal.h
+  api.random.header=micro/random.h
+  api.system-timer.header=micro/system-timer.h
+
+  micro/generic/crc.c
+  micro/generic/endian.c
+  micro/generic/random.c
+  micro/generic/system-timer.c
+  micro/unix/host/micro.c
+}
+
+plugin(csp-host) {
+  name=Connect Serial Protocol (Host)
+  description=Connect Serial Protocol for the Host
+  category=Connect I/O
+  architecture=unix,simulation
+  quality=production
+  root= $FRAMEWORK/plugins/
+
+  providedApis=csp-host,stack-common
+  requiredApis=ash-v3,poll
+
+  stack/framework/event-control.c
+  stack/framework/byte-utilities.c
+  host-ncp/host-buffer-management.c
+  host-ncp/host-stream.c
+  csp/csp-host.c
+  csp/csp-frame-utilities.c
+  csp/callbacks-frame-utilities.c
+  csp/csp-fire-callbacks.c
+  host-ncp/binary-management.c
+  host-ncp/serial-link-host.c
+  stack/framework/event-queue.c
+  stack/config/ember-configuration.c
+}
+
+plugin(csp-ncp) {
+  name=Connect Serial Protocol (NCP)
+  description=Connect Serial Protocol for the NCP
+  category=Connect I/O
+  architecture=efr32,simulation
+  quality=production
+  root= $FRAMEWORK/plugins/
+
+  providedApis=csp-ncp
+  requiredApis=ash-v3,stack-common,uart-link
+
+  stack/framework/event-queue.c
+  host-ncp/binary-management.c
+  host-ncp/ncp-link.c
+  host-ncp/serial-link-ncp.c
+  host-ncp/generic-list.c
+  csp/csp-ncp.c
+  csp/csp-ncp-utilities.c
+}
+
+plugin(ncp-uart-link) {
+  name=NCP UART Link
+  description=UART functionality for network coprocessors (NCPs).
+  category=Connect HAL
+  architecture=efr32,simulation
+  quality=production
+  root=$HAL/micro/cortexm3
+
+  providedApis=uart-link
+
+  efm32/uart-link.c (efr32)
+  # uart-sim.c        (simulation)
+
+  options=swFlowControl,xOnXOff
+
+  swFlowControl.name=Use software flow control
+  swFlowControl.description=Use software flow control.
+  swFlowControl.type=BOOLEAN
+  swFlowControl.default=FALSE
+  swFlowControl.define=EMBER_APPLICATION_USES_SOFTWARE_FLOW_CONTROL
+
+  xOnXOff.name=xOnXOff
+  xOnXOff.description=xOnXOff
+  xOnXOff.type=BOOLEAN
+  xOnXOff.default=swFlowControl
+  xOnXOff.hidden=TRUE
+  xOnXOff.define=EMBER_SERIAL1_XONXOFF
+}
+
+plugin(ncp-main) {
+  name=Main (NCP)
+  description=This plugin performs initialization and then repeatedly runs the application loop for Connect applications.  Depending on the configuration, it initializes the HAL, stack, serial ports, event system, plugins, and the application itself.  After initialization, it executes a loop that runs the stack, plugins, and the application itself in a loop.
+  category=Connect Common
+  architecture=efr32,simulation
+  quality=production
+  root= $FRAMEWORK/plugins/
+
+  requiredApis=csp-ncp
+
+  implementedCallbacks=main,emberMarkApplicationBuffersHandler,emberActiveScanCompleteHandler,emberChildJoinHandler,emberEnergyScanCompleteHandler,emberFrequencyHoppingStartClientCompleteHandler,emberIncomingBeaconHandler,emberIncomingMessageHandler,emberMessageSentHandler,emberStackStatusHandler
+
+  callbacks= $FRAMEWORK/meta-inf/callbacks/ncp-main-callbacks.info
+
+  host-ncp/ncp-main.c
+
+  setup(bookkeeping) {
+    provides=main,init,tick,stackIsr
+
+    provides.main=void emberAfMain(void)
+    provides.main.0=emberAfMainCallback
+
+    provides.init=void emberAfInit(void)
+    provides.init.0=emberAfInitCallback
+
+    provides.tick=void emberAfTick(void)
+    provides.tick.0=emberAfTickCallback
+
+    provides.stackIsr=void emberAfStackIsr(void)
+  }
+
+  # TODO: remove this once serial setup is in Connect
+  # This is done because Host has APP_SERIAL=0 in template makefile
+  setup(macros) {
+    -DAPP_SERIAL=0
+  }
+}
+
+plugin(ash-v3) {
+  name=ASHv3
+  description=ASHv3 Functionality for realiable serial communication.
+  category=Connect HAL
+  architecture=unix,efr32,simulation
+  quality=production
+  root=$HAL
+
+  providedApis=ash-v3
+  api.ash-v3.header=micro/generic/ash-v3.h
+
+  requiredApis=hal
+
+  micro/generic/ash-v3.c
+
+  setup(additionalFiles) {
+    PATH(FRAMEWORK_RELATIVE):plugins/host-ncp
+  }
+}
+
+plugin(frequency-hopping) {
+  name=Frequency Hopping
+  description=Frequency Hopping implementation based on FCC specifications.
+  category=Connect Stack
+  quality=production
+  root=$FRAMEWORK/plugins/stack
+
+  architecture=efr32,simulation
+
+  callbacks= $FRAMEWORK/meta-inf/callbacks/frequency-hopping-callbacks.info
+
+  providedApis=frequency-hopping
+
+  requiredApis=stack-common
+
+  options=seed,startChannel,endChannel,duration,guard,serverBroadcastInfoPeriod,clientResyncPeriod
+
+  seed.name=Channel Sequence Generation Seed
+  seed.description=The frequency hopping channel sequence generation seed.
+  seed.type=NUMBER:0,99
+  seed.default=0
+  seed.define=EMBER_FREQUENCY_HOPPING_SEED
+
+  startChannel.name=Start Channel
+  startChannel.description=The lowest channel on the frequency hopping list.
+  startChannel.type=NUMBER:0,99
+  startChannel.default=0
+  startChannel.define=EMBER_FREQUENCY_HOPPING_START_CHANNEL
+
+  endChannel.name=End Channel
+  endChannel.description=The highest channel on the frequency hopping list.
+  endChannel.type=NUMBER:0,99
+  endChannel.default=9
+  endChannel.define=EMBER_FREQUENCY_HOPPING_END_CHANNEL
+
+  duration.name=Channel Duration (ms)
+  duration.description=Time in milliseconds spent on each channel when frequency hopping (channel slot duration).
+  duration.type=NUMBER:200,1000
+  duration.default=400
+  duration.define=EMBER_FREQUENCY_HOPPING_CHANNEL_DURATION_MS
+
+  guard.name=Channel Guard Duration (ms)
+  guard.description=Portion of a channel slot in milliseconds during which TX is not allowed (both beginning and end of the channel slot).
+  guard.type=NUMBER:20,100
+  guard.default=20
+  guard.define=EMBER_FREQUENCY_HOPPING_CHANNEL_GUARD_DURATION_MS
+
+  serverBroadcastInfoPeriod.name=Server Broadcast Info Period (s)
+  serverBroadcastInfoPeriod.description=Server broadcasts info period in seconds.
+  serverBroadcastInfoPeriod.type=NUMBER:5,1000
+  serverBroadcastInfoPeriod.default=15
+  serverBroadcastInfoPeriod.define=EMBER_FREQUENCY_HOPPING_SERVER_FREQ_INFO_BROADCAST_PERIOD_S
+
+  clientResyncPeriod.name=Client Resync Period (s)
+  clientResyncPeriod.description=Time in seconds after which client triggers an active resync procedure with the server (if needed). Because of clock drifting when the MCU enters EM2 low power mode, for sleepy devices the resync period should be significantly reduced (5s).
+  clientResyncPeriod.type=NUMBER:3,3600
+  clientResyncPeriod.default=60
+  clientResyncPeriod.define=EMBER_FREQUENCY_HOPPING_CLIENT_RESYNC_PERIOD_S
+
+  mac/frequency-hopping.c
+
+  precompiled(efr32+iar) {
+    file= $FRAMEWORK/plugins/libraries/frequency-hopping-library-iar-m3.a
+
+    mac/frequency-hopping.c
+  }
+
+  precompiled(efr32+gcc) {
+    file= $FRAMEWORK/plugins/libraries/libfrequency-hopping-library-gcc.a
+
+    mac/frequency-hopping.c
+  }
+
+  setup(commandLineConfiguration) {
+    start-fh-server,startFrequencyHoppingServerCommand,,unlocked
+    start-fh-client,startFrequencyHoppingClientCommand,vv,unlocked
+    stop-fh,stopFrequencyHoppingCommand,,unlocked
+  }
+
+}
+
+plugin(frequency-hopping-stub) {
+  name=Frequency Hopping stub
+  description=Frequency Hopping implementation based on FCC specifications.
+  category=Connect Stack
+  quality=production
+  root=$FRAMEWORK/plugins/stack
+
+  architecture=efr32,ezr32,simulation
+
+  providedApis=frequency-hopping
+
+  requiredApis=stack-common
+
+  mac/frequency-hopping-stub.c
+
+  precompiled(ezr32~LG330, ezr32~WG330, efr32+iar) {
+    file= $FRAMEWORK/plugins/libraries/frequency-hopping-stub-library-iar-m3.a
+
+    mac/frequency-hopping-stub.c
+  }
+
+  precompiled(ezr32~HG320) {
+    file= $FRAMEWORK/plugins/libraries/frequency-hopping-stub-library-iar-m0.a
+
+    mac/frequency-hopping-stub.c
+  }
+
+  precompiled(efr32+gcc) {
+    file= $FRAMEWORK/plugins/libraries/libfrequency-hopping-stub-library-gcc.a
+
+    mac/frequency-hopping-stub.c
+  }
+}

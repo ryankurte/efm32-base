@@ -1,0 +1,148 @@
+simpletrx-efr32 {
+  name=RAIL: Simple TRX
+  dir=simple_trx/
+  isc=simple_trx/simple_trx.isc
+  architecture=efr32,simulation
+  include=main.c
+  Flex: This application demonstrates the simplest exchange of transmit and receive operation between two nodes.
+
+  The application has the following PHY configuration:
+    frequency: 2.4GHz
+    deviation: 500k
+    modulation: 2gfsk
+    bitrate: 1 Mbps
+}
+
+simpletrx-with-sw-ack-efr32 {
+  name=RAIL: Simple TRX with ACK (Software)
+  dir=simple_trx_with_sw_ack/
+  isc=simple_trx_with_sw_ack/simple_trx_with_sw_ack.isc
+  architecture=efr32,simulation
+  Flex: This application demonstrates the simplest exchange of transmit and ack operation between two nodes.
+
+  The application has the following PHY configuration:
+    frequency: 2.4GHz
+    deviation: 500k
+    modulation: 2gfsk
+    bitrate: 1 Mbps
+}
+
+simpletrx-with-fifo-efr32 {
+  name=RAIL: Simple TRX with FIFO (Long Packet)
+  dir=simple_trx_with_fifo/
+  isc=simple_trx_with_fifo/simple_trx_with_fifo.isc
+  architecture=efr32,simulation
+  Flex: This application demonstrates the simplest FIFO data transmission operation between two nodes.
+
+  The application has the following PHY configuration:
+    frequency: 2.4GHz
+    deviation: 500k
+    modulation: 2gfsk
+    bitrate: 1 Mbps
+}
+
+connected-motion {
+  name=RAIL: Connected Motion for EFR32 Thunderboard
+  dir=connected_motion/
+  isc=connected_motion/connected_motion.isc
+  architecture=BRD4160A
+  Flex: This application demonstrates communication between nodes where lost packets
+  is of no concern. In this demonstration, each node has a different color and
+  light up when it becomes active via motion detection. The active node propagate
+  its color to nearby nodes. When all nodes are stationary, a master node coordinates
+  a green light fading from board to board.
+
+  The application has the following PHY configuration:
+    frequency: 2.4GHz
+    deviation: 500k
+    modulation: 2gfsk
+    bitrate: 1 Mbps
+}
+
+dutycycle-efr32 {
+  name=RAIL: Duty Cycle
+  dir=dutycycle/
+  isc=dutycycle/dutycycle.isc
+  architecture=efr32,simulation
+  Flex: This application demonstrates low power communication via different data transmission modes.
+  The data transmission modes are Duty Cycle, Master, Slave.
+
+  The application has the following PHY configuration:
+    frequency: 2.4GHz
+    deviation: 125k
+    modulation: 2gfsk
+    bitrate: 38.4 kbps
+}
+
+emode-efr32 {
+  name=RAIL: Energy Mode
+  dir=emode/
+  isc=emode/emode.isc
+  architecture=efr32,simulation
+  Flex: This application demonstrates low power communication via
+  different power modes (EM0-Active, EM1-Sleep, EM2-Deep Sleep).
+
+  The application has the following PHY configuration:
+    frequency: 2.4GHz
+    deviation: 500k
+    modulation: 2gfsk
+    bitrate: 1 Mbps
+}
+
+railtest-efr32 {
+  name=RAIL: RAILTEST
+  dir=../../../../../platform/radio/rail_lib/apps/railtest
+  isc=railtest/railtest_efr32.isc
+  architecture=efr32,simulation
+  Flex: This is application demonstrates features of RAIL through command line interface (CLI) interface.
+
+  The application has the following PHY configuration:
+    frequency: 2.4GHz
+    deviation: 500k
+    modulation: 2gfsk
+    bitrate: 1 Mbps
+}
+
+rangetest-efr32 {
+  name=RAIL: Range Test
+  dir=rangetest/
+  isc=rangetest/rangetest.isc
+  architecture=BRD4100A,BRD4103A,BRD4104A,BRD4158A,BRD4150A,BRD4150B,BRD4151A,BRD4152A,BRD4152B,BRD4153A,BRD4159A,BRD4161A,BRD4162A,BRD4163A,BRD4164A,BRD4165B,BRD4167A,BRD4168A,BRD4250A,BRD4250B,BRD4251A,BRD4251B,BRD4251D,BRD4252A,BRD4253A,BRD4254A,BRD4255A,BRD4256A,BRD4304A,BRD4502A,BRD4502B,BRD4502C,BRD4502D,BRD4502E,BRD4503A,BRD4503B,BRD4503C,BRD4504A,BRD4504B,BRD4505A,BRD4505B,BRD4506A,BRD4542B,BRD4543B,BRD4544A,BRD4545A,BRD4546A,simulation
+  Flex: This application demonstrates over the air range of the EFR32.
+
+  The application has the following PHY configuration:
+    frequency: 2.4GHz
+    deviation: 500k
+    modulation: oqpsk
+    bitrate: 250 Kbps
+}
+
+rangetest-efr32-2gfsk {
+  name=RAIL: Range Test - PHY: 250k, 2gfsk, base
+  dir=rangetest/
+  isc=rangetest/rangetest-2gfsk.isc
+  architecture=BRD4100A,BRD4103A,BRD4104A,BRD4158A,BRD4150A,BRD4150B,BRD4151A,BRD4152A,BRD4152B,BRD4153A,BRD4159A,BRD4161A,BRD4162A,BRD4163A,BRD4164A,BRD4165B,BRD4167A,BRD4168A,BRD4250A,BRD4250B,BRD4251A,BRD4251B,BRD4251D,BRD4252A,BRD4253A,BRD4254A,BRD4255A,BRD4256A,BRD4304A,BRD4502A,BRD4502B,BRD4502C,BRD4502D,BRD4502E,BRD4503A,BRD4503B,BRD4503C,BRD4504A,BRD4504B,BRD4505A,BRD4505B,BRD4506A,BRD4542B,BRD4543B,BRD4544A,BRD4545A,BRD4546A,simulation
+  Flex: This application demonstrates over the air range of the EFR32.
+
+  The application has the following PHY configuration:
+    frequency: 2.4GHz
+    deviation: 125k
+    modulation: 2gfsk
+    bitrate: 250 Kbps
+}
+
+simple-rail-without-hal-efr32 {
+  name=RAIL: Simple RAIL without HAL
+  dir=simple_rail_without_hal/
+  isc=simple_rail_without_hal/simple_rail_without_hal.isc
+  architecture=efr32,simulation
+  Flex: This is a Simple RAIL without HAL sample application.
+}
+
+simple-rail-with-hal-efr32 {
+  name=RAIL: Simple RAIL with HAL
+  dir=simple_rail_with_hal/
+  isc=simple_rail_with_hal/simple_rail_with_hal.isc
+  architecture=efr32,simulation
+  Flex: This is a Simple RAIL with HAL sample application.
+}

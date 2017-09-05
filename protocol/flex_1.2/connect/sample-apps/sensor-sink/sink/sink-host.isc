@@ -1,0 +1,182 @@
+#ISD afv6
+# ISD version: 4.17.0.qualifier
+
+# Application configuration
+appId: flex
+architecture: pc
+deviceName: sink
+generationDirectory: PATH(ISC_RELATIVE):.
+
+# Devices
+device: Unix UART Host
+
+# Plugin configuration
+appPlugin: ash-v3=true
+appPlugin: bootloader-interface=false
+appPlugin: buffer-pool-memory-manager=false
+appPlugin: circular-queue=false
+appPlugin: command-interpreter=true
+appPlugin: command-interpreter-rail=false
+appPlugin: csp-host=true
+appPlugin: csp-ncp=false
+appPlugin: debug-print=true
+appPlugin: diagnostic=false
+appPlugin: diagnostic-stub=false
+appPlugin: free-rtos=false
+appPlugin: frequency-hopping=false
+appPlugin: frequency-hopping-stub=false
+appPlugin: hal=false
+appPlugin: hal-config=false
+appPlugin: hal-efr32=false
+appPlugin: heartbeat=false
+appPlugin: host-network-management-cli=false
+appPlugin: idle-sleep=false
+appPlugin: lcd-graphics=false
+appPlugin: mailbox-client=false
+appPlugin: mailbox-server=false
+appPlugin: main=true
+appPlugin: ncp-main=false
+appPlugin: ncp-uart-link=false
+appPlugin: ota-bootloader-client=false
+appPlugin: ota-bootloader-server=false
+appPlugin: ota-bootloader-test=false
+appPlugin: ota-bootloader-test-common=false
+appPlugin: ota-unicast-bootloader-client=false
+appPlugin: ota-unicast-bootloader-server=false
+appPlugin: ota-unicast-bootloader-test=false
+appPlugin: packet-trace=false
+appPlugin: phy=false
+appPlugin: phy-rtos=false
+appPlugin: poll=true
+appPlugin: rail-lib=false
+appPlugin: railtest-base=false
+appPlugin: rangetest-base=false
+appPlugin: response-printf=false
+appPlugin: serial=true
+appPlugin: serial-bootloader-cli=true
+appPlugin: sim-eeprom1=false
+appPlugin: spi-flash=false
+appPlugin: stack-aes-security=false
+appPlugin: stack-aes-security-stub=false
+appPlugin: stack-common=false
+appPlugin: stack-counters=false
+appPlugin: stack-counters-stub=false
+appPlugin: stack-form-and-join=false
+appPlugin: stack-mac-queue=false
+appPlugin: stack-mac-queue-stub=false
+appPlugin: stack-parent-support=false
+appPlugin: stack-parent-support-stub=false
+appPlugin: stack-xxtea-security=false
+appPlugin: stack-xxtea-security-stub=false
+appPlugin: unix-library=true
+appPlugin: usb-cdc=false
+appPlugin: usb-common=false
+appPlugin: usb-hidkbd=false
+appPlugin: wstk-sensors=false
+
+# Setup configurations
+{setupId:additionalFiles
+}
+{setupId:boardHeader
+allowMissingHeader:false
+useHeaderInPlace:false
+}
+{setupId:bookkeeping
+}
+{setupId:bootloader
+}
+{setupId:callbackConfiguration
+emberIncomingMessageHandler:true
+emberMessageSentHandler:true
+emberStackStatusHandler:true
+emberAfMainInitCallback:false
+emberAfMainTickCallback:false
+emberAfStackStatusCallback:false
+emberAfIncomingMessageCallback:false
+emberAfMessageSentCallback:false
+emberFrequencyHoppingStartClientCompleteHandler:false
+emberAfEnergyScanCompleteCallback:false
+}
+{setupId:commandLineConfiguration
+on
+form,formCommand,u,unlocked
+pjoin,pjoinCommand,u,unlocked
+set-tx-power,setTxPowerCommand,s,unlocked
+set-tx-options,setTxOptionsCommand,u,unlocked
+set-key,setSecurityKeyCommand,b,unlocked
+advertise,advertiseCommand,,unlocked
+info,infoCommand,,unlocked
+leave,emberResetNetworkState,,unlocked
+counter,counterCommand,u,unlocked
+reset,halReboot,,unlocked
+sensors,sensorsCommand,,unlocked
+set-phy-mode,setPhyModeCommand,u,unlocked
+get-phy-mode,getPhyModeCommand,,unlocked
+start-fh-server,startFrequencyHoppingServerCommand,,unlocked
+start-fh-client,startFrequencyHoppingClientCommand,vv,unlocked
+stop-fh,stopFrequencyHoppingCommand,,unlocked
+}
+{setupId:connectStackConfig
+Radio board: BRD4502
+}
+{setupId:debugConfiguration
+on
+area name off
+appSerial=1
+}
+{setupId:efr32RadioConfig
+PHY=serializableObject:Efr32RadioConfiguratorPhy:null:null:Custom settings
+PROFILE=serializableObject:Efr32RadioConfiguratorProfile:DUMBO:Base
+}
+{setupId:eventConfiguration
+advertiseControl,advertiseHandler
+dataReportControl,dataReportHandler
+}
+{setupId:hwConfig
+active=false
+}
+{setupId:information
+\{key:description
+The sink and sensor applications demonstrate how to properly setup a star network topology in which communication occurs in both directions between the sink and the sensor(s) nodes.
+
+The sink node shall be started as network coordinator using the "form" CLI command. The only parameter to be passed to this CLI command is the channel (PAN ID is fixed). For example, "form 10" forms a new network on channel 10.
+
+The "pjoin" CLI command shall be used to (temporarily) allow sensor nodes to join the network. The only parameter to be passed is the time in seconds that joining should be allowed for. A value of 0xFF keeps permit join on for ever. A value of 0x00 switches permit join off. For instance "pjoin 60" allows joining for 60 seconds.
+
+The "set-tx-options" CLI command sets the TX options bitmask. Bit 0x01 indicates whether packets should be secured. Bit 0x02 indicates whether packets should require an acknowledgment. Bit 0x04 indicates whether packets should be sent out with priority. For instance, "set-tx-options 0x03" causes packets to be transmitted secured and using acknowledgments. See stack/include/ember-types.h for more info on TX options.
+
+The "set-tx-power" CLI command changes the TX power of the radio. By default, the node joins the network with TX power 0.
+
+The "set-key" CLI command sets the security key. The passed parameter is a 16-byte string. For instance, "set-key \\{AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\\}" sets the security key to all 0xAAs. 
+
+The "leave" CLI command causes the node to leave the current network and go back to initial state.
+
+The "reset" CLI command power cycles the node (notice that the network parameters are stored in persistent memory, after power cycling the node will go back up to the stored network if the node was previously up on a network).
+
+The "info" CLI command prints out node information such as network state, node type, short ID, long ID, PAN ID, channel and TX power.
+
+The "counter" CLI command prints out the passed stack counter. For instance, "counter 2" prints out the incoming MAC unicast frames that have been received so far (see EMBER_COUNTER_MAC_IN_UNICAST in ember-types.h). 
+
+The sink periodically broadcast an advertise command to the sensor nodes.
+
+Upon receiving an advertise request command from a sleepy sensor, the sink replies to the sleepy sensor with a advertise command (unicast).
+
+Upon receiving a pair request command from a sensor, the sink adds the sensor to its sensors table and replies with a pair confirm command.
+
+Upon receiving a data message from a sensor, the sink updates the sensor's entry in its own sensors table with the time the sink heard from the sensor. If the sink does not receive data from a sensor node for a prolonged interval of time, it eventually times out and removes the sensor from its sensors table. At that point the sensor will have to perform the pairing procedure.
+
+The 'sensors' CLI command can be used to print the current sensors table.  
+
+The 'advertise' CLI command can be used to force the sink to broadcast an advertise command.  
+\}
+}
+{setupId:macros
+}
+{setupId:phyOptions
+}
+{setupId:template
+}
+{setupId:token
+}
+
+# Plugin options

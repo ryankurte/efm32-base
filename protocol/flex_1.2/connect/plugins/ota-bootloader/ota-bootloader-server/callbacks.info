@@ -1,0 +1,102 @@
+#include PLATFORM_HEADER
+#include "ota-bootloader/ota-bootloader-server/ota-bootloader-server.h"
+
+/** @brief  A callback invoked by the OTA Bootloader Server plugin during an
+ * image distribution process to retrieve a contiguous segment of the image
+ * being distributed.
+ *
+ * @param   startIndex    The index of first byte the application should copy
+ * into the passed array.
+ *
+ * @param   endIndex      The index of the last byte the application should copy
+ * into the passed array.
+ *
+ * @param   imageTag    A 1-byte tag of the image for which a segment is being
+ * requested.
+ *
+ * @param   imageSegment    An array of (endIndex - startIndex + 1) length to
+ * which the application should copy the requested image segment.
+ *
+ * @return A boolean indicating whether the application successfully copied the
+ * requested bytes into the passed array. If the application returns FALSE, the
+ * OTA Server plugin shall abort the ongoing distribution process.
+ */
+bool emberAfPluginOtaBootloaderServerGetImageSegmentCallback(uint32_t startIndex,
+                                                             uint32_t endIndex,
+                                                             uint8_t imageTag,
+                                                             uint8_t *imageSegment)
+{
+  return false;
+}
+
+/** @brief  A callback invoked by the OTA Bootloader Server plugin when the
+ * image distribution process is terminated. The application can use the
+ * ::emberAfPluginBootloaderServerGetTargetStatus() API to retrieve the status
+ * reported by each target device.
+ *
+ * @param   status    An ::EmberAfOtaBootloaderStatus value of:
+ * - ::EMBER_OTA_BOOTLOADER_STATUS_SUCCESS if all the targets have confirmed
+ * that the full image was has received, except for those that have been
+ * declared "unreachable".
+ * - ::EMBER_OTA_BOOTLOADER_STATUS_DATA_UNDERFLOW if the application failed to
+ * supply the requested image segments.
+ * - ::EMBER_OTA_BOOTLOADER_STATUS_STACK_ERROR if the server encountered
+ * multiple consecutive transmission errors. The Server shall give up the image
+ * distribution process if
+ * ::EMBER_AF_PLUGIN_OTA_BOOTLOADER_SERVER_MAX_STACK_ERRORS consecutive
+ * transmission errors are encountered.
+ * - ::EMBER_OTA_BOOTLOADER_STATUS_FAILED if the distribution
+ * process terminated prematurely because all targets have been declared
+ * unreachable.
+ * - ::EMBER_OTA_BOOTLOADER_STATUS_TIMEOUT if the server performed all the
+ * allowable broadcast rounds and there are still missing segments at one or
+ * more targets. The maximum allowable rounds is defined by
+ * ::EMBER_AF_PLUGIN_OTA_BOOTLOADER_SERVER_MAX_BROADCAST_ROUNDS.
+ * - ::EMBER_OTA_BOOTLOADER_STATUS_ABORTED if the application aborted the
+ * current image distribution process.
+ */
+void emberAfPluginOtaBootloaderServerImageDistributionCompleteCallback(EmberAfOtaBootloaderStatus status)
+{
+}
+
+/** @brief  A callback invoked by the OTA Bootloader Server plugin when bootload
+ * request process has completed. Within this callback, the application should
+ * use the ::emberAfPluginBoootloaderServerGetTargetStatus() API to retrieve the
+ * status and application status reported by each target.
+ *
+ * @param   status    An ::EmberAfOtaBootloaderStatus value of:
+ * - ::EMBER_OTA_BOOTLOADER_STATUS_SUCCESS if all the targets have been queried
+ * for their status. Notice that some targets might have been declared
+ * unreachable.
+ * - ::EMBER_OTA_BOOTLOADER_STATUS_STACK_ERROR if the server encountered
+ * multiple consecutive transmission errors. The Server shall give up the
+ * targets status request process if
+ * ::EMBER_AF_PLUGIN_OTA_BOOTLOADER_SERVER_MAX_STACK_ERRORS consecutive
+ * transmission errors are encountered.
+ * - ::EMBER_OTA_BOOTLOADER_STATUS_ABORTED if the application aborted the
+ * current targets status request process.
+ */
+void emberAfPluginBootloaderServerRequestTargetsStatusCompleteCallback(EmberAfOtaBootloaderStatus status)
+{
+}
+
+/** @brief  A callback invoked by the OTA Bootloader Server plugin when a
+ * bootload request process has completed. Within this callback, the application
+ * should use the ::emberAfPluginBoootloaderServerGetTargetStatus() API to
+ * retrieve the status and the application status reported by each target.
+ *
+ * @param   status    An ::EmberAfOtaBootloaderStatus value of:
+ * - ::EMBER_OTA_BOOTLOADER_STATUS_SUCCESS if all the targets have been
+ * requested to perform a bootload. Notice that some targets might have been
+ * declared unreachable.
+ * - ::EMBER_OTA_BOOTLOADER_STATUS_STACK_ERROR if the server encountered
+ * multiple consecutive transmission errors. The Server shall give up the
+ * bootload request process if
+ * ::EMBER_AF_PLUGIN_OTA_BOOTLOADER_SERVER_MAX_STACK_ERRORS consecutive
+ * transmission errors are encountered.
+ * - ::EMBER_OTA_BOOTLOADER_STATUS_ABORTED if the application aborted the
+ * current bootload request process.
+ */
+void emberAfPluginBootloaderServerRequestTargetsBootloadCompleteCallback(EmberAfOtaBootloaderStatus status)
+{
+}

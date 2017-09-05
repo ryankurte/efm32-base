@@ -1,0 +1,98 @@
+device "Unix UART Host" {
+  required:    main
+  required:    unix-library
+  required:    command-interpreter
+  required:    debug-print
+  required:    serial
+  required:    csp-host
+  required:    ash-v3
+  required:    poll
+
+  recommended: host-network-management-cli
+  recommended: serial-bootloader-cli
+
+  prohibited:  stack-common
+  prohibited:  sim-eeprom1
+  prohibited:  phy
+  prohibited:  stack-aes-security
+  prohibited:  stack-aes-security-stub
+  prohibited:  stack-xxtea-security
+  prohibited:  stack-xxtea-security-stub
+  prohibited:  stack-parent-support
+  prohibited:  stack-parent-support-stub
+  prohibited:  stack-mac-queue
+  prohibited:  stack-mac-queue-stub
+  prohibited:  stack-counters
+  prohibited:  stack-counters-stub
+}
+
+
+device "SoC" {
+  required:main
+  required:stack-common
+  required:hal
+  required:serial
+  required:sim-eeprom1
+  required:phy
+  required:stack-aes-security
+  required:stack-xxtea-security
+  required:stack-form-and-join
+  required:stack-parent-support
+  required:stack-mac-queue
+  required:stack-counters
+  required:debug-print
+  required:command-interpreter
+  required:diagnostic
+
+  prohibited:ash-v3
+  prohibited:csp-host
+  prohibited:unix-library
+  prohibited:host-network-management-cli
+}
+
+device "Star Coordinator" {
+  required:    hal
+  required:    phy  
+  required:    stack-common
+  required:    stack-form-and-join
+  recommended: stack-aes-security
+  recommended: stack-parent-support
+  recommended: stack-mac-queue
+}
+
+device "Star Range Extender" {
+  required:    hal
+  required:    phy  
+  required:    stack-common
+  required:    stack-form-and-join
+  recommended: stack-aes-security
+  recommended: stack-parent-support
+  recommended: stack-mac-queue
+}
+
+device "Star End Device" {
+  required:    hal
+  required:    phy  
+  required:    stack-common
+  required:    stack-form-and-join
+  optional:    stack-aes-security
+  optional:    stack-mac-queue
+}
+
+device "Star Sleepy End Device" {
+  required:    hal
+  required:    phy  
+  required:    stack-common
+  required:    stack-form-and-join
+  optional:    stack-aes-security
+  optional:    stack-mac-queue
+}
+
+device "Direct Device" {
+  required:    hal
+  required:    phy  
+  required:    stack-common
+  required:    stack-form-and-join
+  optional:    stack-aes-security
+  optional:    stack-mac-queue
+}

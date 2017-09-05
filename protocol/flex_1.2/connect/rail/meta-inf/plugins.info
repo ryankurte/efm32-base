@@ -1,0 +1,437 @@
+################################################## RAIL PLUGINS ############################################################
+# This file can list directories where to load plugins from or
+# declare virtual plugins.
+# Any line that says: pluginDirectory=RELATIVE/PATH/
+# will cause appbuilder to read in that directory for plugin subdirectories.
+#
+# Virtual plugins are declared with sections:
+# plugin(xxx) {
+#   BLOCK IDENTICAL TO plugin.properties
+# }
+
+
+# pluginDirectory=../plugins/
+
+plugin(hal-efr32) {
+  root=$STACK
+  name=HAL library for RAIL
+  category=RAIL Common
+  description=Necessary HAL files for railtest to work
+
+  architecture=efr32
+
+  providedApis=hal-railtest
+
+  #Files that are released in source
+  $EMLIB/src/em_assert.c
+  $EMLIB/src/em_core.c
+  $EMLIB/src/em_cmu.c
+  $EMLIB/src/em_emu.c
+  $EMLIB/src/em_gpio.c
+  $EMLIB/src/em_i2c.c
+  $EMLIB/src/em_leuart.c
+  $EMLIB/src/em_msc.c
+  $EMLIB/src/em_usart.c
+  $EMLIB/src/em_ldma.c
+  $EMLIB/src/em_rmu.c
+  $EMLIB/src/em_rtc.c
+  $EMLIB/src/em_rtcc.c
+  $EMLIB/src/em_timer.c
+  $EMLIB/src/em_system.c
+
+  $EMDRV/rtcdrv/src/rtcdriver.c
+  $EMDRV/ustimer/src/ustimer.c
+  $EMDRV/gpiointerrupt/src/gpiointerrupt.c
+
+  #App level hal stuff
+  $RAIL_LIB/hal/hal_common.c
+  $RAIL_LIB/hal/efr32/hal_efr.c
+
+  #BSP
+  $KIT/common/bsp/bsp_stk_leds.c
+  $KIT/common/bsp/bsp_stk.c
+  $KIT/common/bsp/bsp_bcc.c
+  $KIT/common/drivers/dmactrl.c
+  $KIT/common/drivers/i2cspm.c
+  $KIT/common/drivers/retargetserial.c
+  $KIT/common/drivers/retargetio.c
+  $KIT/common/drivers/udelay.c
+
+  setup(additionalFiles) {
+    PATH(ABSOLUTE):$FRAMEWORK/plugins/
+    PATH(ABSOLUTE):$FRAMEWORK/plugins/stack
+    PATH(ABSOLUTE):$FRAMEWORK/plugins/stack/include
+    PATH(HAL_RELATIVE):..
+    PATH(HAL_RELATIVE):
+    PATH(HAL_RELATIVE):micro
+    PATH(HAL_RELATIVE):micro/cortexm3/common
+    PATH(HAL_RELATIVE):micro/cortexm3/efm32/board
+    PATH(HAL_RELATIVE):micro/cortexm3/efm32/config
+    PATH(HAL_RELATIVE):micro/cortexm3/efm32
+    PATH(ABSOLUTE):$CMSIS/Include
+    PATH(ABSOLUTE):$EMDRV/rtcdrv/config
+    PATH(ABSOLUTE):$EMDRV/rtcdrv/inc
+    PATH(ABSOLUTE):$EMDRV/sleep/inc
+    PATH(ABSOLUTE):$EMDRV/ustimer/config
+    PATH(ABSOLUTE):$EMDRV/ustimer/inc
+    PATH(ABSOLUTE):$EMDRV/gpiointerrupt/inc
+    PATH(ABSOLUTE):$EMDRV/common/inc
+    PATH(ABSOLUTE):$EMLIB/inc
+    PATH(ABSOLUTE):$KIT/common
+    PATH(ABSOLUTE):$KIT/common/bsp
+    PATH(ABSOLUTE):$KIT/common/drivers
+    PATH(ABSOLUTE):$RAIL_LIB/hal/efr32
+    PATH(ABSOLUTE):$RAIL_LIB/hal
+  }
+}
+
+plugin(rail-lib) {
+  root= $STACK/
+  name=RAIL Library
+  category=RAIL Common
+  description=This plugin provides core RAIL library.
+
+  architecture=efr32
+
+  callbacks= $FRAMEWORK/rail/meta-inf/callbacks/rail-common-callbacks.info
+
+  providedApis=rail-core,button,led
+
+  # RAIL-EFR32 library for IAR
+  precompiled(efr32) {
+    file= $FRAMEWORK/plugins/libraries/phy-rail-efr32xg$--partHardware.series--$$--partHardware.device_configuration--$-library-$--toolchainName--$.a
+  }
+
+  #EFR specific file
+
+  # Dumbo
+  (efr32~family[M]~series[1]~device_configuration[1]~performance[P]+iar):$DEVICE/SiliconLabs/EFR32MG1P/Source/IAR/startup_efr32mg1p.s
+  (efr32~family[M]~series[1]~device_configuration[1]~performance[P]+gcc):$DEVICE/SiliconLabs/EFR32MG1P/Source/GCC/startup_efr32mg1p.S
+
+  (efr32~family[M]~series[1]~device_configuration[1]~performance[V]+iar):$DEVICE/SiliconLabs/EFR32MG1V/Source/IAR/startup_efr32mg1v.s
+  (efr32~family[M]~series[1]~device_configuration[1]~performance[V]+gcc):$DEVICE/SiliconLabs/EFR32MG1V/Source/GCC/startup_efr32mg1v.S
+
+  (efr32~family[M]~series[1]~device_configuration[1]~performance[B]+iar):$DEVICE/SiliconLabs/EFR32MG1B/Source/IAR/startup_efr32mg1b.s
+  (efr32~family[M]~series[1]~device_configuration[1]~performance[B]+gcc):$DEVICE/SiliconLabs/EFR32MG1B/Source/GCC/startup_efr32mg1b.S
+
+  (efr32~family[B]~series[1]~device_configuration[1]~performance[P]+iar):$DEVICE/SiliconLabs/EFR32BG1P/Source/IAR/startup_efr32bg1p.s
+  (efr32~family[B]~series[1]~device_configuration[1]~performance[P]+gcc):$DEVICE/SiliconLabs/EFR32BG1P/Source/GCC/startup_efr32bg1p.S
+
+  (efr32~family[B]~series[1]~device_configuration[1]~performance[V]+iar):$DEVICE/SiliconLabs/EFR32BG1V/Source/IAR/startup_efr32bg1v.s
+  (efr32~family[B]~series[1]~device_configuration[1]~performance[V]+gcc):$DEVICE/SiliconLabs/EFR32BG1V/Source/GCC/startup_efr32bg1v.S
+
+  (efr32~family[B]~series[1]~device_configuration[1]~performance[B]+iar):$DEVICE/SiliconLabs/EFR32BG1B/Source/IAR/startup_efr32bg1b.s
+  (efr32~family[B]~series[1]~device_configuration[1]~performance[B]+gcc):$DEVICE/SiliconLabs/EFR32BG1B/Source/GCC/startup_efr32bg1b.S
+
+  (efr32~family[F]~series[1]~device_configuration[1]~performance[P]+iar):$DEVICE/SiliconLabs/EFR32FG1P/Source/IAR/startup_efr32fg1p.s
+  (efr32~family[F]~series[1]~device_configuration[1]~performance[P]+gcc):$DEVICE/SiliconLabs/EFR32FG1P/Source/GCC/startup_efr32fg1p.S
+
+  (efr32~family[F]~series[1]~device_configuration[1]~performance[V]+iar):$DEVICE/SiliconLabs/EFR32FG1V/Source/IAR/startup_efr32fg1v.s
+  (efr32~family[F]~series[1]~device_configuration[1]~performance[V]+gcc):$DEVICE/SiliconLabs/EFR32FG1V/Source/GCC/startup_efr32fg1v.S
+
+  # Jumbo
+  (efr32~family[B]~series[1]~device_configuration[2]~performance[P]+iar):$DEVICE/SiliconLabs/EFR32BG12P/Source/IAR/startup_efr32bg12p.s
+  (efr32~family[B]~series[1]~device_configuration[2]~performance[P]+gcc):$DEVICE/SiliconLabs/EFR32BG12P/Source/GCC/startup_efr32bg12p.S
+
+  (efr32~family[F]~series[1]~device_configuration[2]~performance[P]+iar):$DEVICE/SiliconLabs/EFR32FG12P/Source/IAR/startup_efr32fg12p.s
+  (efr32~family[F]~series[1]~device_configuration[2]~performance[P]+gcc):$DEVICE/SiliconLabs/EFR32FG12P/Source/GCC/startup_efr32fg12p.S
+
+  (efr32~family[M]~series[1]~device_configuration[2]~performance[P]+iar):$DEVICE/SiliconLabs/EFR32MG12P/Source/IAR/startup_efr32mg12p.s
+  (efr32~family[M]~series[1]~device_configuration[2]~performance[P]+gcc):$DEVICE/SiliconLabs/EFR32MG12P/Source/GCC/startup_efr32mg12p.S 
+
+  # Nerio
+  (efr32~family[F]~series[1]~device_configuration[3]~performance[P]+iar):$DEVICE/SiliconLabs/EFR32FG13P/Source/IAR/startup_efr32fg13p.s
+  (efr32~family[F]~series[1]~device_configuration[3]~performance[P]+gcc):$DEVICE/SiliconLabs/EFR32FG13P/Source/GCC/startup_efr32fg13p.S
+
+  (efr32~family[M]~series[1]~device_configuration[3]~performance[P]+iar):$DEVICE/SiliconLabs/EFR32MG13P/Source/IAR/startup_efr32mg13p.s
+  (efr32~family[M]~series[1]~device_configuration[3]~performance[P]+gcc):$DEVICE/SiliconLabs/EFR32MG13P/Source/GCC/startup_efr32mg13p.S
+
+  (efr32~family[B]~series[1]~device_configuration[3]~performance[P]+iar):$DEVICE/SiliconLabs/EFR32BG13P/Source/IAR/startup_efr32bg13p.s
+  (efr32~family[B]~series[1]~device_configuration[3]~performance[P]+gcc):$DEVICE/SiliconLabs/EFR32BG13P/Source/GCC/startup_efr32bg13p.S
+
+  setup(additionalFiles) {
+    PATH(FRAMEWORK_RELATIVE):../
+    PATH(ABSOLUTE):$CMSIS/Include
+    PATH(ABSOLUTE):$EMLIB/inc
+    PATH(ABSOLUTE):$FRAMEWORK/plugins/
+    PATH(ABSOLUTE):$HAL
+    PATH(ABSOLUTE):$HAL/..
+    PATH(ABSOLUTE):$KIT/common/bsp
+    PATH(ABSOLUTE):$RAIL_LIB/chip/efr32
+    PATH(ABSOLUTE):$RAIL_LIB/chip/efr32/rf/common
+    PATH(ABSOLUTE):$RAIL_LIB/chip/efr32/rf/common/cortex
+    PATH(ABSOLUTE):$RAIL_LIB/common
+    PATH(ABSOLUTE):$RAIL_LIB/hal
+    PATH(ABSOLUTE):$RAIL_LIB/protocol/ieee802154
+    PATH(FRAMEWORK_RELATIVE):plugins/stack
+    PATH(HAL_RELATIVE):../phy
+    PATH(HAL_RELATIVE):micro/cortexm3/efm32
+    PATH(HAL_RELATIVE):micro/cortexm3/efm32/board
+    PATH(HAL_RELATIVE):micro/cortexm3/efm32/config
+  }
+
+  setup(template) {
+    linkerIcfFile=generic_cortex.icf
+    linkerLdFile=$--halDir--$/../../Device/SiliconLabs/$--chipFamilyUpperCase--$/Source/GCC/$--chipFamilyLowerCase--$.ld
+  }
+}
+
+plugin(railtest-base) {
+  root= $STACK
+  name=railtest Application
+  category=RAIL Tests
+  description=This plugin provides the basic railtest application framework
+
+  architecture=efr32
+
+  requiredApis=response-printf,hal-railtest,memory-manager,queue,command-interpreter-rail,rail-core
+
+  options=nameString,displayBufferSize,maxPacketLength,txDelay,ciBufferSize,buttonHoldTime
+
+  displayBufferSize.name=Graphics Text Buffer
+  displayBufferSize.description=Buffer for outputting text on the display.
+  displayBufferSize.type=NUMBER:32,200
+  displayBufferSize.default=64
+  displayBufferSize.define=APP_DISPLAY_BUFFER_SIZE
+  maxPacketLength.name=Maximum Packet Size
+  maxPacketLength.description=Maximum packet size.
+  maxPacketLength.type=NUMBER:1,1016
+  maxPacketLength.default=504
+  maxPacketLength.define=APP_MAX_PACKET_LENGTH
+  txDelay.name=Default Tx delay (ms)
+  txDelay.description=Default delay between packet Tx in milliseconds.
+  txDelay.type=NUMBER
+  txDelay.default=250
+  txDelay.define=APP_CONTINUOUS_TRANSFER_PERIOD
+  ciBufferSize.name=Command interpreter buffer size
+  ciBufferSize.description=Size of the buffer to hold a single command for processing.
+  ciBufferSize.type=NUMBER
+  ciBufferSize.default=256
+  ciBufferSize.define=APP_COMMAND_INTERFACE_BUFFER_SIZE
+  nameString.name=Application Name
+  nameString.description=Name string displayed on the console and LCD.
+  nameString.type=STRING
+  nameString.default=RAIL Test App
+  nameString.define=APP_DEMO_STRING_INIT
+  buttonHoldTime.name=Button Long Press Time (ms)
+  buttonHoldTime.description=Time in milliseconds that you must hold a button for it to be a 'long' press.
+  buttonHoldTime.type=NUMBER
+  buttonHoldTime.default=1000
+  buttonHoldTime.define=BUTTON_HOLD_MS
+
+  implementedCallbacks=RAILCb_RfReady,RAILCb_TxPacketSent,RAILCb_TxRadioStatus,RAILCb_RxPacketReceived,RAILCb_RxRadioStatus,RAILCb_RadioStateChanged,RAILCb_TimerExpired,RAILCb_CalNeeded,RAILCb_RxAckTimeout,RAILCb_IEEE802154_DataRequestCommand,RAILCb_RssiAverageDone,RAILCb_TxFifoAlmostEmpty,RAILCb_RxFifoAlmostFull
+
+  setup(additionalFiles) {
+    PATH(ABSOLUTE):$RAIL_LIB/apps/railtest
+    PATH(ABSOLUTE):$RAIL_LIB/config
+    PATH(ABSOLUTE):$SILABS_CORE/command_interpreter
+    PATH(ABSOLUTE):$RAIL_LIB/protocol/ble
+    PATH(ABSOLUTE):$RAIL_LIB/common
+  }
+}
+
+plugin(rangetest-base) {
+  root= $STACK
+  name=Range Test Application
+  category=RAIL Tests
+  description=This plugin provides the Range Test function
+
+  architecture=efr32
+
+  requiredApis=hal-railtest,memory-manager,rail-core
+
+  options=maxPacketLength
+
+  maxPacketLength.name=Maximum Packet Size
+  maxPacketLength.description=Maximum packet size.
+  maxPacketLength.type=NUMBER:1,1016
+  maxPacketLength.default=504
+  maxPacketLength.define=APP_MAX_PACKET_LENGTH
+
+  implementedCallbacks=RAILCb_RfReady,RAILCb_TxPacketSent,RAILCb_TxRadioStatus,RAILCb_RxPacketReceived,RAILCb_RxRadioStatus,RAILCb_RadioStateChanged,RAILCb_TimerExpired,RAILCb_CalNeeded
+
+  $KIT/common/drivers/display.c
+  $KIT/common/drivers/displaypalemlib.c
+  $KIT/common/drivers/displayls013b7dh03.c
+  $KIT/common/drivers/dmactrl.c
+  $KIT/common/drivers/udelay.c
+  $KIT/common/bsp/bsp_stk_leds.c
+  $KIT/common/bsp/bsp_stk.c
+  $KIT/common/bsp/bsp_bcc.c
+
+
+  #GLIB
+  $GLIB/glib/glib.c
+  $GLIB/glib/glib_bitmap.c
+  $GLIB/glib/glib_font_narrow_6x8.c
+  $GLIB/glib/glib_font_normal_8x8.c
+  $GLIB/glib/glib_line.c
+  $GLIB/glib/glib_rectangle.c
+  $GLIB/glib/glib_string.c
+  $GLIB/dmd/display/dmd_display.c
+
+  #DEBUG functions
+  $EMDRV/uartdrv/src/uartdrv.c
+  $EMDRV/dmadrv/src/dmadrv.c
+
+  setup(additionalFiles) {
+    PATH(ABSOLUTE):$KIT/common/drivers
+    PATH(ABSOLUTE):$FRAMEWORK/rail/sample-apps/rangetest/config
+    PATH(ABSOLUTE):$FRAMEWORK/rail/sample-apps/rangetest
+    PATH(ABSOLUTE):$EMDRV/spidrv/config
+    PATH(ABSOLUTE):$EMDRV/spidrv/inc
+    PATH(ABSOLUTE):$EMDRV/dmadrv/config
+    PATH(ABSOLUTE):$EMDRV/dmadrv/inc
+    PATH(ABSOLUTE):$EMDRV/uartdrv/config
+    PATH(ABSOLUTE):$EMDRV/uartdrv/inc
+    PATH(ABSOLUTE):$GLIB
+    PATH(ABSOLUTE):$GLIB/glib
+    PATH(ABSOLUTE):$GLIB/dmd
+  }
+}
+
+plugin(response-printf) {
+  root= $STACK
+  name=Response Printf
+  category=RAIL I/O
+  description=The response printf() functionality used by RAIL test applications.
+
+  architecture = efr32
+
+  providedApis = response-printf
+
+  options=formatStringSize
+
+  formatStringSize.name=Max Format String Size
+  formatStringSize.description=Maximum size of the printf format string used by the response printf tool internally.
+  formatStringSize.type=NUMBER:16,1000
+  formatStringSize.default=256
+  formatStringSize.define=MAX_FORMAT_STRING_SIZE
+
+  $SILABS_CORE/response_print/response_print.c
+
+  setup(additionalFiles) {
+    PATH(ABSOLUTE):$SILABS_CORE/response_print
+  }
+}
+
+plugin(lcd-graphics) {
+  root= $STACK
+  name=Application Graphics for RAIL
+  category=RAIL Utility
+  description=This plugin provides a graphical display to be used with RAIL test applications.
+
+  architecture = efr32
+
+  providedApis = railtest-graphics
+
+  $SILABS_CORE/graphics/graphics.c
+  $KIT/common/drivers/display.c
+  $KIT/common/drivers/displaypalemlib.c
+  $KIT/common/drivers/displayls013b7dh03.c
+
+  #GLIB
+  $GLIB/glib/bmp.c
+  $GLIB/glib/glib.c
+  $GLIB/glib/glib_bitmap.c
+  $GLIB/glib/glib_circle.c
+  $GLIB/glib/glib_font_narrow_6x8.c
+  $GLIB/glib/glib_font_normal_8x8.c
+  $GLIB/glib/glib_font_number_16x20.c
+  $GLIB/glib/glib_line.c
+  $GLIB/glib/glib_polygon.c
+  $GLIB/glib/glib_rectangle.c
+  $GLIB/glib/glib_string.c
+  $GLIB/dmd/display/dmd_display.c
+
+  setup(additionalFiles) {
+    PATH(ABSOLUTE):$SILABS_CORE/graphics
+    PATH(ABSOLUTE):$GLIB
+    PATH(ABSOLUTE):$GLIB/glib
+    PATH(ABSOLUTE):$GLIB/dmd
+  }
+}
+
+plugin(command-interpreter-rail) {
+  root= $STACK
+  name=Command Interpreter for RAIL
+  category=RAIL I/O
+  description=This plugin provides a simple command interpreter for use with RAIL applications.
+
+  architecture = efr32
+
+  providedApis = command-interpreter-rail
+
+  options=argumentCount
+
+  argumentCount.name=Maximum Argument Count
+  argumentCount.description=Maximum number of command line arguments supported.
+  argumentCount.type=NUMBER:1,1000
+  argumentCount.default=20
+  argumentCount.define=MAX_COMMAND_ARGUMENTS
+
+  $SILABS_CORE/command_interpreter/command_interpreter.c
+
+  setup(additionalFiles) {
+    PATH(ABSOLUTE):$SILABS_CORE/command_interpreter
+  }
+}
+
+plugin(circular-queue) {
+  root= $STACK
+  name=Circular queue
+  category=RAIL Utility
+  description=This plugin provides a simple circular queue to be used with RAIL applications.
+
+  architecture = efr32
+
+  providedApis = queue
+
+  options=queueLength
+
+  queueLength.name=Queue Length
+  queueLength.description=Length of the receive packet queue.
+  queueLength.type=NUMBER:1,1000
+  queueLength.default=10
+  queueLength.define=MAX_QUEUE_LENGTH
+
+  $SILABS_CORE/queue/circular_queue.c
+
+  setup(additionalFiles) {
+    PATH(ABSOLUTE):$SILABS_CORE/queue
+  }
+}
+
+plugin(buffer-pool-memory-manager) {
+  root= $STACK
+  name=Buffer pool memory manager
+  category=RAIL Utility
+  description=This plugin provides a simple buffer pool based memory allocator for RAIL applications.
+
+  implementedCallbacks=RAILCb_AllocateMemory,RAILCb_FreeMemory,RAILCb_BeginWriteMemory,RAILCb_EndWriteMemory
+
+  architecture = efr32
+
+  providedApis = memory-manager
+
+  options=bufferPoolLength,maxBufferSize
+
+  bufferPoolLength.name=Buffer Pool Length
+  bufferPoolLength.description=Number of buffers in the buffer pool.
+  bufferPoolLength.type=NUMBER:1,1000
+  bufferPoolLength.default=10
+  bufferPoolLength.define=BUFFER_POOL_SIZE
+
+  maxBufferSize.name=Buffer Pool Entry Size
+  maxBufferSize.description=The size of each entry in the buffer pool.
+  maxBufferSize.type=NUMBER:1,1024
+  maxBufferSize.default=512
+  maxBufferSize.define=MAX_BUFFER_SIZE
+
+  $SILABS_CORE/memory_manager/buffer_pool_allocator.c
+  $SILABS_CORE/memory_manager/rail_integration.c
+
+  setup(additionalFiles) {
+    PATH(ABSOLUTE):$SILABS_CORE/memory_manager
+  }
+}
