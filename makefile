@@ -56,5 +56,9 @@ efr32fg:
 	cd builds; rm -rf $@; mkdir $@; cd $@; cmake -DDEVICE=EFR32FG13P231F512GM48 ../..; make;
 
 
+#EFR32MG Family
+efr32mg:
+	cd builds; rm -rf $@; mkdir $@; cd $@; cmake -DDEVICE=EFR32MG12P332F1024GL125 ../..; make;
+
 clean:
 	rm -rf builds
