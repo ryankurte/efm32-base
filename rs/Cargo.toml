@@ -1,0 +1,14 @@
+[package]
+name = "rs"
+version = "0.1.0"
+authors = ["Ryan Kurte <ryankurte@gmail.com>"]
+
+[dependencies]
+
+[build-dependencies]
+rusty-binder = { git = "https://gitlab.com/rusty-binder/rusty-binder.git" }
+rusty-cheddar = { git = "https://gitlab.com/rusty-binder/rusty-cheddar.git" }
+
+[lib]
+crate-type = ["staticlib"]
+
