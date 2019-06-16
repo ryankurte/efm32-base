@@ -5,34 +5,170 @@ plugin(rail-library) {
   quality=production
   root=$RAIL_LIB
 
-  architecture=efr32,em341,em342,em346,em351,em355,em3555,em357,em3581,em3582,em3585,em3586,em3587,em3588,em3591,em3592,em3595,em3596,em3597,em3598,simulation
+  architecture=efr32,em341,em342,em346,em351,em355,em3555,em356,em357,em3581,em3582,em3585,em3586,em3587,em3588,em3591,em3592,em3595,em3596,em3597,em3598,simulation
 
   providedApis=rail-library
   api.rail-library.header=$RAIL_LIB/common/rail.h
 
-  # I think we should include these callbacks here, but when I do that it means
-  # that the stack libraries need to properly list out what callbacks they
-  # implement. So I'm holding off until then.
-  #callbacks=$RAIL_LIB/plugin/rail-library/rail-library-callbacks.info
-
   # Include a bunch of additional include paths that are needed for RAIL
   setup(additionalFiles) {
-    (efr32)=$RAIL_LIB/chip/efr32
-    (efr32)=$RAIL_LIB/chip/efr32/rf/common/cortex
     (efr32)=$RAIL_LIB/common
     (efr32)=$RAIL_LIB/protocol/ble
     (efr32)=$RAIL_LIB/protocol/ieee802154
+    (efr32)=$RAIL_LIB/protocol/zwave
+    (efr32~series[1])=$RAIL_LIB/chip/efr32/efr32xg1x
+    (efr32~series[2])=$RAIL_LIB/chip/efr32/efr32xg2x
   }
 
-  # Include the actual RAIL library for the appropriate generation. This should
-  # really be conditionalized better (compiler, chip, etc.) in one include.
-  precompiled(efr32~series[1]~device_configuration[1]) {
-    file=$RAIL_LIB/autogen/librail_release/librail_efr32xg1_iar_release.a
+  # Include the actual RAIL libraries for the appropriate generation.
+  precompiled(efr32~!module) {
+    file= $RAIL_LIB/autogen/librail_release/librail_efr32xg$--partHardware.series--$$--partHardware.device_configuration--$_$--toolchainName--$_release.a
   }
-  precompiled(efr32~series[1]~device_configuration[2]) {
-    file=$RAIL_LIB/autogen/librail_release/librail_efr32xg12_iar_release.a
+  precompiled(efr32~module) {
+    file= $RAIL_LIB/autogen/librail_release/librail_module_efr32xg$--partHardware.series--$$--partHardware.device_configuration--$_$--toolchainName--$_release.a
   }
-  precompiled(efr32~series[1]~device_configuration[3]) {
-    file=$RAIL_LIB/autogen/librail_release/librail_efr32xg13_iar_release.a
+  precompiled(efr32~module) {
+    file= $RAIL_LIB/autogen/librail_release/librail_config_$--partNumber--$_$--toolchainName--$.a
+  }
+
+  options=railphydef
+  railphydef.name=RAIL PHY define
+  railphydef.type=NUMBER
+  railphydef.default=1
+  railphydef.hidden=TRUE
+  railphydef.enabledIf=conf.architectureMatches("efr32")
+  railphydef.macro=-DPHY_RAIL
+}
+
+plugin(rail-library-mp) {
+  name=RAIL Library Multiprotocol
+  description=This plugin provides core RAIL library with multiprotocol support.
+  category=RAIL
+  quality=production
+  root=$RAIL_LIB
+
+  architecture=efr32,em341,em342,em346,em351,em355,em3555,em356,em357,em3581,em3582,em3585,em3586,em3587,em3588,em3591,em3592,em3595,em3596,em3597,em3598,simulation
+
+  providedApis=rail-library,radio-multiprotocol-support
+  api.rail-library.header=$RAIL_LIB/common/rail.h
+
+  # Include a bunch of additional include paths that are needed for RAIL
+  setup(additionalFiles) {
+    (efr32)=$RAIL_LIB/common
+    (efr32)=$RAIL_LIB/protocol/ble
+    (efr32)=$RAIL_LIB/protocol/ieee802154
+    (efr32)=$RAIL_LIB/protocol/zwave
+    (efr32~series[1])=$RAIL_LIB/chip/efr32/efr32xg1x
+    (efr32~series[2])=$RAIL_LIB/chip/efr32/efr32xg2x
+  }
+
+  # Include the actual RAIL libraries for the appropriate generation.
+  precompiled(efr32~!module) {
+    file= $RAIL_LIB/autogen/librail_release/librail_multiprotocol_efr32xg$--partHardware.series--$$--partHardware.device_configuration--$_$--toolchainName--$_release.a
+  }
+  precompiled(efr32~module) {
+    file= $RAIL_LIB/autogen/librail_release/librail_multiprotocol_module_efr32xg$--partHardware.series--$$--partHardware.device_configuration--$_$--toolchainName--$_release.a
+  }
+  precompiled(efr32~module) {
+    file= $RAIL_LIB/autogen/librail_release/librail_config_$--partNumber--$_$--toolchainName--$.a
+  }
+
+  options=railphydef,railmpphydef
+  railphydef.name=RAIL PHY define
+  railphydef.type=NUMBER
+  railphydef.default=1
+  railphydef.hidden=TRUE
+  railphydef.enabledIf=conf.architectureMatches("efr32")
+  railphydef.macro=-DPHY_RAIL
+  railmpphydef.name=RAIL Multiprotocol PHY define
+  railmpphydef.type=NUMBER
+  railmpphydef.default=1
+  railmpphydef.hidden=TRUE
+  railmpphydef.enabledIf=conf.architectureMatches("efr32")
+  railmpphydef.macro=-DPHY_RAIL_MP
+}
+
+plugin(coexistence) {
+  name=Radio Coexistence
+  description=This plugin provides an interface to configure coexistence GPIO via hardware configurator.
+  category=RAIL
+  quality=production
+  root=$RAIL_LIB
+  includedByDefault=false
+
+  setup(hwConfig) {
+    dependentHwConfModules=COEX
+  }
+
+  providedApis=coexistence
+  api.coexistence.header=$RAIL_LIB/plugin/coexistence/protocol/ieee802154/coexistence-802154.h
+
+  callbacks=$RAIL_LIB/plugin/coexistence/callbacks.info
+
+  $RAIL_LIB/plugin/coexistence/protocol/ieee802154/coexistence-802154.c                               (efr32,em341,em342,em346,em351,em355,em3555,em356,em357,em3581,em3582, em3585,em3586,em3587,em3588,em3591,em3592,em3595,em3596,em3597,em3598)
+  $RAIL_LIB/plugin/coexistence/protocol/ieee802154/coulomb-counter-802154.c  (efr32,em341,em342,em346,em351,em355,em3555,em356,em357,em3581,em3582,em3585,em3586,em3587,em3588,em3591,em3592,em3595,em3596,em3597,em3598)
+  $RAIL_LIB/plugin/coexistence/hal/em3xx/coexistence-hal.c         (em341,em342,em346,em351,em355,em3555,em356,em357,em3581,em3582, em3585,em3586,em3587,em3588,em3591,em3592,em3595,em3596,em3597,em3598)
+  $RAIL_LIB/plugin/coexistence/common/coexistence.c         (efr32,em341,em342,em346,em351,em355,em3555,em356,em357,em3581,em3582, em3585,em3586,em3587,em3588,em3591,em3592,em3595,em3596,em3597,em3598)
+  $RAIL_LIB/plugin/coexistence/hal/efr32/coexistence-directional-priority.c (efr32)
+  $RAIL_LIB/plugin/coexistence/hal/efr32/coexistence-hal.c (efr32)
+
+
+  setup(additionalFiles) {
+    # Common include paths
+    PATH(ABSOLUTE):$RAIL_LIB/plugin/coexistence/common/
+    # IEEE802154 include paths
+    PATH(ABSOLUTE):$RAIL_LIB/plugin/coexistence/protocol/ieee802154
+    # EFR32 specific include paths
+    (efr32)=PATH(ABSOLUTE):$RAIL_LIB/plugin/coexistence/hal/efr32
+    # EM3XX specific include paths
+    (em341,em342,em346,em351,em355,em3555,em356,em357,em3581,em3582,em3585,em3586,em3587,em3588,em3591,em3592,em3595,em3596,em3597,em3598)=PATH(ABSOLUTE):$RAIL_LIB/plugin/coexistence/hal/em3xx
+  }
+}
+
+plugin(coexistence-stub) {
+  name=Radio Coexistence Stub
+  description=Stub implementation of the radio coexistence API for devices that do not use coexistence.
+  category=RAIL
+  quality=stub
+  root=$RAIL_LIB
+  includedByDefault=true
+
+  providedApis=coexistence
+  api.coexistence.header=$RAIL_LIB/plugin/coexistence/protocol/ieee802154/coexistence-802154.h
+
+  $RAIL_LIB/plugin/coexistence/protocol/ieee802154/coexistence-802154.c (efr32,em341,em342,em346,em351,em355,em3555,em356,em357,em3581,em3582,em3585,em3586,em3587,em3588,em3591,em3592,em3595,em3596,em3597,em3598)
+  $RAIL_LIB/plugin/coexistence/protocol/ieee802154/coulomb-counter-802154.c (efr32,em341,em342,em346,em351,em355,em3555,em356,em357,em3581,em3582,em3585,em3586,em3587,em3588,em3591,em3592,em3595,em3596,em3597,em3598)
+  $RAIL_LIB/plugin/coexistence/hal/em3xx/coexistence-hal.c (em341,em342,em346,em351,em355,em3555,em356,em357,em3581,em3582,em3585,em3586,em3587,em3588,em3591,em3592,em3595,em3596,em3597,em3598)
+  $RAIL_LIB/plugin/coexistence/common/coexistence.c (em341,em342,em346,em351,em355,em3555,em356,em357,em3581,em3582,em3585,em3586,em3587,em3588,em3591,em3592,em3595,em3596,em3597,em3598)
+
+  setup(additionalFiles) {
+    # Common include paths
+    PATH(ABSOLUTE):$RAIL_LIB/plugin/coexistence/common/
+    # IEEE802154 include paths
+    PATH(ABSOLUTE):$RAIL_LIB/plugin/coexistence/protocol/ieee802154
+    # EFR32 specific include paths
+    (efr32)=PATH(ABSOLUTE):$RAIL_LIB/plugin/coexistence/hal/efr32
+    # EM3XX specific include paths
+    (em341,em342,em346,em351,em355,em3555,em356,em357,em3581,em3582,em3585,em3586,em3587,em3588,em3591,em3592,em3595,em3596,em3597,em3598)=PATH(ABSOLUTE):$RAIL_LIB/plugin/coexistence/hal/em3xx
+  }
+}
+
+plugin(flash-data) {
+  name=Flash Data
+  description=This plugin provides an interface to save railtest scripted commands to flash.
+  category=RAIL Utility
+  quality=production
+  root=$RAIL_LIB
+  includedByDefault=false
+  architecture = efr32
+
+  providedApis=flash-data
+  api.flash-data.header=$RAIL_LIB/plugin/flash-data/flash_data.h
+
+  $RAIL_LIB/plugin/flash-data/flash_data.c (efr32)
+
+  setup(additionalFiles) {
+    # EFR32 specific include paths
+    (efr32)=PATH(ABSOLUTE):$RAIL_LIB/plugin/flash-data
   }
 }

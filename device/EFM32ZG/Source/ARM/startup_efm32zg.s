@@ -1,26 +1,38 @@
 ;/**************************************************************************//**
-; * @file startup_efm32zg.s
+; * @file
 ; * @brief    CMSIS Core Device Startup File for
 ; *           Silicon Labs EFM32ZG Device Series
-; * @version 5.2.1
-; * @date     03. February 2012
+; * @version 5.8.0
+; ******************************************************************************
+; * # License
 ; *
-; * @note
-; * Copyright (C) 2012 ARM Limited. All rights reserved.
+; * The licensor of this software is Silicon Laboratories Inc. Your use of this
+; * software is governed by the terms of Silicon Labs Master Software License
+; * Agreement (MSLA) available at
+; * www.silabs.com/about-us/legal/master-software-license-agreement. This
+; * software is Third Party Software licensed by Silicon Labs from a third party
+; * and is governed by the sections of the MSLA applicable to Third Party
+; * Software and the additional terms set forth below.
 ; *
-; * @par
-; * ARM Limited (ARM) is supplying this software for use with Cortex-M
-; * processor based microcontrollers.  This file can be freely distributed
-; * within development tools that are supporting such ARM based processors.
+; *****************************************************************************/
+;/*
+; * Copyright (c) 2009-2016 ARM Limited. All rights reserved.
 ; *
-; * @par
-; * THIS SOFTWARE IS PROVIDED "AS IS".  NO WARRANTIES, WHETHER EXPRESS, IMPLIED
-; * OR STATUTORY, INCLUDING, BUT NOT LIMITED TO, IMPLIED WARRANTIES OF
-; * MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE APPLY TO THIS SOFTWARE.
-; * ARM SHALL NOT, IN ANY CIRCUMSTANCES, BE LIABLE FOR SPECIAL, INCIDENTAL, OR
-; * CONSEQUENTIAL DAMAGES, FOR ANY REASON WHATSOEVER.
+; * SPDX-License-Identifier: Apache-2.0
 ; *
-; ******************************************************************************/
+; * Licensed under the Apache License, Version 2.0 (the License); you may
+; * not use this file except in compliance with the License.
+; * You may obtain a copy of the License at
+; *
+; * www.apache.org/licenses/LICENSE-2.0
+; *
+; * Unless required by applicable law or agreed to in writing, software
+; * distributed under the License is distributed on an AS IS BASIS, WITHOUT
+; * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+; * See the License for the specific language governing permissions and
+; * limitations under the License.
+; */
+
 ;/*
 ;//-------- <<< Use Configuration Wizard in Context Menu >>> ------------------
 ;*/
@@ -78,29 +90,29 @@ __Vectors       DCD     __initial_sp              ; Top of Stack
                 DCD     0                         ; Reserved
                 DCD     SVC_Handler               ; SVCall Handler
                 DCD     0                         ; Reserved
-                DCD     0                         ; Reserved
+                DCD     sl_app_properties         ; Application properties
                 DCD     PendSV_Handler            ; PendSV Handler
                 DCD     SysTick_Handler           ; SysTick Handler
 
                 ; External Interrupts
 
-                DCD     DMA_IRQHandler        ; 0: DMA Interrupt
-                DCD     GPIO_EVEN_IRQHandler        ; 1: GPIO_EVEN Interrupt
-                DCD     TIMER0_IRQHandler        ; 2: TIMER0 Interrupt
-                DCD     ACMP0_IRQHandler        ; 3: ACMP0 Interrupt
-                DCD     ADC0_IRQHandler        ; 4: ADC0 Interrupt
-                DCD     I2C0_IRQHandler        ; 5: I2C0 Interrupt
-                DCD     GPIO_ODD_IRQHandler        ; 6: GPIO_ODD Interrupt
-                DCD     TIMER1_IRQHandler        ; 7: TIMER1 Interrupt
-                DCD     USART1_RX_IRQHandler        ; 8: USART1_RX Interrupt
-                DCD     USART1_TX_IRQHandler        ; 9: USART1_TX Interrupt
+                DCD     DMA_IRQHandler            ; 0: DMA Interrupt
+                DCD     GPIO_EVEN_IRQHandler      ; 1: GPIO_EVEN Interrupt
+                DCD     TIMER0_IRQHandler         ; 2: TIMER0 Interrupt
+                DCD     ACMP0_IRQHandler          ; 3: ACMP0 Interrupt
+                DCD     ADC0_IRQHandler           ; 4: ADC0 Interrupt
+                DCD     I2C0_IRQHandler           ; 5: I2C0 Interrupt
+                DCD     GPIO_ODD_IRQHandler       ; 6: GPIO_ODD Interrupt
+                DCD     TIMER1_IRQHandler         ; 7: TIMER1 Interrupt
+                DCD     USART1_RX_IRQHandler      ; 8: USART1_RX Interrupt
+                DCD     USART1_TX_IRQHandler      ; 9: USART1_TX Interrupt
                 DCD     LEUART0_IRQHandler        ; 10: LEUART0 Interrupt
-                DCD     PCNT0_IRQHandler        ; 11: PCNT0 Interrupt
-                DCD     RTC_IRQHandler        ; 12: RTC Interrupt
-                DCD     CMU_IRQHandler        ; 13: CMU Interrupt
-                DCD     VCMP_IRQHandler        ; 14: VCMP Interrupt
-                DCD     MSC_IRQHandler        ; 15: MSC Interrupt
-                DCD     AES_IRQHandler        ; 16: AES Interrupt
+                DCD     PCNT0_IRQHandler          ; 11: PCNT0 Interrupt
+                DCD     RTC_IRQHandler            ; 12: RTC Interrupt
+                DCD     CMU_IRQHandler            ; 13: CMU Interrupt
+                DCD     VCMP_IRQHandler           ; 14: VCMP Interrupt
+                DCD     MSC_IRQHandler            ; 15: MSC Interrupt
+                DCD     AES_IRQHandler            ; 16: AES Interrupt
                 DCD     0                         ; 17: Reserved
                 DCD     0                         ; 18: Reserved
 
@@ -127,6 +139,8 @@ Reset_Handler   PROC
 
 NMI_Handler     PROC
                 EXPORT  NMI_Handler               [WEAK]
+                EXPORT  sl_app_properties         [WEAK]
+sl_app_properties     ; Provide a dummy value for the sl_app_properties symbol.
                 B       .
                 ENDP
 HardFault_Handler\
@@ -148,23 +162,23 @@ SysTick_Handler PROC
                 ENDP
 
 Default_Handler PROC
-                EXPORT  DMA_IRQHandler        [WEAK]
-                EXPORT  GPIO_EVEN_IRQHandler        [WEAK]
-                EXPORT  TIMER0_IRQHandler        [WEAK]
-                EXPORT  ACMP0_IRQHandler        [WEAK]
-                EXPORT  ADC0_IRQHandler        [WEAK]
-                EXPORT  I2C0_IRQHandler        [WEAK]
-                EXPORT  GPIO_ODD_IRQHandler        [WEAK]
-                EXPORT  TIMER1_IRQHandler        [WEAK]
-                EXPORT  USART1_RX_IRQHandler        [WEAK]
-                EXPORT  USART1_TX_IRQHandler        [WEAK]
+                EXPORT  DMA_IRQHandler            [WEAK]
+                EXPORT  GPIO_EVEN_IRQHandler      [WEAK]
+                EXPORT  TIMER0_IRQHandler         [WEAK]
+                EXPORT  ACMP0_IRQHandler          [WEAK]
+                EXPORT  ADC0_IRQHandler           [WEAK]
+                EXPORT  I2C0_IRQHandler           [WEAK]
+                EXPORT  GPIO_ODD_IRQHandler       [WEAK]
+                EXPORT  TIMER1_IRQHandler         [WEAK]
+                EXPORT  USART1_RX_IRQHandler      [WEAK]
+                EXPORT  USART1_TX_IRQHandler      [WEAK]
                 EXPORT  LEUART0_IRQHandler        [WEAK]
-                EXPORT  PCNT0_IRQHandler        [WEAK]
-                EXPORT  RTC_IRQHandler        [WEAK]
-                EXPORT  CMU_IRQHandler        [WEAK]
-                EXPORT  VCMP_IRQHandler        [WEAK]
-                EXPORT  MSC_IRQHandler        [WEAK]
-                EXPORT  AES_IRQHandler        [WEAK]
+                EXPORT  PCNT0_IRQHandler          [WEAK]
+                EXPORT  RTC_IRQHandler            [WEAK]
+                EXPORT  CMU_IRQHandler            [WEAK]
+                EXPORT  VCMP_IRQHandler           [WEAK]
+                EXPORT  MSC_IRQHandler            [WEAK]
+                EXPORT  AES_IRQHandler            [WEAK]
 
 
 DMA_IRQHandler

@@ -1,33 +1,17 @@
 /***************************************************************************//**
- * @file ezradio_plugin_manager.h
+ * @file
  * @brief This file contains the plug-in manager for the EZRadio and
- *        EZRadioPRO chip families.
- * @version 5.2.1
  *******************************************************************************
  * # License
- * <b>(C) Copyright 2015 Silicon Labs, http://www.silabs.com</b>
+ * <b>Copyright 2018 Silicon Laboratories Inc. www.silabs.com</b>
  *******************************************************************************
  *
- * Permission is granted to anyone to use this software for any purpose,
- * including commercial applications, and to alter it and redistribute it
- * freely, subject to the following restrictions:
- *
- * 1. The origin of this software must not be misrepresented; you must not
- *    claim that you wrote the original software.@n
- * 2. Altered source versions must be plainly marked as such, and must not be
- *    misrepresented as being the original software.@n
- * 3. This notice may not be removed or altered from any source distribution.
- *
- * DISCLAIMER OF WARRANTY/LIMITATION OF REMEDIES: Silicon Labs has no
- * obligation to support this Software. Silicon Labs is providing the
- * Software "AS IS", with no express or implied warranties of any kind,
- * including, but not limited to, any implied warranties of merchantability
- * or fitness for any particular purpose or warranties against infringement
- * of any proprietary rights of a third party.
- *
- * Silicon Labs will not be liable for any consequential, incidental, or
- * special damages, or any other relief, or for any claim by any third party,
- * arising from your use of this Software.
+ * The licensor of this software is Silicon Laboratories Inc.  Your use of this
+ * software is governed by the terms of Silicon Labs Master Software License
+ * Agreement (MSLA) available at
+ * www.silabs.com/about-us/legal/master-software-license-agreement.  This
+ * software is distributed to you in Source Code format and is governed by the
+ * sections of the MSLA applicable to Source Code.
  *
  ******************************************************************************/
 
@@ -336,14 +320,14 @@ struct EZRADIODRV_HandleData{
 /// Configuration data for EzRadio plugin manager.
 #define EZRADIODRV_INIT_DEFAULT                                                 \
   {                                                                             \
-    EZRADIODRV_TRANSMIT_PLUGIN_INIT_DEFAULT        /* Tx plugin init */         \
-    EZRADIODRV_RECEIVE_PLUGIN_INIT_DEFAULT         /* Rx plugin init */         \
-    EZRADIODRV_CRC_ERROR_PLUGIN_INIT_DEFAULT       /* CRC error plugin init */  \
-    EZRADIODRV_AUTO_ACK_PLUGIN_INIT_DEFAULT        /* Auto-ack plugin init */   \
-    EZRADIODRV_UNMOD_CARRIER_PLUGIN_INIT_DEFAULT   /* CW plugin init */         \
-    EZRADIODRV_PN9_PLUGIN_INIT_DEFAULT             /* PN9 plugin init */        \
+    EZRADIODRV_TRANSMIT_PLUGIN_INIT_DEFAULT      /* Tx plugin init */           \
+    EZRADIODRV_RECEIVE_PLUGIN_INIT_DEFAULT       /* Rx plugin init */           \
+    EZRADIODRV_CRC_ERROR_PLUGIN_INIT_DEFAULT     /* CRC error plugin init */    \
+    EZRADIODRV_AUTO_ACK_PLUGIN_INIT_DEFAULT      /* Auto-ack plugin init */     \
+    EZRADIODRV_UNMOD_CARRIER_PLUGIN_INIT_DEFAULT /* CW plugin init */           \
+    EZRADIODRV_PN9_PLUGIN_INIT_DEFAULT           /* PN9 plugin init */          \
     EZRADIODRV_DIRECT_TRANSMIT_PLUGIN_INIT_DEFAULT /* Direct Tx plugin init */  \
-    EZRADIODRV_DIRECT_RECEIVE_PLUGIN_INIT_DEFAULT  /* Direct Rx plugin init */  \
+      EZRADIODRV_DIRECT_RECEIVE_PLUGIN_INIT_DEFAULT /* Direct Rx plugin init */ \
   }
 
 void ezradioInit(EZRADIODRV_Handle_t handle);

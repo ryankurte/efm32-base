@@ -1,10 +1,27 @@
 /***************************************************************************//**
- * @file debug_ci.c
+ * @file
  * @brief This file implements the debug commands for RAIL test applications.
- * @copyright Copyright 2015 Silicon Laboratories, Inc. http://www.silabs.com
+ *******************************************************************************
+ * # License
+ * <b>Copyright 2018 Silicon Laboratories Inc. www.silabs.com</b>
+ *******************************************************************************
+ *
+ * The licensor of this software is Silicon Laboratories Inc. Your use of this
+ * software is governed by the terms of Silicon Labs Master Software License
+ * Agreement (MSLA) available at
+ * www.silabs.com/about-us/legal/master-software-license-agreement. This
+ * software is distributed to you in Source Code format and is governed by the
+ * sections of the MSLA applicable to Source Code.
+ *
  ******************************************************************************/
+
 #include <stdio.h>
 #include <string.h>
+
+#if !defined(__ICCARM__)
+// IAR doesn't have strings.h and puts those declarations in string.h
+#include <strings.h>
+#endif
 
 #include "bsp.h"
 #include "command_interpreter.h"
@@ -18,6 +35,8 @@
 
 #include "em_cmu.h"
 #include "em_gpio.h"
+
+uint32_t rxOverflowDelay = 10 * 1000000; // 10 seconds
 
 /*
  * setFrequency
@@ -33,8 +52,8 @@ void setFrequency(int argc, char **argv)
     return;
   }
 
-  if ((RAIL_DebugModeGet() & RAIL_DEBUG_MODE_FREQ_OVERRIDE) == RAIL_DEBUG_MODE_FREQ_OVERRIDE) {
-    if (!RAIL_DebugFrequencyOverride(newFrequency)) {
+  if ((RAIL_GetDebugMode(railHandle) & RAIL_DEBUG_MODE_FREQ_OVERRIDE) == RAIL_DEBUG_MODE_FREQ_OVERRIDE) {
+    if (!RAIL_OverrideDebugFrequency(railHandle, newFrequency)) {
       responsePrint(argv[0], "NewFrequency:%u", newFrequency);
     } else {
       // This won't take effect until we parse divider ranges.
@@ -71,7 +90,7 @@ void setDebugMode(int argc, char **argv)
   uint32_t debugMode;
 
   debugMode = ciGetUnsigned(argv[1]);
-  if (!RAIL_DebugModeSet(debugMode)) {
+  if (!RAIL_SetDebugMode(railHandle, debugMode)) {
     responsePrint(argv[0], "DebugMode:%s", lookupDebugModeString(debugMode));
   } else {
     responsePrintError(argv[0], 0x15, "%d is an invalid debug mode!", debugMode);
@@ -106,7 +125,7 @@ void setMemWord(int argc, char **argv)
 {
   uint32_t *address = (uint32_t*)ciGetUnsigned(argv[1]);
   int count = 0;
-  char lengthStr[10];
+  char lengthStr[12];
 
   // Check for alignment
   if (((uint32_t)address % 4) != 0) {
@@ -135,6 +154,12 @@ void setTxUnderflow(int argc, char **argv)
 void setRxOverflow(int argc, char **argv)
 {
   bool enable = !!ciGetUnsigned(argv[1]);
+  if (argc > 2) {
+    rxOverflowDelay = ciGetUnsigned(argv[2]);
+  } else {
+    // 10 seconds should be enough to trigger an overflow
+    rxOverflowDelay = 10 * 1000000;
+  }
   enableAppMode(RX_OVERFLOW, enable, argv[0]);
 }
 
@@ -201,8 +226,8 @@ void printDataRates(int argc, char **argv)
 {
   responsePrint(argv[0],
                 "Symbolrate:%d,Bitrate:%d",
-                RAIL_SymbolRateGet(),
-                RAIL_BitRateGet());
+                RAIL_GetSymbolRate(railHandle),
+                RAIL_GetBitRate(railHandle));
 }
 
 #define MAX_RANDOM_BYTES (1024)
@@ -230,7 +255,7 @@ void getRandom(int argc, char **argv)
   }
 
   // Collect the random data
-  result = RAIL_GetRadioEntropy(randomDataBuffer, length);
+  result = RAIL_GetRadioEntropy(railHandle, randomDataBuffer, length);
   if (result != length) {
     responsePrintError(argv[0], 0x11, "Error collecting random data.");
   }
@@ -270,20 +295,20 @@ static void printDebugSignalHelp(char *cmdName,
 {
   uint32_t i;
 
-  printf("%s [pin] [signal] [options]\n", cmdName);
-  printf("Pins: ");
+  RAILTEST_PRINTF("%s [pin] [signal] [options]\n", cmdName);
+  RAILTEST_PRINTF("Pins: ");
   for (i = 0; i < numPins; i++) {
     if (i != 0) {
-      printf(", ");
+      RAILTEST_PRINTF(", ");
     }
-    printf("%s", pins[i].name);
+    RAILTEST_PRINTF("%s", pins[i].name);
   }
 
   // Print information about the supported debug signals
-  printf("\nSignals: \n");
-  printf("  OFF\n  CUSTOM_PRS <source> <signal>\n  CUSTOM_LIB <event>\n");
+  RAILTEST_PRINTF("\nSignals: \n");
+  RAILTEST_PRINTF("  OFF\n  CUSTOM_PRS <source> <signal>\n  CUSTOM_LIB <event>\n");
   for (i = 0; i < numSignals; i++) {
-    printf("  %s\n", signals[i].name);
+    RAILTEST_PRINTF("  %s\n", signals[i].name);
   }
 }
 
@@ -378,11 +403,16 @@ void setDebugSignal(int argc, char **argv)
     return;
   }
 
+  if (signal == NULL) {
+    return;
+  }
   // Configure the PRS or library signal as needed
   if (signal->isPrs) {
     // Enable this PRS signal
     halEnablePrs(pin->prsChannel,
                  pin->prsLocation,
+                 pin->gpioPort,
+                 pin->gpioPin,
                  signal->loc.prs.source,
                  signal->loc.prs.signal);
   } else {
@@ -400,12 +430,190 @@ void forceAssert(int argc, char**argv)
   uint32_t errorCode = ciGetUnsigned(argv[1]);
 
   responsePrint(argv[0], "code:%d", errorCode);
-  RAILCb_AssertFailed(errorCode);
+  RAILCb_AssertFailed(railHandle, errorCode);
 }
 
-void configPrintCallbacks(int argc, char**argv)
+void configPrintEvents(int argc, char**argv)
 {
-  enablePrintCallbacks = ciGetUnsigned(argv[1]);
+  enablePrintEvents = ciGetUnsigned(argv[1]);
+  if (argc > 2) {
+    enablePrintEvents |= (((RAIL_Events_t)ciGetUnsigned(argv[2])) << 32);
+    responsePrint(argv[0], "enablePrintEvents:0x%x%08x",
+                  (uint32_t)(enablePrintEvents >> 32),
+                  (uint32_t)(enablePrintEvents));
+  } else {
+    responsePrint(argv[0], "enablePrintEvents:0x%x",
+                  (uint32_t)(enablePrintEvents));
+  }
+}
 
-  responsePrint(argv[0], "enablePrintCallbacks:0x%x", enablePrintCallbacks);
+void printTxAcks(int argc, char **argv)
+{
+  printTxAck = !!ciGetUnsigned(argv[1]);
+
+  responsePrint(argv[0], "printTxAcks:%s",
+                printTxAck ? "True" : "False");
+}
+
+void printRxErrors(int argc, char **argv)
+{
+  printRxErrorPackets = !!ciGetUnsigned(argv[1]);
+
+  responsePrint(argv[0], "printRxErrors:%s",
+                printRxErrorPackets ? "True" : "False");
+}
+
+void setPrintingEnable(int argc, char**argv)
+{
+  printingEnabled = !!ciGetUnsigned(argv[1]);
+  responsePrintEnable(printingEnabled);
+  responsePrint(argv[0], "printingEnabled:%s",
+                printingEnabled ? "True" : "False");
+}
+
+void getAppMode(int argc, char**argv)
+{
+  responsePrint(argv[0], "appMode:%s", appModeNames(currentAppMode()));
+}
+
+void getRadioState(int argc, char**argv)
+{
+  responsePrint(argv[0], "radioState:%s",
+                getRfStateName(RAIL_GetRadioState(railHandle)));
+}
+
+static bool verifyFirstTime = true;
+static bool verifyUseOverride = false;
+static bool verifyUseCallback = false;
+static uint32_t verifyCbCounter = 0; // Number of times the callback is called.
+
+static bool RAILCb_VerificationApproval(uint32_t address,
+                                        uint32_t expectedValue,
+                                        uint32_t actualValue)
+{
+  // true = change approved (Do this to see a list of all registers that are
+  //   different for the current radio state.)
+  // false = change unapproved (This is the default behavior when no approval
+  //   callback is provided.)
+  bool approveDifference = true;
+  // Print out all addresses that contain differences.
+  responsePrint("verifyRadioCb",
+                "encodedAddress:0x%08x,"
+                "expectedValue:0x%08x,"
+                "actualValue:0x%08x,"
+                "differenceApproved:%s",
+                address,
+                expectedValue,
+                actualValue,
+                (approveDifference ? "true" : "false"));
+  verifyCbCounter++;
+  return approveDifference;
+}
+
+void verifyRadio(int argc, char**argv)
+{
+  char *answer;
+  uint32_t durationUs = ciGetUnsigned(argv[1]);
+  bool restart = !!ciGetUnsigned(argv[2]);
+  bool useOverride = !!ciGetUnsigned(argv[3]);
+  bool useCallback = !!ciGetUnsigned(argv[4]);
+  uint32_t *radioConfig;
+  RAIL_VerifyCallbackPtr_t cb;
+  uint32_t timeBefore;
+  uint32_t timeAfter;
+  RAIL_Status_t retVal;
+
+  // Only run RAIL_ConfigVerification when we have to.
+  if (verifyFirstTime
+      || (useOverride != verifyUseOverride)
+      || (useCallback != verifyUseCallback)) {
+    verifyFirstTime = false;
+    verifyUseOverride = useOverride;
+    verifyUseCallback = useCallback;
+
+    if (useOverride) {
+#if RADIO_CONFIG_EXTERNAL_SUPPORT_ENABLED
+      // Provide a custom radio config.
+      radioConfig = (uint32_t *)(channelConfigs[configIndex]->phyConfigBase);
+#else
+      // Restore variable to default value so this error always occurs.
+      verifyFirstTime = true;
+      responsePrintError(argv[0], 0x22, "External radio config support not enabled");
+      return;
+#endif
+    } else {
+      radioConfig = NULL;
+    }
+    if (useCallback) {
+      // Provide an approval callback to the application.
+      cb = RAILCb_VerificationApproval;
+    } else {
+      cb = NULL;
+    }
+
+    RAIL_ConfigVerification(railHandle, &configVerify, radioConfig, cb);
+  }
+
+  // Clear the callback counter when restarting verification.
+  if (restart) {
+    verifyCbCounter = 0;
+  }
+
+  timeBefore = RAIL_GetTime();
+  retVal = RAIL_Verify(&configVerify, durationUs, restart);
+  timeAfter = RAIL_GetTime();
+  switch (retVal) {
+    case RAIL_STATUS_NO_ERROR:
+    {
+      answer = "success, done";
+      break;
+    }
+    case RAIL_STATUS_SUSPENDED:
+    {
+      answer = "success, operation suspended";
+      break;
+    }
+    case RAIL_STATUS_INVALID_PARAMETER:
+    {
+      answer = "invalid input parameter";
+      break;
+    }
+    case RAIL_STATUS_INVALID_STATE:
+    default:
+    {
+      answer = "data corruption";
+    }
+  }
+  if (useCallback) {
+    responsePrint(argv[0],
+                  "verification:%s,testDurationUs:%d,callbackCounter:%d",
+                  answer,
+                  timeAfter - timeBefore,
+                  verifyCbCounter);
+  } else {
+    responsePrint(argv[0],
+                  "verification:%s,testDurationUs:%d",
+                  answer,
+                  timeAfter - timeBefore);
+  }
+  // Clear the callback counter on success after we output the value.
+  if (RAIL_STATUS_NO_ERROR == retVal) {
+    verifyCbCounter = 0;
+  }
+}
+
+void setVerifyConfig(int argc, char **argv)
+{
+  verifyConfigEnabled = !!ciGetUnsigned(argv[1]);
+  responsePrint(argv[0],
+                "verify config enabled:%d,"
+                "Status:Success",
+                verifyConfigEnabled);
+}
+
+void getVerifyConfig(int argc, char **argv)
+{
+  responsePrint(argv[0],
+                "verify config enabled:%d",
+                verifyConfigEnabled);
 }

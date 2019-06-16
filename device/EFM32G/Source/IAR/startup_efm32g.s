@@ -1,26 +1,37 @@
 ;/**************************************************************************//**
-; * @file startup_efm32g.s
+; * @file
 ; * @brief    CMSIS Core Device Startup File
 ; *           Silicon Labs EFM32G Device Series
-; * @version 5.2.1
-; * @date     30. January 2012
+; * @version 5.8.0
+; ******************************************************************************
+; * # License
 ; *
-; * @note
-; * Copyright (C) 2012 ARM Limited. All rights reserved.
+; * The licensor of this software is Silicon Laboratories Inc. Your use of this
+; * software is governed by the terms of Silicon Labs Master Software License
+; * Agreement (MSLA) available at
+; * www.silabs.com/about-us/legal/master-software-license-agreement. This
+; * software is Third Party Software licensed by Silicon Labs from a third party
+; * and is governed by the sections of the MSLA applicable to Third Party
+; * Software and the additional terms set forth below.
 ; *
-; * @par
-; * ARM Limited (ARM) is supplying this software for use with Cortex-M
-; * processor based microcontrollers.  This file can be freely distributed
-; * within development tools that are supporting such ARM based processors.
+; *****************************************************************************/
+;/*
+; * Copyright (c) 2009-2016 ARM Limited. All rights reserved.
 ; *
-; * @par
-; * THIS SOFTWARE IS PROVIDED "AS IS".  NO WARRANTIES, WHETHER EXPRESS, IMPLIED
-; * OR STATUTORY, INCLUDING, BUT NOT LIMITED TO, IMPLIED WARRANTIES OF
-; * MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE APPLY TO THIS SOFTWARE.
-; * ARM SHALL NOT, IN ANY CIRCUMSTANCES, BE LIABLE FOR SPECIAL, INCIDENTAL, OR
-; * CONSEQUENTIAL DAMAGES, FOR ANY REASON WHATSOEVER.
+; * SPDX-License-Identifier: Apache-2.0
 ; *
-; ******************************************************************************/
+; * Licensed under the Apache License, Version 2.0 (the License); you may
+; * not use this file except in compliance with the License.
+; * You may obtain a copy of the License at
+; *
+; * www.apache.org/licenses/LICENSE-2.0
+; *
+; * Unless required by applicable law or agreed to in writing, software
+; * distributed under the License is distributed on an AS IS BASIS, WITHOUT
+; * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+; * See the License for the specific language governing permissions and
+; * limitations under the License.
+; */
 
 ;
 ; The modules in this file are included in the libraries, and may be replaced
@@ -73,46 +84,46 @@ __vector_table_0x1c
         DCD     0
         DCD     SVC_Handler
         DCD     DebugMon_Handler
-        DCD     0
+        DCD     sl_app_properties
         DCD     PendSV_Handler
         DCD     SysTick_Handler
 
         ; External Interrupts
 
-        DCD DMA_IRQHandler  ; 0: DMA Interrupt
-        DCD GPIO_EVEN_IRQHandler  ; 1: GPIO_EVEN Interrupt
-        DCD TIMER0_IRQHandler  ; 2: TIMER0 Interrupt
-        DCD USART0_RX_IRQHandler  ; 3: USART0_RX Interrupt
-        DCD USART0_TX_IRQHandler  ; 4: USART0_TX Interrupt
-        DCD ACMP0_IRQHandler  ; 5: ACMP0 Interrupt
-        DCD ADC0_IRQHandler  ; 6: ADC0 Interrupt
-        DCD DAC0_IRQHandler  ; 7: DAC0 Interrupt
-        DCD I2C0_IRQHandler  ; 8: I2C0 Interrupt
-        DCD GPIO_ODD_IRQHandler  ; 9: GPIO_ODD Interrupt
-        DCD TIMER1_IRQHandler  ; 10: TIMER1 Interrupt
-        DCD TIMER2_IRQHandler  ; 11: TIMER2 Interrupt
-        DCD USART1_RX_IRQHandler  ; 12: USART1_RX Interrupt
-        DCD USART1_TX_IRQHandler  ; 13: USART1_TX Interrupt
-        DCD USART2_RX_IRQHandler  ; 14: USART2_RX Interrupt
-        DCD USART2_TX_IRQHandler  ; 15: USART2_TX Interrupt
-        DCD UART0_RX_IRQHandler  ; 16: UART0_RX Interrupt
-        DCD UART0_TX_IRQHandler  ; 17: UART0_TX Interrupt
-        DCD LEUART0_IRQHandler  ; 18: LEUART0 Interrupt
-        DCD LEUART1_IRQHandler  ; 19: LEUART1 Interrupt
-        DCD LETIMER0_IRQHandler  ; 20: LETIMER0 Interrupt
-        DCD PCNT0_IRQHandler  ; 21: PCNT0 Interrupt
-        DCD PCNT1_IRQHandler  ; 22: PCNT1 Interrupt
-        DCD PCNT2_IRQHandler  ; 23: PCNT2 Interrupt
-        DCD RTC_IRQHandler  ; 24: RTC Interrupt
-        DCD CMU_IRQHandler  ; 25: CMU Interrupt
-        DCD VCMP_IRQHandler  ; 26: VCMP Interrupt
-        DCD LCD_IRQHandler  ; 27: LCD Interrupt
-        DCD MSC_IRQHandler  ; 28: MSC Interrupt
-        DCD AES_IRQHandler  ; 29: AES Interrupt
-        DCD 0               ; 30: Reserved Interrupt
-
+        DCD     DMA_IRQHandler            ; 0: DMA Interrupt
+        DCD     GPIO_EVEN_IRQHandler      ; 1: GPIO_EVEN Interrupt
+        DCD     TIMER0_IRQHandler         ; 2: TIMER0 Interrupt
+        DCD     USART0_RX_IRQHandler      ; 3: USART0_RX Interrupt
+        DCD     USART0_TX_IRQHandler      ; 4: USART0_TX Interrupt
+        DCD     ACMP0_IRQHandler          ; 5: ACMP0 Interrupt
+        DCD     ADC0_IRQHandler           ; 6: ADC0 Interrupt
+        DCD     DAC0_IRQHandler           ; 7: DAC0 Interrupt
+        DCD     I2C0_IRQHandler           ; 8: I2C0 Interrupt
+        DCD     GPIO_ODD_IRQHandler       ; 9: GPIO_ODD Interrupt
+        DCD     TIMER1_IRQHandler         ; 10: TIMER1 Interrupt
+        DCD     TIMER2_IRQHandler         ; 11: TIMER2 Interrupt
+        DCD     USART1_RX_IRQHandler      ; 12: USART1_RX Interrupt
+        DCD     USART1_TX_IRQHandler      ; 13: USART1_TX Interrupt
+        DCD     USART2_RX_IRQHandler      ; 14: USART2_RX Interrupt
+        DCD     USART2_TX_IRQHandler      ; 15: USART2_TX Interrupt
+        DCD     UART0_RX_IRQHandler       ; 16: UART0_RX Interrupt
+        DCD     UART0_TX_IRQHandler       ; 17: UART0_TX Interrupt
+        DCD     LEUART0_IRQHandler        ; 18: LEUART0 Interrupt
+        DCD     LEUART1_IRQHandler        ; 19: LEUART1 Interrupt
+        DCD     LETIMER0_IRQHandler       ; 20: LETIMER0 Interrupt
+        DCD     PCNT0_IRQHandler          ; 21: PCNT0 Interrupt
+        DCD     PCNT1_IRQHandler          ; 22: PCNT1 Interrupt
+        DCD     PCNT2_IRQHandler          ; 23: PCNT2 Interrupt
+        DCD     RTC_IRQHandler            ; 24: RTC Interrupt
+        DCD     CMU_IRQHandler            ; 25: CMU Interrupt
+        DCD     VCMP_IRQHandler           ; 26: VCMP Interrupt
+        DCD     LCD_IRQHandler            ; 27: LCD Interrupt
+        DCD     MSC_IRQHandler            ; 28: MSC Interrupt
+        DCD     AES_IRQHandler            ; 29: AES Interrupt
+        DCD     0                         ; 30: Reserved Interrupt
 
 __Vectors_End
+
 __Vectors       EQU   __vector_table
 __Vectors_Size  EQU   __Vectors_End - __Vectors
 
@@ -132,8 +143,10 @@ Reset_Handler
         BX      R0
 
         PUBWEAK NMI_Handler
+        PUBWEAK sl_app_properties
         SECTION .text:CODE:REORDER:NOROOT(1)
 NMI_Handler
+sl_app_properties     ; Provide a dummy value for the sl_app_properties symbol.
         B NMI_Handler
 
         PUBWEAK HardFault_Handler

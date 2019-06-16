@@ -1,35 +1,34 @@
-/**************************************************************************//**
- * @file ezr32hg320f32r63.h
+/***************************************************************************//**
+ * @file
  * @brief CMSIS Cortex-M Peripheral Access Layer Header File
  *        for EZR32HG320F32R63
- * @version 5.2.1
- ******************************************************************************
+ * @version 5.8.0
+ *******************************************************************************
  * # License
- * <b>Copyright 2017 Silicon Laboratories, Inc. http://www.silabs.com</b>
- ******************************************************************************
+ * <b>Copyright 2019 Silicon Laboratories Inc. www.silabs.com</b>
+ *******************************************************************************
+ *
+ * SPDX-License-Identifier: Zlib
+ *
+ * The licensor of this software is Silicon Laboratories Inc.
+ *
+ * This software is provided 'as-is', without any express or implied
+ * warranty. In no event will the authors be held liable for any damages
+ * arising from the use of this software.
  *
  * Permission is granted to anyone to use this software for any purpose,
  * including commercial applications, and to alter it and redistribute it
  * freely, subject to the following restrictions:
  *
  * 1. The origin of this software must not be misrepresented; you must not
- *    claim that you wrote the original software.@n
+ *    claim that you wrote the original software. If you use this software
+ *    in a product, an acknowledgment in the product documentation would be
+ *    appreciated but is not required.
  * 2. Altered source versions must be plainly marked as such, and must not be
- *    misrepresented as being the original software.@n
+ *    misrepresented as being the original software.
  * 3. This notice may not be removed or altered from any source distribution.
  *
- * DISCLAIMER OF WARRANTY/LIMITATION OF REMEDIES: Silicon Laboratories, Inc.
- * has no obligation to support this Software. Silicon Laboratories, Inc. is
- * providing the Software "AS IS", with no express or implied warranties of any
- * kind, including, but not limited to, any implied warranties of
- * merchantability or fitness for any particular purpose or warranties against
- * infringement of any proprietary rights of a third party.
- *
- * Silicon Laboratories, Inc. will not be liable for any consequential,
- * incidental, or special damages, or any other relief, or for any claim by
- * any third party, arising from your use of this Software.
- *
- *****************************************************************************/
+ ******************************************************************************/
 
 #if defined(__ICCARM__)
 #pragma system_include       /* Treat file as system include file. */
@@ -44,19 +43,18 @@
 extern "C" {
 #endif
 
-/**************************************************************************//**
+/***************************************************************************//**
  * @addtogroup Parts
  * @{
- *****************************************************************************/
+ ******************************************************************************/
 
-/**************************************************************************//**
+/***************************************************************************//**
  * @defgroup EZR32HG320F32R63 EZR32HG320F32R63
  * @{
- *****************************************************************************/
+ ******************************************************************************/
 
 /** Interrupt Number Definition */
-typedef enum IRQn
-{
+typedef enum IRQn{
 /******  Cortex-M0+ Processor Exceptions Numbers *****************************************/
   NonMaskableInt_IRQn = -14,                /*!< -14 Cortex-M0+ Non Maskable Interrupt   */
   HardFault_IRQn      = -13,                /*!< -13 Cortex-M0+ Hard Fault Interrupt     */
@@ -87,22 +85,22 @@ typedef enum IRQn
   TIMER2_IRQn         = 20, /*!< 20 EZR32 TIMER2 Interrupt */
 } IRQn_Type;
 
-/**************************************************************************//**
+/***************************************************************************//**
  * @defgroup EZR32HG320F32R63_Core EZR32HG320F32R63 Core
  * @{
  * @brief Processor and Core Peripheral Section
- *****************************************************************************/
-#define __MPU_PRESENT             0 /**< MPU not present */
-#define __VTOR_PRESENT            1 /**< Presence of VTOR register in SCB */
-#define __NVIC_PRIO_BITS          2 /**< NVIC interrupt priority bits */
-#define __Vendor_SysTickConfig    0 /**< Is 1 if different SysTick counter is used */
+ ******************************************************************************/
+#define __MPU_PRESENT             0U /**< MPU not present */
+#define __VTOR_PRESENT            1U /**< Presence of VTOR register in SCB */
+#define __NVIC_PRIO_BITS          2U /**< NVIC interrupt priority bits */
+#define __Vendor_SysTickConfig    0U /**< Is 1 if different SysTick counter is used */
 
 /** @} End of group EZR32HG320F32R63_Core */
 
-/**************************************************************************//**
-* @defgroup EZR32HG320F32R63_Part EZR32HG320F32R63 Part
-* @{
-******************************************************************************/
+/***************************************************************************//**
+ * @defgroup EZR32HG320F32R63_Part EZR32HG320F32R63 Part
+ * @{
+ ******************************************************************************/
 
 /** Part family */
 #define _EFM32_HAPPY_FAMILY                     1  /**< Happy Gecko EFM32HG MCU Family */
@@ -125,34 +123,34 @@ typedef enum IRQn
 #define PART_NUMBER          "EZR32HG320F32R63" /**< Part Number */
 
 /** Memory Base addresses and limits */
-#define FLASH_MEM_BASE       ((uint32_t) 0x0UL)        /**< FLASH base address  */
-#define FLASH_MEM_SIZE       ((uint32_t) 0x10000000UL) /**< FLASH available address space  */
-#define FLASH_MEM_END        ((uint32_t) 0xFFFFFFFUL)  /**< FLASH end address  */
-#define FLASH_MEM_BITS       ((uint32_t) 0x28UL)       /**< FLASH used bits  */
-#define AES_MEM_BASE         ((uint32_t) 0x400E0000UL) /**< AES base address  */
-#define AES_MEM_SIZE         ((uint32_t) 0x400UL)      /**< AES available address space  */
-#define AES_MEM_END          ((uint32_t) 0x400E03FFUL) /**< AES end address  */
-#define AES_MEM_BITS         ((uint32_t) 0x10UL)       /**< AES used bits  */
-#define USBC_MEM_BASE        ((uint32_t) 0x40100000UL) /**< USBC base address  */
-#define USBC_MEM_SIZE        ((uint32_t) 0x40000UL)    /**< USBC available address space  */
-#define USBC_MEM_END         ((uint32_t) 0x4013FFFFUL) /**< USBC end address  */
-#define USBC_MEM_BITS        ((uint32_t) 0x18UL)       /**< USBC used bits  */
-#define PER_MEM_BASE         ((uint32_t) 0x40000000UL) /**< PER base address  */
-#define PER_MEM_SIZE         ((uint32_t) 0xE0000UL)    /**< PER available address space  */
-#define PER_MEM_END          ((uint32_t) 0x400DFFFFUL) /**< PER end address  */
-#define PER_MEM_BITS         ((uint32_t) 0x20UL)       /**< PER used bits  */
-#define RAM_MEM_BASE         ((uint32_t) 0x20000000UL) /**< RAM base address  */
-#define RAM_MEM_SIZE         ((uint32_t) 0x40000UL)    /**< RAM available address space  */
-#define RAM_MEM_END          ((uint32_t) 0x2003FFFFUL) /**< RAM end address  */
-#define RAM_MEM_BITS         ((uint32_t) 0x18UL)       /**< RAM used bits  */
-#define DEVICE_MEM_BASE      ((uint32_t) 0xF0040000UL) /**< DEVICE base address  */
-#define DEVICE_MEM_SIZE      ((uint32_t) 0x1000UL)     /**< DEVICE available address space  */
-#define DEVICE_MEM_END       ((uint32_t) 0xF0040FFFUL) /**< DEVICE end address  */
-#define DEVICE_MEM_BITS      ((uint32_t) 0x12UL)       /**< DEVICE used bits  */
-#define RAM_CODE_MEM_BASE    ((uint32_t) 0x10000000UL) /**< RAM_CODE base address  */
-#define RAM_CODE_MEM_SIZE    ((uint32_t) 0x20000UL)    /**< RAM_CODE available address space  */
-#define RAM_CODE_MEM_END     ((uint32_t) 0x1001FFFFUL) /**< RAM_CODE end address  */
-#define RAM_CODE_MEM_BITS    ((uint32_t) 0x17UL)       /**< RAM_CODE used bits  */
+#define FLASH_MEM_BASE       (0x0UL)        /**< FLASH base address  */
+#define FLASH_MEM_SIZE       (0x10000000UL) /**< FLASH available address space  */
+#define FLASH_MEM_END        (0xFFFFFFFUL)  /**< FLASH end address  */
+#define FLASH_MEM_BITS       (0x28UL)       /**< FLASH used bits  */
+#define AES_MEM_BASE         (0x400E0000UL) /**< AES base address  */
+#define AES_MEM_SIZE         (0x400UL)      /**< AES available address space  */
+#define AES_MEM_END          (0x400E03FFUL) /**< AES end address  */
+#define AES_MEM_BITS         (0x10UL)       /**< AES used bits  */
+#define USBC_MEM_BASE        (0x40100000UL) /**< USBC base address  */
+#define USBC_MEM_SIZE        (0x40000UL)    /**< USBC available address space  */
+#define USBC_MEM_END         (0x4013FFFFUL) /**< USBC end address  */
+#define USBC_MEM_BITS        (0x18UL)       /**< USBC used bits  */
+#define PER_MEM_BASE         (0x40000000UL) /**< PER base address  */
+#define PER_MEM_SIZE         (0xE0000UL)    /**< PER available address space  */
+#define PER_MEM_END          (0x400DFFFFUL) /**< PER end address  */
+#define PER_MEM_BITS         (0x20UL)       /**< PER used bits  */
+#define RAM_MEM_BASE         (0x20000000UL) /**< RAM base address  */
+#define RAM_MEM_SIZE         (0x40000UL)    /**< RAM available address space  */
+#define RAM_MEM_END          (0x2003FFFFUL) /**< RAM end address  */
+#define RAM_MEM_BITS         (0x18UL)       /**< RAM used bits  */
+#define DEVICE_MEM_BASE      (0xF0040000UL) /**< DEVICE base address  */
+#define DEVICE_MEM_SIZE      (0x1000UL)     /**< DEVICE available address space  */
+#define DEVICE_MEM_END       (0xF0040FFFUL) /**< DEVICE end address  */
+#define DEVICE_MEM_BITS      (0x12UL)       /**< DEVICE used bits  */
+#define RAM_CODE_MEM_BASE    (0x10000000UL) /**< RAM_CODE base address  */
+#define RAM_CODE_MEM_SIZE    (0x20000UL)    /**< RAM_CODE available address space  */
+#define RAM_CODE_MEM_END     (0x1001FFFFUL) /**< RAM_CODE end address  */
+#define RAM_CODE_MEM_BITS    (0x17UL)       /**< RAM_CODE used bits  */
 
 /** Flash and SRAM limits for EZR32HG320F32R63 */
 #define FLASH_BASE           (0x00000000UL) /**< Flash Base Address */
@@ -160,16 +158,16 @@ typedef enum IRQn
 #define FLASH_PAGE_SIZE      1024U          /**< Flash Memory page size */
 #define SRAM_BASE            (0x20000000UL) /**< SRAM Base Address */
 #define SRAM_SIZE            (0x00002000UL) /**< Available SRAM Memory */
-#define __CM0PLUS_REV        0x001          /**< Cortex-M0+ Core revision r0p1 */
+#define __CM0PLUS_REV        0x0001U        /**< Cortex-M0+ Core revision r0p1 */
 #define PRS_CHAN_COUNT       6              /**< Number of PRS channels */
 #define DMA_CHAN_COUNT       6              /**< Number of DMA channels */
 #define EXT_IRQ_COUNT        20             /**< Number of External (NVIC) interrupts */
 
 /** AF channels connect the different on-chip peripherals with the af-mux */
-#define AFCHAN_MAX           42
-#define AFCHANLOC_MAX        7
+#define AFCHAN_MAX           42U
+#define AFCHANLOC_MAX        7U
 /** Analog AF channels */
-#define AFACHAN_MAX          27
+#define AFACHAN_MAX          27U
 
 /* Part number capabilities */
 
@@ -234,11 +232,11 @@ typedef enum IRQn
 #define ANALOG_PRESENT            /**< ANALOG is available in this part */
 #define ANALOG_COUNT            1 /**< 1 ANALOG available */
 
-/**************************************************************************//**
+/***************************************************************************//**
  * @defgroup EZR32HG320F32R63_RF_Interface EZR32HG320F32R63 RF_Interface
  * @brief MCU port/pins used for RF interface.
  * @{
- *****************************************************************************/
+ ******************************************************************************/
 #define RF_USARTRF_LOCATION     5     /**< RF SPI-port (USART) location number. */
 #define RF_USARTRF_CS_PORT      2     /**< Bit banged RF SPI CS GPIO port no.   */
 #define RF_USARTRF_CS_PIN       0     /**< Bit banged RF SPI CS GPIO pin number.*/
@@ -258,15 +256,15 @@ typedef enum IRQn
 /** @} End of group EZR32HG320F32R63_Part */
 
 #define ARM_MATH_CM0PLUS
-#include "arm_math.h"       /* To get __CLZ definitions etc. */
-#include "core_cm0plus.h"   /* Cortex-M0+ processor and core peripherals */
+#include "arm_math.h"     /* To get __CLZ definitions etc. */
+#include "core_cm0plus.h" /* Cortex-M0+ processor and core peripherals */
 #include "system_ezr32hg.h" /* System Header */
 
-/**************************************************************************//**
+/***************************************************************************//**
  * @defgroup EZR32HG320F32R63_Peripheral_TypeDefs EZR32HG320F32R63 Peripheral TypeDefs
  * @{
  * @brief Device Specific Peripheral Register Structures
- *****************************************************************************/
+ ******************************************************************************/
 
 #include "ezr32hg_aes.h"
 #include "ezr32hg_dma_ch.h"
@@ -301,10 +299,10 @@ typedef enum IRQn
 
 /** @} End of group EZR32HG320F32R63_Peripheral_TypeDefs */
 
-/**************************************************************************//**
+/***************************************************************************//**
  * @defgroup EZR32HG320F32R63_Peripheral_Base EZR32HG320F32R63 Peripheral Memory Map
  * @{
- *****************************************************************************/
+ ******************************************************************************/
 
 #define AES_BASE          (0x400E0000UL) /**< AES base address  */
 #define DMA_BASE          (0x400C2000UL) /**< DMA base address  */
@@ -337,10 +335,10 @@ typedef enum IRQn
 
 /** @} End of group EZR32HG320F32R63_Peripheral_Base */
 
-/**************************************************************************//**
+/***************************************************************************//**
  * @defgroup EZR32HG320F32R63_Peripheral_Declaration  EZR32HG320F32R63 Peripheral Declarations
  * @{
- *****************************************************************************/
+ ******************************************************************************/
 
 #define AES          ((AES_TypeDef *) AES_BASE)             /**< AES base pointer */
 #define DMA          ((DMA_TypeDef *) DMA_BASE)             /**< DMA base pointer */
@@ -371,20 +369,20 @@ typedef enum IRQn
 
 /** @} End of group EZR32HG320F32R63_Peripheral_Declaration */
 
-/**************************************************************************//**
+/***************************************************************************//**
  * @defgroup EZR32HG320F32R63_BitFields EZR32HG320F32R63 Bit Fields
  * @{
- *****************************************************************************/
+ ******************************************************************************/
 
 #include "ezr32hg_prs_signals.h"
 #include "ezr32hg_dmareq.h"
 #include "ezr32hg_dmactrl.h"
 #include "ezr32hg_usartrf.h"
 
-/**************************************************************************//**
+/***************************************************************************//**
  * @defgroup EZR32HG320F32R63_UNLOCK EZR32HG320F32R63 Unlock Codes
  * @{
- *****************************************************************************/
+ ******************************************************************************/
 #define MSC_UNLOCK_CODE      0x1B71 /**< MSC unlock code */
 #define EMU_UNLOCK_CODE      0xADE8 /**< EMU unlock code */
 #define CMU_UNLOCK_CODE      0x580E /**< CMU unlock code */
@@ -395,17 +393,17 @@ typedef enum IRQn
 
 /** @} End of group EZR32HG320F32R63_BitFields */
 
-/**************************************************************************//**
+/***************************************************************************//**
  * @defgroup EZR32HG320F32R63_Alternate_Function EZR32HG320F32R63 Alternate Function
  * @{
- *****************************************************************************/
+ ******************************************************************************/
 
 #include "ezr32hg_af_ports.h"
 #include "ezr32hg_af_pins.h"
 
 /** @} End of group EZR32HG320F32R63_Alternate_Function */
 
-/**************************************************************************//**
+/***************************************************************************//**
  *  @brief Set the value of a bit field within a register.
  *
  *  @param REG
@@ -417,7 +415,7 @@ typedef enum IRQn
  *  @param OFFSET
  *       The number of bits that the field is offset within the register.
  *       0 (zero) means LSB.
- *****************************************************************************/
+ ******************************************************************************/
 #define SET_BIT_FIELD(REG, MASK, VALUE, OFFSET) \
   REG = ((REG) &~(MASK)) | (((VALUE) << (OFFSET)) & (MASK));
 

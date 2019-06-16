@@ -1,15 +1,17 @@
 /***************************************************************************//**
- * @file nvm_config.c
+ * @file
  * @brief NVM driver configuration
- * @version 5.2.1
  *******************************************************************************
  * # License
- * <b>(C) Copyright 2014 Silicon Labs, http://www.silabs.com</b>
+ * <b>Copyright 2018 Silicon Laboratories Inc. www.silabs.com</b>
  *******************************************************************************
  *
- * This file is licensed under the Silabs License Agreement. See the file
- * "Silabs_License_Agreement.txt" for details. Before using this software for
- * any purpose, you must agree to the terms of that agreement.
+ * The licensor of this software is Silicon Laboratories Inc.  Your use of this
+ * software is governed by the terms of Silicon Labs Master Software License
+ * Agreement (MSLA) available at
+ * www.silabs.com/about-us/legal/master-software-license-agreement.  This
+ * software is distributed to you in Source Code format and is governed by the
+ * sections of the MSLA applicable to Source Code.
  *
  ******************************************************************************/
 
@@ -51,12 +53,10 @@ uint32_t singleVariable         = 68;
 int8_t smallNegativeTable[]     = { -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11,
                                     -12, -13, -14, -15, -16, -17, -18, -19, -20 };
 
-uint16_t shortPositiveTable[]   = {0xFFF0, 0xFFF1, 0xFFF2};
-
+uint16_t shortPositiveTable[]   = { 0xFFF0, 0xFFF1, 0xFFF2 };
 
 /* Object IDs */
-typedef enum
-{
+typedef enum {
   COLOR_TABLE_ID,
   COEFFICIENT_TABLE_ID,
   PRIME_NUMBER_TABLE_ID,
@@ -70,10 +70,8 @@ typedef enum
   SHORT_POSITIVE_TABLE_ID
 } NVM_Object_Ids;
 
-
 /* Page IDs */
-typedef enum
-{
+typedef enum {
   MY_PAGE_1,
   MY_PAGE_2,
   MY_PAGE_3,
@@ -87,10 +85,10 @@ typedef enum
 NVM_Page_t const myPage1 =
 {
 /*{ Pointer to object,            Size of object,           Object ID}, */
-  { (uint8_t *) colorTable,       sizeof(colorTable),       COLOR_TABLE_ID },
-  { (uint8_t *) bonusTable,       sizeof(bonusTable),       BONUS_TABLE_ID },
-  { (uint8_t *) &singleVariable,  sizeof(singleVariable),   SINGLE_VARIABLE_ID },
-  { (uint8_t *) bigEmptyTable,    sizeof(bigEmptyTable),    BIG_EMPTY_TABLE_ID },
+  { (uint8_t *) colorTable, sizeof(colorTable), COLOR_TABLE_ID },
+  { (uint8_t *) bonusTable, sizeof(bonusTable), BONUS_TABLE_ID },
+  { (uint8_t *) &singleVariable, sizeof(singleVariable), SINGLE_VARIABLE_ID },
+  { (uint8_t *) bigEmptyTable, sizeof(bigEmptyTable), BIG_EMPTY_TABLE_ID },
   NVM_PAGE_TERMINATION /* Null termination of table. This is required. */
 };
 
@@ -101,7 +99,7 @@ NVM_Page_t const myPage1 =
 NVM_Page_t const myPage2 =
 {
 /*{ Pointer to object,            Size of object,           Object ID}, */
-  { (uint8_t *) safetyTable,      sizeof(safetyTable),      SAFETY_TABLE_ID },
+  { (uint8_t *) safetyTable, sizeof(safetyTable), SAFETY_TABLE_ID },
   NVM_PAGE_TERMINATION /* Null termination of table. This is required. */
 };
 
@@ -111,8 +109,8 @@ NVM_Page_t const myPage3 =
 {
 /*{ Pointer to object,            Size of object,           Object ID}, */
   { (uint8_t *) coefficientTable, sizeof(coefficientTable), COEFFICIENT_TABLE_ID },
-  { (uint8_t *) privateKeyTable,  sizeof(privateKeyTable),  PRIVATE_KEY_TABLE_ID },
-  { (uint8_t *) &singleVariable,  sizeof(singleVariable),   SINGLE_VARIABLE_ID },
+  { (uint8_t *) privateKeyTable, sizeof(privateKeyTable), PRIVATE_KEY_TABLE_ID },
+  { (uint8_t *) &singleVariable, sizeof(singleVariable), SINGLE_VARIABLE_ID },
   NVM_PAGE_TERMINATION /* Null termination of table. This is required. */
 };
 
@@ -122,8 +120,8 @@ NVM_Page_t const myPage4 =
 {
 /*{ Pointer to object,            Size of object,           Object ID}, */
   { (uint8_t *) primeNumberTable, sizeof(primeNumberTable), PRIME_NUMBER_TABLE_ID },
-  { (uint8_t *) transformTable,   sizeof(transformTable),   TRANSFORM_TABLE_ID },
-  { (uint8_t *) &singleVariable,  sizeof(singleVariable),   SINGLE_VARIABLE_ID },
+  { (uint8_t *) transformTable, sizeof(transformTable), TRANSFORM_TABLE_ID },
+  { (uint8_t *) &singleVariable, sizeof(singleVariable), SINGLE_VARIABLE_ID },
   NVM_PAGE_TERMINATION /* Null termination of table. This is required. */
 };
 
@@ -134,7 +132,7 @@ NVM_Page_t const myPage4 =
 NVM_Page_t const myPage5 =
 {
 /*{ Pointer to object,            Size of object,           Object ID}, */
-  { (uint8_t *) smallNegativeTable,      sizeof(smallNegativeTable),      SMALL_NEGATIVE_TABLE_ID },
+  { (uint8_t *) smallNegativeTable, sizeof(smallNegativeTable), SMALL_NEGATIVE_TABLE_ID },
   NVM_PAGE_TERMINATION /* Null termination of table. This is required. */
 };
 
@@ -145,7 +143,7 @@ NVM_Page_t const myPage5 =
 NVM_Page_t const myPage6 =
 {
 /*{ Pointer to object,            Size of object,           Object ID}, */
-  { (uint8_t *) shortPositiveTable,      sizeof(shortPositiveTable),      SHORT_POSITIVE_TABLE_ID },
+  { (uint8_t *) shortPositiveTable, sizeof(shortPositiveTable), SHORT_POSITIVE_TABLE_ID },
   NVM_PAGE_TERMINATION /* Null termination of table. This is required. */
 };
 
@@ -194,15 +192,15 @@ NVM_Page_Table_t const nvmPages =
 SL_ALIGN(NVM_PAGE_SIZE)
 #ifdef __ICCARM__
 /**< Set storage size and location */
+// *INDENT-OFF*
 static const uint8_t nvmData[NVM_PAGE_SIZE * NUMBER_OF_PAGES] @ ".text";
+// *INDENT-ON*
 #else
 /**< Set storage size and location */
 static const uint8_t nvmData[NVM_PAGE_SIZE * NUMBER_OF_PAGES] SL_ATTRIBUTE_ALIGN(NVM_PAGE_SIZE) = { 0xFF };
 #endif
 
-
-static NVM_Config_t const nvmConfig =
-{
+static NVM_Config_t const nvmConfig = {
   &nvmPages,            /**< Page table */
   NUMBER_OF_PAGES,      /**< Total number of pages */
   NUMBER_OF_USER_PAGES, /**< Wear leveling pages */
@@ -218,6 +216,5 @@ static NVM_Config_t const nvmConfig =
  ******************************************************************************/
 NVM_Config_t const *NVM_ConfigGet(void)
 {
-  return( &nvmConfig );
+  return &nvmConfig;
 }
-

@@ -1,34 +1,33 @@
 /***************************************************************************//**
- * @file system_efr32mg1v.c
+ * @file
  * @brief CMSIS Cortex-M3/M4 System Layer for EFR32 devices.
- * @version 5.2.1
- ******************************************************************************
+ * @version 5.8.0
+ *******************************************************************************
  * # License
- * <b>Copyright 2017 Silicon Laboratories, Inc. http://www.silabs.com</b>
- ******************************************************************************
+ * <b>Copyright 2019 Silicon Laboratories Inc. www.silabs.com</b>
+ *******************************************************************************
+ *
+ * SPDX-License-Identifier: Zlib
+ *
+ * The licensor of this software is Silicon Laboratories Inc.
+ *
+ * This software is provided 'as-is', without any express or implied
+ * warranty. In no event will the authors be held liable for any damages
+ * arising from the use of this software.
  *
  * Permission is granted to anyone to use this software for any purpose,
  * including commercial applications, and to alter it and redistribute it
  * freely, subject to the following restrictions:
  *
  * 1. The origin of this software must not be misrepresented; you must not
- *    claim that you wrote the original software.@n
+ *    claim that you wrote the original software. If you use this software
+ *    in a product, an acknowledgment in the product documentation would be
+ *    appreciated but is not required.
  * 2. Altered source versions must be plainly marked as such, and must not be
- *    misrepresented as being the original software.@n
+ *    misrepresented as being the original software.
  * 3. This notice may not be removed or altered from any source distribution.
  *
- * DISCLAIMER OF WARRANTY/LIMITATION OF REMEDIES: Silicon Laboratories, Inc.
- * has no obligation to support this Software. Silicon Laboratories, Inc. is
- * providing the Software "AS IS", with no express or implied warranties of any
- * kind, including, but not limited to, any implied warranties of
- * merchantability or fitness for any particular purpose or warranties against
- * infringement of any proprietary rights of a third party.
- *
- * Silicon Laboratories, Inc. will not be liable for any consequential,
- * incidental, or special damages, or any other relief, or for any claim by
- * any third party, arising from your use of this Software.
- *
- *****************************************************************************/
+ ******************************************************************************/
 
 #include <stdint.h>
 #include "em_device.h"
@@ -49,8 +48,8 @@
 /* System oscillator frequencies. These frequencies are normally constant */
 /* for a target, but they are made configurable in order to allow run-time */
 /* handling of different boards. The crystal oscillator clocks can be set */
-/* compile time to a non-default value by defining respective EFR_nFXO_FREQ */
-/* values according to board design. By defining the EFR_nFXO_FREQ to 0, */
+/* compile time to a non-default value by defining respective EFR32_nFXO_FREQ */
+/* values according to board design. By defining the EFR32_nFXO_FREQ to 0, */
 /* one indicates that the oscillator is not present, in order to save some */
 /* SW footprint. */
 
@@ -69,9 +68,8 @@
 #define EFR32_HFRCO_STARTUP_FREQ        (19000000UL)
 #endif
 
-
 /* Do not define variable if HF crystal oscillator not present */
-#if (EFR32_HFXO_FREQ > 0UL)
+#if (EFR32_HFXO_FREQ > 0U)
 /** @cond DO_NOT_INCLUDE_WITH_DOXYGEN */
 /** System HFXO clock. */
 static uint32_t SystemHFXOClock = EFR32_HFXO_FREQ;
@@ -83,13 +81,12 @@ static uint32_t SystemHFXOClock = EFR32_HFXO_FREQ;
 #define EFR32_LFXO_FREQ (EFR32_LFRCO_FREQ)
 #endif
 /* Do not define variable if LF crystal oscillator not present */
-#if (EFR32_LFXO_FREQ > 0UL)
+#if (EFR32_LFXO_FREQ > 0U)
 /** @cond DO_NOT_INCLUDE_WITH_DOXYGEN */
 /** System LFXO clock. */
-static uint32_t SystemLFXOClock = 32768UL;
+static uint32_t SystemLFXOClock = EFR32_LFXO_FREQ;
 /** @endcond (DO_NOT_INCLUDE_WITH_DOXYGEN) */
 #endif
-
 
 /*******************************************************************************
  **************************   GLOBAL VARIABLES   *******************************
@@ -104,7 +101,6 @@ static uint32_t SystemLFXOClock = 32768UL;
  */
 uint32_t SystemCoreClock = EFR32_HFRCO_STARTUP_FREQ;
 
-
 /**
  * @brief
  *   System HFRCO frequency
@@ -117,10 +113,16 @@ uint32_t SystemCoreClock = EFR32_HFRCO_STARTUP_FREQ;
  */
 uint32_t SystemHfrcoFreq = EFR32_HFRCO_STARTUP_FREQ;
 
-
 /*******************************************************************************
  **************************   GLOBAL FUNCTIONS   *******************************
  ******************************************************************************/
+
+#if defined(__VTOR_PRESENT) && (__VTOR_PRESENT == 1U)
+#if defined(__ICCARM__)    /* IAR requires the __vector_table symbol */
+#define __Vectors    __vector_table
+#endif
+extern uint32_t __Vectors;
+#endif
 
 /***************************************************************************//**
  * @brief
@@ -145,16 +147,15 @@ uint32_t SystemCoreClockGet(void)
   uint32_t presc;
 
   ret   = SystemHFClockGet();
-  presc = (CMU->HFCOREPRESC & _CMU_HFCOREPRESC_PRESC_MASK) >>
-          _CMU_HFCOREPRESC_PRESC_SHIFT;
-  ret  /= (presc + 1);
+  presc = (CMU->HFCOREPRESC & _CMU_HFCOREPRESC_PRESC_MASK)
+          >> _CMU_HFCOREPRESC_PRESC_SHIFT;
+  ret  /= presc + 1U;
 
   /* Keep CMSIS system clock variable up-to-date */
   SystemCoreClock = ret;
 
   return ret;
 }
-
 
 /***************************************************************************//**
  * @brief
@@ -168,10 +169,12 @@ uint32_t SystemCoreClockGet(void)
  ******************************************************************************/
 uint32_t SystemMaxCoreClockGet(void)
 {
-  return (EFR32_HFRCO_MAX_FREQ > EFR32_HFXO_FREQ ? \
-          EFR32_HFRCO_MAX_FREQ : EFR32_HFXO_FREQ);
+#if (EFR32_HFRCO_MAX_FREQ > EFR32_HFXO_FREQ)
+  return EFR32_HFRCO_MAX_FREQ;
+#else
+  return EFR32_HFXO_FREQ;
+#endif
 }
-
 
 /***************************************************************************//**
  * @brief
@@ -187,15 +190,14 @@ uint32_t SystemHFClockGet(void)
 {
   uint32_t ret;
 
-  switch (CMU->HFCLKSTATUS & _CMU_HFCLKSTATUS_SELECTED_MASK)
-  {
+  switch (CMU->HFCLKSTATUS & _CMU_HFCLKSTATUS_SELECTED_MASK) {
     case CMU_HFCLKSTATUS_SELECTED_LFXO:
-#if (EFR32_LFXO_FREQ > 0)
+#if (EFR32_LFXO_FREQ > 0U)
       ret = SystemLFXOClock;
 #else
       /* We should not get here, since core should not be clocked. May */
       /* be caused by a misconfiguration though. */
-      ret = 0;
+      ret = 0U;
 #endif
       break;
 
@@ -204,12 +206,12 @@ uint32_t SystemHFClockGet(void)
       break;
 
     case CMU_HFCLKSTATUS_SELECTED_HFXO:
-#if (EFR32_HFXO_FREQ > 0)
+#if (EFR32_HFXO_FREQ > 0U)
       ret = SystemHFXOClock;
 #else
       /* We should not get here, since core should not be clocked. May */
       /* be caused by a misconfiguration though. */
-      ret = 0;
+      ret = 0U;
 #endif
       break;
 
@@ -222,8 +224,7 @@ uint32_t SystemHFClockGet(void)
                       >> _CMU_HFPRESC_PRESC_SHIFT));
 }
 
-
-/**************************************************************************//**
+/***************************************************************************//**
  * @brief
  *   Get high frequency crystal oscillator clock frequency for target system.
  *
@@ -232,19 +233,18 @@ uint32_t SystemHFClockGet(void)
  *
  * @return
  *   HFXO frequency in Hz.
- *****************************************************************************/
+ ******************************************************************************/
 uint32_t SystemHFXOClockGet(void)
 {
   /* External crystal oscillator present? */
-#if (EFR32_HFXO_FREQ > 0)
+#if (EFR32_HFXO_FREQ > 0U)
   return SystemHFXOClock;
 #else
-  return 0;
+  return 0U;
 #endif
 }
 
-
-/**************************************************************************//**
+/***************************************************************************//**
  * @brief
  *   Set high frequency crystal oscillator clock frequency for target system.
  *
@@ -258,26 +258,25 @@ uint32_t SystemHFXOClockGet(void)
  *
  * @param[in] freq
  *   HFXO frequency in Hz used for target.
- *****************************************************************************/
+ ******************************************************************************/
 void SystemHFXOClockSet(uint32_t freq)
 {
   /* External crystal oscillator present? */
-#if (EFR32_HFXO_FREQ > 0)
+#if (EFR32_HFXO_FREQ > 0U)
   SystemHFXOClock = freq;
 
   /* Update core clock frequency if HFXO is used to clock core */
-  if ((CMU->HFCLKSTATUS & _CMU_HFCLKSTATUS_SELECTED_MASK) == CMU_HFCLKSTATUS_SELECTED_HFXO)
-  {
+  if ((CMU->HFCLKSTATUS & _CMU_HFCLKSTATUS_SELECTED_MASK)
+      == CMU_HFCLKSTATUS_SELECTED_HFXO) {
     /* The function will update the global variable */
-    SystemCoreClockGet();
+    (void)SystemCoreClockGet();
   }
 #else
   (void)freq; /* Unused parameter */
 #endif
 }
 
-
-/**************************************************************************//**
+/***************************************************************************//**
  * @brief
  *   Initialize the system.
  *
@@ -288,13 +287,21 @@ void SystemHFXOClockSet(uint32_t freq)
  *   This function is invoked during system init, before the main() routine
  *   and any data has been initialized. For this reason, it cannot do any
  *   initialization of variables etc.
- *****************************************************************************/
+ ******************************************************************************/
 void SystemInit(void)
 {
-#if (__FPU_PRESENT == 1) && (__FPU_USED == 1)
+#if defined(__VTOR_PRESENT) && (__VTOR_PRESENT == 1U)
+  SCB->VTOR = (uint32_t)&__Vectors;
+#endif
+
+#if (__FPU_PRESENT == 1U) && (__FPU_USED == 1U)
   /* Set floating point coprosessor access mode. */
-  SCB->CPACR |= ((3UL << 10*2) |                    /* set CP10 Full Access */
-                 (3UL << 11*2)  );                  /* set CP11 Full Access */
+  SCB->CPACR |= ((3UL << 10 * 2)                    /* set CP10 Full Access */
+                 | (3UL << 11 * 2));                /* set CP11 Full Access */
+#endif
+
+#if defined(UNALIGNED_SUPPORT_DISABLE)
+  SCB->CCR |= SCB_CCR_UNALIGN_TRP_Msk;
 #endif
 
   /****************************
@@ -302,15 +309,14 @@ void SystemInit(void)
    * Enable bypass switch as errata workaround. The bypass current limit will be
    * disabled again in CHIP_Init() to avoid added current consumption. */
 
-  EMU->DCDCCLIMCTRL |= 1 << _EMU_DCDCCLIMCTRL_BYPLIMEN_SHIFT;
+  EMU->DCDCCLIMCTRL |= 1U << _EMU_DCDCCLIMCTRL_BYPLIMEN_SHIFT;
   EMU->DCDCCTRL = (EMU->DCDCCTRL & ~_EMU_DCDCCTRL_DCDCMODE_MASK)
                   | EMU_DCDCCTRL_DCDCMODE_BYPASS;
   *(volatile uint32_t *)(0x400E3074) &= ~(0x1UL << 0);
   *(volatile uint32_t *)(0x400E3060) &= ~(0x1UL << 28);
 }
 
-
-/**************************************************************************//**
+/***************************************************************************//**
  * @brief
  *   Get low frequency RC oscillator clock frequency for target system.
  *
@@ -319,7 +325,7 @@ void SystemInit(void)
  *
  * @return
  *   LFRCO frequency in Hz.
- *****************************************************************************/
+ ******************************************************************************/
 uint32_t SystemLFRCOClockGet(void)
 {
   /* Currently we assume that this frequency is properly tuned during */
@@ -328,8 +334,7 @@ uint32_t SystemLFRCOClockGet(void)
   return EFR32_LFRCO_FREQ;
 }
 
-
-/**************************************************************************//**
+/***************************************************************************//**
  * @brief
  *   Get ultra low frequency RC oscillator clock frequency for target system.
  *
@@ -338,15 +343,14 @@ uint32_t SystemLFRCOClockGet(void)
  *
  * @return
  *   ULFRCO frequency in Hz.
- *****************************************************************************/
+ ******************************************************************************/
 uint32_t SystemULFRCOClockGet(void)
 {
   /* The ULFRCO frequency is not tuned, and can be very inaccurate */
   return EFR32_ULFRCO_FREQ;
 }
 
-
-/**************************************************************************//**
+/***************************************************************************//**
  * @brief
  *   Get low frequency crystal oscillator clock frequency for target system.
  *
@@ -355,19 +359,18 @@ uint32_t SystemULFRCOClockGet(void)
  *
  * @return
  *   LFXO frequency in Hz.
- *****************************************************************************/
+ ******************************************************************************/
 uint32_t SystemLFXOClockGet(void)
 {
   /* External crystal oscillator present? */
-#if (EFR32_LFXO_FREQ > 0)
+#if (EFR32_LFXO_FREQ > 0U)
   return SystemLFXOClock;
 #else
-  return 0;
+  return 0U;
 #endif
 }
 
-
-/**************************************************************************//**
+/***************************************************************************//**
  * @brief
  *   Set low frequency crystal oscillator clock frequency for target system.
  *
@@ -381,18 +384,18 @@ uint32_t SystemLFXOClockGet(void)
  *
  * @param[in] freq
  *   LFXO frequency in Hz used for target.
- *****************************************************************************/
+ ******************************************************************************/
 void SystemLFXOClockSet(uint32_t freq)
 {
   /* External crystal oscillator present? */
-#if (EFR32_LFXO_FREQ > 0)
+#if (EFR32_LFXO_FREQ > 0U)
   SystemLFXOClock = freq;
 
   /* Update core clock frequency if LFXO is used to clock core */
-  if ((CMU->HFCLKSTATUS & _CMU_HFCLKSTATUS_SELECTED_MASK) == CMU_HFCLKSTATUS_SELECTED_LFXO)
-  {
+  if ((CMU->HFCLKSTATUS & _CMU_HFCLKSTATUS_SELECTED_MASK)
+      == CMU_HFCLKSTATUS_SELECTED_LFXO) {
     /* The function will update the global variable */
-    SystemCoreClockGet();
+    (void)SystemCoreClockGet();
   }
 #else
   (void)freq; /* Unused parameter */

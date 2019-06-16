@@ -1,8 +1,22 @@
 /***************************************************************************//**
- * @file error_rate_ci.c
+ * @file
  * @brief This file provides functionality to test RAIL error rates.
- * @copyright Copyright 2015 Silicon Laboratories, Inc. http://www.silabs.com
+ *******************************************************************************
+ * # License
+ * <b>Copyright 2018 Silicon Laboratories Inc. www.silabs.com</b>
+ *******************************************************************************
+ *
+ * The licensor of this software is Silicon Laboratories Inc. Your use of this
+ * software is governed by the terms of Silicon Labs Master Software License
+ * Agreement (MSLA) available at
+ * www.silabs.com/about-us/legal/master-software-license-agreement. This
+ * software is distributed to you in Source Code format and is governed by the
+ * sections of the MSLA applicable to Source Code.
+ *
  ******************************************************************************/
+
+#include <string.h>
+
 #include "command_interpreter.h"
 #include "response_print.h"
 
@@ -11,10 +25,14 @@
 #include "app_ci.h"
 #include "app_trx.h"
 #include "em_core.h"
-#include "pti.h"
 
+// Variables for PER testing
 uint32_t perCount;
 uint32_t perDelay;
+
+// Variables for BER testing
+BerStatus_t berStats = { 0 };
+bool berTestModeEnabled = false;
 static uint32_t berBytesToTest = 0;
 
 void startPerMode(int argc, char **argv)
@@ -30,7 +48,7 @@ void startPerMode(int argc, char **argv)
   perCount = packets;
   perDelay = delayUs / 2;
   if (packets > 0) {
-    RAIL_TimerSet(perDelay, RAIL_TIME_DELAY);
+    RAIL_SetTimer(railHandle, perDelay, RAIL_TIME_DELAY, &RAILCb_TimerExpired);
   }
 }
 
@@ -61,17 +79,40 @@ float variance(const Stats_t stats)
 
 void getPerStats(int argc, char **argv)
 {
+  char bufRssiMean[10];
+  char bufRssiMin[10];
+  char bufRssiMax[10];
+  char bufRssiVariance[10];
+
+  sprintfFloat(bufRssiMean, sizeof(bufRssiMean), counters.rssi.mean / 4, 0);
+  sprintfFloat(bufRssiMin, sizeof(bufRssiMin), ((float) counters.rssi.min) / 4, 2);
+  sprintfFloat(bufRssiMax, sizeof(bufRssiMax), ((float) counters.rssi.max) / 4, 2);
+  sprintfFloat(bufRssiVariance, sizeof(bufRssiVariance), variance(counters.rssi) / 16, 0);
+
   responsePrint(argv[0],
                 "PerTriggers:%u,"
-                "RssiMean:%f,"
-                "RssiMin:%.2f,"
-                "RssiMax:%.2f,"
-                "RssiVariance:%f",
+                "RssiMean:%s,"
+                "RssiMin:%s,"
+                "RssiMax:%s,"
+                "RssiVariance:%s",
                 counters.perTriggers,
-                counters.rssi.mean / 4,
-                ((float) counters.rssi.min) / 4,
-                ((float) counters.rssi.max) / 4,
-                variance(counters.rssi) / 16);
+                bufRssiMean,
+                bufRssiMin,
+                bufRssiMax,
+                bufRssiVariance);
+}
+
+void berResetStats(uint32_t numBytes)
+{
+  // Reset test statistics
+  memset(&berStats, 0, sizeof(BerStatus_t));
+
+  // 0x1FFFFFFF bytes (0xFFFFFFF8 bits) is max number of bytes that can be
+  // tested without uint32_t math rollover; numBytes = 0 is same as max
+  if ((0 == numBytes) || (numBytes > 0x1FFFFFFF)) {
+    numBytes = 0x1FFFFFFF;
+  }
+  berStats.bytesTotal = numBytes;
 }
 
 void berConfigSet(int argc, char **argv)
@@ -79,8 +120,8 @@ void berConfigSet(int argc, char **argv)
   RAIL_Status_t status;
   uint16_t rxThreshold, packetLength;
 
-  RAIL_RfIdleExt(RAIL_IDLE_ABORT, true);
-  RAIL_ResetFifo(true, true);
+  RAIL_Idle(railHandle, RAIL_IDLE_ABORT, true);
+  RAIL_ResetFifo(railHandle, true, true);
 
   // configure radio
   railDataConfig.txSource = TX_PACKET_DATA;
@@ -88,20 +129,20 @@ void berConfigSet(int argc, char **argv)
   railDataConfig.rxSource = RX_PACKET_DATA;
   railDataConfig.txMethod = FIFO_MODE;
   railDataConfig.rxMethod = FIFO_MODE;
-  status = RAIL_DataConfig(&railDataConfig);
+  status = RAIL_ConfigData(railHandle, &railDataConfig);
   if (status) {
-    responsePrintError(argv[0], status, "Error calling RAIL_DataConfig().");
+    responsePrintError(argv[0], status, "Error calling RAIL_ConfigData().");
   }
 
   // configure RX FIFO
   rxThreshold = 100;
-  rxThreshold = RAIL_SetRxFifoThreshold(rxThreshold);
+  rxThreshold = RAIL_SetRxFifoThreshold(railHandle, rxThreshold);
 
   // specify overall packet length info (infinite)
   packetLength = 0;
-  packetLength = RAIL_SetFixedLength(packetLength);
+  packetLength = RAIL_SetFixedLength(railHandle, packetLength);
 
-  RADIO_PTI_Disable();
+  RAIL_EnablePti(railHandle, false);
 
   berBytesToTest = ciGetUnsigned(argv[1]);
   berResetStats(berBytesToTest);
@@ -118,45 +159,43 @@ void berRx(int argc, char **argv)
   }
   resetCounters(argc, argv);
 
-  RAIL_RfIdleExt(RAIL_IDLE_ABORT, true);
-  RAIL_ResetFifo(true, true);
+  RAIL_Idle(railHandle, RAIL_IDLE_ABORT, true);
+  RAIL_ResetFifo(railHandle, true, true);
   if (enable) {
-    RADIO_PTI_Disable();
+    RAIL_EnablePti(railHandle, false);
     berResetStats(berBytesToTest);
     berTestModeEnabled = true;
-    RAIL_RxStart(channel);
+    RAIL_StartRx(railHandle, channel, NULL);
   }
 }
 
 void berStatusGet(int argc, char **argv)
 {
-  RAIL_BerStatus_t berStats;
   float percentDone;
   float percentBitError;
-  uint32_t bitsTotal; /**< Number of bits to receive */
-  uint32_t bitsTested; /**< Number of bits currently tested */
+  uint32_t bytesTotal; /**< Number of bytes to receive */
+  uint32_t bytesTested; /**< Number of bytes currently tested */
   uint32_t bitErrors; /**< Number of bits errors detected */
-  int8_t   rssi; /**< Latched RSSI value at pattern detect */
+  int8_t rssi; /**< Current RSSI value during pattern acquisition */
   CORE_DECLARE_IRQ_STATE;
 
   // be sure we don't get half new, half stale data
   CORE_ENTER_CRITICAL();
-  berGetStats(&berStats);
-  bitsTotal = berStats.bitsTotal;
-  bitsTested = berStats.bitsTested;
+  bytesTotal = berStats.bytesTotal;
+  bytesTested = berStats.bytesTested;
   bitErrors = berStats.bitErrors;
   rssi = berStats.rssi;
   CORE_EXIT_CRITICAL();
 
   // don't divide by 0
-  if (0 != bitsTotal) {
-    percentDone = (float)((((double)bitsTested) / bitsTotal) * 100);
+  if (0 != bytesTotal) {
+    percentDone = (float)((((double)bytesTested) / bytesTotal) * 100);
   } else {
     percentDone = 0.0;
   }
   // don't divide by 0
-  if (0 != bitsTested) {
-    percentBitError = (float)((((double)bitErrors) / bitsTested) * 100);
+  if (0 != bytesTested) {
+    percentBitError = (float)((((double)bitErrors) / (bytesTested * 8)) * 100);
   } else {
     percentBitError = 0.0;
   }
@@ -175,41 +214,53 @@ void berStatusGet(int argc, char **argv)
                   "BitErrors:0,"
                   "PercentBitError:0.00,"
                   "Status:TestAbortedRxOverflow",
-                  bitsTotal,
+                  bytesTotal * 8,
                   rssi);
   } else {
+    char bufPercentDone[10];
+    char bufPercentBitError[10];
+
+    sprintfFloat(bufPercentDone, sizeof(bufPercentDone), percentDone, 2);
+    sprintfFloat(bufPercentBitError, sizeof(bufPercentBitError), percentBitError, 2);
+
     responsePrint(argv[0],
                   "BitsToTest:%u,"
                   "BitsTested:%u,"
-                  "PercentDone:%0.2f,"
+                  "PercentDone:%s,"
                   "RSSI:%d,"
                   "BitErrors:%u,"
-                  "PercentBitError:%0.2f",
-                  bitsTotal,
-                  bitsTested,
-                  percentDone,
+                  "PercentBitError:%s",
+                  bytesTotal * 8,
+                  bytesTested * 8,
+                  bufPercentDone,
                   rssi,
                   bitErrors,
-                  percentBitError);
+                  bufPercentBitError);
   }
 }
 
 void throughput(int argc, char **argv)
 {
   uint32_t numberOfPackets = ciGetUnsigned(argv[1]);
-  uint8_t txStatus = RAIL_STATUS_INVALID_STATE;
+  RAIL_Status_t txStatus = RAIL_STATUS_INVALID_STATE;
   uint32_t start = RAIL_GetTime();
-  if (RAIL_TxDataLoad(&transmitPayload) != RAIL_STATUS_NO_ERROR) {
-    responsePrint(argv[0], "TxDataLoad Error");
+  if (RAIL_WriteTxFifo(railHandle,
+                       txData,
+                       txDataLen,
+                       true) != txDataLen) {
+    responsePrint(argv[0], "WriteTxFifo Error");
     return;
   }
   for (uint32_t packets = 0; packets < numberOfPackets; packets++) {
     txStatus = RAIL_STATUS_INVALID_STATE;
     while (txStatus != RAIL_STATUS_NO_ERROR) {
-      txStatus = RAIL_TxStart(channel, NULL, NULL);
+      txStatus = RAIL_StartTx(railHandle, channel, RAIL_TX_OPTIONS_DEFAULT, NULL);
     }
-    if (RAIL_TxDataLoad(&transmitPayload) != RAIL_STATUS_NO_ERROR) {
-      responsePrint(argv[0], "TxDataLoad Error");
+    if (RAIL_WriteTxFifo(railHandle,
+                         txData,
+                         txDataLen,
+                         true) != txDataLen) {
+      responsePrint(argv[0], "WriteTxFifo Error");
       return;
     }
   }

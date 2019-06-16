@@ -1,15 +1,17 @@
 /***************************************************************************//**
- * @file spidrv.c
+ * @file
  * @brief SPIDRV API implementation.
- * @version 5.2.1
  *******************************************************************************
  * # License
- * <b>(C) Copyright 2015 Silicon Labs, http://www.silabs.com</b>
+ * <b>Copyright 2018 Silicon Laboratories Inc. www.silabs.com</b>
  *******************************************************************************
  *
- * This file is licensed under the Silabs License Agreement. See the file
- * "Silabs_License_Agreement.txt" for details. Before using this software for
- * any purpose, you must agree to the terms of that agreement.
+ * The licensor of this software is Silicon Laboratories Inc.  Your use of this
+ * software is governed by the terms of Silicon Labs Master Software License
+ * Agreement (MSLA) available at
+ * www.silabs.com/about-us/legal/master-software-license-agreement.  This
+ * software is distributed to you in Source Code format and is governed by the
+ * sections of the MSLA applicable to Source Code.
  *
  ******************************************************************************/
 
@@ -34,6 +36,20 @@
 #else
 #error "No valid SPIDRV DMA engine defined."
 #endif
+
+/**
+ * @brief SPI Pins structure used when mapping from location to gpio port+pin.
+ */
+typedef struct {
+  uint8_t mosiPort;
+  uint8_t mosiPin;
+  uint8_t misoPort;
+  uint8_t misoPin;
+  uint8_t clkPort;
+  uint8_t clkPin;
+  uint8_t csPort;
+  uint8_t csPin;
+} SPI_Pins_t;
 
 static bool     spidrvIsInitialized = false;
 
@@ -86,16 +102,16 @@ static Ecode_t  WaitForIdleLine(SPIDRV_Handle_t handle);
 
 /***************************************************************************//**
  * @brief
- *    Initialize a SPI driver instance.
+ *    Initialize an SPI driver instance.
  *
- * @param[out] handle  Pointer to a SPI driver handle, refer to @ref
+ * @param[out] handle  Pointer to an SPI driver handle; refer to @ref
  *                     SPIDRV_Handle_t.
  *
- * @param[in] initData Pointer to an initialization data structure,
+ * @param[in] initData Pointer to an initialization data structure;
  *                     refer to @ref SPIDRV_Init_t.
  *
  * @return
- *    @ref ECODE_EMDRV_SPIDRV_OK on success. On failure an appropriate
+ *    @ref ECODE_EMDRV_SPIDRV_OK on success. On failure, an appropriate
  *    SPIDRV @ref Ecode_t is returned.
  ******************************************************************************/
 Ecode_t SPIDRV_Init(SPIDRV_Handle_t handle, SPIDRV_Init_t *initData)
@@ -103,6 +119,9 @@ Ecode_t SPIDRV_Init(SPIDRV_Handle_t handle, SPIDRV_Init_t *initData)
   Ecode_t retVal;
   CORE_DECLARE_IRQ_STATE;
   USART_InitSync_TypeDef usartInit = USART_INITSYNC_DEFAULT;
+#if defined(_SILICON_LABS_32B_SERIES_2)
+  int8_t spiPortNum = -1;
+#endif
 
   if ( handle == NULL ) {
     return ECODE_EMDRV_SPIDRV_ILLEGAL_HANDLE;
@@ -112,44 +131,68 @@ Ecode_t SPIDRV_Init(SPIDRV_Handle_t handle, SPIDRV_Init_t *initData)
     return ECODE_EMDRV_SPIDRV_PARAM_ERROR;
   }
 
-  memset(handle, 0, sizeof(SPIDRV_HandleData_t) );
+  memset(handle, 0, sizeof(SPIDRV_HandleData_t));
 
   if ( 0 ) {
 #if defined(USART0)
   } else if ( initData->port == USART0 ) {
     handle->usartClock  = cmuClock_USART0;
     handle->txDMASignal = dmadrvPeripheralSignal_USART0_TXBL;
+  #if defined(_SILICON_LABS_32B_SERIES_2)
     handle->rxDMASignal = dmadrvPeripheralSignal_USART0_RXDATAV;
+    spiPortNum = 0;
+  #else
+    handle->rxDMASignal = dmadrvPeripheralSignal_USART0_RXDATAV;
+  #endif
 #endif
 #if defined(USART1)
   } else if ( initData->port == USART1 ) {
     handle->usartClock  = cmuClock_USART1;
     handle->txDMASignal = dmadrvPeripheralSignal_USART1_TXBL;
+  #if defined(_SILICON_LABS_32B_SERIES_2)
     handle->rxDMASignal = dmadrvPeripheralSignal_USART1_RXDATAV;
+    spiPortNum = 1;
+  #else
+    handle->rxDMASignal = dmadrvPeripheralSignal_USART1_RXDATAV;
+  #endif
 #endif
 #if defined(USART2)
   } else if ( initData->port == USART2 ) {
     handle->usartClock  = cmuClock_USART2;
     handle->txDMASignal = dmadrvPeripheralSignal_USART2_TXBL;
+  #if defined(_SILICON_LABS_32B_SERIES_2)
     handle->rxDMASignal = dmadrvPeripheralSignal_USART2_RXDATAV;
+    spiPortNum = 2;
+  #else
+    handle->rxDMASignal = dmadrvPeripheralSignal_USART2_RXDATAV;
+  #endif
 #endif
 #if defined(USART3)
   } else if ( initData->port == USART3 ) {
     handle->usartClock  = cmuClock_USART3;
     handle->txDMASignal = dmadrvPeripheralSignal_USART3_TXBL;
     handle->rxDMASignal = dmadrvPeripheralSignal_USART3_RXDATAV;
+  #if defined(_SILICON_LABS_32B_SERIES_2)
+    spiPortNum = 3;
+  #endif
 #endif
 #if defined(USART4)
   } else if ( initData->port == USART4 ) {
     handle->usartClock  = cmuClock_USART4;
     handle->txDMASignal = dmadrvPeripheralSignal_USART4_TXBL;
     handle->rxDMASignal = dmadrvPeripheralSignal_USART4_RXDATAV;
+  #if defined(_SILICON_LABS_32B_SERIES_2)
+    spiPortNum = 4;
+  #endif
 #endif
 #if defined(USART5)
   } else if ( initData->port == USART5 ) {
     handle->usartClock  = cmuClock_USART5;
     handle->txDMASignal = dmadrvPeripheralSignal_USART5_TXBL;
     handle->rxDMASignal = dmadrvPeripheralSignal_USART5_RXDATAV;
+  #if defined(_SILICON_LABS_32B_SERIES_2)
+    spiPortNum = 5;
+  #endif
 #endif
 #if defined(USARTRF0)
   } else if ( initData->port == USARTRF0 ) {
@@ -166,6 +209,12 @@ Ecode_t SPIDRV_Init(SPIDRV_Handle_t handle, SPIDRV_Init_t *initData)
   } else {
     return ECODE_EMDRV_SPIDRV_PARAM_ERROR;
   }
+
+#if defined(_SILICON_LABS_32B_SERIES_2)
+  if ( spiPortNum == -1) {
+    return ECODE_EMDRV_SPIDRV_PARAM_ERROR;
+  }
+#endif
 
   handle->initData = *initData;
 
@@ -192,9 +241,18 @@ Ecode_t SPIDRV_Init(SPIDRV_Handle_t handle, SPIDRV_Init_t *initData)
     usartInit.baudrate = initData->bitRate;
   }
 
+#if defined(_CMU_HFPERCLKEN0_MASK)
   CMU_ClockEnable(cmuClock_HFPER, true);
+#endif
   CMU_ClockEnable(cmuClock_GPIO, true);
   CMU_ClockEnable(handle->usartClock, true);
+
+  if ((initData->frameLength < 4U) || (initData->frameLength > 16U) ) {
+    return ECODE_EMDRV_SPIDRV_PARAM_ERROR;
+  }
+  uint32_t databits = initData->frameLength - 4U + _USART_FRAME_DATABITS_FOUR;
+  usartInit.databits = (USART_Databits_TypeDef)databits;
+
   USART_InitSync(initData->port, &usartInit);
 
   if ( (initData->type == spidrvMaster)
@@ -205,20 +263,45 @@ Ecode_t SPIDRV_Init(SPIDRV_Handle_t handle, SPIDRV_Init_t *initData)
   if ( initData->csControl == spidrvCsControlAuto ) {
     // SPI 4 wire mode
 #if defined(USART_ROUTEPEN_TXPEN)
-    initData->port->ROUTEPEN = USART_ROUTEPEN_TXPEN
-                               | USART_ROUTEPEN_RXPEN
-                               | USART_ROUTEPEN_CLKPEN
-                               | USART_ROUTEPEN_CSPEN;
-
     initData->port->ROUTELOC0 = (initData->port->ROUTELOC0
                                  & ~(_USART_ROUTELOC0_TXLOC_MASK
                                      | _USART_ROUTELOC0_RXLOC_MASK
                                      | _USART_ROUTELOC0_CLKLOC_MASK
-                                     | _USART_ROUTELOC0_CSLOC_MASK) )
+                                     | _USART_ROUTELOC0_CSLOC_MASK))
                                 | (initData->portLocationTx  << _USART_ROUTELOC0_TXLOC_SHIFT)
                                 | (initData->portLocationRx  << _USART_ROUTELOC0_RXLOC_SHIFT)
                                 | (initData->portLocationClk << _USART_ROUTELOC0_CLKLOC_SHIFT)
                                 | (initData->portLocationCs  << _USART_ROUTELOC0_CSLOC_SHIFT);
+
+    initData->port->ROUTEPEN = USART_ROUTEPEN_TXPEN
+                               | USART_ROUTEPEN_RXPEN
+                               | USART_ROUTEPEN_CLKPEN
+                               | USART_ROUTEPEN_CSPEN;
+#elif defined (_GPIO_USART_ROUTEEN_MASK)
+    GPIO->USARTROUTE[spiPortNum].ROUTEEN = GPIO_USART_ROUTEEN_TXPEN
+                                           | GPIO_USART_ROUTEEN_RXPEN
+                                           | GPIO_USART_ROUTEEN_CLKPEN
+                                           | GPIO_USART_ROUTEEN_CSPEN;
+
+    GPIO->USARTROUTE[spiPortNum].TXROUTE = ((uint32_t)initData->portTx
+                                            << _GPIO_USART_TXROUTE_PORT_SHIFT)
+                                           | ((uint32_t)initData->pinTx
+                                              << _GPIO_USART_TXROUTE_PIN_SHIFT);
+
+    GPIO->USARTROUTE[spiPortNum].RXROUTE = ((uint32_t)initData->portRx
+                                            << _GPIO_USART_RXROUTE_PORT_SHIFT)
+                                           | ((uint32_t)initData->pinRx
+                                              << _GPIO_USART_RXROUTE_PIN_SHIFT);
+
+    GPIO->USARTROUTE[spiPortNum].CLKROUTE = ((uint32_t)initData->portClk
+                                             << _GPIO_USART_CLKROUTE_PORT_SHIFT)
+                                            | ((uint32_t)initData->pinClk
+                                               << _GPIO_USART_CLKROUTE_PIN_SHIFT);
+
+    GPIO->USARTROUTE[spiPortNum].CSROUTE = ((uint32_t)initData->portCs
+                                            << _GPIO_USART_CSROUTE_PORT_SHIFT)
+                                           | ((uint32_t)initData->pinCs
+                                              << _GPIO_USART_CSROUTE_PIN_SHIFT);
 #else
     initData->port->ROUTE = USART_ROUTE_TXPEN
                             | USART_ROUTE_RXPEN
@@ -230,17 +313,36 @@ Ecode_t SPIDRV_Init(SPIDRV_Handle_t handle, SPIDRV_Init_t *initData)
   } else {
     // SPI 3 wire mode
 #if defined(USART_ROUTEPEN_TXPEN)
-    initData->port->ROUTEPEN = USART_ROUTEPEN_TXPEN
-                               | USART_ROUTEPEN_RXPEN
-                               | USART_ROUTEPEN_CLKPEN;
-
     initData->port->ROUTELOC0 = (initData->port->ROUTELOC0
                                  & ~(_USART_ROUTELOC0_TXLOC_MASK
                                      | _USART_ROUTELOC0_RXLOC_MASK
-                                     | _USART_ROUTELOC0_CLKLOC_MASK) )
+                                     | _USART_ROUTELOC0_CLKLOC_MASK))
                                 | (initData->portLocationTx  << _USART_ROUTELOC0_TXLOC_SHIFT)
                                 | (initData->portLocationRx  << _USART_ROUTELOC0_RXLOC_SHIFT)
                                 | (initData->portLocationClk << _USART_ROUTELOC0_CLKLOC_SHIFT);
+
+    initData->port->ROUTEPEN = USART_ROUTEPEN_TXPEN
+                               | USART_ROUTEPEN_RXPEN
+                               | USART_ROUTEPEN_CLKPEN;
+#elif defined (GPIO_USART_ROUTEEN_TXPEN)
+    GPIO->USARTROUTE[spiPortNum].ROUTEEN = GPIO_USART_ROUTEEN_TXPEN
+                                           | GPIO_USART_ROUTEEN_RXPEN
+                                           | GPIO_USART_ROUTEEN_CLKPEN;
+
+    GPIO->USARTROUTE[spiPortNum].TXROUTE = ((uint32_t)initData->portTx
+                                            << _GPIO_USART_TXROUTE_PORT_SHIFT)
+                                           | ((uint32_t)initData->pinTx
+                                              << _GPIO_USART_TXROUTE_PIN_SHIFT);
+
+    GPIO->USARTROUTE[spiPortNum].RXROUTE = ((uint32_t)initData->portRx
+                                            << _GPIO_USART_RXROUTE_PORT_SHIFT)
+                                           | ((uint32_t)initData->pinRx
+                                              << _GPIO_USART_RXROUTE_PIN_SHIFT);
+
+    GPIO->USARTROUTE[spiPortNum].CLKROUTE = ((uint32_t)initData->pinClk
+                                             << _GPIO_USART_CLKROUTE_PORT_SHIFT)
+                                            | ((uint32_t)initData->pinClk
+                                               << _GPIO_USART_CLKROUTE_PIN_SHIFT);
 #else
     initData->port->ROUTE = USART_ROUTE_TXPEN
                             | USART_ROUTE_RXPEN
@@ -250,7 +352,7 @@ Ecode_t SPIDRV_Init(SPIDRV_Handle_t handle, SPIDRV_Init_t *initData)
 #endif
   }
 
-  if ( (retVal = ConfigGPIO(handle, true) ) != ECODE_EMDRV_SPIDRV_OK ) {
+  if ( (retVal = ConfigGPIO(handle, true)) != ECODE_EMDRV_SPIDRV_OK ) {
     return retVal;
   }
 
@@ -290,12 +392,12 @@ Ecode_t SPIDRV_Init(SPIDRV_Handle_t handle, SPIDRV_Init_t *initData)
 
 /***************************************************************************//**
  * @brief
- *    Deinitialize a SPI driver instance.
+ *    Deinitialize an SPI driver instance.
  *
- * @param[in] handle Pointer to a SPI driver handle.
+ * @param[in] handle Pointer to an SPI driver handle.
  *
  * @return
- *    @ref ECODE_EMDRV_SPIDRV_OK on success. On failure an appropriate
+ *    @ref ECODE_EMDRV_SPIDRV_OK on success. On failure, an appropriate
  *    SPIDRV @ref Ecode_t is returned.
  ******************************************************************************/
 Ecode_t SPIDRV_DeInit(SPIDRV_Handle_t handle)
@@ -304,7 +406,7 @@ Ecode_t SPIDRV_DeInit(SPIDRV_Handle_t handle)
     return ECODE_EMDRV_SPIDRV_ILLEGAL_HANDLE;
   }
 
-  // Stop DMA's.
+  // Stop DMAs.
   DMADRV_StopTransfer(handle->rxDMACh);
   DMADRV_StopTransfer(handle->txDMACh);
 
@@ -318,6 +420,7 @@ Ecode_t SPIDRV_DeInit(SPIDRV_Handle_t handle)
 #endif
 
   USART_Reset(handle->initData.port);
+
   CMU_ClockEnable(handle->usartClock, false);
 
   DMADRV_FreeChannel(handle->txDMACh);
@@ -331,11 +434,11 @@ Ecode_t SPIDRV_DeInit(SPIDRV_Handle_t handle)
  * @brief
  *    Abort an ongoing SPI transfer.
  *
- * @param[in] handle Pointer to a SPI driver handle.
+ * @param[in] handle Pointer to an SPI driver handle.
  *
  * @return
  *    @ref ECODE_EMDRV_SPIDRV_OK on success, @ref ECODE_EMDRV_SPIDRV_IDLE if
- *    SPI is idle. On failure an appropriate SPIDRV @ref Ecode_t is returned.
+ *    SPI is idle. On failure, an appropriate SPIDRV @ref Ecode_t is returned.
  ******************************************************************************/
 Ecode_t SPIDRV_AbortTransfer(SPIDRV_Handle_t handle)
 {
@@ -380,12 +483,12 @@ Ecode_t SPIDRV_AbortTransfer(SPIDRV_Handle_t handle)
  * @brief
  *    Get current SPI bus bitrate.
  *
- * @param[in] handle Pointer to a SPI driver handle.
+ * @param[in] handle Pointer to an SPI driver handle.
  *
  * @param[out] bitRate Current SPI bus bitrate.
  *
  * @return
- *    @ref ECODE_EMDRV_SPIDRV_OK on success. On failure an appropriate SPIDRV
+ *    @ref ECODE_EMDRV_SPIDRV_OK on success. On failure, an appropriate SPIDRV
  *    @ref Ecode_t is returned.
  ******************************************************************************/
 Ecode_t SPIDRV_GetBitrate(SPIDRV_Handle_t handle, uint32_t *bitRate)
@@ -407,12 +510,12 @@ Ecode_t SPIDRV_GetBitrate(SPIDRV_Handle_t handle, uint32_t *bitRate)
  * @brief
  *    Get current SPI framelength.
  *
- * @param[in] handle Pointer to a SPI driver handle.
+ * @param[in] handle Pointer to an SPI driver handle.
  *
  * @param[out] frameLength Current SPI bus framelength.
  *
  * @return
- *    @ref ECODE_EMDRV_SPIDRV_OK on success. On failure an appropriate SPIDRV
+ *    @ref ECODE_EMDRV_SPIDRV_OK on success. On failure, an appropriate SPIDRV
  *    @ref Ecode_t is returned.
  ******************************************************************************/
 Ecode_t SPIDRV_GetFramelength(SPIDRV_Handle_t handle, uint32_t *frameLength)
@@ -432,20 +535,20 @@ Ecode_t SPIDRV_GetFramelength(SPIDRV_Handle_t handle, uint32_t *frameLength)
 
 /***************************************************************************//**
  * @brief
- *    Get the status of a SPI transfer.
+ *    Get the status of an SPI transfer.
  *
  * @details
- *    Returns status of an ongoing transfer. If no transfer is in progress
+ *    Returns status of an ongoing transfer. If no transfer is in progress,
  *    the status of the last transfer is reported.
  *
- * @param[in] handle Pointer to a SPI driver handle.
+ * @param[in] handle Pointer to an SPI driver handle.
  *
  * @param[out] itemsTransferred Number of items (frames) transferred.
  *
  * @param[out] itemsRemaining Number of items (frames) remaining.
  *
  * @return
- *    @ref ECODE_EMDRV_SPIDRV_OK on success. On failure an appropriate SPIDRV
+ *    @ref ECODE_EMDRV_SPIDRV_OK on success. On failure, an appropriate SPIDRV
  *    @ref Ecode_t is returned.
  ******************************************************************************/
 Ecode_t SPIDRV_GetTransferStatus(SPIDRV_Handle_t handle,
@@ -478,12 +581,12 @@ Ecode_t SPIDRV_GetTransferStatus(SPIDRV_Handle_t handle,
 
 /***************************************************************************//**
  * @brief
- *    Start a SPI master receive transfer.
+ *    Start an SPI master receive transfer.
  *
  * @note
  *    The MOSI wire will transmit @ref SPIDRV_Init_t.dummyTxValue.
  *
- * @param[in]  handle Pointer to a SPI driver handle.
+ * @param[in]  handle Pointer to an SPI driver handle.
  *
  * @param[out] buffer Receive data buffer.
  *
@@ -492,7 +595,7 @@ Ecode_t SPIDRV_GetTransferStatus(SPIDRV_Handle_t handle,
  * @param[in]  callback Transfer completion callback.
  *
  * @return
- *    @ref ECODE_EMDRV_SPIDRV_OK on success. On failure an appropriate SPIDRV
+ *    @ref ECODE_EMDRV_SPIDRV_OK on success. On failure, an appropriate SPIDRV
  *    @ref Ecode_t is returned.
  ******************************************************************************/
 Ecode_t SPIDRV_MReceive(SPIDRV_Handle_t handle,
@@ -506,7 +609,7 @@ Ecode_t SPIDRV_MReceive(SPIDRV_Handle_t handle,
     return ECODE_EMDRV_SPIDRV_MODE_ERROR;
   }
 
-  if ( (retVal = TransferApiPrologue(handle, buffer, count) )
+  if ( (retVal = TransferApiPrologue(handle, buffer, count))
        != ECODE_EMDRV_SPIDRV_OK ) {
     return retVal;
   }
@@ -518,14 +621,14 @@ Ecode_t SPIDRV_MReceive(SPIDRV_Handle_t handle,
 
 /***************************************************************************//**
  * @brief
- *    Start a SPI master blocking receive transfer.
+ *    Start an SPI master blocking receive transfer.
  *
  * @note
  *    The MOSI wire will transmit @ref SPIDRV_Init_t.dummyTxValue.
- *    @n This function is blocking and returns when the transfer has completed,
+ *    @n This function is blocking and returns when the transfer is complete
  *    or when @ref SPIDRV_AbortTransfer() is called.
  *
- * @param[in]  handle Pointer to a SPI driver handle.
+ * @param[in]  handle Pointer to an SPI driver handle.
  *
  * @param[out] buffer Receive data buffer.
  *
@@ -533,7 +636,7 @@ Ecode_t SPIDRV_MReceive(SPIDRV_Handle_t handle,
  *
  * @return
  *    @ref ECODE_EMDRV_SPIDRV_OK on success or @ref ECODE_EMDRV_SPIDRV_ABORTED
- *    if @ref SPIDRV_AbortTransfer() has been called. On failure an appropriate
+ *    if @ref SPIDRV_AbortTransfer() has been called. On failure, an appropriate
  *    SPIDRV @ref Ecode_t is returned.
  ******************************************************************************/
 Ecode_t SPIDRV_MReceiveB(SPIDRV_Handle_t handle,
@@ -546,7 +649,7 @@ Ecode_t SPIDRV_MReceiveB(SPIDRV_Handle_t handle,
     return ECODE_EMDRV_SPIDRV_MODE_ERROR;
   }
 
-  if ( (retVal = TransferApiBlockingPrologue(handle, buffer, count) )
+  if ( (retVal = TransferApiBlockingPrologue(handle, buffer, count))
        != ECODE_EMDRV_SPIDRV_OK ) {
     return retVal;
   }
@@ -560,9 +663,9 @@ Ecode_t SPIDRV_MReceiveB(SPIDRV_Handle_t handle,
 
 /***************************************************************************//**
  * @brief
- *    Start a SPI master transfer.
+ *    Start an SPI master transfer.
  *
- * @param[in]  handle Pointer to a SPI driver handle.
+ * @param[in]  handle Pointer to an SPI driver handle.
  *
  * @param[in]  txBuffer Transmit data buffer.
  *
@@ -573,7 +676,7 @@ Ecode_t SPIDRV_MReceiveB(SPIDRV_Handle_t handle,
  * @param[in]  callback Transfer completion callback.
  *
  * @return
- *    @ref ECODE_EMDRV_SPIDRV_OK on success. On failure an appropriate SPIDRV
+ *    @ref ECODE_EMDRV_SPIDRV_OK on success. On failure, an appropriate SPIDRV
  *    @ref Ecode_t is returned.
  ******************************************************************************/
 Ecode_t SPIDRV_MTransfer(SPIDRV_Handle_t handle,
@@ -588,7 +691,7 @@ Ecode_t SPIDRV_MTransfer(SPIDRV_Handle_t handle,
     return ECODE_EMDRV_SPIDRV_MODE_ERROR;
   }
 
-  if ( (retVal = TransferApiPrologue(handle, (void*)txBuffer, count) )
+  if ( (retVal = TransferApiPrologue(handle, (void*)txBuffer, count))
        != ECODE_EMDRV_SPIDRV_OK ) {
     return retVal;
   }
@@ -604,13 +707,13 @@ Ecode_t SPIDRV_MTransfer(SPIDRV_Handle_t handle,
 
 /***************************************************************************//**
  * @brief
- *    Start a SPI master blocking transfer.
+ *    Start an SPI master blocking transfer.
  *
  * @note
- *    This function is blocking and returns when the transfer has completed,
+ *    This function is blocking and returns when the transfer is complete
  *    or when @ref SPIDRV_AbortTransfer() is called.
  *
- * @param[in]  handle Pointer to a SPI driver handle.
+ * @param[in]  handle Pointer to an SPI driver handle.
  *
  * @param[in]  txBuffer Transmit data buffer.
  *
@@ -620,7 +723,7 @@ Ecode_t SPIDRV_MTransfer(SPIDRV_Handle_t handle,
  *
  * @return
  *    @ref ECODE_EMDRV_SPIDRV_OK on success or @ref ECODE_EMDRV_SPIDRV_ABORTED
- *    if @ref SPIDRV_AbortTransfer() has been called. On failure an appropriate
+ *    if @ref SPIDRV_AbortTransfer() has been called. On failure, an appropriate
  *    SPIDRV @ref Ecode_t is returned.
  ******************************************************************************/
 Ecode_t SPIDRV_MTransferB(SPIDRV_Handle_t handle,
@@ -652,13 +755,13 @@ Ecode_t SPIDRV_MTransferB(SPIDRV_Handle_t handle,
 
 /***************************************************************************//**
  * @brief
- *    Start a SPI master blocking single item (frame) transfer.
+ *    Start an SPI master blocking single item (frame) transfer.
  *
  * @note
- *    This function is blocking and returns when the transfer has completed,
+ *    This function is blocking and returns when the transfer is complete
  *    or when @ref SPIDRV_AbortTransfer() is called.
  *
- * @param[in] handle Pointer to a SPI driver handle.
+ * @param[in] handle Pointer to an SPI driver handle.
  *
  * @param[in] txValue Value to transmit.
  *
@@ -666,7 +769,7 @@ Ecode_t SPIDRV_MTransferB(SPIDRV_Handle_t handle,
  *
  * @return
  *    @ref ECODE_EMDRV_SPIDRV_OK on success or @ref ECODE_EMDRV_SPIDRV_ABORTED
- *    if @ref SPIDRV_AbortTransfer() has been called. On failure an appropriate
+ *    if @ref SPIDRV_AbortTransfer() has been called. On failure, an appropriate
  *    SPIDRV @ref Ecode_t is returned.
  ******************************************************************************/
 Ecode_t SPIDRV_MTransferSingleItemB(SPIDRV_Handle_t handle,
@@ -706,12 +809,12 @@ Ecode_t SPIDRV_MTransferSingleItemB(SPIDRV_Handle_t handle,
 
 /***************************************************************************//**
  * @brief
- *    Start a SPI master transmit transfer.
+ *    Start an SPI master transmit transfer.
  *
  * @note
  *    The data received on the MISO wire is discarded.
  *
- * @param[in] handle Pointer to a SPI driver handle.
+ * @param[in] handle Pointer to an SPI driver handle.
  *
  * @param[in] buffer Transmit data buffer.
  *
@@ -720,7 +823,7 @@ Ecode_t SPIDRV_MTransferSingleItemB(SPIDRV_Handle_t handle,
  * @param[in] callback Transfer completion callback.
  *
  * @return
- *    @ref ECODE_EMDRV_SPIDRV_OK on success. On failure an appropriate SPIDRV
+ *    @ref ECODE_EMDRV_SPIDRV_OK on success. On failure, an appropriate SPIDRV
  *    @ref Ecode_t is returned.
  ******************************************************************************/
 Ecode_t SPIDRV_MTransmit(SPIDRV_Handle_t handle,
@@ -734,7 +837,7 @@ Ecode_t SPIDRV_MTransmit(SPIDRV_Handle_t handle,
     return ECODE_EMDRV_SPIDRV_MODE_ERROR;
   }
 
-  if ( (retVal = TransferApiPrologue(handle, (void*)buffer, count) )
+  if ( (retVal = TransferApiPrologue(handle, (void*)buffer, count))
        != ECODE_EMDRV_SPIDRV_OK ) {
     return retVal;
   }
@@ -746,13 +849,13 @@ Ecode_t SPIDRV_MTransmit(SPIDRV_Handle_t handle,
 
 /***************************************************************************//**
  * @brief
- *    Start a SPI master blocking transmit transfer.
+ *    Start an SPI master blocking transmit transfer.
  *
  * @note
  *    The data received on the MISO wire is discarded.
- *    @n This function is blocking and returns when the transfer is completed.
+ *    @n This function is blocking and returns when the transfer is complete.
  *
- * @param[in] handle Pointer to a SPI driver handle.
+ * @param[in] handle Pointer to an SPI driver handle.
  *
  * @param[in] buffer Transmit data buffer.
  *
@@ -760,7 +863,7 @@ Ecode_t SPIDRV_MTransmit(SPIDRV_Handle_t handle,
  *
  * @return
  *    @ref ECODE_EMDRV_SPIDRV_OK on success or @ref ECODE_EMDRV_SPIDRV_ABORTED
- *    if @ref SPIDRV_AbortTransfer() has been called. On failure an appropriate
+ *    if @ref SPIDRV_AbortTransfer() has been called. On failure, an appropriate
  *    SPIDRV @ref Ecode_t is returned.
  ******************************************************************************/
 Ecode_t SPIDRV_MTransmitB(SPIDRV_Handle_t handle,
@@ -773,7 +876,7 @@ Ecode_t SPIDRV_MTransmitB(SPIDRV_Handle_t handle,
     return ECODE_EMDRV_SPIDRV_MODE_ERROR;
   }
 
-  if ( (retVal = TransferApiBlockingPrologue(handle, (void*)buffer, count) )
+  if ( (retVal = TransferApiBlockingPrologue(handle, (void*)buffer, count))
        != ECODE_EMDRV_SPIDRV_OK ) {
     return retVal;
   }
@@ -789,12 +892,12 @@ Ecode_t SPIDRV_MTransmitB(SPIDRV_Handle_t handle,
  * @brief
  *    Set SPI bus bitrate.
  *
- * @param[in] handle Pointer to a SPI driver handle.
+ * @param[in] handle Pointer to an SPI driver handle.
  *
  * @param[in] bitRate New SPI bus bitrate.
  *
  * @return
- *    @ref ECODE_EMDRV_SPIDRV_OK on success. On failure an appropriate SPIDRV
+ *    @ref ECODE_EMDRV_SPIDRV_OK on success. On failure, an appropriate SPIDRV
  *    @ref Ecode_t is returned.
  ******************************************************************************/
 Ecode_t SPIDRV_SetBitrate(SPIDRV_Handle_t handle, uint32_t bitRate)
@@ -822,12 +925,12 @@ Ecode_t SPIDRV_SetBitrate(SPIDRV_Handle_t handle, uint32_t bitRate)
  * @brief
  *    Set SPI framelength.
  *
- * @param[in] handle Pointer to a SPI driver handle.
+ * @param[in] handle Pointer to an SPI driver handle.
  *
  * @param[in] frameLength New SPI bus framelength.
  *
  * @return
- *    @ref ECODE_EMDRV_SPIDRV_OK on success. On failure an appropriate SPIDRV
+ *    @ref ECODE_EMDRV_SPIDRV_OK on success. On failure, an appropriate SPIDRV
  *    @ref Ecode_t is returned.
  ******************************************************************************/
 Ecode_t SPIDRV_SetFramelength(SPIDRV_Handle_t handle, uint32_t frameLength)
@@ -863,12 +966,12 @@ Ecode_t SPIDRV_SetFramelength(SPIDRV_Handle_t handle, uint32_t frameLength)
 #if defined(EMDRV_SPIDRV_INCLUDE_SLAVE)
 /***************************************************************************//**
  * @brief
- *    Start a SPI slave receive transfer.
+ *    Start an SPI slave receive transfer.
  *
  * @note
  *    The MISO wire will transmit @ref SPIDRV_Init_t.dummyTxValue.
  *
- * @param[in]  handle Pointer to a SPI driver handle.
+ * @param[in]  handle Pointer to an SPI driver handle.
  *
  * @param[out] buffer Receive data buffer.
  *
@@ -879,7 +982,7 @@ Ecode_t SPIDRV_SetFramelength(SPIDRV_Handle_t handle, uint32_t frameLength)
  * @param[in]  timeoutMs Transfer timeout in milliseconds.
  *
  * @return
- *    @ref ECODE_EMDRV_SPIDRV_OK on success. On failure an appropriate SPIDRV
+ *    @ref ECODE_EMDRV_SPIDRV_OK on success. On failure, an appropriate SPIDRV
  *    @ref Ecode_t is returned.
  ******************************************************************************/
 Ecode_t SPIDRV_SReceive(SPIDRV_Handle_t handle,
@@ -894,7 +997,7 @@ Ecode_t SPIDRV_SReceive(SPIDRV_Handle_t handle,
     return ECODE_EMDRV_SPIDRV_MODE_ERROR;
   }
 
-  if ( (retVal = TransferApiPrologue(handle, buffer, count) )
+  if ( (retVal = TransferApiPrologue(handle, buffer, count))
        != ECODE_EMDRV_SPIDRV_OK ) {
     return retVal;
   }
@@ -908,7 +1011,7 @@ Ecode_t SPIDRV_SReceive(SPIDRV_Handle_t handle,
   }
 
   if ( handle->initData.slaveStartMode == spidrvSlaveStartDelayed ) {
-    if ( (retVal = WaitForIdleLine(handle) ) != ECODE_EMDRV_SPIDRV_OK ) {
+    if ( (retVal = WaitForIdleLine(handle)) != ECODE_EMDRV_SPIDRV_OK ) {
       return retVal;
     }
   }
@@ -920,14 +1023,14 @@ Ecode_t SPIDRV_SReceive(SPIDRV_Handle_t handle,
 
 /***************************************************************************//**
  * @brief
- *    Start a SPI slave blocking receive transfer.
+ *    Start an SPI slave blocking receive transfer.
  *
  * @note
  *    The MISO wire will transmit @ref SPIDRV_Init_t.dummyTxValue.
- *    @n This function is blocking and returns when the transfer has completed,
- *    or on timeout or when @ref SPIDRV_AbortTransfer() is called.
+ *    @n This function is blocking and returns when the transfer is complete,
+ *    on timeout, or when @ref SPIDRV_AbortTransfer() is called.
  *
- * @param[in]  handle Pointer to a SPI driver handle.
+ * @param[in]  handle Pointer to an SPI driver handle.
  *
  * @param[out] buffer Receive data buffer.
  *
@@ -938,7 +1041,7 @@ Ecode_t SPIDRV_SReceive(SPIDRV_Handle_t handle,
  * @return
  *    @ref ECODE_EMDRV_SPIDRV_OK on success, @ref ECODE_EMDRV_SPIDRV_TIMEOUT on
  *    timeout or @ref ECODE_EMDRV_SPIDRV_ABORTED if @ref SPIDRV_AbortTransfer()
- *    has been called. On failure an appropriate SPIDRV @ref Ecode_t is
+ *    has been called. On failure, an appropriate SPIDRV @ref Ecode_t is
  *    returned.
  ******************************************************************************/
 Ecode_t SPIDRV_SReceiveB(SPIDRV_Handle_t handle,
@@ -952,7 +1055,7 @@ Ecode_t SPIDRV_SReceiveB(SPIDRV_Handle_t handle,
     return ECODE_EMDRV_SPIDRV_MODE_ERROR;
   }
 
-  if ( (retVal = TransferApiBlockingPrologue(handle, buffer, count) )
+  if ( (retVal = TransferApiBlockingPrologue(handle, buffer, count))
        != ECODE_EMDRV_SPIDRV_OK ) {
     return retVal;
   }
@@ -966,7 +1069,7 @@ Ecode_t SPIDRV_SReceiveB(SPIDRV_Handle_t handle,
   }
 
   if ( handle->initData.slaveStartMode == spidrvSlaveStartDelayed ) {
-    if ( (retVal = WaitForIdleLine(handle) ) != ECODE_EMDRV_SPIDRV_OK ) {
+    if ( (retVal = WaitForIdleLine(handle)) != ECODE_EMDRV_SPIDRV_OK ) {
       return retVal;
     }
   }
@@ -980,9 +1083,9 @@ Ecode_t SPIDRV_SReceiveB(SPIDRV_Handle_t handle,
 
 /***************************************************************************//**
  * @brief
- *    Start a SPI slave transfer.
+ *    Start an SPI slave transfer.
  *
- * @param[in]  handle Pointer to a SPI driver handle.
+ * @param[in]  handle Pointer to an SPI driver handle.
  *
  * @param[in]  txBuffer Transmit data buffer.
  *
@@ -995,7 +1098,7 @@ Ecode_t SPIDRV_SReceiveB(SPIDRV_Handle_t handle,
  * @param[in]  timeoutMs Transfer timeout in milliseconds.
  *
  * @return
- *    @ref ECODE_EMDRV_SPIDRV_OK on success. On failure an appropriate SPIDRV
+ *    @ref ECODE_EMDRV_SPIDRV_OK on success. On failure, an appropriate SPIDRV
  *    @ref Ecode_t is returned.
  ******************************************************************************/
 Ecode_t SPIDRV_STransfer(SPIDRV_Handle_t handle,
@@ -1011,7 +1114,7 @@ Ecode_t SPIDRV_STransfer(SPIDRV_Handle_t handle,
     return ECODE_EMDRV_SPIDRV_MODE_ERROR;
   }
 
-  if ( (retVal = TransferApiPrologue(handle, (void*)txBuffer, count) )
+  if ( (retVal = TransferApiPrologue(handle, (void*)txBuffer, count))
        != ECODE_EMDRV_SPIDRV_OK ) {
     return retVal;
   }
@@ -1029,7 +1132,7 @@ Ecode_t SPIDRV_STransfer(SPIDRV_Handle_t handle,
   }
 
   if ( handle->initData.slaveStartMode == spidrvSlaveStartDelayed ) {
-    if ( (retVal = WaitForIdleLine(handle) ) != ECODE_EMDRV_SPIDRV_OK ) {
+    if ( (retVal = WaitForIdleLine(handle)) != ECODE_EMDRV_SPIDRV_OK ) {
       return retVal;
     }
   }
@@ -1041,13 +1144,13 @@ Ecode_t SPIDRV_STransfer(SPIDRV_Handle_t handle,
 
 /***************************************************************************//**
  * @brief
- *    Start a SPI slave blocking transfer.
+ *    Start an SPI slave blocking transfer.
  *
  * @note
- *    @n This function is blocking and returns when the transfer has completed,
- *    or on timeout or when @ref SPIDRV_AbortTransfer() is called.
+ *    @n This function is blocking and returns when the transfer is complete,
+ *    on timeout, or when @ref SPIDRV_AbortTransfer() is called.
  *
- * @param[in]  handle Pointer to a SPI driver handle.
+ * @param[in]  handle Pointer to an SPI driver handle.
  *
  * @param[in]  txBuffer Transmit data buffer.
  *
@@ -1060,7 +1163,7 @@ Ecode_t SPIDRV_STransfer(SPIDRV_Handle_t handle,
  * @return
  *    @ref ECODE_EMDRV_SPIDRV_OK on success, @ref ECODE_EMDRV_SPIDRV_TIMEOUT on
  *    timeout or @ref ECODE_EMDRV_SPIDRV_ABORTED if @ref SPIDRV_AbortTransfer()
- *    has been called. On failure an appropriate SPIDRV @ref Ecode_t is
+ *    has been called. On failure, an appropriate SPIDRV @ref Ecode_t is
  *    returned.
  ******************************************************************************/
 Ecode_t SPIDRV_STransferB(SPIDRV_Handle_t handle,
@@ -1093,7 +1196,7 @@ Ecode_t SPIDRV_STransferB(SPIDRV_Handle_t handle,
   }
 
   if ( handle->initData.slaveStartMode == spidrvSlaveStartDelayed ) {
-    if ( (retVal = WaitForIdleLine(handle) ) != ECODE_EMDRV_SPIDRV_OK ) {
+    if ( (retVal = WaitForIdleLine(handle)) != ECODE_EMDRV_SPIDRV_OK ) {
       return retVal;
     }
   }
@@ -1107,12 +1210,12 @@ Ecode_t SPIDRV_STransferB(SPIDRV_Handle_t handle,
 
 /***************************************************************************//**
  * @brief
- *    Start a SPI slave transmit transfer.
+ *    Start an SPI slave transmit transfer.
  *
  * @note
  *    The data received on the MOSI wire is discarded.
  *
- * @param[in]  handle Pointer to a SPI driver handle.
+ * @param[in]  handle Pointer to an SPI driver handle.
  *
  * @param[in]  buffer Transmit data buffer.
  *
@@ -1123,7 +1226,7 @@ Ecode_t SPIDRV_STransferB(SPIDRV_Handle_t handle,
  * @param[in]  timeoutMs Transfer timeout in milliseconds.
  *
  * @return
- *    @ref ECODE_EMDRV_SPIDRV_OK on success. On failure an appropriate SPIDRV
+ *    @ref ECODE_EMDRV_SPIDRV_OK on success. On failure, an appropriate SPIDRV
  *    @ref Ecode_t is returned.
  ******************************************************************************/
 Ecode_t SPIDRV_STransmit(SPIDRV_Handle_t handle,
@@ -1138,7 +1241,7 @@ Ecode_t SPIDRV_STransmit(SPIDRV_Handle_t handle,
     return ECODE_EMDRV_SPIDRV_MODE_ERROR;
   }
 
-  if ( (retVal = TransferApiPrologue(handle, (void*)buffer, count) )
+  if ( (retVal = TransferApiPrologue(handle, (void*)buffer, count))
        != ECODE_EMDRV_SPIDRV_OK ) {
     return retVal;
   }
@@ -1152,7 +1255,7 @@ Ecode_t SPIDRV_STransmit(SPIDRV_Handle_t handle,
   }
 
   if ( handle->initData.slaveStartMode == spidrvSlaveStartDelayed ) {
-    if ( (retVal = WaitForIdleLine(handle) ) != ECODE_EMDRV_SPIDRV_OK ) {
+    if ( (retVal = WaitForIdleLine(handle)) != ECODE_EMDRV_SPIDRV_OK ) {
       return retVal;
     }
   }
@@ -1164,14 +1267,14 @@ Ecode_t SPIDRV_STransmit(SPIDRV_Handle_t handle,
 
 /***************************************************************************//**
  * @brief
- *    Start a SPI slave blocking transmit transfer.
+ *    Start an SPI slave blocking transmit transfer.
  *
  * @note
  *    The data received on the MOSI wire is discarded.
- *    @n This function is blocking and returns when the transfer has completed,
- *    or on timeout or when @ref SPIDRV_AbortTransfer() is called.
+ *    @n This function is blocking and returns when the transfer is complete,
+ *    on timeout, or when @ref SPIDRV_AbortTransfer() is called.
  *
- * @param[in]  handle Pointer to a SPI driver handle.
+ * @param[in]  handle Pointer to an SPI driver handle.
  *
  * @param[in]  buffer Transmit data buffer.
  *
@@ -1182,7 +1285,7 @@ Ecode_t SPIDRV_STransmit(SPIDRV_Handle_t handle,
  * @return
  *    @ref ECODE_EMDRV_SPIDRV_OK on success, @ref ECODE_EMDRV_SPIDRV_TIMEOUT on
  *    timeout or @ref ECODE_EMDRV_SPIDRV_ABORTED if @ref SPIDRV_AbortTransfer()
- *    has been called. On failure an appropriate SPIDRV @ref Ecode_t is
+ *    has been called. On failure, an appropriate SPIDRV @ref Ecode_t is
  *    returned.
  ******************************************************************************/
 Ecode_t SPIDRV_STransmitB(SPIDRV_Handle_t handle,
@@ -1196,7 +1299,7 @@ Ecode_t SPIDRV_STransmitB(SPIDRV_Handle_t handle,
     return ECODE_EMDRV_SPIDRV_MODE_ERROR;
   }
 
-  if ( (retVal = TransferApiBlockingPrologue(handle, (void*)buffer, count) )
+  if ( (retVal = TransferApiBlockingPrologue(handle, (void*)buffer, count))
        != ECODE_EMDRV_SPIDRV_OK ) {
     return retVal;
   }
@@ -1210,7 +1313,7 @@ Ecode_t SPIDRV_STransmitB(SPIDRV_Handle_t handle,
   }
 
   if ( handle->initData.slaveStartMode == spidrvSlaveStartDelayed ) {
-    if ( (retVal = WaitForIdleLine(handle) ) != ECODE_EMDRV_SPIDRV_OK ) {
+    if ( (retVal = WaitForIdleLine(handle)) != ECODE_EMDRV_SPIDRV_OK ) {
       return retVal;
     }
   }
@@ -1241,233 +1344,272 @@ static void BlockingComplete(SPIDRV_Handle_t handle,
   handle->blockingCompleted = true;
 }
 
+#if defined(_SILICON_LABS_32B_SERIES_0)
 /***************************************************************************//**
- * @brief Configure/deconfigure SPI GPIO pins.
+ * @brief Get SPI pins for Series 0 devices.
  ******************************************************************************/
-static Ecode_t ConfigGPIO(SPIDRV_Handle_t handle, bool enable)
+static Ecode_t GetSpiPins(SPIDRV_Handle_t handle, SPI_Pins_t * pins)
 {
-#if defined(_USART_ROUTELOC0_MASK)
-  SPIDRV_Init_t *initData;
-#else
   uint32_t location;
-#endif
-  int mosiPin, misoPin, clkPin;
-  int mosiPort, misoPort, clkPort;
 
-#if defined(_USART_ROUTELOC0_MASK)
-  initData = &handle->initData;
-
-  if ( 0 ) {
-#if defined(USART0)
-  } else if ( handle->initData.port == USART0 ) {
-    mosiPort       = AF_USART0_TX_PORT(initData->portLocationTx);
-    misoPort       = AF_USART0_RX_PORT(initData->portLocationRx);
-    clkPort        = AF_USART0_CLK_PORT(initData->portLocationClk);
-    handle->csPort = AF_USART0_CS_PORT(initData->portLocationCs);
-    mosiPin        = AF_USART0_TX_PIN(initData->portLocationTx);
-    misoPin        = AF_USART0_RX_PIN(initData->portLocationRx);
-    clkPin         = AF_USART0_CLK_PIN(initData->portLocationClk);
-    handle->csPin  = AF_USART0_CS_PIN(initData->portLocationCs);
-#endif
-#if defined(USART1)
-  } else if ( handle->initData.port == USART1 ) {
-    mosiPort       = AF_USART1_TX_PORT(initData->portLocationTx);
-    misoPort       = AF_USART1_RX_PORT(initData->portLocationRx);
-    clkPort        = AF_USART1_CLK_PORT(initData->portLocationClk);
-    handle->csPort = AF_USART1_CS_PORT(initData->portLocationCs);
-    mosiPin        = AF_USART1_TX_PIN(initData->portLocationTx);
-    misoPin        = AF_USART1_RX_PIN(initData->portLocationRx);
-    clkPin         = AF_USART1_CLK_PIN(initData->portLocationClk);
-    handle->csPin  = AF_USART1_CS_PIN(initData->portLocationCs);
-#endif
-#if defined(USART2)
-  } else if ( handle->initData.port == USART2 ) {
-    mosiPort       = AF_USART2_TX_PORT(initData->portLocationTx);
-    misoPort       = AF_USART2_RX_PORT(initData->portLocationRx);
-    clkPort        = AF_USART2_CLK_PORT(initData->portLocationClk);
-    handle->csPort = AF_USART2_CS_PORT(initData->portLocationCs);
-    mosiPin        = AF_USART2_TX_PIN(initData->portLocationTx);
-    misoPin        = AF_USART2_RX_PIN(initData->portLocationRx);
-    clkPin         = AF_USART2_CLK_PIN(initData->portLocationClk);
-    handle->csPin  = AF_USART2_CS_PIN(initData->portLocationCs);
-#endif
-#if defined(USART3)
-  } else if ( handle->initData.port == USART3 ) {
-    mosiPort       = AF_USART3_TX_PORT(initData->portLocationTx);
-    misoPort       = AF_USART3_RX_PORT(initData->portLocationRx);
-    clkPort        = AF_USART3_CLK_PORT(initData->portLocationClk);
-    handle->csPort = AF_USART3_CS_PORT(initData->portLocationCs);
-    mosiPin        = AF_USART3_TX_PIN(initData->portLocationTx);
-    misoPin        = AF_USART3_RX_PIN(initData->portLocationRx);
-    clkPin         = AF_USART3_CLK_PIN(initData->portLocationClk);
-    handle->csPin  = AF_USART3_CS_PIN(initData->portLocationCs);
-#endif
-#if defined(USART4)
-  } else if ( handle->initData.port == USART4 ) {
-    mosiPort       = AF_USART4_TX_PORT(initData->portLocationTx);
-    misoPort       = AF_USART4_RX_PORT(initData->portLocationRx);
-    clkPort        = AF_USART4_CLK_PORT(initData->portLocationClk);
-    handle->csPort = AF_USART4_CS_PORT(initData->portLocationCs);
-    mosiPin        = AF_USART4_TX_PIN(initData->portLocationTx);
-    misoPin        = AF_USART4_RX_PIN(initData->portLocationRx);
-    clkPin         = AF_USART4_CLK_PIN(initData->portLocationClk);
-    handle->csPin  = AF_USART4_CS_PIN(initData->portLocationCs);
-#endif
-#if defined(USART5)
-  } else if ( handle->initData.port == USART5 ) {
-    mosiPort       = AF_USART5_TX_PORT(initData->portLocationTx);
-    misoPort       = AF_USART5_RX_PORT(initData->portLocationRx);
-    clkPort        = AF_USART5_CLK_PORT(initData->portLocationClk);
-    handle->csPort = AF_USART5_CS_PORT(initData->portLocationCs);
-    mosiPin        = AF_USART5_TX_PIN(initData->portLocationTx);
-    misoPin        = AF_USART5_RX_PIN(initData->portLocationRx);
-    clkPin         = AF_USART5_CLK_PIN(initData->portLocationClk);
-    handle->csPin  = AF_USART5_CS_PIN(initData->portLocationCs);
-#endif
-#if defined(USARTRF0)
-  } else if ( handle->initData.port == USARTRF0 ) {
-    mosiPort       = AF_USARTRF0_TX_PORT(initData->portLocationTx);
-    misoPort       = AF_USARTRF0_RX_PORT(initData->portLocationRx);
-    clkPort        = AF_USARTRF0_CLK_PORT(initData->portLocationClk);
-    handle->csPort = AF_USARTRF0_CS_PORT(initData->portLocationCs);
-    mosiPin        = AF_USARTRF0_TX_PIN(initData->portLocationTx);
-    misoPin        = AF_USARTRF0_RX_PIN(initData->portLocationRx);
-    clkPin         = AF_USARTRF0_CLK_PIN(initData->portLocationClk);
-    handle->csPin  = AF_USARTRF0_CS_PIN(initData->portLocationCs);
-#endif
-#if defined(USARTRF1)
-  } else if ( handle->initData.port == USARTRF1 ) {
-    mosiPort       = AF_USARTRF1_TX_PORT(initData->portLocationTx);
-    misoPort       = AF_USARTRF1_RX_PORT(initData->portLocationRx);
-    clkPort        = AF_USARTRF1_CLK_PORT(initData->portLocationClk);
-    handle->csPort = AF_USARTRF1_CS_PORT(initData->portLocationCs);
-    mosiPin        = AF_USARTRF1_TX_PIN(initData->portLocationTx);
-    misoPin        = AF_USARTRF1_RX_PIN(initData->portLocationRx);
-    clkPin         = AF_USARTRF1_CLK_PIN(initData->portLocationClk);
-    handle->csPin  = AF_USARTRF1_CS_PIN(initData->portLocationCs);
-#endif
-  } else {
-    return ECODE_EMDRV_SPIDRV_PARAM_ERROR;
-  }
-
-#else
   location = handle->initData.portLocation;
 
   if ( 0 ) {
 #if defined(USART0)
   } else if ( handle->initData.port == USART0 ) {
-    mosiPort       = AF_USART0_TX_PORT(location);
-    misoPort       = AF_USART0_RX_PORT(location);
-    clkPort        = AF_USART0_CLK_PORT(location);
-    handle->csPort = AF_USART0_CS_PORT(location);
-    mosiPin        = AF_USART0_TX_PIN(location);
-    misoPin        = AF_USART0_RX_PIN(location);
-    clkPin         = AF_USART0_CLK_PIN(location);
-    handle->csPin  = AF_USART0_CS_PIN(location);
+    pins->mosiPort = AF_USART0_TX_PORT(location);
+    pins->misoPort = AF_USART0_RX_PORT(location);
+    pins->clkPort  = AF_USART0_CLK_PORT(location);
+    pins->csPort   = AF_USART0_CS_PORT(location);
+    pins->mosiPin  = AF_USART0_TX_PIN(location);
+    pins->misoPin  = AF_USART0_RX_PIN(location);
+    pins->clkPin   = AF_USART0_CLK_PIN(location);
+    pins->csPin    = AF_USART0_CS_PIN(location);
 #endif
 #if defined(USART1)
   } else if ( handle->initData.port == USART1 ) {
-    mosiPort       = AF_USART1_TX_PORT(location);
-    misoPort       = AF_USART1_RX_PORT(location);
-    clkPort        = AF_USART1_CLK_PORT(location);
-    handle->csPort = AF_USART1_CS_PORT(location);
-    mosiPin        = AF_USART1_TX_PIN(location);
-    misoPin        = AF_USART1_RX_PIN(location);
-    clkPin         = AF_USART1_CLK_PIN(location);
-    handle->csPin  = AF_USART1_CS_PIN(location);
+    pins->mosiPort = AF_USART1_TX_PORT(location);
+    pins->misoPort = AF_USART1_RX_PORT(location);
+    pins->clkPort  = AF_USART1_CLK_PORT(location);
+    pins->csPort   = AF_USART1_CS_PORT(location);
+    pins->mosiPin  = AF_USART1_TX_PIN(location);
+    pins->misoPin  = AF_USART1_RX_PIN(location);
+    pins->clkPin   = AF_USART1_CLK_PIN(location);
+    pins->csPin    = AF_USART1_CS_PIN(location);
 #endif
 #if defined(USART2)
   } else if ( handle->initData.port == USART2 ) {
-    mosiPort       = AF_USART2_TX_PORT(location);
-    misoPort       = AF_USART2_RX_PORT(location);
-    clkPort        = AF_USART2_CLK_PORT(location);
-    handle->csPort = AF_USART2_CS_PORT(location);
-    mosiPin        = AF_USART2_TX_PIN(location);
-    misoPin        = AF_USART2_RX_PIN(location);
-    clkPin         = AF_USART2_CLK_PIN(location);
-    handle->csPin  = AF_USART2_CS_PIN(location);
+    pins->mosiPort = AF_USART2_TX_PORT(location);
+    pins->misoPort = AF_USART2_RX_PORT(location);
+    pins->clkPort  = AF_USART2_CLK_PORT(location);
+    pins->csPort   = AF_USART2_CS_PORT(location);
+    pins->mosiPin  = AF_USART2_TX_PIN(location);
+    pins->misoPin  = AF_USART2_RX_PIN(location);
+    pins->clkPin   = AF_USART2_CLK_PIN(location);
+    pins->csPin    = AF_USART2_CS_PIN(location);
 #endif
 #if defined(USARTRF0)
   } else if ( handle->initData.port == USARTRF0 ) {
-    mosiPort       = AF_USARTRF0_TX_PORT(location);
-    misoPort       = AF_USARTRF0_RX_PORT(location);
-    clkPort        = AF_USARTRF0_CLK_PORT(location);
-    handle->csPort = AF_USARTRF0_CS_PORT(location);
-    mosiPin        = AF_USARTRF0_TX_PIN(location);
-    misoPin        = AF_USARTRF0_RX_PIN(location);
-    clkPin         = AF_USARTRF0_CLK_PIN(location);
-    handle->csPin  = AF_USARTRF0_CS_PIN(location);
+    pins->mosiPort = AF_USARTRF0_TX_PORT(location);
+    pins->misoPort = AF_USARTRF0_RX_PORT(location);
+    pins->clkPort  = AF_USARTRF0_CLK_PORT(location);
+    pins->csPort   = AF_USARTRF0_CS_PORT(location);
+    pins->mosiPin  = AF_USARTRF0_TX_PIN(location);
+    pins->misoPin  = AF_USARTRF0_RX_PIN(location);
+    pins->clkPin   = AF_USARTRF0_CLK_PIN(location);
+    pins->csPin    = AF_USARTRF0_CS_PIN(location);
 #endif
 #if defined(USARTRF1)
   } else if ( handle->initData.port == USARTRF1 ) {
-    mosiPort       = AF_USARTRF1_TX_PORT(location);
-    misoPort       = AF_USARTRF1_RX_PORT(location);
-    clkPort        = AF_USARTRF1_CLK_PORT(location);
-    handle->csPort = AF_USARTRF1_CS_PORT(location);
-    mosiPin        = AF_USARTRF1_TX_PIN(location);
-    misoPin        = AF_USARTRF1_RX_PIN(location);
-    clkPin         = AF_USARTRF1_CLK_PIN(location);
-    handle->csPin  = AF_USARTRF1_CS_PIN(location);
+    pins->mosiPort = AF_USARTRF1_TX_PORT(location);
+    pins->misoPort = AF_USARTRF1_RX_PORT(location);
+    pins->clkPort  = AF_USARTRF1_CLK_PORT(location);
+    pins->csPort   = AF_USARTRF1_CS_PORT(location);
+    pins->mosiPin  = AF_USARTRF1_TX_PIN(location);
+    pins->misoPin  = AF_USARTRF1_RX_PIN(location);
+    pins->clkPin   = AF_USARTRF1_CLK_PIN(location);
+    pins->csPin    = AF_USARTRF1_CS_PIN(location);
 #endif
   } else {
     return ECODE_EMDRV_SPIDRV_PARAM_ERROR;
   }
+  return ECODE_EMDRV_SPIDRV_OK;
+}
 #endif
+
+#if defined(_SILICON_LABS_32B_SERIES_1)
+/***************************************************************************//**
+ * @brief Get SPI pins for Series 1 devices.
+ ******************************************************************************/
+static Ecode_t GetSpiPins(SPIDRV_Handle_t handle, SPI_Pins_t * pins)
+{
+  SPIDRV_Init_t *initData;
+  initData = &handle->initData;
+
+  if ( 0 ) {
+#if defined(USART0)
+  } else if ( handle->initData.port == USART0 ) {
+    pins->mosiPort = AF_USART0_TX_PORT(initData->portLocationTx);
+    pins->misoPort = AF_USART0_RX_PORT(initData->portLocationRx);
+    pins->clkPort  = AF_USART0_CLK_PORT(initData->portLocationClk);
+    pins->csPort   = AF_USART0_CS_PORT(initData->portLocationCs);
+    pins->mosiPin  = AF_USART0_TX_PIN(initData->portLocationTx);
+    pins->misoPin  = AF_USART0_RX_PIN(initData->portLocationRx);
+    pins->clkPin   = AF_USART0_CLK_PIN(initData->portLocationClk);
+    pins->csPin    = AF_USART0_CS_PIN(initData->portLocationCs);
+#endif
+#if defined(USART1)
+  } else if ( handle->initData.port == USART1 ) {
+    pins->mosiPort = AF_USART1_TX_PORT(initData->portLocationTx);
+    pins->misoPort = AF_USART1_RX_PORT(initData->portLocationRx);
+    pins->clkPort  = AF_USART1_CLK_PORT(initData->portLocationClk);
+    pins->csPort   = AF_USART1_CS_PORT(initData->portLocationCs);
+    pins->mosiPin  = AF_USART1_TX_PIN(initData->portLocationTx);
+    pins->misoPin  = AF_USART1_RX_PIN(initData->portLocationRx);
+    pins->clkPin   = AF_USART1_CLK_PIN(initData->portLocationClk);
+    pins->csPin    = AF_USART1_CS_PIN(initData->portLocationCs);
+#endif
+#if defined(USART2)
+  } else if ( handle->initData.port == USART2 ) {
+    pins->mosiPort = AF_USART2_TX_PORT(initData->portLocationTx);
+    pins->misoPort = AF_USART2_RX_PORT(initData->portLocationRx);
+    pins->clkPort  = AF_USART2_CLK_PORT(initData->portLocationClk);
+    pins->csPort   = AF_USART2_CS_PORT(initData->portLocationCs);
+    pins->mosiPin  = AF_USART2_TX_PIN(initData->portLocationTx);
+    pins->misoPin  = AF_USART2_RX_PIN(initData->portLocationRx);
+    pins->clkPin   = AF_USART2_CLK_PIN(initData->portLocationClk);
+    pins->csPin    = AF_USART2_CS_PIN(initData->portLocationCs);
+#endif
+#if defined(USART3)
+  } else if ( handle->initData.port == USART3 ) {
+    pins->mosiPort = AF_USART3_TX_PORT(initData->portLocationTx);
+    pins->misoPort = AF_USART3_RX_PORT(initData->portLocationRx);
+    pins->clkPort  = AF_USART3_CLK_PORT(initData->portLocationClk);
+    pins->csPort   = AF_USART3_CS_PORT(initData->portLocationCs);
+    pins->mosiPin  = AF_USART3_TX_PIN(initData->portLocationTx);
+    pins->misoPin  = AF_USART3_RX_PIN(initData->portLocationRx);
+    pins->clkPin   = AF_USART3_CLK_PIN(initData->portLocationClk);
+    pins->csPin    = AF_USART3_CS_PIN(initData->portLocationCs);
+#endif
+#if defined(USART4)
+  } else if ( handle->initData.port == USART4 ) {
+    pins->mosiPort = AF_USART4_TX_PORT(initData->portLocationTx);
+    pins->misoPort = AF_USART4_RX_PORT(initData->portLocationRx);
+    pins->clkPort  = AF_USART4_CLK_PORT(initData->portLocationClk);
+    pins->csPort   = AF_USART4_CS_PORT(initData->portLocationCs);
+    pins->mosiPin  = AF_USART4_TX_PIN(initData->portLocationTx);
+    pins->misoPin  = AF_USART4_RX_PIN(initData->portLocationRx);
+    pins->clkPin   = AF_USART4_CLK_PIN(initData->portLocationClk);
+    pins->csPin    = AF_USART4_CS_PIN(initData->portLocationCs);
+#endif
+#if defined(USART5)
+  } else if ( handle->initData.port == USART5 ) {
+    pins->mosiPort = AF_USART5_TX_PORT(initData->portLocationTx);
+    pins->misoPort = AF_USART5_RX_PORT(initData->portLocationRx);
+    pins->clkPort  = AF_USART5_CLK_PORT(initData->portLocationClk);
+    pins->csPort   = AF_USART5_CS_PORT(initData->portLocationCs);
+    pins->mosiPin  = AF_USART5_TX_PIN(initData->portLocationTx);
+    pins->misoPin  = AF_USART5_RX_PIN(initData->portLocationRx);
+    pins->clkPin   = AF_USART5_CLK_PIN(initData->portLocationClk);
+    pins->csPin    = AF_USART5_CS_PIN(initData->portLocationCs);
+#endif
+#if defined(USARTRF0)
+  } else if ( handle->initData.port == USARTRF0 ) {
+    pins->mosiPort = AF_USARTRF0_TX_PORT(initData->portLocationTx);
+    pins->misoPort = AF_USARTRF0_RX_PORT(initData->portLocationRx);
+    pins->clkPort  = AF_USARTRF0_CLK_PORT(initData->portLocationClk);
+    pins->csPort   = AF_USARTRF0_CS_PORT(initData->portLocationCs);
+    pins->mosiPin  = AF_USARTRF0_TX_PIN(initData->portLocationTx);
+    pins->misoPin  = AF_USARTRF0_RX_PIN(initData->portLocationRx);
+    pins->clkPin   = AF_USARTRF0_CLK_PIN(initData->portLocationClk);
+    pins->csPin    = AF_USARTRF0_CS_PIN(initData->portLocationCs);
+#endif
+#if defined(USARTRF1)
+  } else if ( handle->initData.port == USARTRF1 ) {
+    pins->mosiPort = AF_USARTRF1_TX_PORT(initData->portLocationTx);
+    pins->misoPort = AF_USARTRF1_RX_PORT(initData->portLocationRx);
+    pins->clkPort  = AF_USARTRF1_CLK_PORT(initData->portLocationClk);
+    pins->csPort   = AF_USARTRF1_CS_PORT(initData->portLocationCs);
+    pins->mosiPin  = AF_USARTRF1_TX_PIN(initData->portLocationTx);
+    pins->misoPin  = AF_USARTRF1_RX_PIN(initData->portLocationRx);
+    pins->clkPin   = AF_USARTRF1_CLK_PIN(initData->portLocationClk);
+    pins->csPin    = AF_USARTRF1_CS_PIN(initData->portLocationCs);
+#endif
+  } else {
+    return ECODE_EMDRV_SPIDRV_PARAM_ERROR;
+  }
+  return ECODE_EMDRV_SPIDRV_OK;
+}
+#endif
+
+#if defined(_SILICON_LABS_32B_SERIES_2)
+/***************************************************************************//**
+ * @brief Get SPI pins for Series 2 devices.
+ ******************************************************************************/
+static Ecode_t GetSpiPins(SPIDRV_Handle_t handle, SPI_Pins_t * pins)
+{
+  pins->mosiPort = handle->initData.portTx;
+  pins->misoPort = handle->initData.portRx;
+  pins->clkPort  = handle->initData.portClk;
+  pins->csPort   = handle->initData.portCs;
+  pins->mosiPin  = handle->initData.pinTx;
+  pins->misoPin  = handle->initData.pinRx;
+  pins->clkPin   = handle->initData.pinClk;
+  pins->csPin    = handle->initData.pinCs;
+
+  return ECODE_EMDRV_SPIDRV_OK;
+}
+#endif
+
+/***************************************************************************//**
+ * @brief Configure/deconfigure SPI GPIO pins.
+ ******************************************************************************/
+static Ecode_t ConfigGPIO(SPIDRV_Handle_t handle, bool enable)
+{
+  SPI_Pins_t pins;
+  Ecode_t ret;
+
+  ret = GetSpiPins(handle, &pins);
+  if (ret != ECODE_EMDRV_SPIDRV_OK) {
+    return ret;
+  }
+  handle->csPort = pins.csPort;
+  handle->csPin  = pins.csPin;
 
   if ( enable ) {
     if ( handle->initData.type == spidrvMaster ) {
-      GPIO_PinModeSet( (GPIO_Port_TypeDef)mosiPort, mosiPin,
-                       gpioModePushPull, 0);
-      GPIO_PinModeSet( (GPIO_Port_TypeDef)misoPort, misoPin,
-                       gpioModeInputPull, 0);
+      GPIO_PinModeSet((GPIO_Port_TypeDef)pins.mosiPort, pins.mosiPin,
+                      gpioModePushPull, 0);
+      GPIO_PinModeSet((GPIO_Port_TypeDef)pins.misoPort, pins.misoPin,
+                      gpioModeInput, 0);
 
       if (    (handle->initData.clockMode == spidrvClockMode0)
               || (handle->initData.clockMode == spidrvClockMode1) ) {
-        GPIO_PinModeSet( (GPIO_Port_TypeDef)clkPort, clkPin,
-                         gpioModePushPull, 0);
+        GPIO_PinModeSet((GPIO_Port_TypeDef)pins.clkPort, pins.clkPin,
+                        gpioModePushPull, 0);
       } else {
-        GPIO_PinModeSet( (GPIO_Port_TypeDef)clkPort, clkPin,
-                         gpioModePushPull, 1);
+        GPIO_PinModeSet((GPIO_Port_TypeDef)pins.clkPort, pins.clkPin,
+                        gpioModePushPull, 1);
       }
 
       if ( handle->initData.csControl == spidrvCsControlAuto ) {
-        GPIO_PinModeSet( (GPIO_Port_TypeDef)handle->csPort, handle->csPin,
-                         gpioModePushPull, 1);
+        GPIO_PinModeSet((GPIO_Port_TypeDef)handle->csPort, handle->csPin,
+                        gpioModePushPull, 1);
       }
     } else {
-      GPIO_PinModeSet( (GPIO_Port_TypeDef)mosiPort, mosiPin,
-                       gpioModeInputPull, 0);
-      GPIO_PinModeSet( (GPIO_Port_TypeDef)misoPort, misoPin,
-                       gpioModePushPull, 0);
+      GPIO_PinModeSet((GPIO_Port_TypeDef)pins.mosiPort, pins.mosiPin,
+                      gpioModeInput, 0);
+      GPIO_PinModeSet((GPIO_Port_TypeDef)pins.misoPort, pins.misoPin,
+                      gpioModePushPull, 0);
 
       if (    (handle->initData.clockMode == spidrvClockMode0)
               || (handle->initData.clockMode == spidrvClockMode1) ) {
-        GPIO_PinModeSet( (GPIO_Port_TypeDef)clkPort, clkPin,
-                         gpioModeInputPull, 0);
+        GPIO_PinModeSet((GPIO_Port_TypeDef)pins.clkPort, pins.clkPin,
+                        gpioModeInputPull, 0);
       } else {
-        GPIO_PinModeSet( (GPIO_Port_TypeDef)clkPort, clkPin,
-                         gpioModeInputPull, 1);
+        GPIO_PinModeSet((GPIO_Port_TypeDef)pins.clkPort, pins.clkPin,
+                        gpioModeInputPull, 1);
       }
 
       if ( handle->initData.csControl == spidrvCsControlAuto ) {
-        GPIO_PinModeSet( (GPIO_Port_TypeDef)handle->csPort, handle->csPin,
-                         gpioModeInputPull, 1);
+        GPIO_PinModeSet((GPIO_Port_TypeDef)handle->csPort, handle->csPin,
+                        gpioModeInputPull, 1);
       }
     }
   } else {
-    GPIO_PinModeSet( (GPIO_Port_TypeDef)mosiPort, mosiPin, gpioModeInputPull, 0);
-    GPIO_PinModeSet( (GPIO_Port_TypeDef)misoPort, misoPin, gpioModeInputPull, 0);
+    GPIO_PinModeSet((GPIO_Port_TypeDef)pins.mosiPort, pins.mosiPin, gpioModeInputPull, 0);
+    GPIO_PinModeSet((GPIO_Port_TypeDef)pins.misoPort, pins.misoPin, gpioModeInputPull, 0);
 
     if (    (handle->initData.clockMode == spidrvClockMode0)
             || (handle->initData.clockMode == spidrvClockMode1) ) {
-      GPIO_PinModeSet( (GPIO_Port_TypeDef)clkPort, clkPin, gpioModeInputPull, 0);
+      GPIO_PinModeSet((GPIO_Port_TypeDef)pins.clkPort, pins.clkPin, gpioModeInputPull, 0);
     } else {
-      GPIO_PinModeSet( (GPIO_Port_TypeDef)clkPort, clkPin, gpioModeInputPull, 1);
+      GPIO_PinModeSet((GPIO_Port_TypeDef)pins.clkPort, pins.clkPin, gpioModeInputPull, 1);
     }
 
     if ( handle->initData.csControl == spidrvCsControlAuto ) {
-      GPIO_PinModeSet( (GPIO_Port_TypeDef)handle->csPort, handle->csPin,
-                       gpioModeDisabled, 0);
+      GPIO_PinModeSet((GPIO_Port_TypeDef)handle->csPort, handle->csPin,
+                      gpioModeDisabled, 0);
     }
   }
 
@@ -1475,7 +1617,7 @@ static Ecode_t ConfigGPIO(SPIDRV_Handle_t handle, bool enable)
 }
 
 /***************************************************************************//**
- * @brief DMA transfer completion callback. Called by DMA interrupt handler.
+ * @brief DMA transfer completion callback. Called by the DMA interrupt handler.
  ******************************************************************************/
 static bool RxDMAComplete(unsigned int channel,
                           unsigned int sequenceNo,
@@ -1523,7 +1665,7 @@ static void SlaveTimeout(RTCDRV_TimerID_t id, void *user)
   if ( handle->state == spidrvStateTransferring ) {
     DMADRV_TransferActive(handle->rxDMACh, &active);
     if ( active ) {
-      // Stop running DMA's
+      // Stop running DMAs
       DMADRV_StopTransfer(handle->rxDMACh);
       DMADRV_StopTransfer(handle->txDMACh);
       DMADRV_TransferRemainingCount(handle->rxDMACh, &handle->remaining);
@@ -1531,7 +1673,7 @@ static void SlaveTimeout(RTCDRV_TimerID_t id, void *user)
       // DMA is either completed or not yet started
       DMADRV_TransferCompletePending(handle->txDMACh, &pending);
       if ( pending ) {
-        // We have a pending DMA interrupt, let the DMA handler do the rest
+        // A DMA interrupt is pending; let the DMA handler do the rest
         return;
       }
       handle->remaining = handle->transferCount;
@@ -1549,7 +1691,7 @@ static void SlaveTimeout(RTCDRV_TimerID_t id, void *user)
 #endif
 
 /***************************************************************************//**
- * @brief Start a SPI receive DMA.
+ * @brief Start an SPI receive DMA.
  ******************************************************************************/
 static void StartReceiveDMA(SPIDRV_Handle_t handle,
                             void *buffer,
@@ -1570,15 +1712,18 @@ static void StartReceiveDMA(SPIDRV_Handle_t handle,
     size = dmadrvDataSize1;
   }
 
-  if ( handle->initData.frameLength > 8 ) {
+  if ( handle->initData.frameLength > 9 ) {
     rxPort = (void *)&(handle->initData.port->RXDOUBLE);
     txPort = (void *)&(handle->initData.port->TXDOUBLE);
+  } else if (handle->initData.frameLength == 9) {
+    rxPort = (void *)&(handle->initData.port->RXDATAX);
+    txPort = (void *)&(handle->initData.port->TXDATAX);
   } else {
     rxPort = (void *)&(handle->initData.port->RXDATA);
     txPort = (void *)&(handle->initData.port->TXDATA);
   }
 
-  // Start receive dma.
+  // Start receive DMA.
   DMADRV_PeripheralMemory(handle->rxDMACh,
                           handle->rxDMASignal,
                           (void*)buffer,
@@ -1589,7 +1734,7 @@ static void StartReceiveDMA(SPIDRV_Handle_t handle,
                           RxDMAComplete,
                           handle);
 
-  // Start transmit dma.
+  // Start transmit DMA.
   DMADRV_MemoryPeripheral(handle->txDMACh,
                           handle->txDMASignal,
                           txPort,
@@ -1602,7 +1747,7 @@ static void StartReceiveDMA(SPIDRV_Handle_t handle,
 }
 
 /***************************************************************************//**
- * @brief Start a SPI transmit/receive DMA.
+ * @brief Start an SPI transmit/receive DMA.
  ******************************************************************************/
 static void StartTransferDMA(SPIDRV_Handle_t handle,
                              const void *txBuffer,
@@ -1624,15 +1769,18 @@ static void StartTransferDMA(SPIDRV_Handle_t handle,
     size = dmadrvDataSize1;
   }
 
-  if ( handle->initData.frameLength > 8 ) {
+  if ( handle->initData.frameLength > 9 ) {
     rxPort = (void *)&(handle->initData.port->RXDOUBLE);
     txPort = (void *)&(handle->initData.port->TXDOUBLE);
+  } else if (handle->initData.frameLength == 9) {
+    rxPort = (void *)&(handle->initData.port->RXDATAX);
+    txPort = (void *)&(handle->initData.port->TXDATAX);
   } else {
     rxPort = (void *)&(handle->initData.port->RXDATA);
     txPort = (void *)&(handle->initData.port->TXDATA);
   }
 
-  // Start receive dma.
+  // Start receive DMA.
   DMADRV_PeripheralMemory(handle->rxDMACh,
                           handle->rxDMASignal,
                           rxBuffer,
@@ -1643,7 +1791,7 @@ static void StartTransferDMA(SPIDRV_Handle_t handle,
                           RxDMAComplete,
                           handle);
 
-  // Start transmit dma.
+  // Start transmit DMA.
   DMADRV_MemoryPeripheral(handle->txDMACh,
                           handle->txDMASignal,
                           txPort,
@@ -1656,7 +1804,7 @@ static void StartTransferDMA(SPIDRV_Handle_t handle,
 }
 
 /***************************************************************************//**
- * @brief Start a SPI transmit DMA.
+ * @brief Start an SPI transmit DMA.
  ******************************************************************************/
 static void StartTransmitDMA(SPIDRV_Handle_t handle,
                              const void *buffer,
@@ -1677,16 +1825,19 @@ static void StartTransmitDMA(SPIDRV_Handle_t handle,
     size = dmadrvDataSize1;
   }
 
-  if ( handle->initData.frameLength > 8 ) {
+  if ( handle->initData.frameLength > 9 ) {
     rxPort = (void *)&(handle->initData.port->RXDOUBLE);
     txPort = (void *)&(handle->initData.port->TXDOUBLE);
+  } else if (handle->initData.frameLength == 9) {
+    rxPort = (void *)&(handle->initData.port->RXDATAX);
+    txPort = (void *)&(handle->initData.port->TXDATAX);
   } else {
     rxPort = (void *)&(handle->initData.port->RXDATA);
     txPort = (void *)&(handle->initData.port->TXDATA);
   }
 
   // Receive DMA runs only to get precise numbers for SPIDRV_GetTransferStatus()
-  // Start receive dma.
+  // Start receive DMA.
   DMADRV_PeripheralMemory(handle->rxDMACh,
                           handle->rxDMASignal,
                           &(handle->dummyRx),
@@ -1697,7 +1848,7 @@ static void StartTransmitDMA(SPIDRV_Handle_t handle,
                           RxDMAComplete,
                           handle);
 
-  // Start transmit dma.
+  // Start transmit DMA.
   DMADRV_MemoryPeripheral(handle->txDMACh,
                           handle->txDMASignal,
                           txPort,
@@ -1792,7 +1943,7 @@ static void WaitForTransferCompletion(SPIDRV_Handle_t handle)
  ******************************************************************************/
 static Ecode_t WaitForIdleLine(SPIDRV_Handle_t handle)
 {
-  while ( !GPIO_PinInGet( (GPIO_Port_TypeDef)handle->csPort, handle->csPin)
+  while ( !GPIO_PinInGet((GPIO_Port_TypeDef)handle->csPort, handle->csPin)
           && (handle->state != spidrvStateIdle) ) ;
 
   if ( handle->state == spidrvStateIdle ) {
@@ -1814,8 +1965,8 @@ static Ecode_t WaitForIdleLine(SPIDRV_Handle_t handle)
  * @{
 
    @details
-   The source files for the SPI driver library resides in the
-   emdrv/spidrv folder, and are named spidrv.c and spidrv.h.
+   The spidrv.c and spidrv.h source files for the SPI driver library are in the
+   emdrv/spidrv folder.
 
    @li @ref spidrv_intro
    @li @ref spidrv_conf
@@ -1823,14 +1974,14 @@ static Ecode_t WaitForIdleLine(SPIDRV_Handle_t handle)
    @li @ref spidrv_example
 
    @n @section spidrv_intro Introduction
-   The SPI driver support the SPI capabilities of EFM32/EZR32/EFR32 USARTs.
-   The driver is fully reentrant and several driver instances can coexist. The
-   driver does not buffer or queue data. The driver has SPI transfer functions
-   for both master and slave SPI mode. Both synchronous and asynchronous transfer
-   functions are present. Synchronous transfer functions are blocking and will
-   not return to caller before the transfer has completed. Asynchronous transfer
+   The SPI driver supports the SPI capabilities of EFM32/EZR32/EFR32 USARTs.
+   The driver is fully reentrant, supports several driver instances, and
+   does not buffer or queue data. Both synchronous and asynchronous transfer
+   functions are included for both master and slave SPI mode. Synchronous
+   transfer functions are blocking and do
+   not return before the transfer is complete. Asynchronous transfer
    functions report transfer completion with callback functions. Transfers are
-   done using DMA.
+   handled using DMA.
 
    @note Transfer completion callback functions are called from within the DMA
    interrupt handler with interrupts disabled.
@@ -1838,12 +1989,12 @@ static Ecode_t WaitForIdleLine(SPIDRV_Handle_t handle)
    @n @section spidrv_conf Configuration Options
 
    Some properties of the SPIDRV driver are compile-time configurable. These
-   properties are stored in a file named @ref spidrv_config.h. A template for this
-   file, containing default values, resides in the emdrv/config folder.
-   Currently the configuration options are:
+   properties are stored in a file named @ref spidrv_config.h. A template for
+   this file, containing default values, is in the emdrv/config folder.
+   Currently the configuration options are as follows:
    @li Inclusion of slave API transfer functions.
 
-   To configure SPIDRV, provide your own configuration file. Here is a
+   To configure SPIDRV, provide a custom configuration file. This is a
    sample @ref spidrv_config.h file:
    @verbatim
 #ifndef __SILICON_LABS_SPIDRV_CONFIG_H__
@@ -1856,23 +2007,23 @@ static Ecode_t WaitForIdleLine(SPIDRV_Handle_t handle)
 #endif
    @endverbatim
 
-   The properties of each SPI driver instance are set at run-time via the
+   The properties of each SPI driver instance are set at run-time using the
    @ref SPIDRV_Init_t data structure input parameter to the @ref SPIDRV_Init()
    function.
 
    @n @section spidrv_api The API
 
-   This section contain brief descriptions of the functions in the API. You will
-   find detailed information on input and output parameters and return values by
-   clicking on the hyperlinked function names. Most functions return an error
+   This section contains brief descriptions of the API functions. For
+   detailed information on input and output parameters and return values,
+   click on the hyperlinked function names. Most functions return an error
    code, @ref ECODE_EMDRV_SPIDRV_OK is returned on success,
    see @ref ecode.h and @ref spidrv.h for other error codes.
 
-   Your application code must include one header file: @em spidrv.h.
+   The application code must include @em spidrv.h.
 
    @ref SPIDRV_Init(), @ref SPIDRV_DeInit() @n
-    These functions initializes or deinitializes the SPIDRV driver. Typically
-    @htmlonly SPIDRV_Init() @endhtmlonly is called once in your startup code.
+    These functions initialize or deinitializes the SPIDRV driver. Typically,
+    @htmlonly SPIDRV_Init() @endhtmlonly is called once in the startup code.
 
    @ref SPIDRV_GetTransferStatus() @n
     Query the status of a transfer. Reports number of items (frames) transmitted
@@ -1882,10 +2033,10 @@ static Ecode_t WaitForIdleLine(SPIDRV_Handle_t handle)
     Stop an ongoing transfer.
 
    @ref SPIDRV_SetBitrate(), @ref SPIDRV_GetBitrate() @n
-    Set or query SPI bus bitrate.
+    Set or query the SPI bus bitrate.
 
    @ref SPIDRV_SetFramelength(), @ref SPIDRV_GetFramelength() @n
-    Set or query SPI bus frame length.
+    Set or query SPI the bus frame length.
 
    SPIDRV_MReceive(), SPIDRV_MReceiveB() @n
    SPIDRV_MTransfer(), SPIDRV_MTransferB(), SPIDRV_MTransferSingleItemB() @n
@@ -1896,13 +2047,11 @@ static Ecode_t WaitForIdleLine(SPIDRV_Handle_t handle)
     SPI transfer functions for SPI masters have an uppercase M in their name,
     the slave counterparts have an S.
 
-    Transfer functions come in both synchronous and asynchronous versions,
-    the synchronous versions have an uppercase B (for Blocking) at the end of
-    their function name. Synchronous functions will not return before the transfer
-    has completed. The aynchronous functions signal transfer completion with a
-    callback function.
+    As previously mentioned, transfer functions are synchronous and asynchronous.
+    The synchronous versions have an uppercase B (for Blocking) at the end of
+    their function name.
 
-    @em Transmit functions discards received data, @em receive functions transmit
+    @em Transmit functions discard received data, @em receive functions transmit
     a fixed data pattern set when the driver is initialized
     (@ref SPIDRV_Init_t.dummyTxValue). @em Transfer functions both receive and
     transmit data.
@@ -1931,10 +2080,10 @@ int main(void)
   uint8_t buffer[10];
   SPIDRV_Init_t initData = SPIDRV_MASTER_USART2;
 
-  // Initialize a SPI driver instance
+  // Initialize an SPI driver instance.
   SPIDRV_Init(handle, &initData);
 
-  // Transmit data using a blocking transmit function
+  // Transmit data using a blocking transmit function.
   SPIDRV_MTransmitB(handle, buffer, 10);
 
   // Transmit data using a callback to catch transfer completion.

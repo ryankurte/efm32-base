@@ -1,3 +1,21 @@
+/*
+ * Copyright (c) 2013-2018 Arm Limited. All rights reserved.
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ * Licensed under the Apache License, Version 2.0 (the License); you may
+ * not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an AS IS BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+ 
 #include "Driver_USBH.h"
 
 /* USB Host Driver */
@@ -11,7 +29,7 @@ static const ARM_DRIVER_VERSION usbh_driver_version = {
 };
 
 /* Driver Capabilities */
-static const ARM_USBD_CAPABILITIES usbd_driver_capabilities = {
+static const ARM_USBH_CAPABILITIES usbd_driver_capabilities = {
     0x0001, /* Root HUB available Ports Mask   */
     0,      /* Automatic SPLIT packet handling */
     0,      /* Signal Connect event */
@@ -137,16 +155,14 @@ void ARM_USBH_SignalEndpointEvent(ARM_USBH_EP_HANDLE ep_hndl, uint32_t event)
 
 /* USB Host HCI (OHCI/EHCI) Driver */
 
-#define ARM_USBH_HCI_DRV_VERSION    ARM_DRIVER_VERSION_MAJOR_MINOR(2, 0) /* driver version */
-
 /* Driver Version */
 static const ARM_DRIVER_VERSION usbh_hci_driver_version = { 
-    ARM_USBH_HCI_API_VERSION,
-    ARM_USBH_HCI_DRV_VERSION
+    ARM_USBH_API_VERSION,
+    ARM_USBH_DRV_VERSION
 };
 
 /* Driver Capabilities */
-static const ARM_USBD_CAPABILITIES usbh_hci_driver_capabilities = {
+static const ARM_USBH_HCI_CAPABILITIES usbh_hci_driver_capabilities = {
     0x0001  /* Root HUB available Ports Mask   */
 };
 
@@ -162,7 +178,7 @@ ARM_USBH_HCI_CAPABILITIES ARM_USBH_HCI_GetCapabilities(void)
 {
 }
 
-int32_t ARM_USBH_HCI_Initialize(ARM_USBH_HCI_Interrupt_t *cb_interrupt)
+int32_t ARM_USBH_HCI_Initialize(ARM_USBH_HCI_Interrupt_t cb_interrupt)
 {
 }
 

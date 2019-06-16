@@ -11,10 +11,9 @@
  * Relevant to parts:
  * Si4455_revC2A
  *
- * @version 5.2.1
  *******************************************************************************
  * # License
- * <b>(C) Copyright 2015 Silicon Labs, http://www.silabs.com</b>
+ * <b>(C) Copyright 2015 Silicon Labs, www.silabs.com</b>
  *******************************************************************************
  *
  * Permission is granted to anyone to use this software for any purpose,
@@ -576,5 +575,5 @@
 #define EZRADIO_PROP_FREQ_CONTROL_CHANNEL_STEP_SIZE_CHANNEL_STEP_SIZE_7_0_MAX 255
 
 //! @endcond
- 
+
 #endif  /* _EZRADIO_PROP_H_ */

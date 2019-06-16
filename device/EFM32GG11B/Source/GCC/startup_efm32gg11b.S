@@ -1,36 +1,37 @@
-/* @file startup_efm32gg11b.S
+/***************************************************************************//**
+ * @file
  * @brief startup file for Silicon Labs EFM32GG11B devices.
  *        For use with GCC for ARM Embedded Processors
- * @version 5.2.1
- * Date:    12 June 2014
+ * @version 5.8.0
+ *******************************************************************************
+ * # License
  *
+ * The licensor of this software is Silicon Laboratories Inc. Your use of this
+ * software is governed by the terms of Silicon Labs Master Software License
+ * Agreement (MSLA) available at
+ * www.silabs.com/about-us/legal/master-software-license-agreement. This
+ * software is Third Party Software licensed by Silicon Labs from a third party
+ * and is governed by the sections of the MSLA applicable to Third Party
+ * Software and the additional terms set forth below.
+ *
+ ******************************************************************************/
+/*
+ * Copyright (c) 2009-2016 ARM Limited. All rights reserved.
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ * Licensed under the Apache License, Version 2.0 (the License); you may
+ * not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an AS IS BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
-/* Copyright (c) 2011 - 2014 ARM LIMITED
-
-   All rights reserved.
-   Redistribution and use in source and binary forms, with or without
-   modification, are permitted provided that the following conditions are met:
-   - Redistributions of source code must retain the above copyright
-     notice, this list of conditions and the following disclaimer.
-   - Redistributions in binary form must reproduce the above copyright
-     notice, this list of conditions and the following disclaimer in the
-     documentation and/or other materials provided with the distribution.
-   - Neither the name of ARM nor the names of its contributors may be used
-     to endorse or promote products derived from this software without
-     specific prior written permission.
-   *
-   THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-   AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-   IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
-   ARE DISCLAIMED. IN NO EVENT SHALL COPYRIGHT HOLDERS AND CONTRIBUTORS BE
-   LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
-   CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
-   SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
-   INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
-   CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
-   ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
-   POSSIBILITY OF SUCH DAMAGE.
-   ---------------------------------------------------------------------------*/
 
     .syntax     unified
     .arch       armv7-m
@@ -70,92 +71,92 @@ __HeapLimit:
     .align      2
     .globl      __Vectors
 __Vectors:
-    .long       __StackTop            /* Top of Stack */
-    .long       Reset_Handler         /* Reset Handler */
-    .long       NMI_Handler           /* NMI Handler */
-    .long       HardFault_Handler     /* Hard Fault Handler */
-    .long       MemManage_Handler     /* MPU Fault Handler */
-    .long       BusFault_Handler      /* Bus Fault Handler */
-    .long       UsageFault_Handler    /* Usage Fault Handler */
-    .long       Default_Handler       /* Reserved */
-    .long       Default_Handler       /* Reserved */
-    .long       Default_Handler       /* Reserved */
-    .long       Default_Handler       /* Reserved */
-    .long       SVC_Handler           /* SVCall Handler */
-    .long       DebugMon_Handler      /* Debug Monitor Handler */
-    .long       Default_Handler       /* Reserved */
-    .long       PendSV_Handler        /* PendSV Handler */
-    .long       SysTick_Handler       /* SysTick Handler */
+    .long       __StackTop                 /* Top of Stack */
+    .long       Reset_Handler              /* Reset Handler */
+    .long       NMI_Handler                /* NMI Handler */
+    .long       HardFault_Handler          /* Hard Fault Handler */
+    .long       MemManage_Handler          /* MPU Fault Handler */
+    .long       BusFault_Handler           /* Bus Fault Handler */
+    .long       UsageFault_Handler         /* Usage Fault Handler */
+    .long       Default_Handler            /* Reserved */
+    .long       Default_Handler            /* Reserved */
+    .long       Default_Handler            /* Reserved */
+    .long       Default_Handler            /* Reserved */
+    .long       SVC_Handler                /* SVCall Handler */
+    .long       DebugMon_Handler           /* Debug Monitor Handler */
+    .long       sl_app_properties          /* Application properties */
+    .long       PendSV_Handler             /* PendSV Handler */
+    .long       SysTick_Handler            /* SysTick Handler */
 
     /* External interrupts */
-    .long       EMU_IRQHandler    /* 0 - EMU */
-    .long       WDOG0_IRQHandler    /* 1 - WDOG0 */
-    .long       LDMA_IRQHandler    /* 2 - LDMA */
-    .long       GPIO_EVEN_IRQHandler    /* 3 - GPIO_EVEN */
-    .long       SMU_IRQHandler    /* 4 - SMU */
-    .long       TIMER0_IRQHandler    /* 5 - TIMER0 */
-    .long       USART0_RX_IRQHandler    /* 6 - USART0_RX */
-    .long       USART0_TX_IRQHandler    /* 7 - USART0_TX */
-    .long       ACMP0_IRQHandler    /* 8 - ACMP0 */
-    .long       ADC0_IRQHandler    /* 9 - ADC0 */
-    .long       IDAC0_IRQHandler    /* 10 - IDAC0 */
-    .long       I2C0_IRQHandler    /* 11 - I2C0 */
-    .long       I2C1_IRQHandler    /* 12 - I2C1 */
-    .long       GPIO_ODD_IRQHandler    /* 13 - GPIO_ODD */
-    .long       TIMER1_IRQHandler    /* 14 - TIMER1 */
-    .long       TIMER2_IRQHandler    /* 15 - TIMER2 */
-    .long       TIMER3_IRQHandler    /* 16 - TIMER3 */
-    .long       USART1_RX_IRQHandler    /* 17 - USART1_RX */
-    .long       USART1_TX_IRQHandler    /* 18 - USART1_TX */
-    .long       USART2_RX_IRQHandler    /* 19 - USART2_RX */
-    .long       USART2_TX_IRQHandler    /* 20 - USART2_TX */
-    .long       UART0_RX_IRQHandler    /* 21 - UART0_RX */
-    .long       UART0_TX_IRQHandler    /* 22 - UART0_TX */
-    .long       UART1_RX_IRQHandler    /* 23 - UART1_RX */
-    .long       UART1_TX_IRQHandler    /* 24 - UART1_TX */
-    .long       LEUART0_IRQHandler    /* 25 - LEUART0 */
-    .long       LEUART1_IRQHandler    /* 26 - LEUART1 */
-    .long       LETIMER0_IRQHandler    /* 27 - LETIMER0 */
-    .long       PCNT0_IRQHandler    /* 28 - PCNT0 */
-    .long       PCNT1_IRQHandler    /* 29 - PCNT1 */
-    .long       PCNT2_IRQHandler    /* 30 - PCNT2 */
-    .long       RTCC_IRQHandler    /* 31 - RTCC */
-    .long       CMU_IRQHandler    /* 32 - CMU */
-    .long       MSC_IRQHandler    /* 33 - MSC */
-    .long       CRYPTO0_IRQHandler    /* 34 - CRYPTO0 */
-    .long       CRYOTIMER_IRQHandler    /* 35 - CRYOTIMER */
-    .long       FPUEH_IRQHandler    /* 36 - FPUEH */
-    .long       USART3_RX_IRQHandler    /* 37 - USART3_RX */
-    .long       USART3_TX_IRQHandler    /* 38 - USART3_TX */
-    .long       USART4_RX_IRQHandler    /* 39 - USART4_RX */
-    .long       USART4_TX_IRQHandler    /* 40 - USART4_TX */
-    .long       WTIMER0_IRQHandler    /* 41 - WTIMER0 */
-    .long       WTIMER1_IRQHandler    /* 42 - WTIMER1 */
-    .long       WTIMER2_IRQHandler    /* 43 - WTIMER2 */
-    .long       WTIMER3_IRQHandler    /* 44 - WTIMER3 */
-    .long       I2C2_IRQHandler    /* 45 - I2C2 */
-    .long       VDAC0_IRQHandler    /* 46 - VDAC0 */
-    .long       TIMER4_IRQHandler    /* 47 - TIMER4 */
-    .long       TIMER5_IRQHandler    /* 48 - TIMER5 */
-    .long       TIMER6_IRQHandler    /* 49 - TIMER6 */
-    .long       USART5_RX_IRQHandler    /* 50 - USART5_RX */
-    .long       USART5_TX_IRQHandler    /* 51 - USART5_TX */
-    .long       CSEN_IRQHandler    /* 52 - CSEN */
-    .long       LESENSE_IRQHandler    /* 53 - LESENSE */
-    .long       EBI_IRQHandler    /* 54 - EBI */
-    .long       ACMP2_IRQHandler    /* 55 - ACMP2 */
-    .long       ADC1_IRQHandler    /* 56 - ADC1 */
-    .long       LCD_IRQHandler    /* 57 - LCD */
-    .long       SDIO_IRQHandler    /* 58 - SDIO */
-    .long       ETH_IRQHandler    /* 59 - ETH */
-    .long       CAN0_IRQHandler    /* 60 - CAN0 */
-    .long       CAN1_IRQHandler    /* 61 - CAN1 */
-    .long       USB_IRQHandler    /* 62 - USB */
-    .long       RTC_IRQHandler    /* 63 - RTC */
-    .long       WDOG1_IRQHandler    /* 64 - WDOG1 */
-    .long       LETIMER1_IRQHandler    /* 65 - LETIMER1 */
-    .long       TRNG0_IRQHandler    /* 66 - TRNG0 */
-    .long       QSPI0_IRQHandler    /* 67 - QSPI0 */
+    .long       EMU_IRQHandler             /* 0 - EMU */
+    .long       WDOG0_IRQHandler           /* 1 - WDOG0 */
+    .long       LDMA_IRQHandler            /* 2 - LDMA */
+    .long       GPIO_EVEN_IRQHandler       /* 3 - GPIO_EVEN */
+    .long       SMU_IRQHandler             /* 4 - SMU */
+    .long       TIMER0_IRQHandler          /* 5 - TIMER0 */
+    .long       USART0_RX_IRQHandler       /* 6 - USART0_RX */
+    .long       USART0_TX_IRQHandler       /* 7 - USART0_TX */
+    .long       ACMP0_IRQHandler           /* 8 - ACMP0 */
+    .long       ADC0_IRQHandler            /* 9 - ADC0 */
+    .long       IDAC0_IRQHandler           /* 10 - IDAC0 */
+    .long       I2C0_IRQHandler            /* 11 - I2C0 */
+    .long       I2C1_IRQHandler            /* 12 - I2C1 */
+    .long       GPIO_ODD_IRQHandler        /* 13 - GPIO_ODD */
+    .long       TIMER1_IRQHandler          /* 14 - TIMER1 */
+    .long       TIMER2_IRQHandler          /* 15 - TIMER2 */
+    .long       TIMER3_IRQHandler          /* 16 - TIMER3 */
+    .long       USART1_RX_IRQHandler       /* 17 - USART1_RX */
+    .long       USART1_TX_IRQHandler       /* 18 - USART1_TX */
+    .long       USART2_RX_IRQHandler       /* 19 - USART2_RX */
+    .long       USART2_TX_IRQHandler       /* 20 - USART2_TX */
+    .long       UART0_RX_IRQHandler        /* 21 - UART0_RX */
+    .long       UART0_TX_IRQHandler        /* 22 - UART0_TX */
+    .long       UART1_RX_IRQHandler        /* 23 - UART1_RX */
+    .long       UART1_TX_IRQHandler        /* 24 - UART1_TX */
+    .long       LEUART0_IRQHandler         /* 25 - LEUART0 */
+    .long       LEUART1_IRQHandler         /* 26 - LEUART1 */
+    .long       LETIMER0_IRQHandler        /* 27 - LETIMER0 */
+    .long       PCNT0_IRQHandler           /* 28 - PCNT0 */
+    .long       PCNT1_IRQHandler           /* 29 - PCNT1 */
+    .long       PCNT2_IRQHandler           /* 30 - PCNT2 */
+    .long       RTCC_IRQHandler            /* 31 - RTCC */
+    .long       CMU_IRQHandler             /* 32 - CMU */
+    .long       MSC_IRQHandler             /* 33 - MSC */
+    .long       CRYPTO0_IRQHandler         /* 34 - CRYPTO0 */
+    .long       CRYOTIMER_IRQHandler       /* 35 - CRYOTIMER */
+    .long       FPUEH_IRQHandler           /* 36 - FPUEH */
+    .long       USART3_RX_IRQHandler       /* 37 - USART3_RX */
+    .long       USART3_TX_IRQHandler       /* 38 - USART3_TX */
+    .long       USART4_RX_IRQHandler       /* 39 - USART4_RX */
+    .long       USART4_TX_IRQHandler       /* 40 - USART4_TX */
+    .long       WTIMER0_IRQHandler         /* 41 - WTIMER0 */
+    .long       WTIMER1_IRQHandler         /* 42 - WTIMER1 */
+    .long       WTIMER2_IRQHandler         /* 43 - WTIMER2 */
+    .long       WTIMER3_IRQHandler         /* 44 - WTIMER3 */
+    .long       I2C2_IRQHandler            /* 45 - I2C2 */
+    .long       VDAC0_IRQHandler           /* 46 - VDAC0 */
+    .long       TIMER4_IRQHandler          /* 47 - TIMER4 */
+    .long       TIMER5_IRQHandler          /* 48 - TIMER5 */
+    .long       TIMER6_IRQHandler          /* 49 - TIMER6 */
+    .long       USART5_RX_IRQHandler       /* 50 - USART5_RX */
+    .long       USART5_TX_IRQHandler       /* 51 - USART5_TX */
+    .long       CSEN_IRQHandler            /* 52 - CSEN */
+    .long       LESENSE_IRQHandler         /* 53 - LESENSE */
+    .long       EBI_IRQHandler             /* 54 - EBI */
+    .long       ACMP2_IRQHandler           /* 55 - ACMP2 */
+    .long       ADC1_IRQHandler            /* 56 - ADC1 */
+    .long       LCD_IRQHandler             /* 57 - LCD */
+    .long       SDIO_IRQHandler            /* 58 - SDIO */
+    .long       ETH_IRQHandler             /* 59 - ETH */
+    .long       CAN0_IRQHandler            /* 60 - CAN0 */
+    .long       CAN1_IRQHandler            /* 61 - CAN1 */
+    .long       USB_IRQHandler             /* 62 - USB */
+    .long       RTC_IRQHandler             /* 63 - RTC */
+    .long       WDOG1_IRQHandler           /* 64 - WDOG1 */
+    .long       LETIMER1_IRQHandler        /* 65 - LETIMER1 */
+    .long       TRNG0_IRQHandler           /* 66 - TRNG0 */
+    .long       QSPI0_IRQHandler           /* 67 - QSPI0 */
 
 
     .size       __Vectors, . - __Vectors
@@ -176,7 +177,8 @@ Reset_Handler:
  *  to copy. One can copy more than one sections. Another can only copy
  *  one section.  The former scheme needs more instructions and read-only
  *  data to implement than the latter.
- *  Macro __STARTUP_COPY_MULTIPLE is used to choose between two schemes.  */
+ *  Macro __STARTUP_COPY_MULTIPLE is used to choose between two schemes.
+ */
 
 #ifdef __STARTUP_COPY_MULTIPLE
 /*  Multiple sections scheme.
@@ -230,7 +232,7 @@ Reset_Handler:
     ldrlt   r0, [r1], #4
     strlt   r0, [r2], #4
     blt     .L_loop1
-#endif /*__STARTUP_COPY_MULTIPLE */
+#endif /* __STARTUP_COPY_MULTIPLE */
 
 /*  This part of work usually is done in C library startup code. Otherwise,
  *  define this macro to enable it in this startup.
@@ -300,13 +302,17 @@ Reset_Handler:
     .thumb_func
     .weak   Default_Handler
     .type   Default_Handler, %function
+    .weak   sl_app_properties
+    .type   sl_app_properties, %common
 Default_Handler:
+sl_app_properties: /* Provide a dummy value for the sl_app_properties symbol. */
     b       .
     .size   Default_Handler, . - Default_Handler
 
 /*    Macro to define default handlers. Default handler
  *    will be weak symbol and just dead loops. They can be
- *    overwritten by other handlers */
+ *    overwritten by other handlers.
+ */
     .macro  def_irq_handler	handler_name
     .weak   \handler_name
     .set    \handler_name, Default_Handler

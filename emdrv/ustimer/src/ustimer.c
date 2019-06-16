@@ -1,17 +1,19 @@
-/**************************************************************************//**
-* @file  ustimer.c
-* @brief Microsecond delay functions.
-* @version 5.2.1
-******************************************************************************
-* # License
-* <b>(C) Copyright 2014 Silicon Labs, http://www.silabs.com</b>
-*******************************************************************************
-*
-* This file is licensed under the Silabs License Agreement. See the file
-* "Silabs_License_Agreement.txt" for details. Before using this software for
-* any purpose, you must agree to the terms of that agreement.
-*
-******************************************************************************/
+/***************************************************************************//**
+ * @file
+ * @brief Microsecond delay functions.
+ *******************************************************************************
+ * # License
+ * <b>Copyright 2018 Silicon Laboratories Inc. www.silabs.com</b>
+ *******************************************************************************
+ *
+ * The licensor of this software is Silicon Laboratories Inc.  Your use of this
+ * software is governed by the terms of Silicon Labs Master Software License
+ * Agreement (MSLA) available at
+ * www.silabs.com/about-us/legal/master-software-license-agreement.  This
+ * software is distributed to you in Source Code format and is governed by the
+ * sections of the MSLA applicable to Source Code.
+ *
+ ******************************************************************************/
 
 #include <stdbool.h>
 #include "em_device.h"
@@ -43,67 +45,67 @@
 #endif
 
 #if (USTIMER_TIMER == USTIMER_TIMER0) && (TIMER_COUNT >= 1)
-  #define TIMER             TIMER0
+  #define TIMER_DEV         TIMER0
   #define TIMER_CLK         cmuClock_TIMER0
   #define TIMER_IRQ         TIMER0_IRQn
   #define TIMER_IRQHandler  TIMER0_IRQHandler
 
 #elif (USTIMER_TIMER == USTIMER_TIMER1) && (TIMER_COUNT >= 2)
-  #define TIMER             TIMER1
+  #define TIMER_DEV         TIMER1
   #define TIMER_CLK         cmuClock_TIMER1
   #define TIMER_IRQ         TIMER1_IRQn
   #define TIMER_IRQHandler  TIMER1_IRQHandler
 
 #elif (USTIMER_TIMER == USTIMER_TIMER2) && (TIMER_COUNT >= 3)
-  #define TIMER             TIMER2
+  #define TIMER_DEV         TIMER2
   #define TIMER_CLK         cmuClock_TIMER2
   #define TIMER_IRQ         TIMER2_IRQn
   #define TIMER_IRQHandler  TIMER2_IRQHandler
 
 #elif (USTIMER_TIMER == USTIMER_TIMER3) && (TIMER_COUNT >= 4)
-  #define TIMER             TIMER3
+  #define TIMER_DEV         TIMER3
   #define TIMER_CLK         cmuClock_TIMER3
   #define TIMER_IRQ         TIMER3_IRQn
   #define TIMER_IRQHandler  TIMER3_IRQHandler
 
 #elif (USTIMER_TIMER == USTIMER_TIMER4) && (TIMER_COUNT >= 5)
-  #define TIMER             TIMER4
+  #define TIMER_DEV         TIMER4
   #define TIMER_CLK         cmuClock_TIMER4
   #define TIMER_IRQ         TIMER4_IRQn
   #define TIMER_IRQHandler  TIMER4_IRQHandler
 
 #elif (USTIMER_TIMER == USTIMER_TIMER5) && (TIMER_COUNT >= 6)
-  #define TIMER             TIMER5
+  #define TIMER_DEV         TIMER5
   #define TIMER_CLK         cmuClock_TIMER5
   #define TIMER_IRQ         TIMER5_IRQn
   #define TIMER_IRQHandler  TIMER5_IRQHandler
 
 #elif (USTIMER_TIMER == USTIMER_TIMER6) && (TIMER_COUNT >= 7)
-  #define TIMER             TIMER6
+  #define TIMER_DEV         TIMER6
   #define TIMER_CLK         cmuClock_TIMER6
   #define TIMER_IRQ         TIMER6_IRQn
   #define TIMER_IRQHandler  TIMER6_IRQHandler
 
 #elif (USTIMER_TIMER == USTIMER_WTIMER0) && (WTIMER_COUNT >= 1)
-  #define TIMER             WTIMER0
+  #define TIMER_DEV         WTIMER0
   #define TIMER_CLK         cmuClock_WTIMER0
   #define TIMER_IRQ         WTIMER0_IRQn
   #define TIMER_IRQHandler  WTIMER0_IRQHandler
 
 #elif (USTIMER_TIMER == USTIMER_WTIMER1) && (WTIMER_COUNT >= 2)
-  #define TIMER             WTIMER1
+  #define TIMER_DEV         WTIMER1
   #define TIMER_CLK         cmuClock_WTIMER1
   #define TIMER_IRQ         WTIMER1_IRQn
   #define TIMER_IRQHandler  WTIMER1_IRQHandler
 
 #elif (USTIMER_TIMER == USTIMER_WTIMER2) && (WTIMER_COUNT >= 3)
-  #define TIMER             WTIMER2
+  #define TIMER_DEV         WTIMER2
   #define TIMER_CLK         cmuClock_WTIMER2
   #define TIMER_IRQ         WTIMER2_IRQn
   #define TIMER_IRQHandler  WTIMER2_IRQHandler
 
 #elif (USTIMER_TIMER == USTIMER_WTIMER3) && (WTIMER_COUNT >= 4)
-  #define TIMER             WTIMER3
+  #define TIMER_DEV         WTIMER3
   #define TIMER_CLK         cmuClock_WTIMER3
   #define TIMER_IRQ         WTIMER3_IRQn
   #define TIMER_IRQHandler  WTIMER3_IRQHandler
@@ -144,18 +146,35 @@ Ecode_t USTIMER_Init(void)
 
   timerCCInit.mode = timerCCModeCompare;
   CMU_ClockEnable(TIMER_CLK, true);
-  TIMER_TopSet(TIMER, TIMER_MAX);
-  TIMER_InitCC(TIMER, 0, &timerCCInit);
+  TIMER_InitCC(TIMER_DEV, 0, &timerCCInit);
+  TIMER_TopSet(TIMER_DEV, TIMER_MAX);
 
   /* Run timer at slowest frequency that still gives less than 1 us per tick */
+#if defined (_TIMER_CTRL_PRESC_DIV1)
   timerInit.prescale = (TIMER_Prescale_TypeDef)_TIMER_CTRL_PRESC_DIV1;
-  do {
-    TIMER_Init(TIMER, &timerInit);
+#endif
 
+#if defined (_TIMER_CFG_PRESC_DIV1)
+  timerInit.prescale = (TIMER_Prescale_TypeDef)_TIMER_CFG_PRESC_DIV1;
+#endif
+
+  do {
+    TIMER_Init(TIMER_DEV, &timerInit);
+
+#if defined(_CMU_HFPERCLKEN0_MASK)
     freq = CMU_ClockFreqGet(cmuClock_HFPER);
+#else
+    freq = CMU_ClockFreqGet(cmuClock_EM01GRPACLK);
+#endif
+
+#if defined (_TIMER_CFG_PRESC_DIV1)
+    freq /= (timerInit.prescale + 1);
+#endif
+#if defined (_TIMER_CTRL_PRESC_DIV1)
     freq /= 1 << timerInit.prescale;
+#endif
     timerInit.prescale++;
-  } while ( (timerInit.prescale <= _TIMER_CTRL_PRESC_DIV1024)
+  } while ( (timerInit.prescale <= timerPrescale1024)
             && (freq > 2000000) );
 
   /* Figure out the minimum delay we can have when using timer interrupt
@@ -167,7 +186,7 @@ Ecode_t USTIMER_Init(void)
   minTicks = ( ( (uint64_t)freq * coreClockScale) + 500000) / 1000000;
   timeElapsed = false;
 
-  TIMER_IntDisable(TIMER, TIMER_IEN_CC0);
+  TIMER_IntDisable(TIMER_DEV, TIMER_IEN_CC0);
   NVIC_ClearPendingIRQ(TIMER_IRQ);
   NVIC_EnableIRQ(TIMER_IRQ);
 
@@ -188,12 +207,13 @@ Ecode_t USTIMER_Init(void)
 Ecode_t USTIMER_DeInit(void)
 {
   NVIC_DisableIRQ(TIMER_IRQ);
-  TIMER_IntDisable(TIMER, TIMER_IEN_CC0);
+  TIMER_IntDisable(TIMER_DEV, TIMER_IEN_CC0);
 
-  TIMER_IntClear(TIMER, TIMER_IFC_CC0);
+  TIMER_IntClear(TIMER_DEV, TIMER_IF_CC0);
   NVIC_ClearPendingIRQ(TIMER_IRQ);
 
-  TIMER_Enable(TIMER, false);
+  TIMER_Enable(TIMER_DEV, false);
+
   CMU_ClockEnable(TIMER_CLK, false);
 
   return ECODE_EMDRV_USTIMER_OK;
@@ -209,6 +229,10 @@ Ecode_t USTIMER_DeInit(void)
  * @note
  *   This function assumes that the timer interrupt needed to wake the mcu
  *   up from EM1 is not blocked. This function is not thread safe.
+ *   Due to the overhead of setting up and serving TIMER/WTIMER interrupts,
+ *   timing will be inaccurate for delays shorter than 200us. If higher accuracy
+ *   is needed for short delays, consider using USTIMER_DelayIntSafe() or
+ *   UDELAY_Delay().
  *
  * @param[in] usec
  *   Number of microseconds to delay.
@@ -273,10 +297,10 @@ void TIMER_IRQHandler(void)
 {
   uint32_t flags;
 
-  flags = TIMER_IntGet(TIMER);
+  flags = TIMER_IntGet(TIMER_DEV);
 
   if ( flags & TIMER_IF_CC0 ) {
-    TIMER_IntClear(TIMER, TIMER_IFC_CC0);
+    TIMER_IntClear(TIMER_DEV, TIMER_IF_CC0);
     timeElapsed = true;
   }
 }
@@ -287,9 +311,9 @@ static void DelayTicksPolled(uint16_t ticks)
   volatile uint16_t now;
 
   if ( ticks ) {
-    startTime = TIMER_CounterGet(TIMER);
+    startTime = TIMER_CounterGet(TIMER_DEV);
     do {
-      now = TIMER_CounterGet(TIMER);
+      now = TIMER_CounterGet(TIMER_DEV);
     } while ( (uint16_t)(now - startTime) < ticks );
   }
 }
@@ -303,10 +327,10 @@ static void DelayTicksEM1(uint16_t ticks)
 
     CORE_ATOMIC_SECTION(
       /* The following lines costs 2.7us@48MHz and 7.5us@14MHz (measured with GG)*/
-      cmp = (TIMER_CounterGet(TIMER) + SL_MAX(minTicks, ticks)) & TIMER_MAX;
-      TIMER_CompareSet(TIMER, 0, cmp);
-      TIMER_IntClear(TIMER, TIMER_IFC_CC0);
-      TIMER_IntEnable(TIMER, TIMER_IEN_CC0);
+      cmp = (TIMER_CounterGet(TIMER_DEV) + SL_MAX(minTicks, ticks)) & TIMER_MAX;
+      TIMER_CompareSet(TIMER_DEV, 0, cmp);
+      TIMER_IntClear(TIMER_DEV, TIMER_IF_CC0);
+      TIMER_IntEnable(TIMER_DEV, TIMER_IEN_CC0);
       )
 
     while ( !timeElapsed ) {
@@ -314,7 +338,7 @@ static void DelayTicksEM1(uint16_t ticks)
     }
     timeElapsed = false;
 
-    TIMER_IntDisable(TIMER, TIMER_IEN_CC0);
+    TIMER_IntDisable(TIMER_DEV, TIMER_IEN_CC0);
   }
 }
 
@@ -329,11 +353,11 @@ static void DelayTicksEM1(uint16_t ticks)
  * @{
 
 @details
-   Implements microsecond delays.
+  Implements microsecond delays.
 
-   The delay is implemented using a hardware timer. @ref USTIMER_Init() must
-   be called prior to using the delay functions. @ref USTIMER_Init() must
-   also be called if HFCORECLK and/or HFPERCLK is changed.
+  The delay is implemented using a hardware timer. @ref USTIMER_Init() must
+  be called prior to using the delay functions. @ref USTIMER_Init() must
+  also be called if HFCORECLK and/or HFPERCLK is changed.
 
   The source files for the USTIMER driver library resides in the
   emdrv/ustimer folder, and are named ustimer.c and ustimer.h.
@@ -349,6 +373,11 @@ static void DelayTicksEM1(uint16_t ticks)
   using a hardware TIMER or WTIMER resource. Two delay functions are available,
   one which uses energy mode EM1 to preserve energy while waiting, and one which
   performs busy wait.
+
+  @note Due to the overhead of setting up and serving TIMER/WTIMER interrupts,
+  the USTIMER_Delay() function will be inaccurate for delays shorter than 200us.
+  If higher accuracy is needed for short delays, consider using
+  USTIMER_DelayIntSafe() or UDELAY_Delay().
 
 @n @section ustimer_conf Configuration Options
 

@@ -1,32 +1,31 @@
 /***************************************************************************//**
- * @file em_opamp.c
+ * @file
  * @brief Operational Amplifier (OPAMP) peripheral API
- * @version 5.2.1
- ******************************************************************************
- * # License
- * <b>Copyright 2016 Silicon Laboratories, Inc. http://www.silabs.com</b>
+ * @version 5.8.0
  *******************************************************************************
+ * # License
+ * <b>Copyright 2018 Silicon Laboratories Inc. www.silabs.com</b>
+ *******************************************************************************
+ *
+ * SPDX-License-Identifier: Zlib
+ *
+ * The licensor of this software is Silicon Laboratories Inc.
+ *
+ * This software is provided 'as-is', without any express or implied
+ * warranty. In no event will the authors be held liable for any damages
+ * arising from the use of this software.
  *
  * Permission is granted to anyone to use this software for any purpose,
  * including commercial applications, and to alter it and redistribute it
  * freely, subject to the following restrictions:
  *
  * 1. The origin of this software must not be misrepresented; you must not
- *    claim that you wrote the original software.
+ *    claim that you wrote the original software. If you use this software
+ *    in a product, an acknowledgment in the product documentation would be
+ *    appreciated but is not required.
  * 2. Altered source versions must be plainly marked as such, and must not be
  *    misrepresented as being the original software.
  * 3. This notice may not be removed or altered from any source distribution.
- *
- * DISCLAIMER OF WARRANTY/LIMITATION OF REMEDIES: Silicon Labs has no
- * obligation to support this Software. Silicon Labs is providing the
- * Software "AS IS", with no express or implied warranties of any kind,
- * including, but not limited to, any implied warranties of merchantability
- * or fitness for any particular purpose or warranties against infringement
- * of any proprietary rights of a third party.
- *
- * Silicon Labs will not be liable for any consequential, incidental, or
- * special damages, or any other relief, or for any claim by any third party,
- * arising from your use of this Software.
  *
  ******************************************************************************/
 
@@ -48,22 +47,22 @@
  * @brief Operational Amplifier (OPAMP) peripheral API
  * @details
  *  This module contains functions to:
- *   @li OPAMP_Enable()       Configure and enable an opamp.
- *   @li OPAMP_Disable()      Disable an opamp.
+ *   @li OPAMP_Enable()       Configure and enable OPAMP.
+ *   @li OPAMP_Disable()      Disable OPAMP.
  *
  * @if DOXYDOC_P1_DEVICE
- * All OPAMP functions assume that the DAC clock is running. If the DAC is not
- * used, the clock can be turned off when the opamp's are configured.
+ * All OPAMP functions assume that the DAC clock is running. If DAC is not
+ * used, the clock can be turned off when OPAMPs are configured.
  * @elseif DOXYDOC_P2_DEVICE
- * All OPAMP functions assume that the VDAC clock is running. If the VDAC is not
- * used, the clock can be turned off when the opamp's are configured.
+ * All OPAMP functions assume that the VDAC clock is running. If VDAC is not
+ * used, the clock can be turned off when the OPAMPs are configured.
  * @endif
  *
- * If the available gain values dont suit the application at hand, the resistor
+ * If the available gain values don't suit the application at hand, the resistor
  * ladders can be disabled and external gain programming resistors used.
  *
- * A number of predefined opamp setup macros are available for configuration
- * of the most common opamp topologies (see figures below).
+ * A number of predefined OPAMP setup macros are available for configuration
+ * of the most common OPAMP topologies (see figures below).
  *
  * @note
  * <em>The terms POSPAD and NEGPAD in the figures are used to indicate that these
@@ -247,15 +246,15 @@
  *
  * @if DOXYDOC_P1_DEVICE
  * @param[in] dac
- *   Pointer to DAC peripheral register block.
+ *   A pointer to the DAC peripheral register block.
  * @elseif DOXYDOC_P2_DEVICE
  * @param[in] dac
- *   Pointer to VDAC peripheral register block.
+ *   A pointer to the VDAC peripheral register block.
  * @endif
  *
  *
  * @param[in] opa
- *   Selects an OPA, valid vaules are @ref OPA0, @ref OPA1 and @ref OPA2.
+ *   Selects an OPA, valid values are @ref OPA0, @ref OPA1, and @ref OPA2.
  ******************************************************************************/
 void OPAMP_Disable(
 #if defined(_SILICON_LABS_32B_SERIES_0)
@@ -284,17 +283,29 @@ void OPAMP_Disable(
   EFM_ASSERT(VDAC_OPA_VALID(opa));
 
   if (opa == OPA0) {
+#if defined(VDAC_STATUS_OPA0ENS)
     dac->CMD |= VDAC_CMD_OPA0DIS;
     while (dac->STATUS & VDAC_STATUS_OPA0ENS) {
     }
+#endif
+#if defined(VDAC_STATUS_OPA1ENS)
   } else if (opa == OPA1) {
     dac->CMD |= VDAC_CMD_OPA1DIS;
     while (dac->STATUS & VDAC_STATUS_OPA1ENS) {
     }
-  } else { /* OPA2 */
+#endif
+#if defined(VDAC_STATUS_OPA2ENS)
+  } else if (opa == OPA2) {
     dac->CMD |= VDAC_CMD_OPA2DIS;
     while (dac->STATUS & VDAC_STATUS_OPA2ENS) {
     }
+#endif
+  } else { /* OPA3 */
+#if defined(VDAC_STATUS_OPA3ENS)
+    dac->CMD |= VDAC_CMD_OPA3DIS;
+    while (dac->STATUS & VDAC_STATUS_OPA3ENS) {
+    }
+#endif
   }
 #endif
 }
@@ -331,7 +342,7 @@ void OPAMP_Disable(
  *   init.outPen = DAC_OPA0MUX_OUTPEN_OUT0 | DAC_OPA0MUX_OUTPEN_OUT4;
  *
  * @param[in] dac
- *   Pointer to DAC peripheral register block.
+ *   A pointer to the DAC peripheral register block.
  * @elseif DOXYDOC_P2_DEVICE
  * @note
  *   The value of the alternate output enable bit mask in the OPAMP_Init_TypeDef
@@ -344,17 +355,17 @@ void OPAMP_Disable(
  *   @li VDAC_OPA_OUT_ALTOUTPADEN_OUT3
  *   @li VDAC_OPA_OUT_ALTOUTPADEN_OUT4
  *
- *   E.g: @n
+ *   For example: @n
  *   init.outPen = VDAC_OPA_OUT_ALTOUTPADEN_OUT0 | VDAC_OPA_OUT_ALTOUTPADEN_OUT4;
  * @param[in] dac
- *   Pointer to VDAC peripheral register block.
+ *   A pointer to the VDAC peripheral register block.
  * @endif
  *
  * @param[in] opa
- *   Selects an OPA, valid vaules are @ref OPA0, @ref OPA1 and @ref OPA2.
+ *   Selects an OPA, valid values are @ref OPA0, @ref OPA1, and @ref OPA2.
  *
  * @param[in] init
- *   Pointer to a structure containing OPAMP init information.
+ *   A pointer to a structure containing OPAMP initialization information.
  ******************************************************************************/
 void OPAMP_Enable(
 #if defined(_SILICON_LABS_32B_SERIES_0)
@@ -366,7 +377,7 @@ void OPAMP_Enable(
   const OPAMP_Init_TypeDef *init)
 {
 #if defined(_SILICON_LABS_32B_SERIES_0)
-  uint32_t offset;
+  uint32_t gain;
 
   EFM_ASSERT(DAC_REF_VALID(dac));
   EFM_ASSERT(DAC_OPA_VALID(opa));
@@ -383,9 +394,9 @@ void OPAMP_Enable(
                     | (init->halfBias ?   DAC_BIASPROG_HALFBIAS : 0);
 
     if (init->defaultOffset) {
-      offset = SYSTEM_GetCalibrationValue(&dac->CAL);
-      dac->CAL = (dac->CAL & ~_DAC_CAL_CH0OFFSET_MASK)
-                 | (offset &  _DAC_CAL_CH0OFFSET_MASK);
+      gain = dac->CAL & _DAC_CAL_GAIN_MASK;
+      SYSTEM_GetCalibrationValue(&dac->CAL);
+      dac->CAL = (dac->CAL & ~_DAC_CAL_GAIN_MASK) | gain;
     } else {
       EFM_ASSERT(init->offset <= (_DAC_CAL_CH0OFFSET_MASK
                                   >> _DAC_CAL_CH0OFFSET_SHIFT));
@@ -426,9 +437,9 @@ void OPAMP_Enable(
                     | (init->halfBias ? DAC_BIASPROG_HALFBIAS : 0);
 
     if (init->defaultOffset) {
-      offset = SYSTEM_GetCalibrationValue(&dac->CAL);
-      dac->CAL = (dac->CAL & ~_DAC_CAL_CH1OFFSET_MASK)
-                 | (offset &  _DAC_CAL_CH1OFFSET_MASK);
+      gain = dac->CAL & _DAC_CAL_GAIN_MASK;
+      SYSTEM_GetCalibrationValue(&dac->CAL);
+      dac->CAL = (dac->CAL & ~_DAC_CAL_GAIN_MASK) | gain;
     } else {
       EFM_ASSERT(init->offset <= (_DAC_CAL_CH1OFFSET_MASK
                                   >> _DAC_CAL_CH1OFFSET_SHIFT));
@@ -476,9 +487,7 @@ void OPAMP_Enable(
                     | (init->halfBias ? DAC_BIASPROG_OPA2HALFBIAS : 0);
 
     if (init->defaultOffset) {
-      offset = SYSTEM_GetCalibrationValue(&dac->OPAOFFSET);
-      dac->OPAOFFSET = (dac->OPAOFFSET & ~_DAC_OPAOFFSET_OPA2OFFSET_MASK)
-                       | (offset       &  _DAC_OPAOFFSET_OPA2OFFSET_MASK);
+      SYSTEM_GetCalibrationValue(&dac->OPAOFFSET);
     } else {
       EFM_ASSERT(init->offset <= (_DAC_OPAOFFSET_OPA2OFFSET_MASK
                                   >> _DAC_OPAOFFSET_OPA2OFFSET_SHIFT));
@@ -533,6 +542,7 @@ void OPAMP_Enable(
 
   /* Get the calibration value based on OPAMP, Drive Strength, and INCBW. */
   switch (opa) {
+#if defined(VDAC_STATUS_OPA0ENS)
     case OPA0:
       switch (init->drvStr) {
         case opaDrvStrLowerAccLowStr:
@@ -549,7 +559,9 @@ void OPAMP_Enable(
           break;
       }
       break;
+#endif
 
+#if defined(VDAC_STATUS_OPA1ENS)
     case OPA1:
       switch (init->drvStr) {
         case opaDrvStrLowerAccLowStr:
@@ -566,7 +578,9 @@ void OPAMP_Enable(
           break;
       }
       break;
+#endif
 
+#if defined(VDAC_STATUS_OPA2ENS)
     case OPA2:
       switch (init->drvStr) {
         case opaDrvStrLowerAccLowStr:
@@ -583,6 +597,26 @@ void OPAMP_Enable(
           break;
       }
       break;
+#endif
+
+#if defined(VDAC_STATUS_OPA3ENS)
+    case OPA3:
+      switch (init->drvStr) {
+        case opaDrvStrLowerAccLowStr:
+          calData = (init->ugBwScale ? DEVINFO->OPA3CAL0 : DEVINFO->OPA3CAL4);
+          break;
+        case opaDrvStrLowAccLowStr:
+          calData = (init->ugBwScale ? DEVINFO->OPA3CAL1 : DEVINFO->OPA3CAL5);
+          break;
+        case opaDrvStrHighAccHighStr:
+          calData = (init->ugBwScale ? DEVINFO->OPA3CAL2 : DEVINFO->OPA3CAL6);
+          break;
+        case opaDrvStrHigherAccHighStr:
+          calData = (init->ugBwScale ? DEVINFO->OPA3CAL3 : DEVINFO->OPA3CAL7);
+          break;
+      }
+      break;
+#endif
   }
   if (!init->defaultOffsetN) {
     EFM_ASSERT(init->offsetN <= (_VDAC_OPA_CAL_OFFSETN_MASK
@@ -650,11 +684,21 @@ void OPAMP_Enable(
                         | (uint32_t)init->drvStr;
 
   if (opa == OPA0) {
+#if defined(VDAC_STATUS_OPA0ENS)
     dac->CMD |= VDAC_CMD_OPA0EN;
+#endif
+#if defined(VDAC_STATUS_OPA1ENS)
   } else if (opa == OPA1) {
     dac->CMD |= VDAC_CMD_OPA1EN;
-  } else { /* OPA2 */
+#endif
+#if defined(VDAC_STATUS_OPA2ENS)
+  } else if (opa == OPA2) {
     dac->CMD |= VDAC_CMD_OPA2EN;
+#endif
+#if defined(VDAC_STATUS_OPA3ENS)
+  } else { /* OPA3 */
+    dac->CMD |= VDAC_CMD_OPA3EN;
+#endif
   }
 
 #endif
