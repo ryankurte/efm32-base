@@ -1,3 +1,20 @@
+/***************************************************************************//**
+ * @file
+ * @brief Header file for RAIL HAL common functionality
+ *******************************************************************************
+ * # License
+ * <b>Copyright 2018 Silicon Laboratories Inc. www.silabs.com</b>
+ *******************************************************************************
+ *
+ * The licensor of this software is Silicon Laboratories Inc. Your use of this
+ * software is governed by the terms of Silicon Labs Master Software License
+ * Agreement (MSLA) available at
+ * www.silabs.com/about-us/legal/master-software-license-agreement. This
+ * software is distributed to you in Source Code format and is governed by the
+ * sections of the MSLA applicable to Source Code.
+ *
+ ******************************************************************************/
+
 #ifndef __RAILTEST_HAL_H__
 #define __RAILTEST_HAL_H__
 
@@ -86,10 +103,17 @@ const debugPin_t* halGetDebugPins(uint32_t *size);
  * HAL API to enable PRS output on a specific channel of a given debug signal.
  * @param channel The PRS channel to enable.
  * @param loc The output location to use for this PRS channel.
+ * @param port The GPIO port to use for this PRS channel.
+ * @param pin The GPIO pin to use for this PRS channel.
  * @param source The source to use for this PRS channel's output.
- * @param signal THe signal to use for this PRS channel's output.
+ * @param signal The signal to use for this PRS channel's output.
  */
-void halEnablePrs(uint8_t channel, uint8_t loc, uint8_t source, uint8_t signal);
+void halEnablePrs(uint8_t channel,
+                  uint8_t loc,
+                  GPIO_Port_TypeDef port,
+                  uint8_t pin,
+                  uint8_t source,
+                  uint8_t signal);
 
 /**
  * HAL API to turn off PRS output on a given channel.
@@ -116,5 +140,11 @@ void halCommonMemMove(void *dest, const void *src, uint16_t bytes);
  * macro.  Something which is atomic cannot be interrupted by interrupts.
  */
 #define ATOMIC(blah)          CORE_ATOMIC_SECTION(blah)
+
+/// Set RAIL_DMA_CHANNEL to DMA_CHANNEL_DMADRV in order to a DMA channel
+/// allocated by DMADRV.
+#define DMA_CHANNEL_DMADRV 254
+/// Set RAIL_DMA_CHANNEL to DMA_CHANNEL_INVALID in order to not use DMA
+#define DMA_CHANNEL_INVALID 255
 
 #endif // __RAILTEST_HAL_H__

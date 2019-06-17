@@ -1,24 +1,29 @@
-/**************************************************************************//**
- * @file     DAP_vendor.c
- * @brief    CMSIS-DAP Vendor Commands
- * @version  V1.10
- * @date     20. May 2015
+/*
+ * Copyright (c) 2013-2017 ARM Limited. All rights reserved.
  *
- * @note
- * Copyright (C) 2012-2015 ARM Limited. All rights reserved.
+ * SPDX-License-Identifier: Apache-2.0
  *
- * @par
- * ARM Limited (ARM) is supplying this software for use with Cortex-M
- * processor based microcontrollers.
+ * Licensed under the Apache License, Version 2.0 (the License); you may
+ * not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * @par
- * THIS SOFTWARE IS PROVIDED "AS IS".  NO WARRANTIES, WHETHER EXPRESS, IMPLIED
- * OR STATUTORY, INCLUDING, BUT NOT LIMITED TO, IMPLIED WARRANTIES OF
- * MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE APPLY TO THIS SOFTWARE.
- * ARM SHALL NOT, IN ANY CIRCUMSTANCES, BE LIABLE FOR SPECIAL, INCIDENTAL, OR
- * CONSEQUENTIAL DAMAGES, FOR ANY REASON WHATSOEVER.
+ * www.apache.org/licenses/LICENSE-2.0
  *
- ******************************************************************************/
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an AS IS BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * ----------------------------------------------------------------------
+ *
+ * $Date:        1. December 2017
+ * $Revision:    V2.0.0
+ *
+ * Project:      CMSIS-DAP Source
+ * Title:        DAP_vendor.c CMSIS-DAP Vendor Commands
+ *
+ *---------------------------------------------------------------------------*/
  
 #include "DAP_config.h"
 #include "DAP.h"
@@ -44,7 +49,7 @@ uint32_t DAP_ProcessVendorCommand(const uint8_t *request, uint8_t *response) {
   uint32_t num = (1U << 16) | 1U;
 
   *response++ = *request;        // copy Command ID
-  
+
   switch (*request++) {          // first byte in request is Command ID
     case ID_DAP_Vendor0:
 #if 0                            // example user command

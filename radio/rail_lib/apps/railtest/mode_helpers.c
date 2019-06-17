@@ -1,8 +1,19 @@
 /***************************************************************************//**
- * @file mode_helpers.c
+ * @file
  * @brief This file contains helpers for transitioning into the various
  *   AppModes
- * @copyright Copyright 2015 Silicon Laboratories, Inc. http://www.silabs.com
+ *******************************************************************************
+ * # License
+ * <b>Copyright 2018 Silicon Laboratories Inc. www.silabs.com</b>
+ *******************************************************************************
+ *
+ * The licensor of this software is Silicon Laboratories Inc. Your use of this
+ * software is governed by the terms of Silicon Labs Master Software License
+ * Agreement (MSLA) available at
+ * www.silabs.com/about-us/legal/master-software-license-agreement. This
+ * software is distributed to you in Source Code format and is governed by the
+ * sections of the MSLA applicable to Source Code.
+ *
  ******************************************************************************/
 
 #include "rail.h"
@@ -18,19 +29,6 @@ bool inAppMode(AppMode_t appMode, char *command)
     responsePrintError(command, 0x16,
                        "Need to be in %s mode for this command",
                        appModeNames(appMode));
-  }
-  return ret;
-}
-
-const char *rfStateNames[] = { "Idle", "Rx", "Tx" };
-// Guard for CI functions to ensure a certain radio state before running
-bool inRadioState(RAIL_RadioState_t state, char *command)
-{
-  bool ret = (RAIL_RfStateGet() == state);
-  if (!ret && command) {
-    responsePrintError(command, 0x17,
-                       "Need to be in %s radio state for this command",
-                       rfStateNames[state]);
   }
   return ret;
 }
@@ -59,7 +57,7 @@ void scheduleNextTx(void)
 {
   // Schedule the next tx if there are more coming
   if (txCount > 0 || currentAppMode() == TX_CONTINUOUS) {
-    RAIL_TimerSet(continuousTransferPeriod * 1000, RAIL_TIME_DELAY);
+    RAIL_SetTimer(railHandle, continuousTransferPeriod * 1000, RAIL_TIME_DELAY, &RAILCb_TimerExpired);
   } else if (currentAppMode() == TX_N_PACKETS || currentAppMode() == TX_SCHEDULED
              || currentAppMode() == TX_UNDERFLOW || currentAppMode() == TX_CANCEL) {
     setNextAppMode(NONE, NULL);

@@ -1,15 +1,17 @@
 /***************************************************************************//**
- * @file em_usbh.c
+ * @file
  * @brief USB protocol stack library API for EFM32/EZR32.
- * @version 5.2.1
  *******************************************************************************
  * # License
- * <b>(C) Copyright 2014 Silicon Labs, http://www.silabs.com</b>
+ * <b>Copyright 2018 Silicon Laboratories Inc. www.silabs.com</b>
  *******************************************************************************
  *
- * This file is licensed under the Silabs License Agreement. See the file
- * "Silabs_License_Agreement.txt" for details. Before using this software for
- * any purpose, you must agree to the terms of that agreement.
+ * The licensor of this software is Silicon Laboratories Inc.  Your use of this
+ * software is governed by the terms of Silicon Labs Master Software License
+ * Agreement (MSLA) available at
+ * www.silabs.com/about-us/legal/master-software-license-agreement.  This
+ * software is distributed to you in Source Code format and is governed by the
+ * sections of the MSLA applicable to Source Code.
  *
  ******************************************************************************/
 
@@ -871,10 +873,53 @@ int USBH_Init(const USBH_Init_TypeDef *p)
   USBH_portStatus = H_PORT_DISCONNECTED;
 
   /* Enable USB clock. */
+#if defined(_SILICON_LABS_32B_SERIES_0)
   CORE_ATOMIC_SECTION(
     CMU->CMD = CMU_CMD_USBCCLKSEL_HFCLKNODIV;
     CMU->HFCORECLKEN0 |= CMU_HFCORECLKEN0_USB | CMU_HFCORECLKEN0_USBC;
     )
+#else
+  /* USB can be clocked by HFXO, USHFRCO or HFRCO+DPLL. */
+
+  #if defined(USB_CLKSRC_HFXO)
+  if (SystemHFXOClockGet() != 48000000UL) {
+    DEBUG_USB_API_PUTS("\nUSBH_Init(), Illegal HFXO clock frequency");
+    EFM_ASSERT(false);
+    return USB_STATUS_ILLEGAL;
+  }
+  CMU_ClockSelectSet(cmuClock_USBR, cmuSelect_HFXO);
+
+  #elif defined(USB_CLKSRC_USHFRCO)
+  CMU_USHFRCOBandSet(cmuUSHFRCOFreq_48M0Hz);
+  CMU_ClockSelectSet(cmuClock_USBR, cmuSelect_USHFRCO);
+
+  #elif defined(USB_CLKSRC_HFRCODPLL)
+  CMU_DPLLInit_TypeDef init = CMU_DPLL_LFXO_TO_40MHZ;
+  init.frequency = USB_DPLL_FREQUENCY;
+  init.m = USB_DPLL_M;
+  init.n = USB_DPLL_N;
+  init.refClk = (CMU_DPLLClkSel_TypeDef)USB_DPLL_SRC;
+  #if (USB_DPLL_SRC == USB_DPLL_SRC_LFXO)
+  init.refClk = cmuDPLLClkSel_Lfxo;
+  CMU_OscillatorEnable(cmuOsc_LFXO, true, true);
+  #else
+  init.refClk = cmuDPLLClkSel_Hfxo;
+  CMU_OscillatorEnable(cmuOsc_HFXO, true, true);
+  #endif
+  CMU_ClockSelectSet(cmuClock_USBR, cmuSelect_HFRCO);
+  if (!CMU_DPLLLock(&init)) {
+    DEBUG_USB_API_PUTS("\nUSBH_Init(), DPLL could not lock");
+    EFM_ASSERT(false);
+    return USB_STATUS_ILLEGAL;
+  }
+
+  #else
+  #error "Illegal USB clock selection."
+  #endif
+
+  CMU->HFBUSCLKEN0 |= CMU_HFBUSCLKEN0_USB;
+  CMU->USBCTRL     |= CMU_USBCTRL_USBCLKEN;
+#endif
 
   /* Enable USB interrupt. */
   NVIC_ClearPendingIRQ(USB_IRQn);
@@ -2027,7 +2072,12 @@ void USBH_Stop(void)
   USBH_PortVbusOn(false);
   USBHAL_DisablePhyPins();
   /* Turn off USB clocks. */
+#if defined(_SILICON_LABS_32B_SERIES_0)
   CMU->HFCORECLKEN0 &= ~(CMU_HFCORECLKEN0_USB | CMU_HFCORECLKEN0_USBC);
+#else
+  CMU->HFBUSCLKEN0  &= ~CMU_HFBUSCLKEN0_USB;
+  CMU->USBCTRL      &= ~CMU_USBCTRL_USBCLKEN;
+#endif
 }
 
 /***************************************************************************//**
@@ -2218,7 +2268,12 @@ int USBH_WaitForDeviceConnectionB(uint8_t *buf, int timeoutInSeconds)
     /* Disable USB, power down VBUS. */
     USBH_Stop();
     /* Enable USB clocks again, USBH_Stop() turns them off. */
+#if defined(_SILICON_LABS_32B_SERIES_0)
     CMU->HFCORECLKEN0 |= CMU_HFCORECLKEN0_USB | CMU_HFCORECLKEN0_USBC;
+#else
+    CMU->HFBUSCLKEN0  |= CMU_HFBUSCLKEN0_USB;
+    CMU->USBCTRL      |= CMU_USBCTRL_USBCLKEN;
+#endif
 
     if ( deadLine ) {
       accumulatedTime += PORT_VBUS_DELAY;
@@ -2737,8 +2792,8 @@ extern int RETARGET_WriteChar(char c);
  directory in the software package for your development board.
 
  @n The host stack can be configured to monitor a GPIO input pin for detection
- of VBUS overcurrent or short circuit conditions. The stack will by default
- use pin 2 on PortE and low polarity for this purpose.
+ of VBUS overcurrent or short circuit conditions. The stack will default to
+ settings applicable to DK3750 for Classic Giant or SLSTK3701A for Giant 11.
  Override by using the following three \#define's:
  @n @n @verbatim
 #define USB_VBUSOVRCUR_PORT       gpioPortB       // The port

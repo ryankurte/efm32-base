@@ -1,15 +1,17 @@
 /***************************************************************************//**
- * @file dmadrv.c
+ * @file
  * @brief DMADRV API implementation.
- * @version 5.2.1
  *******************************************************************************
  * # License
- * <b>(C) Copyright 2014 Silicon Labs, http://www.silabs.com</b>
+ * <b>Copyright 2018 Silicon Laboratories Inc. www.silabs.com</b>
  *******************************************************************************
  *
- * This file is licensed under the Silabs License Agreement. See the file
- * "Silabs_License_Agreement.txt" for details. Before using this software for
- * any purpose, you must agree to the terms of that agreement.
+ * The licensor of this software is Silicon Laboratories Inc.  Your use of this
+ * software is governed by the terms of Silicon Labs Master Software License
+ * Agreement (MSLA) available at
+ * www.silabs.com/about-us/legal/master-software-license-agreement.  This
+ * software is distributed to you in Source Code format and is governed by the
+ * sections of the MSLA applicable to Source Code.
  *
  ******************************************************************************/
 
@@ -113,13 +115,13 @@ static Ecode_t StartTransfer(DmaMode_t             mode,
  *  Allocate (reserve) a DMA channel.
  *
  * @param[out] channelId
- *  The channel Id assigned by DMADRV.
+ *  The channel ID assigned by DMADRV.
  *
  * @param[in] capabilities
  *  Not used.
  *
  * @return
- *  @ref ECODE_EMDRV_DMADRV_OK on success. On failure an appropriate
+ *  @ref ECODE_EMDRV_DMADRV_OK on success. On failure, an appropriate
  *  DMADRV @ref Ecode_t is returned.
  ******************************************************************************/
 Ecode_t DMADRV_AllocateChannel(unsigned int *channelId, void *capabilities)
@@ -137,7 +139,7 @@ Ecode_t DMADRV_AllocateChannel(unsigned int *channelId, void *capabilities)
   }
 
   CORE_ENTER_ATOMIC();
-  for ( i = 0; i < EMDRV_DMADRV_DMA_CH_COUNT; i++ ) {
+  for ( i = 0; i < (int)EMDRV_DMADRV_DMA_CH_COUNT; i++ ) {
     if ( !chTable[i].allocated ) {
       *channelId             = i;
       chTable[i].allocated = true;
@@ -157,11 +159,11 @@ Ecode_t DMADRV_AllocateChannel(unsigned int *channelId, void *capabilities)
  *  Deinitialize DMADRV.
  *
  * @details
- *  If no DMA channels are currently allocated, it will disable DMA hardware
+ *  If DMA channels are not currently allocated, it will disable DMA hardware
  *  and mask associated interrupts.
  *
  * @return
- *  @ref ECODE_EMDRV_DMADRV_OK on success. On failure an appropriate
+ *  @ref ECODE_EMDRV_DMADRV_OK on success. On failure, an appropriate
  *  DMADRV @ref Ecode_t is returned.
  ******************************************************************************/
 Ecode_t DMADRV_DeInit(void)
@@ -173,7 +175,7 @@ Ecode_t DMADRV_DeInit(void)
   inUse = false;
 
   CORE_ENTER_ATOMIC();
-  for ( i = 0; i < EMDRV_DMADRV_DMA_CH_COUNT; i++ ) {
+  for ( i = 0; i < (int)EMDRV_DMADRV_DMA_CH_COUNT; i++ ) {
     if ( chTable[i].allocated ) {
       inUse = true;
       break;
@@ -200,13 +202,13 @@ Ecode_t DMADRV_DeInit(void)
 
 /***************************************************************************//**
  * @brief
- *  Free an allocate (reserved) DMA channel.
+ *  Free an allocated (reserved) DMA channel.
  *
  * @param[in] channelId
- *  The channel Id to free.
+ *  The channel ID to free.
  *
  * @return
- *  @ref ECODE_EMDRV_DMADRV_OK on success. On failure an appropriate
+ *  @ref ECODE_EMDRV_DMADRV_OK on success. On failure, an appropriate
  *  DMADRV @ref Ecode_t is returned.
  ******************************************************************************/
 Ecode_t DMADRV_FreeChannel(unsigned int channelId)
@@ -237,10 +239,10 @@ Ecode_t DMADRV_FreeChannel(unsigned int channelId)
  *  Initialize DMADRV.
  *
  * @details
- *  The DMA hw is initialized.
+ *  The DMA hardware is initialized.
  *
  * @return
- *  @ref ECODE_EMDRV_DMADRV_OK on success. On failure an appropriate
+ *  @ref ECODE_EMDRV_DMADRV_OK on success. On failure, an appropriate
  *  DMADRV @ref Ecode_t is returned.
  ******************************************************************************/
 Ecode_t DMADRV_Init(void)
@@ -266,7 +268,7 @@ Ecode_t DMADRV_Init(void)
     return ECODE_EMDRV_DMADRV_PARAM_ERROR;
   }
 
-  for ( i = 0; i < EMDRV_DMADRV_DMA_CH_COUNT; i++ ) {
+  for ( i = 0; i < (int)EMDRV_DMADRV_DMA_CH_COUNT; i++ ) {
     chTable[i].allocated = false;
   }
 
@@ -286,31 +288,31 @@ Ecode_t DMADRV_Init(void)
 #if defined(EMDRV_DMADRV_LDMA) && defined(EMDRV_DMADRV_USE_NATIVE_API)
 /***************************************************************************//**
  * @brief
- *  Start a LDMA transfer.
+ *  Start an LDMA transfer.
  *
  * @details
  *  This function can only be used on LDMA when @ref EMDRV_DMADRV_USE_NATIVE_API
- *  is defined. It is a wrapper around similar emlib ldma function.
+ *  is defined. It is a wrapper similar to emlib LDMA function.
  *
  * @param[in] channelId
- *  The channel Id to use.
+ *  The channel ID to use.
  *
  * @param[in] transfer
- *  DMA transfer configuration data structure.
+ *  A DMA transfer configuration data structure.
  *
  * @param[in] descriptor
- *  DMA transfer descriptor, can be an array of descriptors linked together.
+ *  A DMA transfer descriptor, can be an array of descriptors linked together.
  *
  * @param[in] callback
- *  Optional callback function for signalling completion. May be NULL if not
+ *  An optional callback function for signalling completion. May be NULL if not
  *  needed.
  *
  * @param[in] cbUserParam
- *  Optional user parameter to feed to the callback function. May be NULL if
+ *  An optional user parameter to feed to the callback function. May be NULL if
  *  not needed.
  *
  * @return
- *   @ref ECODE_EMDRV_DMADRV_OK on success. On failure an appropriate
+ *   @ref ECODE_EMDRV_DMADRV_OK on success. On failure, an appropriate
  *   DMADRV @ref Ecode_t is returned.
  ******************************************************************************/
 Ecode_t DMADRV_LdmaStartTransfer(int                channelId,
@@ -325,7 +327,7 @@ Ecode_t DMADRV_LdmaStartTransfer(int                channelId,
     return ECODE_EMDRV_DMADRV_NOT_INITIALIZED;
   }
 
-  if ( channelId >= EMDRV_DMADRV_DMA_CH_COUNT ) {
+  if ( channelId >= (int)EMDRV_DMADRV_DMA_CH_COUNT ) {
     return ECODE_EMDRV_DMADRV_PARAM_ERROR;
   }
 
@@ -346,39 +348,39 @@ Ecode_t DMADRV_LdmaStartTransfer(int                channelId,
 #if !defined(EMDRV_DMADRV_USE_NATIVE_API) || defined(DOXY_DOC_ONLY)
 /***************************************************************************//**
  * @brief
- *  Start a memory to peripheral DMA transfer.
+ *  Start a memory to a peripheral DMA transfer.
  *
  * @param[in] channelId
- *  Not used
+ *  The channel ID to use for the transfer.
  *
  * @param[in] peripheralSignal
  *  Selects which peripheral/peripheralsignal to use.
  *
  * @param[in] dst
- *  Destination (peripheral register) memory address.
+ *  A destination (peripheral register) memory address.
  *
  * @param[in] src
- *  Source memory address.
+ *  A source memory address.
  *
  * @param[in] srcInc
- *  Set to true to enable source address increment (increment is according to
+ *  Set to true to enable source address increment (increments according to
  *  @a size parameter).
  *
  * @param[in] len
- *  Number if items (of @a size size) to transfer.
+ *  A number of items (of @a size size) to transfer.
  *
  * @param[in] size
- *  Item size, byte, halfword or word.
+ *  An item size, byte, halfword or word.
  *
  * @param[in] callback
- *  Function to call on dma completion, use NULL if not needed.
+ *  A function to call on DMA completion, use NULL if not needed.
  *
  * @param[in] cbUserParam
- *  Optional user parameter to feed to the callback function. Use NULL if
+ *  An optional user parameter to feed to the callback function. Use NULL if
  *  not needed.
  *
  * @return
- *   @ref ECODE_EMDRV_DMADRV_OK on success. On failure an appropriate
+ *   @ref ECODE_EMDRV_DMADRV_OK on success. On failure, an appropriate
  *   DMADRV @ref Ecode_t is returned.
  ******************************************************************************/
 Ecode_t DMADRV_MemoryPeripheral(unsigned int          channelId,
@@ -410,42 +412,42 @@ Ecode_t DMADRV_MemoryPeripheral(unsigned int          channelId,
 #if !defined(EMDRV_DMADRV_USE_NATIVE_API) || defined(DOXY_DOC_ONLY)
 /***************************************************************************//**
  * @brief
- *  Start a memory to peripheral ping-pong DMA transfer.
+ *  Start a memory to a peripheral ping-pong DMA transfer.
  *
  * @param[in] channelId
- *  Not used
+ *  The channel ID to use for the transfer.
  *
  * @param[in] peripheralSignal
  *  Selects which peripheral/peripheralsignal to use.
  *
  * @param[in] dst
- *  Destination (peripheral register) memory address.
+ *  A destination (peripheral register) memory address.
  *
  * @param[in] src0
- *  Source memory address of first (ping) buffer.
+ *  A source memory address of the first (ping) buffer.
  *
  * @param[in] src1
- *  Source memory address of second (pong) buffer.
+ *  A source memory address of the second (pong) buffer.
  *
  * @param[in] srcInc
- *  Set to true to enable source address increment (increment is according to
+ *  Set to true to enable source address increment (increments according to
  *  @a size parameter).
  *
  * @param[in] len
- *  Number if items (of @a size size) to transfer.
+ *  A number of items (of @a size size) to transfer.
  *
  * @param[in] size
- *  Item size, byte, halfword or word.
+ *  An item size, byte, halfword or word.
  *
  * @param[in] callback
- *  Function to call on dma completion, use NULL if not needed.
+ *  A function to call on DMA completion, use NULL if not needed.
  *
  * @param[in] cbUserParam
- *  Optional user parameter to feed to the callback function. Use NULL if
+ *  An optional user parameter to feed to the callback function. Use NULL if
  *  not needed.
  *
  * @return
- *   @ref ECODE_EMDRV_DMADRV_OK on success. On failure an appropriate
+ *   @ref ECODE_EMDRV_DMADRV_OK on success. On failure, an appropriate
  *   DMADRV @ref Ecode_t is returned.
  ******************************************************************************/
 Ecode_t DMADRV_MemoryPeripheralPingPong(
@@ -482,36 +484,36 @@ Ecode_t DMADRV_MemoryPeripheralPingPong(
  *  Start a peripheral to memory DMA transfer.
  *
  * @param[in] channelId
- *  Not used
+ *  The channel ID to use for the transfer.
  *
  * @param[in] peripheralSignal
  *  Selects which peripheral/peripheralsignal to use.
  *
  * @param[in] dst
- *  Destination memory address.
+ *  A destination memory address.
  *
  * @param[in] src
- *  Source memory (peripheral register) address.
+ *  A source memory (peripheral register) address.
  *
  * @param[in] dstInc
- *  Set to true to enable destination address increment (increment is according
+ *  Set to true to enable destination address increment (increments according
  *  to @a size parameter).
  *
  * @param[in] len
- *  Number if items (of @a size size) to transfer.
+ *  A number of items (of @a size size) to transfer.
  *
  * @param[in] size
- *  Item size, byte, halfword or word.
+ *  An item size, byte, halfword or word.
  *
  * @param[in] callback
- *  Function to call on dma completion, use NULL if not needed.
+ *  A function to call on DMA completion, use NULL if not needed.
  *
  * @param[in] cbUserParam
- *  Optional user parameter to feed to the callback function. Use NULL if
+ *  An optional user parameter to feed to the callback function. Use NULL if
  *  not needed.
  *
  * @return
- *   @ref ECODE_EMDRV_DMADRV_OK on success. On failure an appropriate
+ *   @ref ECODE_EMDRV_DMADRV_OK on success. On failure, an appropriate
  *   DMADRV @ref Ecode_t is returned.
  ******************************************************************************/
 Ecode_t DMADRV_PeripheralMemory(unsigned int          channelId,
@@ -546,39 +548,39 @@ Ecode_t DMADRV_PeripheralMemory(unsigned int          channelId,
  *  Start a peripheral to memory ping-pong DMA transfer.
  *
  * @param[in] channelId
- *  Not used
+ *  The channel ID to use for the transfer.
  *
  * @param[in] peripheralSignal
  *  Selects which peripheral/peripheralsignal to use.
  *
  * @param[in] dst0
- *  Destination memory address of first (ping) buffer.
+ *  A destination memory address of the first (ping) buffer.
  *
  * @param[in] dst1
- *  Destination memory address of second (pong) buffer.
+ *  A destination memory address of the second (pong) buffer.
  *
  * @param[in] src
- *  Source memory (peripheral register) address.
+ *  A source memory (peripheral register) address.
  *
  * @param[in] dstInc
- *  Set to true to enable destination address increment (increment is according
+ *  Set to true to enable destination address increment (increments according
  *  to @a size parameter).
  *
  * @param[in] len
- *  Number if items (of @a size size) to transfer.
+ *  A number of items (of @a size size) to transfer.
  *
  * @param[in] size
- *  Item size, byte, halfword or word.
+ *  An item size, byte, halfword or word.
  *
  * @param[in] callback
- *  Function to call on dma completion, use NULL if not needed.
+ *  A function to call on DMA completion, use NULL if not needed.
  *
  * @param[in] cbUserParam
- *  Optional user parameter to feed to the callback function. Use NULL if
+ *  An optional user parameter to feed to the callback function. Use NULL if
  *  not needed.
  *
  * @return
- *   @ref ECODE_EMDRV_DMADRV_OK on success. On failure an appropriate
+ *   @ref ECODE_EMDRV_DMADRV_OK on success. On failure, an appropriate
  *   DMADRV @ref Ecode_t is returned.
  ******************************************************************************/
 Ecode_t DMADRV_PeripheralMemoryPingPong(
@@ -614,10 +616,10 @@ Ecode_t DMADRV_PeripheralMemoryPingPong(
  *  Pause an ongoing DMA transfer.
  *
  * @param[in] channelId
- *  The channel Id of the transfer to pause.
+ *  The channel ID of the transfer to pause.
  *
  * @return
- *  @ref ECODE_EMDRV_DMADRV_OK on success. On failure an appropriate
+ *  @ref ECODE_EMDRV_DMADRV_OK on success. On failure, an appropriate
  *  DMADRV @ref Ecode_t is returned.
  ******************************************************************************/
 Ecode_t DMADRV_PauseTransfer(unsigned int channelId)
@@ -648,10 +650,10 @@ Ecode_t DMADRV_PauseTransfer(unsigned int channelId)
  *  Resume an ongoing DMA transfer.
  *
  * @param[in] channelId
- *  The channel Id of the transfer to resume.
+ *  The channel ID of the transfer to resume.
  *
  * @return
- *  @ref ECODE_EMDRV_DMADRV_OK on success. On failure an appropriate
+ *  @ref ECODE_EMDRV_DMADRV_OK on success. On failure, an appropriate
  *  DMADRV @ref Ecode_t is returned.
  ******************************************************************************/
 Ecode_t DMADRV_ResumeTransfer(unsigned int channelId)
@@ -682,10 +684,10 @@ Ecode_t DMADRV_ResumeTransfer(unsigned int channelId)
  *  Stop an ongoing DMA transfer.
  *
  * @param[in] channelId
- *  The channel Id of the transfer to stop.
+ *  The channel ID of the transfer to stop.
  *
  * @return
- *  @ref ECODE_EMDRV_DMADRV_OK on success. On failure an appropriate
+ *  @ref ECODE_EMDRV_DMADRV_OK on success. On failure, an appropriate
  *  DMADRV @ref Ecode_t is returned.
  ******************************************************************************/
 Ecode_t DMADRV_StopTransfer(unsigned int channelId)
@@ -716,13 +718,13 @@ Ecode_t DMADRV_StopTransfer(unsigned int channelId)
  *  Check if a transfer is running.
  *
  * @param[in] channelId
- *  The channel Id of the transfer to check.
+ *  The channel ID of the transfer to check.
  *
  * @param[out] active
  *  True if transfer is running, false otherwise.
  *
  * @return
- *  @ref ECODE_EMDRV_DMADRV_OK on success. On failure an appropriate
+ *  @ref ECODE_EMDRV_DMADRV_OK on success. On failure, an appropriate
  *  DMADRV @ref Ecode_t is returned.
  ******************************************************************************/
 Ecode_t DMADRV_TransferActive(unsigned int channelId, bool *active)
@@ -743,7 +745,7 @@ Ecode_t DMADRV_TransferActive(unsigned int channelId, bool *active)
 #if defined(EMDRV_DMADRV_UDMA)
   if ( DMA_ChannelEnabled(channelId) )
 #elif defined(EMDRV_DMADRV_LDMA)
-  if ( LDMA->CHEN & (1 << channelId) )
+  if ( LDMA_ChannelEnabled(channelId) )
 #endif
   {
     *active = true;
@@ -759,17 +761,17 @@ Ecode_t DMADRV_TransferActive(unsigned int channelId, bool *active)
  *  Check if a transfer complete is pending.
  *
  * @details
- *  Will check channel interrupt flag. This assumes that the DMA is configured
- *  to giva a completion interrupt.
+ *  Will check the channel interrupt flag. This assumes that the DMA is configured
+ *  to give a completion interrupt.
  *
  * @param[in] channelId
- *  The channel Id of the transfer to check.
+ *  The channel ID of the transfer to check.
  *
  * @param[out] pending
  *  True if a transfer complete is pending, false otherwise.
  *
  * @return
- *  @ref ECODE_EMDRV_DMADRV_OK on success. On failure an appropriate
+ *  @ref ECODE_EMDRV_DMADRV_OK on success. On failure, an appropriate
  *  DMADRV @ref Ecode_t is returned.
  ******************************************************************************/
 Ecode_t DMADRV_TransferCompletePending(unsigned int channelId, bool *pending)
@@ -806,18 +808,18 @@ Ecode_t DMADRV_TransferCompletePending(unsigned int channelId, bool *pending)
  *  Check if a transfer has completed.
  *
  * @note
- *  This function is meant to be used in a polled environment.
- *  Will only work reliable for transfers NOT using completion interrupt.
- *  On UDMA it will only work on basic transfers on primary channel.
+ *  This function should be used in a polled environment.
+ *  Will only work reliably for transfers NOT using the completion interrupt.
+ *  On UDMA, it will only work on basic transfers on the primary channel.
  *
  * @param[in] channelId
- *  The channel Id of the transfer to check.
+ *  The channel ID of the transfer to check.
  *
  * @param[out] done
  *  True if a transfer has completed, false otherwise.
  *
  * @return
- *  @ref ECODE_EMDRV_DMADRV_OK on success. On failure an appropriate
+ *  @ref ECODE_EMDRV_DMADRV_OK on success. On failure, an appropriate
  *  DMADRV @ref Ecode_t is returned.
  ******************************************************************************/
 Ecode_t DMADRV_TransferDone(unsigned int channelId, bool *done)
@@ -848,7 +850,7 @@ Ecode_t DMADRV_TransferDone(unsigned int channelId, bool *done)
     iflag = DMA->IF;
     )
 
-  if ( (remaining == 0) && (iflag & (1 << channelId) ) ) {
+  if ( (remaining == 0) && (iflag & (1 << channelId)) ) {
     *done = true;
   } else {
     *done = false;
@@ -865,19 +867,19 @@ Ecode_t DMADRV_TransferDone(unsigned int channelId, bool *done)
  *  Get number of items remaining in a transfer.
  *
  * @note
- *  This function is does not take into account that a DMA transfers with
+ *  This function does not take into account that a DMA transfer with
  *  a chain of linked transfers might be ongoing. It will only check the
  *  count for the current transfer.
- *  On UDMA it will only work on the primary channel.
+ *  On UDMA, it will only work on the primary channel.
  *
  * @param[in] channelId
- *  The channel Id of the transfer to check.
+ *  The channel ID of the transfer to check.
  *
  * @param[out] remaining
- *  Number of items remaining in the transfer.
+ *  A number of items remaining in the transfer.
  *
  * @return
- *  @ref ECODE_EMDRV_DMADRV_OK on success. On failure an appropriate
+ *  @ref ECODE_EMDRV_DMADRV_OK on success. On failure, an appropriate
  *  DMADRV @ref Ecode_t is returned.
  ******************************************************************************/
 Ecode_t DMADRV_TransferRemainingCount(unsigned int channelId,
@@ -902,14 +904,14 @@ Ecode_t DMADRV_TransferRemainingCount(unsigned int channelId,
 
 #if defined(EMDRV_DMADRV_UDMA)
   CORE_ATOMIC_SECTION(
-    /* This works for primary channel only ! */
+    /* This works for the primary channel only ! */
     remain = (dmaControlBlock[channelId].CTRL
               & _DMA_CTRL_N_MINUS_1_MASK)
              >> _DMA_CTRL_N_MINUS_1_SHIFT;
     iflag = DMA->IF;
     )
 
-  if ( (remain == 0) && (iflag & (1 << channelId) ) ) {
+  if ( (remain == 0) && (iflag & (1 << channelId)) ) {
     *remaining = 0;
   } else {
     *remaining = 1 + remain;
@@ -926,7 +928,7 @@ Ecode_t DMADRV_TransferRemainingCount(unsigned int channelId,
 #if defined(EMDRV_DMADRV_LDMA)
 /***************************************************************************//**
  * @brief
- *  Interrupt handler for LDMA.
+ *  An interrupt handler for LDMA.
  ******************************************************************************/
 void LDMA_IRQHandler(void)
 {
@@ -936,14 +938,14 @@ void LDMA_IRQHandler(void)
   ChTable_t *ch;
   uint32_t pending, chnum, chmask;
 
-  /* Get all pending and enabled interrupts */
+  /* Get all pending and enabled interrupts. */
   pending  = LDMA->IF;
   pending &= LDMA->IEN;
 
-  /* Check for LDMA error */
+  /* Check for LDMA error. */
   if ( pending & LDMA_IF_ERROR ) {
-    /* Loop here to enable the debugger to see what has happened */
-    while (1) {
+    /* Loop to enable debugger to see what has happened. */
+    while (true) {
       /* Wait forever. */
     }
   }
@@ -953,8 +955,12 @@ void LDMA_IRQHandler(void)
         chnum < EMDRV_DMADRV_DMA_CH_COUNT;
         chnum++, chmask <<= 1 ) {
     if ( pending & chmask ) {
-      /* Clear interrupt flag. */
+      /* Clear the interrupt flag. */
+#if defined (LDMA_HAS_SET_CLEAR)
+      LDMA->IF_CLR = chmask;
+#else
       LDMA->IFC = chmask;
+#endif
 
       ch = &chTable[chnum];
       if ( ch->callback != NULL ) {
@@ -978,7 +984,7 @@ void LDMA_IRQHandler(void)
 #if defined(EMDRV_DMADRV_UDMA) && !defined(EMDRV_DMADRV_USE_NATIVE_API)
 /***************************************************************************//**
  * @brief
- *  Callback function for UDMA basic transfers.
+ *  A callback function for UDMA basic transfers.
  ******************************************************************************/
 static void DmaBasicCallback(unsigned int channel, bool primary, void *user)
 {
@@ -996,7 +1002,7 @@ static void DmaBasicCallback(unsigned int channel, bool primary, void *user)
 #if defined(EMDRV_DMADRV_UDMA) && !defined(EMDRV_DMADRV_USE_NATIVE_API)
 /***************************************************************************//**
  * @brief
- *  Callback function for UDMA ping-pong transfers.
+ *  A callback function for UDMA ping-pong transfers.
  ******************************************************************************/
 static void DmaPingPongCallback(unsigned int channel, bool primary, void *user)
 {
@@ -1010,7 +1016,7 @@ static void DmaPingPongCallback(unsigned int channel, bool primary, void *user)
     stop = !ch->callback(channel, ch->callbackCount, ch->userParam);
   }
 
-  DMA_RefreshPingPong(0,
+  DMA_RefreshPingPong(channel,
                       primary,
                       false,
                       NULL,
@@ -1051,7 +1057,7 @@ static Ecode_t StartTransfer(DmaMode_t             mode,
        || (buf0 == NULL)
        || (buf1 == NULL)
        || (len > DMADRV_MAX_XFER_COUNT)
-       || ( (mode == dmaModePingPong) && (buf2 == NULL) ) ) {
+       || ((mode == dmaModePingPong) && (buf2 == NULL)) ) {
     return ECODE_EMDRV_DMADRV_PARAM_ERROR;
   }
 
@@ -1060,7 +1066,7 @@ static Ecode_t StartTransfer(DmaMode_t             mode,
     return ECODE_EMDRV_DMADRV_CH_NOT_ALLOCATED;
   }
 
-  /* Setup the interrupt callback routine. */
+  /* Se tup the interrupt callback routine. */
   if ( mode == dmaModeBasic ) {
     dmaCallBack[channelId].cbFunc  = DmaBasicCallback;
   } else {
@@ -1068,10 +1074,10 @@ static Ecode_t StartTransfer(DmaMode_t             mode,
   }
   dmaCallBack[channelId].userPtr = NULL;
 
-  /* Setup the channel */
+  /* Set up the channel */
   chCfg.highPri = false;              /* Can't use hi pri with peripherals. */
 
-  /* Interrupt needed ? */
+  /* Whether the interrupt is needed. */
   if ( (callback != NULL) || (mode == dmaModePingPong) ) {
     chCfg.enableInt = true;
   } else {
@@ -1081,7 +1087,7 @@ static Ecode_t StartTransfer(DmaMode_t             mode,
   chCfg.cb     = &dmaCallBack[channelId];
   DMA_CfgChannel(channelId, &chCfg);
 
-  /* Setup channel descriptor. */
+  /* Set up the channel descriptor. */
   if ( direction == dmaDirectionMemToPeripheral ) {
     if ( bufInc ) {
       if ( size == dmadrvDataSize1 ) {
@@ -1124,7 +1130,7 @@ static Ecode_t StartTransfer(DmaMode_t             mode,
 
   DMA->IFC = 1 << channelId;
 
-  /* Start DMA cycle. */
+  /* Start the DMA cycle. */
   if ( mode == dmaModeBasic ) {
     DMA_ActivateBasic(channelId, true, false, buf0, buf1, len - 1);
   } else {
@@ -1156,7 +1162,7 @@ static Ecode_t StartTransfer(DmaMode_t             mode,
 #if defined(EMDRV_DMADRV_LDMA) && !defined(EMDRV_DMADRV_USE_NATIVE_API)
 /***************************************************************************//**
  * @brief
- *  Start a LDMA transfer.
+ *  Start an LDMA transfer.
  ******************************************************************************/
 static Ecode_t StartTransfer(DmaMode_t             mode,
                              DmaDirection_t        direction,
@@ -1184,7 +1190,7 @@ static Ecode_t StartTransfer(DmaMode_t             mode,
        || (buf0 == NULL)
        || (buf1 == NULL)
        || (len > DMADRV_MAX_XFER_COUNT)
-       || ( (mode == dmaModePingPong) && (buf2 == NULL) ) ) {
+       || ((mode == dmaModePingPong) && (buf2 == NULL)) ) {
     return ECODE_EMDRV_DMADRV_PARAM_ERROR;
   }
 
@@ -1207,30 +1213,31 @@ static Ecode_t StartTransfer(DmaMode_t             mode,
       desc->xfer.dstInc = ldmaCtrlDstIncNone;
     }
   }
+
   xfer.ldmaReqSel    = peripheralSignal;
   desc->xfer.xferCnt = len - 1;
-  desc->xfer.dstAddr = (uint32_t)buf0;
-  desc->xfer.srcAddr = (uint32_t)buf1;
+  desc->xfer.dstAddr = (uint32_t)(uint8_t *)buf0;
+  desc->xfer.srcAddr = (uint32_t)(uint8_t *)buf1;
   desc->xfer.size    = size;
 
   if ( mode == dmaModePingPong ) {
     desc->xfer.linkMode = ldmaLinkModeRel;
     desc->xfer.link     = 1;
-    desc->xfer.linkAddr = 4;      /* Refer to "pong" descriptor. */
+    desc->xfer.linkAddr = 4;      /* Refer to the "pong" descriptor. */
 
     /* Set the "pong" descriptor equal to the "ping" descriptor. */
     dmaXfer[channelId].desc[1] = *desc;
-    /* Refer to "ping" descriptor. */
+    /* Refer to the "ping" descriptor. */
     dmaXfer[channelId].desc[1].xfer.linkAddr = -4;
-    dmaXfer[channelId].desc[1].xfer.srcAddr = (uint32_t)buf2;
+    dmaXfer[channelId].desc[1].xfer.srcAddr = (uint32_t)(uint8_t *)buf2;
 
     if ( direction == dmaDirectionPeripheralToMem ) {
-      dmaXfer[channelId].desc[1].xfer.dstAddr = (uint32_t)buf1;
-      desc->xfer.srcAddr = (uint32_t)buf2;
+      dmaXfer[channelId].desc[1].xfer.dstAddr = (uint32_t)(uint8_t *)buf1;
+      desc->xfer.srcAddr = (uint32_t)(uint8_t *)buf2;
     }
   }
 
-  /* Interrupt needed ? */
+  /* Whether an interrupt is needed. */
   if ( (callback == NULL) && (mode == dmaModeBasic) ) {
     desc->xfer.doneIfs = 0;
   }
@@ -1264,17 +1271,17 @@ static Ecode_t StartTransfer(DmaMode_t             mode,
 
    @n @section dmadrv_intro Introduction
 
-   The DMADRV driver makes it possible to write code using DMA which will work
-   regardless of the type of DMA controller on the underlying microcontroller.
-   It will also make it possible to use DMA in several modules, without the
-   modules knowing of each others existence.
+   The DMADRV driver supports writing code using DMA which will work
+   regardless of the type of the DMA controller on the underlying microcontroller.
+   Additionally, DMA can be used in several modules that are
+   completely unaware of each other.
    The driver does not preclude use of the native emlib API of the underlying
-   DMA controller, on the contrary, this will often result in more efficient
-   code and is a necessity when doing complex DMA operations. The housekeeping
-   functions of this driver will be valuable even in this use-case.
+   DMA controller. On the contrary, it will often result in more efficient
+   code and is necessary for complex DMA operations. The housekeeping
+   functions of this driver are valuable even in this use-case.
 
-   The source files for the DMA driver library resides in the
-   emdrv/dmadrv folder, and are named dmadrv.c and dmadrv.h.
+   The dmadrv.c and dmadrv.h source files are in the
+   emdrv/dmadrv folder.
 
    @note DMA transfer completion callback functions are called from within the
    DMA interrupt handler.
@@ -1283,33 +1290,33 @@ static Ecode_t StartTransfer(DmaMode_t             mode,
 
    Some properties of the DMADRV driver are compile-time configurable. These
    properties are stored in a file named @ref dmadrv_config.h. A template for this
-   file, containing default values, resides in the emdrv/config folder.
-   Currently the configuration options are:
+   file, containing default values, is in the emdrv/config folder.
+   Currently the configuration options are as follows:
    @li The interrupt priority of the DMA peripheral.
-   @li Number of DMA channels to support.
+   @li A number of DMA channels to support.
    @li Use the native emlib API belonging to the underlying DMA hardware in
       combination with the DMADRV API.
 
-   Both configuration options will help reduce the drivers ram memory footprint.
+   Both configuration options will help reduce the driver's RAM footprint.
 
-   To configure DMADRV, provide your own configuration file. Here is a
-   sample @ref dmadrv_config.h file:
+   To configure DMADRV, provide a custom configuration file. This is an
+   example @ref dmadrv_config.h file:
    @verbatim
  #ifndef __SILICON_LABS_DMADRV_CONFIG_H__
  #define __SILICON_LABS_DMADRV_CONFIG_H__
 
    // DMADRV DMA interrupt priority configuration option.
-   // Set DMA interrupt priority. Range is 0..7, 0 is highest priority.
+   // Set DMA interrupt priority. Range is 0..7, 0 is the highest priority.
  #define EMDRV_DMADRV_DMA_IRQ_PRIORITY 4
 
    // DMADRV channel count configuration option.
-   // Number of DMA channels to support. A lower DMA channel count will reduce
-   // ram memory footprint.
+   // A number of DMA channels to support. A lower DMA channel count will reduce
+   // RAM footprint.
  #define EMDRV_DMADRV_DMA_CH_COUNT 4
 
    // DMADRV native API configuration option.
-   // Use the native emlib api of the DMA controller, but still use DMADRV
-   // housekeeping functions as AllocateChannel/FreeChannel etc.
+   // Use the native emlib API of the DMA controller in addition to DMADRV
+   // housekeeping functions, such as AllocateChannel/FreeChannel, and so on.
  #define EMDRV_DMADRV_USE_NATIVE_API
 
  #endif
@@ -1317,17 +1324,17 @@ static Ecode_t StartTransfer(DmaMode_t             mode,
 
    @n @section dmadrv_api The API
 
-   This section contain brief descriptions of the functions in the API. You will
-   find detailed information on input and output parameters and return values by
-   clicking on the hyperlinked function names. Most functions return an error
+   This section contains brief descriptions of the API functions.
+   For more information about input and output parameters and return values,
+   click on the hyperlinked function names. Most functions return an error
    code, @ref ECODE_EMDRV_DMADRV_OK is returned on success,
    see @ref ecode.h and @ref dmadrv.h for other error codes.
 
-   Your application code must include one header file: @em dmadrv.h.
+   The application code must include @em dmadrv.h header file.
 
    @ref DMADRV_Init(), @ref DMADRV_DeInit() @n
-    These functions initializes or deinitializes the DMADRV driver. Typically
-    @htmlonly DMADRV_Init() @endhtmlonly is called once in your startup code.
+    These functions initialize or deinitialize the DMADRV driver. Typically,
+    @htmlonly DMADRV_Init() @endhtmlonly is called once in the startup code.
 
    @ref DMADRV_AllocateChannel(), @ref DMADRV_FreeChannel() @n
     DMA channel reserve and release functions. It is recommended that
@@ -1348,10 +1355,10 @@ static Ecode_t StartTransfer(DmaMode_t             mode,
     Start a DMA ping-pong transfer from a peripheral to memory.
 
    @ref DMADRV_LdmaStartTransfer() @n
-    Start a DMA transfer on a LDMA controller. This function can only be used
+    Start a DMA transfer on an LDMA controller. This function can only be used
     when configuration option @ref EMDRV_DMADRV_USE_NATIVE_API is defined.
-    It is a wrapper around similar emlib ldma function, but adds support for
-    completion callback and user defined callback function parameter.
+    It is a wrapper similar to the emlib LDMA function, but adds support for
+    completion callback and user-defined callback function parameter.
 
    @ref DMADRV_StopTransfer() @n
     Stop an ongoing DMA transfer.

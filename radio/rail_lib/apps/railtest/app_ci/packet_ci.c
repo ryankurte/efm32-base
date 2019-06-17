@@ -1,8 +1,20 @@
 /***************************************************************************//**
- * @file packet_ci.c
+ * @file
  * @brief This file implements the packet commands for RAIL test applications.
- * @copyright Copyright 2015 Silicon Laboratories, Inc. http://www.silabs.com
+ *******************************************************************************
+ * # License
+ * <b>Copyright 2018 Silicon Laboratories Inc. www.silabs.com</b>
+ *******************************************************************************
+ *
+ * The licensor of this software is Silicon Laboratories Inc. Your use of this
+ * software is governed by the terms of Silicon Labs Master Software License
+ * Agreement (MSLA) available at
+ * www.silabs.com/about-us/legal/master-software-license-agreement. This
+ * software is distributed to you in Source Code format and is governed by the
+ * sections of the MSLA applicable to Source Code.
+ *
  ******************************************************************************/
+
 #include <stdio.h>
 #include <string.h>
 
@@ -20,12 +32,12 @@ void printTxPacket(int argc, char **argv)
 {
   // Use the packet print helper to print out the transmit payload
   printPacket(argv[0],
-              transmitPayload.dataPtr,
-              transmitPayload.dataLength,
+              txData,
+              txDataLen,
               NULL);
 }
 
-void setTxPayload(int argc, char **argv)
+static bool setTxPayloadHelper(int argc, char **argv)
 {
   uint16_t offset = ciGetUnsigned(argv[1]);
 
@@ -37,16 +49,31 @@ void setTxPayload(int argc, char **argv)
     // Make sure this fits in the txData buffer
     if (index >= sizeof(txData)) {
       responsePrintError(argv[0], 5, "Data overflows txData buffer");
-      return;
+      return false;
     }
     txData[index] = value;
   }
 
-  transmitPayload.dataPtr = &txData[0];
   if (railDataConfig.txMethod == PACKET_MODE) {
-    RAIL_TxDataLoad(&transmitPayload);
+    RAIL_WriteTxFifo(railHandle, txData, txDataLen, true);
   }
-  printTxPacket(1, argv);
+  return true;
+}
+
+void setTxPayload(int argc, char **argv)
+{
+  if (setTxPayloadHelper(argc, argv)) {
+    printTxPacket(1, argv);
+  }
+}
+
+void setTxPayloadQuiet(int argc, char **argv)
+{
+  if (setTxPayloadHelper(argc, argv)) {
+    uint16_t start = ciGetUnsigned(argv[1]);
+    // Ignore first two arguments in end (command name, start index)
+    responsePrint(argv[0], "start:%u,end:%u", start, start + argc - 2);
+  }
 }
 
 void setTxLength(int argc, char **argv)
@@ -58,21 +85,19 @@ void setTxLength(int argc, char **argv)
     return;
   }
 
-  // Make sure we're using the txData array and set the length
-  transmitPayload.dataPtr = &txData[0];
-  transmitPayload.dataLength = length;
+  txDataLen = length;
   if (railDataConfig.txMethod == PACKET_MODE) {
-    RAIL_TxDataLoad(&transmitPayload);
+    RAIL_WriteTxFifo(railHandle, txData, txDataLen, true);
   }
-  responsePrint(argv[0], "TxLength:%d", transmitPayload.dataLength);
+  responsePrint(argv[0], "TxLength:%d", txDataLen);
 }
 
 void printAckPacket(int argc, char **argv)
 {
   // Use the packet print helper to print out the transmit payload
   printPacket(argv[0],
-              ackPayload.dataPtr,
-              ackPayload.dataLength,
+              ackData,
+              ackDataLen,
               NULL);
 }
 
@@ -93,8 +118,7 @@ void setAckPayload(int argc, char **argv)
     ackData[index] = value;
   }
 
-  ackPayload.dataPtr = &ackData[0];
-  RAIL_AutoAckLoadBuffer(&ackPayload);
+  RAIL_WriteAutoAckFifo(railHandle, ackData, ackDataLen);
   printAckPacket(1, argv);
 }
 
@@ -108,10 +132,9 @@ void setAckLength(int argc, char **argv)
   }
 
   // Make sure we're using the txData array and set the length
-  ackPayload.dataPtr = &ackData[0];
-  ackPayload.dataLength = length;
-  RAIL_AutoAckLoadBuffer(&ackPayload);
-  responsePrint(argv[0], "TxLength:%d", ackPayload.dataLength);
+  ackDataLen = length;
+  RAIL_WriteAutoAckFifo(railHandle, ackData, ackDataLen);
+  responsePrint(argv[0], "TxLength:%d", ackDataLen);
 }
 
 void setFixedLength(int argc, char **argv)
@@ -121,7 +144,7 @@ void setFixedLength(int argc, char **argv)
     return;
   }
   uint16_t fixedLength = ciGetUnsigned(argv[1]);
-  fixedLength = RAIL_SetFixedLength(fixedLength);
+  fixedLength = RAIL_SetFixedLength(railHandle, fixedLength);
   configRxLengthSetting(fixedLength);
 
   // Print configured length
@@ -159,7 +182,7 @@ void dataConfig(int argc, char **argv)
     responsePrintError(argv[0], 0x50, "Invalid Data Method selection.");
   }
 
-  status = RAIL_DataConfig(&railDataConfig);
+  status = RAIL_ConfigData(railHandle, &railDataConfig);
   if (status) {
     responsePrintError(argv[0], 0x50, "Failed to successfully call RAIL_DataConfig: %d", status);
   } else {
@@ -170,6 +193,39 @@ void dataConfig(int argc, char **argv)
                   argv[1],
                   argv[2]);
   }
+}
+
+static uint8_t rxFifo[RX_BUFFER_SIZE];
+
+void setRxFifo(int argc, char **argv)
+{
+  if (!inRadioState(RAIL_RF_STATE_IDLE, argv[0])) {
+    return;
+  }
+
+  uint16_t rxFifoSize = ciGetUnsigned(argv[1]);
+  if (rxFifoSize > RX_BUFFER_SIZE) {
+    responsePrintError(argv[0], 0x54, "Max RX FIFO size in this build is %u",
+                       RX_BUFFER_SIZE);
+    return;
+  }
+  RAIL_Status_t status = RAIL_SetRxFifo(railHandle, &rxFifo[0], &rxFifoSize);
+  if (status != RAIL_STATUS_NO_ERROR) {
+    responsePrintError(argv[0], 0x55, "Setting RX FIFO failed");
+    return;
+  }
+  responsePrint(argv[0], "RxFifoSize:%u", rxFifoSize);
+}
+
+RAIL_Status_t RAILCb_SetupRxFifo(RAIL_Handle_t railHandle)
+{
+  uint16_t rxFifoSize = RX_BUFFER_SIZE;
+  RAIL_Status_t status = RAIL_SetRxFifo(railHandle, &rxFifo[0], &rxFifoSize);
+  if (status == RAIL_STATUS_INVALID_STATE) {
+    // Allow failures due to multiprotocol
+    return RAIL_STATUS_NO_ERROR;
+  }
+  return status;
 }
 
 void fifoModeTestOptions(int argc, char **argv)
@@ -195,17 +251,89 @@ void rxFifoManualRead(int argc, char **argv)
   } else {
     bool readAppendedInfo = ciGetUnsigned(argv[1]);
     uint16_t bytesToRead = ciGetUnsigned(argv[2]);
-    void *packetHandle = memoryAllocate(bytesToRead);
-    RAIL_RxPacketInfo_t *packetInfo = (RAIL_RxPacketInfo_t *)memoryPtrFromHandle(packetHandle);
+    bool printTimingInfo = (argc > 3) ? ciGetUnsigned(argv[3]) : false;
+    void *rxPacketHandle = memoryAllocate(bytesToRead + sizeof(RailAppEvent_t));
+    RailAppEvent_t *packetData = (RailAppEvent_t *)memoryPtrFromHandle(rxPacketHandle);
+
+    if (packetData == NULL) {
+      RAIL_ReleaseRxPacket(railHandle, RAIL_RX_PACKET_HANDLE_OLDEST);
+      memoryFree(rxPacketHandle);
+      return;
+    }
+    RAIL_RxPacketDetails_t *appendedInfo = &packetData->rxPacket.appendedInfo;
 
     // dataLength is number of bytes read from the fifo
-    packetInfo->dataLength = RAIL_ReadRxFifo(packetInfo->dataPtr, bytesToRead);
+    packetData->type = RX_PACKET;
+    packetData->rxPacket.dataPtr = (uint8_t *)&packetData[1];
+    packetData->rxPacket.dataLength = RAIL_ReadRxFifo(railHandle, packetData->rxPacket.dataPtr,
+                                                      bytesToRead);
 
     if (readAppendedInfo) {
-      RAIL_ReadRxFifoAppendedInfo(&(packetInfo->appendedInfo));
+      RAIL_Status_t status = RAIL_STATUS_NO_ERROR;
+      // Note the packet's status
+      RAIL_RxPacketInfo_t packetInfo;
+      RAIL_RxPacketHandle_t packetHandle
+        = RAIL_GetRxPacketInfo(railHandle, RAIL_RX_PACKET_HANDLE_OLDEST,
+                               &packetInfo);
+      // assert(packetHandle != NULL);
+      packetData->rxPacket.packetStatus = packetInfo.packetStatus;
+
+      if (printTimingInfo) {
+        RAIL_PacketTimePosition_t positions[] = {
+          RAIL_PACKET_TIME_AT_PREAMBLE_START,
+          RAIL_PACKET_TIME_AT_SYNC_END,
+          RAIL_PACKET_TIME_AT_PACKET_END,
+        };
+        typedef RAIL_Status_t (*Adjustment)(RAIL_Handle_t, uint16_t, RAIL_Time_t *);
+        Adjustment funcs[] = {
+          RAIL_GetRxTimePreambleStart,
+          RAIL_GetRxTimeSyncWordEnd,
+          RAIL_GetRxTimeFrameEnd,
+        };
+        #define NUM_POSITIONS (sizeof(positions) / sizeof(positions[0]))
+        RAIL_Time_t times[2 * NUM_POSITIONS];
+
+        appendedInfo->timeReceived.totalPacketBytes = packetData->rxPacket.dataLength;
+        for (uint8_t i = 0; i < NUM_POSITIONS; i++) {
+          appendedInfo->timeReceived.timePosition = positions[i];
+          RAIL_GetRxPacketDetails(railHandle, packetHandle, appendedInfo);
+          times[i] = appendedInfo->timeReceived.packetTime;
+        }
+        // Get the appended info details and release this packet
+        RAIL_GetRxPacketDetailsAlt(railHandle, packetHandle, appendedInfo);
+        for (uint8_t i = 0; i < NUM_POSITIONS; i++) {
+          times[i + NUM_POSITIONS] = appendedInfo->timeReceived.packetTime;
+          funcs[i](railHandle, packetData->rxPacket.dataLength, &times[i + NUM_POSITIONS]);
+        }
+        responsePrint(argv[0],
+                      "Pre:%u,Sync:%u,End:%u,PreAlt:%u,SyncAlt:%u,EndAlt:%u",
+                      times[0], times[1], times[2],
+                      times[3], times[4], times[5]);
+      } else {
+        // Get the appended info details and release this packet
+        status = RAIL_GetRxPacketDetailsAlt(railHandle, packetHandle, appendedInfo);
+        if (status == RAIL_STATUS_NO_ERROR) {
+          RAIL_Time_t *sync = &appendedInfo->timeReceived.packetTime;
+          status = RAIL_GetRxTimeSyncWordEnd(railHandle,
+                                             packetData->rxPacket.dataLength, sync);
+        }
+      }
+
+      RAIL_ReleaseRxPacket(railHandle, packetHandle);
+
+      // Make sure there was a valid packet
+      if (status != RAIL_STATUS_NO_ERROR) {
+        memset(&packetData->rxPacket.appendedInfo, 0, sizeof(RAIL_RxPacketDetails_t));
+        packetData->rxPacket.appendedInfo.rssi = RAIL_RSSI_INVALID_DBM;
+        if (packetData->rxPacket.dataLength == 0) {
+          responsePrintError(argv[0], 0x52, "No packet found in rx fifo!");
+          memoryFree(rxPacketHandle);
+          return;
+        }
+      }
     }
 
-    queueAdd(&rxPacketQueue, packetHandle);
+    queueAdd(&railAppEventQueue, rxPacketHandle);
   }
 }
 
@@ -215,7 +343,7 @@ void fifoReset(int argc, char **argv)
   bool txReset = ciGetUnsigned(argv[1]);
   bool rxReset = ciGetUnsigned(argv[2]);
 
-  RAIL_ResetFifo(txReset, rxReset);
+  RAIL_ResetFifo(railHandle, txReset, rxReset);
 
   responsePrint(argv[0],
                 "TxFifo:%s,"
@@ -229,7 +357,9 @@ void txFifoManualLoad(int argc, char**argv)
   if (!txFifoManual) {
     responsePrintError(argv[0], 0x51, "Must be in tx fifo manual mode (fifoModeTestOptions).");
   } else {
-    loadTxData(&transmitPayload);
+    // Test loading unaligned data
+    loadTxData(txData, 1U);
+    loadTxData(&txData[1], txDataLen - 1U);
     responsePrint(argv[0], "Status:Fifo Written");
   }
 }
@@ -253,7 +383,8 @@ void peekRx(int argc, char **argv)
   if (argc > 2) {
     offset = ciGetUnsigned(argv[2]);
   }
-  if (RAIL_PeekRxPacket(pDst, bytesToPeek, offset) != bytesToPeek) {
+  if (RAIL_PeekRxPacket(railHandle, RAIL_RX_PACKET_HANDLE_OLDEST,
+                        pDst, bytesToPeek, offset) != bytesToPeek) {
     responsePrintError(argv[0], 0x53, "Requested bytes not in receive buffer");
     return;
   }

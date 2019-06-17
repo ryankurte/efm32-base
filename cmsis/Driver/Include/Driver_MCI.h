@@ -1,39 +1,38 @@
-/* -----------------------------------------------------------------------------
- * Copyright (c) 2013-2014 ARM Ltd.
+/*
+ * Copyright (c) 2013-2017 ARM Limited. All rights reserved.
  *
- * This software is provided 'as-is', without any express or implied warranty.
- * In no event will the authors be held liable for any damages arising from
- * the use of this software. Permission is granted to anyone to use this
- * software for any purpose, including commercial applications, and to alter
- * it and redistribute it freely, subject to the following restrictions:
+ * SPDX-License-Identifier: Apache-2.0
  *
- * 1. The origin of this software must not be misrepresented; you must not
- *    claim that you wrote the original software. If you use this software in
- *    a product, an acknowledgment in the product documentation would be
- *    appreciated but is not required.
+ * Licensed under the Apache License, Version 2.0 (the License); you may
+ * not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * 2. Altered source versions must be plainly marked as such, and must not be
- *    misrepresented as being the original software.
+ * www.apache.org/licenses/LICENSE-2.0
  *
- * 3. This notice may not be removed or altered from any source distribution.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an AS IS BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  *
- *
- * $Date:        16. May 2014
- * $Revision:    V2.02
+ * $Date:        2. Feb 2017
+ * $Revision:    V2.3
  *
  * Project:      MCI (Memory Card Interface) Driver definitions
- * -------------------------------------------------------------------------- */
+ */
 
 /* History:
- *  Version 2.02
+ *  Version 2.3
+ *    ARM_MCI_STATUS made volatile
+ *  Version 2.2
  *    Added timeout and error flags to ARM_MCI_STATUS
  *    Added support for controlling optional RST_n pin (eMMC)
  *    Removed explicit Clock Control (ARM_MCI_CONTROL_CLOCK)
  *    Removed event ARM_MCI_EVENT_BOOT_ACK_TIMEOUT
- *  Version 2.01
+ *  Version 2.1
  *    Decoupled SPI mode from MCI driver
  *    Replaced function ARM_MCI_CardSwitchRead with ARM_MCI_ReadCD and ARM_MCI_ReadWP
- *  Version 2.00
+ *  Version 2.0
  *    Added support for:
  *      SD UHS-I (Ultra High Speed)
  *      SD I/O Interrupt
@@ -60,12 +59,17 @@
  *    Initial release
  */
 
-#ifndef __DRIVER_MCI_H
-#define __DRIVER_MCI_H
+#ifndef DRIVER_MCI_H_
+#define DRIVER_MCI_H_
+
+#ifdef  __cplusplus
+extern "C"
+{
+#endif
 
 #include "Driver_Common.h"
 
-#define ARM_MCI_API_VERSION ARM_DRIVER_VERSION_MAJOR_MINOR(2,02)  /* API version */
+#define ARM_MCI_API_VERSION ARM_DRIVER_VERSION_MAJOR_MINOR(2,3)  /* API version */
 
 
 /****** MCI Send Command Flags *****/
@@ -164,7 +168,7 @@
 /**
 \brief MCI Status
 */
-typedef struct _ARM_MCI_STATUS {
+typedef volatile struct _ARM_MCI_STATUS {
   uint32_t command_active   : 1;        ///< Command active flag
   uint32_t command_timeout  : 1;        ///< Command timeout flag (cleared on start of next command)
   uint32_t command_error    : 1;        ///< Command error flag (cleared on start of next command)
@@ -173,6 +177,7 @@ typedef struct _ARM_MCI_STATUS {
   uint32_t transfer_error   : 1;        ///< Transfer error flag (cleared on start of next command)
   uint32_t sdio_interrupt   : 1;        ///< SD I/O Interrupt flag (cleared on start of monitoring)
   uint32_t ccs              : 1;        ///< CCS flag (cleared on start of next command)
+  uint32_t reserved         : 24;
 } ARM_MCI_STATUS;
 
 
@@ -319,6 +324,7 @@ typedef struct _ARM_MCI_CAPABILITIES {
   uint32_t rst_n             : 1;       ///< Supports RST_n Pin Control (eMMC)
   uint32_t ccs               : 1;       ///< Supports Command Completion Signal (CCS) for CE-ATA
   uint32_t ccs_timeout       : 1;       ///< Supports Command Completion Signal (CCS) timeout for CE-ATA
+  uint32_t reserved          : 3;       ///< Reserved (must be zero)
 } ARM_MCI_CAPABILITIES;
 
 
@@ -347,4 +353,8 @@ typedef struct _ARM_DRIVER_MCI {
   ARM_MCI_STATUS       (*GetStatus)      (void);                           ///< Pointer to \ref ARM_MCI_GetStatus : Get MCI status.
 } const ARM_DRIVER_MCI;
 
-#endif /* __DRIVER_MCI_H */
+#ifdef  __cplusplus
+}
+#endif
+
+#endif /* DRIVER_MCI_H_ */

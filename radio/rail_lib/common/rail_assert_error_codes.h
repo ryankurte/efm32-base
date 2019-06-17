@@ -1,11 +1,24 @@
 /***************************************************************************//**
- * @file rail_assert_error_codes.h
+ * @file
  * @brief Definition of error codes that occur in rail for use in
-      RAILCb_AssertFailed. This file is purely informational and optional -
-      it need not be included even if rail_assert libraries are included.
-
- * @copyright Copyright 2017 Silicon Laboratories, Inc. http://www.silabs.com
+ *   RAILCb_AssertFailed. This file is purely informational and optional -
+ *   it need not be included even if rail_assert libraries are included.
+ *******************************************************************************
+ * # License
+ * <b>Copyright 2018 Silicon Laboratories Inc. www.silabs.com</b>
+ *******************************************************************************
+ *
+ * The licensor of this software is Silicon Laboratories Inc. Your use of this
+ * software is governed by the terms of Silicon Labs Master Software License
+ * Agreement (MSLA) available at
+ * www.silabs.com/about-us/legal/master-software-license-agreement. This
+ * software is distributed to you in Source Code format and is governed by the
+ * sections of the MSLA applicable to Source Code.
+ *
  ******************************************************************************/
+
+#ifndef __RAIL_ASSERT_ERROR_CODES_H__
+#define __RAIL_ASSERT_ERROR_CODES_H__
 
 #include "rail_types.h"
 
@@ -14,122 +27,210 @@
  * @{
  */
 
-#ifndef _RAIL_ASSERT_ERROR_CODES_
-
-#define _RAIL_ASSERT_ERROR_CODES_
-
 /**
  * Enumeration of all possible error codes from RAIL_ASSERT
  */
-RAIL_ENUM(RAIL_AssertErrorCodes_t)
+RAIL_ENUM_GENERIC(RAIL_AssertErrorCodes_t, uint32_t)
 {
-  RAIL_ASSERT_FAILED_APPENDED_INFO_MISSING,
-  RAIL_ASSERT_FAILED_RX_BUFFER_BYTES,
-  RAIL_ASSERT_FAILED_RX_BUFFER_ZERO_BYTES_READ,
-  RAIL_ASSERT_FAILED_FRC_BLOCKERROR_HANDLED_PACKET_MODE,
-  RAIL_ASSERT_FAILED_FRC_BLOCKERROR_HANDLED_FIFO_MODE,
-  RAIL_ASSERT_FAILED_SYNTH_DIVCTRL_ENUM_CONVERSION_ERROR, //5
-  RAIL_ASSERT_FAILED_UNEXPECTED_STATE_RX_BUFFER,
-  RAIL_ASSERT_FAILED_UNEXPECTED_STATE_RXLEN_BUFFER,
-  RAIL_ASSERT_FAILED_UNEXPECTED_STATE_TX_BUFFER,
-  RAIL_ASSERT_FAILED_UNEXPECTED_STATE_TXACK_BUFFER,
-  RAIL_ASSERT_FAILED_TXACK_LENGTH, //10
-  RAIL_ASSERT_FAILED_PBUFFER_NOT_DEFINED,
-  RAIL_ASSERT_FAILED_INSUFFICIENT_BYTES_IN_RX_PACKET,
-  RAIL_ASSERT_FAILED_FRC_PRI_IRQ_NULL,
-  RAIL_ASSERT_FAILED_FRC_IRQ_NULL,
-  RAIL_ASSERT_FAILED_RAC_RSM_IRQ_NULL, //15
-  RAIL_ASSERT_FAILED_RAC_SEQ_IRQ_NULL,
-  RAIL_ASSERT_FAILED_AGC_IRQ_NULL,
-  RAIL_ASSERT_FAILED_PROTIMER_IRQ_NULL,
-  RAIL_ASSERT_FAILED_BUFC_IRQ_NULL,
-  RAIL_ASSERT_FAILED_MODEM_IRQ_NULL, //20
-  RAIL_ASSERT_FAILED_CLOCK_PRESCALER,
-  RAIL_ASSERT_FAILED_RTCC_POST_WAKEUP,
-  RAIL_ASSERT_FAILED_SYNTH_VCO_FREQUENCY,
-  RAIL_ASSERT_FAILED_RAC_STATE,
-  RAIL_ASSERT_FAILED_RETIME_LIMIT, //25
-  RAIL_ASSERT_FAILED_NESTED_SEQUENCER_LOCK,
-  RAIL_ASSERT_FAILED_RSSI_AVERAGE_DONE,
-  RAIL_ASSERT_FAILED_DFL_BITS_SIZE,
-  RAIL_ASSERT_FAILED_PROTIMER_RANDOM_SEED,
-  RAIL_ASSERT_FAILED_EFR32XG1_REGISTER_SIZE, //30
-  RAIL_ASSERT_FAILED_PROTIMER_CHANNEL,
-  RAIL_ASSERT_FAILED_TIMER_REQUIRES_WRAP,
-  RAIL_ASSERT_FAILED_BASECNTTOP,
-  RAIL_ASSERT_FAILED_DEPRECATED_LBTRETRY,
-  RAIL_ASSERT_FAILED_RTCC_SYNC_MISSED, //35
-  RAIL_ASSERT_FAILED_CLOCK_SOURCE_NOT_READY,
-  RAIL_ASSERT_FAILED_TIMINGS_INVALID,
+  RAIL_ASSERT_FAILED_APPENDED_INFO_MISSING = 0,
+  RAIL_ASSERT_FAILED_RX_FIFO_BYTES = 1,
+  RAIL_ASSERT_FAILED_RX_FIFO_ZERO_BYTES_READ = 2,
+  RAIL_ASSERT_FAILED_ILLEGAL_RXLEN_ENTRY_STATUS = 3,
+  RAIL_ASSERT_FAILED_BAD_PACKET_LENGTH = 4,
+  RAIL_ASSERT_FAILED_SYNTH_DIVCTRL_ENUM_CONVERSION_ERROR = 5,
+  RAIL_ASSERT_FAILED_UNEXPECTED_STATE_RX_FIFO = 6,
+  RAIL_ASSERT_FAILED_UNEXPECTED_STATE_RXLEN_FIFO = 7,
+  RAIL_ASSERT_FAILED_UNEXPECTED_STATE_TX_FIFO = 8,
+  RAIL_ASSERT_FAILED_UNEXPECTED_STATE_TXACK_FIFO = 9,
+  RAIL_ASSERT_FAILED_PBUFFER_NOT_DEFINED = 10,
+  RAIL_ASSERT_FAILED_INSUFFICIENT_BYTES_IN_RX_PACKET = 11,
+  RAIL_ASSERT_FAILED_CLOCK_PRESCALER = 12,
+  RAIL_ASSERT_FAILED_RTCC_POST_WAKEUP = 13,
+  RAIL_ASSERT_FAILED_SYNTH_VCO_FREQUENCY = 14,
+  RAIL_ASSERT_FAILED_RAC_STATE = 15,
+  RAIL_ASSERT_FAILED_TO_BE_ASSIGNED = 16, // Placeholder.
+  RAIL_ASSERT_FAILED_NESTED_SEQUENCER_LOCK = 17,
+  RAIL_ASSERT_FAILED_RSSI_AVERAGE_DONE = 18,
+  RAIL_ASSERT_FAILED_DFL_BITS_SIZE = 19,
+  RAIL_ASSERT_FAILED_PROTIMER_RANDOM_SEED = 20,
+  RAIL_ASSERT_FAILED_EFR32XG1_REGISTER_SIZE = 21,
+  RAIL_ASSERT_FAILED_PROTIMER_CHANNEL = 22,
+  RAIL_ASSERT_FAILED_TIMER_REQUIRES_WRAP = 23,
+  RAIL_ASSERT_FAILED_BASECNTTOP = 24,
+  RAIL_ASSERT_FAILED_DEPRECATED_LBTRETRY = 25,
+  RAIL_ASSERT_FAILED_RTCC_SYNC_MISSED = 26,
+  RAIL_ASSERT_FAILED_CLOCK_SOURCE_NOT_READY = 27,
+  RAIL_ASSERT_FAILED_TIMINGS_INVALID = 28,
+  RAIL_ASSERT_NULL_HANDLE = 29,
+  RAIL_ASSERT_FAILED_SCHED_TIMER_NOT_RUNNING = 30,
+  RAIL_ASSERT_FAILED_NO_ACTIVE_CONFIG = 31,
+  RAIL_ASSERT_FAILED_NO_ACTIVE_HANDLE_SWITCH = 32,
+  RAIL_ASSERT_FAILED_RFINIT = 33,
+  RAIL_ASSERT_FAILED_NO_ACTIVE_HANDLE_SCHEDRX = 34,
+  RAIL_ASSERT_FAILED_INVALID_HANDLE_SCHEDTX = 35,
+  RAIL_ASSERT_FAILED_INACTIVE_HANDLE_SCHEDTX = 36,
+  RAIL_ASSERT_FAILED_CONFIG_INDEX_INVALID = 37,
+  RAIL_ASSERT_FAILED_NO_ACTIVE_HANDLE_SINGLEPROTOCOL = 38,
+  RAIL_ASSERT_DEPRECATED_FUNCTION = 39,
+  RAIL_ASSERT_MULTIPROTOCOL_NO_EVENT = 40,
+  RAIL_ASSERT_FAILED_INVALID_INTERRUPT_ENABLED = 41,
+  RAIL_ASSERT_CONVERSION_CURVES_NOT_INITIALIZED = 42,
+  RAIL_ASSERT_DIVISION_BY_ZERO = 43,
+  RAIL_ASSERT_CANT_USE_HARDWARE = 44,
+  RAIL_ASSERT_NULL_PARAMETER = 45,
+  RAIL_ASSERT_INVALID_TASK_TYPE = 46,
+  RAIL_ASSERT_SMALL_SYNTH_RADIO_CONFIG_BUFFER = 47,
+  RAIL_ASSERT_CHANNEL_HOPPING_BUFFER_TOO_SHORT = 48,
+  RAIL_ASSERT_INVALID_MODULE_ACTION = 49,
+  RAIL_ASSERT_CHANNEL_HOPPING_INVALID_RADIO_CONFIG = 50,
+  RAIL_ASSERT_CHANNEL_CHANGE_FAILED = 51,
+  RAIL_ASSERT_INVALID_REGISTER = 52,
+  RAIL_ASSERT_FAILED_LO_DIV_NULL_STATE = 53,
+  RAIL_ASSERT_CACHE_CONFIG_FAILED = 54,
 };
 
-/**
- * Use this define to create an array of error messages that map to the codes
- * in \ref RAIL_AssertErrorCodes_t. You can use these to print slightly more
- * detailed error strings related to a particular assert error code if desired.
- * For example, you could implement your assert failed callback as follows to
- * make use of this.
- *
- * @code{.c}
- * void RAILCb_AssertFailed(uint32_t errorCode)
- * {
- *   static const char* railErrorMessages[] = RAIL_ASSERT_ERROR_MESSAGES;
- *   const char *errorMessage = "Unknown";
- *
- *   // If this error code is within the range of known error messages then use
- *   // the appropriate error message.
- *   if (errorCode < (sizeof(railErrorMessages) / sizeof(char*))) {
- *     errorMessage = railErrorMessages[errorCode];
- *   }
- *   printf(errorMessage);
- *
- *   // Reset the chip since an assert is a fatal error
- *   NVIC_SystemReset();
- * }
- * @endcode
- */
-#define RAIL_ASSERT_ERROR_MESSAGES {                                \
-    "Appended info missing from Rx packet",                         \
-    "Payload bytes missing from Rx packet",                         \
-    "Error reading back packet payload",                            \
-    "Unexpected block error occurred (Packet mode)",                \
-    "Unexpected block error occurred (FIFO mode)",                  \
-    "Unable to configure radio for IR calibration",                 \
-    "Reached unexpected state while handling Rx buffer events",     \
-    "Reached unexpected state while handling RXLEN buffer events",  \
-    "Reached unexpected state while handling Tx buffer events",     \
-    "Reached unexpected state while handling Tx ACK buffer events", \
-    "Requested Tx ACK dataLength greater than Tx ACK buffer size",  \
-    "No memory to store receive packet",                            \
-    "Packet length longer than the receive FIFO size",              \
-    "FRC_PRI IRQ callback is NULL",                                 \
-    "FRC IRQ callback is NULL",                                     \
-    "RAC_RSM IRQ callback is NULL",                                 \
-    "RAC_SEQ IRQ callback is NULL",                                 \
-    "AGC IRQ callback is NULL",                                     \
-    "PROTIMER IRQ callback is NULL",                                \
-    "BUFC IRQ callback is NULL",                                    \
-    "MODEM IRQ callback is NULL",                                   \
-    "Invalid radio clock prescaler",                                \
-    "Error synchronizing the RAIL timebase after sleep",            \
-    "VCO frequency outside supported range",                        \
-    "Radio active while changing channels",                         \
-    "Unable to configure DCDC retiming",                            \
-    "Nested attempt to lock the sequencer",                         \
-    "RSSI averaging enabled without a valid callback",              \
-    "Invalid dynamic frame length setting provided (dflBits)",      \
-    "Unable to seed radio pseudo random number generator",          \
-    "Timeout exceeds EFR32XG1 register size",                       \
-    "Invalid timer channel specified",                              \
-    "Timer value larger than RAIL timebase",                        \
-    "LBT config exceeds EFR32XG1 register size",                    \
-    "Deprecated CSMA/LBT retry callback unexpectedly called",       \
-    "Could not synchronize RAIL timebase with the RTC",             \
-    "Clock source not ready",                                       \
-    "Attempted to set RAIL timings to invalid value",               \
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
+// Self-referencing defines minimize compiler complaints when using RAIL_ENUM
+#define RAIL_ASSERT_FAILED_APPENDED_INFO_MISSING               ((RAIL_AssertErrorCodes_t) RAIL_ASSERT_FAILED_APPENDED_INFO_MISSING)
+#define RAIL_ASSERT_FAILED_RX_FIFO_BYTES                       ((RAIL_AssertErrorCodes_t) RAIL_ASSERT_FAILED_RX_FIFO_BYTES)
+#define RAIL_ASSERT_FAILED_RX_FIFO_ZERO_BYTES_READ             ((RAIL_AssertErrorCodes_t) RAIL_ASSERT_FAILED_RX_FIFO_ZERO_BYTES_READ)
+#define RAIL_ASSERT_FAILED_ILLEGAL_RXLEN_ENTRY_STATUS          ((RAIL_AssertErrorCodes_t) RAIL_ASSERT_FAILED_ILLEGAL_RXLEN_ENTRY_STATUS)
+#define RAIL_ASSERT_FAILED_BAD_PACKET_LENGTH                   ((RAIL_AssertErrorCodes_t) RAIL_ASSERT_FAILED_BAD_PACKET_LENGTH)
+#define RAIL_ASSERT_FAILED_SYNTH_DIVCTRL_ENUM_CONVERSION_ERROR ((RAIL_AssertErrorCodes_t) RAIL_ASSERT_FAILED_SYNTH_DIVCTRL_ENUM_CONVERSION_ERROR)
+#define RAIL_ASSERT_FAILED_UNEXPECTED_STATE_RX_FIFO            ((RAIL_AssertErrorCodes_t) RAIL_ASSERT_FAILED_UNEXPECTED_STATE_RX_FIFO)
+#define RAIL_ASSERT_FAILED_UNEXPECTED_STATE_RXLEN_FIFO         ((RAIL_AssertErrorCodes_t) RAIL_ASSERT_FAILED_UNEXPECTED_STATE_RXLEN_FIFO)
+#define RAIL_ASSERT_FAILED_UNEXPECTED_STATE_TX_FIFO            ((RAIL_AssertErrorCodes_t) RAIL_ASSERT_FAILED_UNEXPECTED_STATE_TX_FIFO)
+#define RAIL_ASSERT_FAILED_UNEXPECTED_STATE_TXACK_FIFO         ((RAIL_AssertErrorCodes_t) RAIL_ASSERT_FAILED_UNEXPECTED_STATE_TXACK_FIFO)
+#define RAIL_ASSERT_FAILED_PBUFFER_NOT_DEFINED                 ((RAIL_AssertErrorCodes_t) RAIL_ASSERT_FAILED_PBUFFER_NOT_DEFINED)
+#define RAIL_ASSERT_FAILED_INSUFFICIENT_BYTES_IN_RX_PACKET     ((RAIL_AssertErrorCodes_t) RAIL_ASSERT_FAILED_INSUFFICIENT_BYTES_IN_RX_PACKET)
+#define RAIL_ASSERT_FAILED_CLOCK_PRESCALER                     ((RAIL_AssertErrorCodes_t) RAIL_ASSERT_FAILED_CLOCK_PRESCALER)
+#define RAIL_ASSERT_FAILED_RTCC_POST_WAKEUP                    ((RAIL_AssertErrorCodes_t) RAIL_ASSERT_FAILED_RTCC_POST_WAKEUP)
+#define RAIL_ASSERT_FAILED_SYNTH_VCO_FREQUENCY                 ((RAIL_AssertErrorCodes_t) RAIL_ASSERT_FAILED_SYNTH_VCO_FREQUENCY)
+#define RAIL_ASSERT_FAILED_RAC_STATE                           ((RAIL_AssertErrorCodes_t) RAIL_ASSERT_FAILED_RAC_STATE)
+#define RAIL_ASSERT_FAILED_NESTED_SEQUENCER_LOCK               ((RAIL_AssertErrorCodes_t) RAIL_ASSERT_FAILED_NESTED_SEQUENCER_LOCK)
+#define RAIL_ASSERT_FAILED_RSSI_AVERAGE_DONE                   ((RAIL_AssertErrorCodes_t) RAIL_ASSERT_FAILED_RSSI_AVERAGE_DONE)
+#define RAIL_ASSERT_FAILED_DFL_BITS_SIZE                       ((RAIL_AssertErrorCodes_t) RAIL_ASSERT_FAILED_DFL_BITS_SIZE)
+#define RAIL_ASSERT_FAILED_PROTIMER_RANDOM_SEED                ((RAIL_AssertErrorCodes_t) RAIL_ASSERT_FAILED_PROTIMER_RANDOM_SEED)
+#define RAIL_ASSERT_FAILED_EFR32XG1_REGISTER_SIZE              ((RAIL_AssertErrorCodes_t) RAIL_ASSERT_FAILED_EFR32XG1_REGISTER_SIZE)
+#define RAIL_ASSERT_FAILED_PROTIMER_CHANNEL                    ((RAIL_AssertErrorCodes_t) RAIL_ASSERT_FAILED_PROTIMER_CHANNEL)
+#define RAIL_ASSERT_FAILED_TIMER_REQUIRES_WRAP                 ((RAIL_AssertErrorCodes_t) RAIL_ASSERT_FAILED_TIMER_REQUIRES_WRAP)
+#define RAIL_ASSERT_FAILED_BASECNTTOP                          ((RAIL_AssertErrorCodes_t) RAIL_ASSERT_FAILED_BASECNTTOP)
+#define RAIL_ASSERT_FAILED_DEPRECATED_LBTRETRY                 ((RAIL_AssertErrorCodes_t) RAIL_ASSERT_FAILED_DEPRECATED_LBTRETRY)
+#define RAIL_ASSERT_FAILED_RTCC_SYNC_MISSED                    ((RAIL_AssertErrorCodes_t) RAIL_ASSERT_FAILED_RTCC_SYNC_MISSED)
+#define RAIL_ASSERT_FAILED_CLOCK_SOURCE_NOT_READY              ((RAIL_AssertErrorCodes_t) RAIL_ASSERT_FAILED_CLOCK_SOURCE_NOT_READY)
+#define RAIL_ASSERT_FAILED_TIMINGS_INVALID                     ((RAIL_AssertErrorCodes_t) RAIL_ASSERT_FAILED_TIMINGS_INVALID)
+#define RAIL_ASSERT_NULL_HANDLE                                ((RAIL_AssertErrorCodes_t) RAIL_ASSERT_NULL_HANDLE)
+#define RAIL_ASSERT_FAILED_SCHED_TIMER_NOT_RUNNING             ((RAIL_AssertErrorCodes_t) RAIL_ASSERT_FAILED_SCHED_TIMER_NOT_RUNNING)
+#define RAIL_ASSERT_FAILED_NO_ACTIVE_CONFIG                    ((RAIL_AssertErrorCodes_t) RAIL_ASSERT_FAILED_NO_ACTIVE_CONFIG)
+#define RAIL_ASSERT_FAILED_NO_ACTIVE_HANDLE_SWITCH             ((RAIL_AssertErrorCodes_t) RAIL_ASSERT_FAILED_NO_ACTIVE_HANDLE_SWITCH)
+#define RAIL_ASSERT_FAILED_RFINIT                              ((RAIL_AssertErrorCodes_t) RAIL_ASSERT_FAILED_RFINIT)
+#define RAIL_ASSERT_FAILED_NO_ACTIVE_HANDLE_SCHEDRX            ((RAIL_AssertErrorCodes_t) RAIL_ASSERT_FAILED_NO_ACTIVE_HANDLE_SCHEDRX)
+#define RAIL_ASSERT_FAILED_INVALID_HANDLE_SCHEDTX              ((RAIL_AssertErrorCodes_t) RAIL_ASSERT_FAILED_INVALID_HANDLE_SCHEDTX)
+#define RAIL_ASSERT_FAILED_INACTIVE_HANDLE_SCHEDTX             ((RAIL_AssertErrorCodes_t) RAIL_ASSERT_FAILED_INACTIVE_HANDLE_SCHEDTX)
+#define RAIL_ASSERT_FAILED_CONFIG_INDEX_INVALID                ((RAIL_AssertErrorCodes_t) RAIL_ASSERT_FAILED_CONFIG_INDEX_INVALID)
+#define RAIL_ASSERT_FAILED_NO_ACTIVE_HANDLE_SINGLEPROTOCOL     ((RAIL_AssertErrorCodes_t) RAIL_ASSERT_FAILED_NO_ACTIVE_HANDLE_SINGLEPROTOCOL)
+#define RAIL_ASSERT_DEPRECATED_FUNCTION                        ((RAIL_AssertErrorCodes_t) RAIL_ASSERT_DEPRECATED_FUNCTION)
+#define RAIL_ASSERT_MULTIPROTOCOL_NO_EVENT                     ((RAIL_AssertErrorCodes_t) RAIL_ASSERT_MULTIPROTOCOL_NO_EVENT)
+#define RAIL_ASSERT_FAILED_INVALID_INTERRUPT_ENABLED           ((RAIL_AssertErrorCodes_t) RAIL_ASSERT_FAILED_INVALID_INTERRUPT_ENABLED)
+#define RAIL_ASSERT_CONVERSION_CURVES_NOT_INITIALIZED          ((RAIL_AssertErrorCodes_t) RAIL_ASSERT_CONVERSION_CURVES_NOT_INITIALIZED)
+#define RAIL_ASSERT_DIVISION_BY_ZERO                           ((RAIL_AssertErrorCodes_t) RAIL_ASSERT_DIVISION_BY_ZERO)
+#define RAIL_ASSERT_CANT_USE_HARDWARE                          ((RAIL_AssertErrorCodes_t) RAIL_ASSERT_CANT_USE_HARDWARE)
+#define RAIL_ASSERT_NULL_PARAMETER                             ((RAIL_AssertErrorCodes_t) RAIL_ASSERT_NULL_PARAMETER)
+#define RAIL_ASSERT_INVALID_TASK_TYPE                          ((RAIL_AssertErrorCodes_t) RAIL_ASSERT_INVALID_TASK_TYPE)
+#define RAIL_ASSERT_SMALL_SYNTH_RADIO_CONFIG_BUFFER            ((RAIL_AssertErrorCodes_t) RAIL_ASSERT_SMALL_SYNTH_RADIO_CONFIG_BUFFER)
+#define RAIL_ASSERT_CHANNEL_HOPPING_BUFFER_TOO_SHORT           ((RAIL_AssertErrorCodes_t) RAIL_ASSERT_CHANNEL_HOPPING_BUFFER_TOO_SHORT)
+#define RAIL_ASSERT_INVALID_MODULE_ACTION                      ((RAIL_AssertErrorCodes_t) RAIL_ASSERT_INVALID_MODULE_ACTION)
+#define RAIL_ASSERT_CHANNEL_HOPPING_INVALID_RADIO_CONFIG       ((RAIL_AssertErrorCodes_t) RAIL_ASSERT_CHANNEL_HOPPING_INVALID_RADIO_CONFIG)
+#define RAIL_ASSERT_CHANNEL_CHANGE_FAILED                      ((RAIL_AssertErrorCodes_t) RAIL_ASSERT_CHANNEL_CHANGE_FAILED)
+#define RAIL_ASSERT_INVALID_REGISTER                           ((RAIL_AssertErrorCodes_t) RAIL_ASSERT_INVALID_REGISTER)
+#define RAIL_ASSERT_FAILED_LO_DIV_NULL_STATE                   ((RAIL_AssertErrorCodes_t) RAIL_ASSERT_FAILED_LO_DIV_NULL_STATE)
+#define RAIL_ASSERT_CACHE_CONFIG_FAILED                        ((RAIL_AssertErrorCodes_t) RAIL_ASSERT_CACHE_CONFIG_FAILED)
+#endif//DOXYGEN_SHOULD_SKIP_THIS
+
+/// Use this define to create an array of error messages that map to the codes
+/// in \ref RAIL_AssertErrorCodes_t. You can use these to print slightly more
+/// detailed error strings related to a particular assert error code if desired.
+/// For example, you could implement your assert failed callback as follows to
+/// make use of this.
+///
+/// @code{.c}
+/// void RAILCb_AssertFailed(RAIL_Handle_t railHandle, uint32_t errorCode)
+/// {
+///   static const char* railErrorMessages[] = RAIL_ASSERT_ERROR_MESSAGES;
+///   const char *errorMessage = "Unknown";
+///
+///   // If this error code is within the range of known error messages then use
+///   // the appropriate error message.
+///   if (errorCode < (sizeof(railErrorMessages) / sizeof(char*))) {
+///     errorMessage = railErrorMessages[errorCode];
+///   }
+///   printf(errorMessage);
+///
+///   // Reset the chip since an assert is a fatal error
+///   NVIC_SystemReset();
+/// }
+/// @endcode
+///
+#define RAIL_ASSERT_ERROR_MESSAGES {                                                   \
+    /* 0*/ "Appended info missing from Rx packet",                                     \
+    /* 1*/ "Payload bytes missing from Rx packet",                                     \
+    /* 2*/ "Error reading back packet payload",                                        \
+    /* 3*/ "Receive fifo entry has invalid status",                                    \
+    /* 4*/ "Receive fifo entry bad packet length",                                     \
+    /* 5*/ "Unable to configure radio for IR calibration",                             \
+    /* 6*/ "Reached unexpected state while handling Rx fifo events",                   \
+    /* 7*/ "Reached unexpected state while handling RXLEN fifo events",                \
+    /* 8*/ "Reached unexpected state while handling Tx fifo events",                   \
+    /* 9*/ "Reached unexpected state while handling Tx ACK fifo events",               \
+    /*10*/ "No memory to store receive packet",                                        \
+    /*11*/ "Packet length longer than the receive FIFO size",                          \
+    /*12*/ "Invalid radio clock prescaler",                                            \
+    /*13*/ "Error synchronizing the RAIL timebase after sleep",                        \
+    /*14*/ "VCO frequency outside supported range",                                    \
+    /*15*/ "Radio active while changing channels",                                     \
+    /*16*/ "Unassigned error code",                                                    \
+    /*17*/ "Nested attempt to lock the sequencer",                                     \
+    /*18*/ "RSSI averaging enabled without a valid callback",                          \
+    /*19*/ "Invalid dynamic frame length setting provided (dflBits)",                  \
+    /*20*/ "Unable to seed radio pseudo random number generator",                      \
+    /*21*/ "Timeout exceeds EFR32XG1 register size",                                   \
+    /*22*/ "Invalid timer channel specified",                                          \
+    /*23*/ "Timer value larger than RAIL timebase",                                    \
+    /*24*/ "LBT config exceeds EFR32XG1 register size",                                \
+    /*25*/ "Deprecated CSMA/LBT retry callback unexpectedly called",                   \
+    /*26*/ "Could not synchronize RAIL timebase with the RTC",                         \
+    /*27*/ "Clock source not ready",                                                   \
+    /*28*/ "Attempted to set RAIL timings to invalid value",                           \
+    /*29*/ "NULL was supplied as a RAIL_Handle_t argument",                            \
+    /*30*/ "Scheduled timer not running",                                              \
+    /*31*/ "No active config to switch from",                                          \
+    /*32*/ "No active handle after switch",                                            \
+    /*33*/ "RfInit failed to configure active state",                                  \
+    /*34*/ "No active handle for scheduled rx",                                        \
+    /*35*/ "Invalid handle for scheduled tx",                                          \
+    /*36*/ "Inactive handle for scheduled tx",                                         \
+    /*37*/ "Invalid config index to switch to",                                        \
+    /*38*/ "No active handle for single protocol",                                     \
+    /*39*/ "This function is deprecated and must not be called",                       \
+    /*40*/ "Multiprotocol task started with no event to run",                          \
+    /*41*/ "Invalid interrupt enabled",                                                \
+    /*42*/ "Power conversion functions called before curves were initialized",         \
+    /*43*/ "Division by zero",                                                         \
+    /*44*/ "Function cannot be called without access to the hardware",                 \
+    /*45*/ "Pointer parameter was passed as NULL",                                     \
+    /*46*/ "Invalid task type passed to RAIL_SetTaskPriority",                         \
+    /*47*/ "Synth radio config buffer for channel hopping too small",                  \
+    /*48*/ "Buffer provided for RX Channel Hopping is too small",                      \
+    /*49*/ "Invalid action was attempted on a module",                                 \
+    /*50*/ "The radio config for this channel is not compatible with channel hopping", \
+    /*51*/ "Channel change failed",                                                    \
+    /*52*/ "Attempted to read invalid register",                                       \
+    /*53*/ "Can't read register value from NULL state",                                \
+    /*54*/ "DMP radio config caching failed",                                          \
 }
 
-#endif
 /**
  * @}
  */
+
+#endif  // __RAIL_ASSERT_ERROR_CODES_H__

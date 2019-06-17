@@ -1,15 +1,17 @@
 /***************************************************************************//**
- * @file dmadrv.h
+ * @file
  * @brief DMADRV API definition.
- * @version 5.2.1
  *******************************************************************************
  * # License
- * <b>(C) Copyright 2014 Silicon Labs, http://www.silabs.com</b>
+ * <b>Copyright 2018 Silicon Laboratories Inc. www.silabs.com</b>
  *******************************************************************************
  *
- * This file is licensed under the Silabs License Agreement. See the file
- * "Silabs_License_Agreement.txt" for details. Before using this software for
- * any purpose, you must agree to the terms of that agreement.
+ * The licensor of this software is Silicon Laboratories Inc.  Your use of this
+ * software is governed by the terms of Silicon Labs Master Software License
+ * Agreement (MSLA) available at
+ * www.silabs.com/about-us/legal/master-software-license-agreement.  This
+ * software is distributed to you in Source Code format and is governed by the
+ * sections of the MSLA applicable to Source Code.
  *
  ******************************************************************************/
 
@@ -47,27 +49,27 @@ extern "C" {
  * @{
  ******************************************************************************/
 
-#define ECODE_EMDRV_DMADRV_OK                  (ECODE_OK)                               ///< Success return value.
-#define ECODE_EMDRV_DMADRV_PARAM_ERROR         (ECODE_EMDRV_DMADRV_BASE | 0x00000001)   ///< Illegal input parameter.
+#define ECODE_EMDRV_DMADRV_OK                  (ECODE_OK)                               ///< A successful return value.
+#define ECODE_EMDRV_DMADRV_PARAM_ERROR         (ECODE_EMDRV_DMADRV_BASE | 0x00000001)   ///< An illegal input parameter.
 #define ECODE_EMDRV_DMADRV_NOT_INITIALIZED     (ECODE_EMDRV_DMADRV_BASE | 0x00000002)   ///< DMA is not initialized.
 #define ECODE_EMDRV_DMADRV_ALREADY_INITIALIZED (ECODE_EMDRV_DMADRV_BASE | 0x00000003)   ///< DMA has already been initialized.
 #define ECODE_EMDRV_DMADRV_CHANNELS_EXHAUSTED  (ECODE_EMDRV_DMADRV_BASE | 0x00000004)   ///< No DMA channels available.
 #define ECODE_EMDRV_DMADRV_IN_USE              (ECODE_EMDRV_DMADRV_BASE | 0x00000005)   ///< DMA is in use.
-#define ECODE_EMDRV_DMADRV_ALREADY_FREED       (ECODE_EMDRV_DMADRV_BASE | 0x00000006)   ///< DMA channel was free.
-#define ECODE_EMDRV_DMADRV_CH_NOT_ALLOCATED    (ECODE_EMDRV_DMADRV_BASE | 0x00000007)   ///< The channel is not reserved.
+#define ECODE_EMDRV_DMADRV_ALREADY_FREED       (ECODE_EMDRV_DMADRV_BASE | 0x00000006)   ///< A DMA channel was free.
+#define ECODE_EMDRV_DMADRV_CH_NOT_ALLOCATED    (ECODE_EMDRV_DMADRV_BASE | 0x00000007)   ///< A channel is not reserved.
 
 /***************************************************************************//**
  * @brief
  *  DMADRV transfer completion callback function.
  *
  * @details
- *  The callback function is called when a transfer has completed.
+ *  The callback function is called when a transfer is complete.
  *
  * @param[in] channel
  *  The DMA channel number.
  *
  * @param[in] sequenceNo
- *  The number of times the callback had been called. Useful on long chains of
+ *  The number of times the callback was called. Useful on long chains of
  *  linked transfers or on endless ping-pong type transfers.
  *
  * @param[in] userParam
@@ -308,6 +310,163 @@ typedef enum {
 /// Maximum length of one DMA transfer.
 #define DMADRV_MAX_XFER_COUNT ((int)((_LDMA_CH_CTRL_XFERCNT_MASK >> _LDMA_CH_CTRL_XFERCNT_SHIFT) + 1))
 
+#if defined(LDMAXBAR_COUNT) && (LDMAXBAR_COUNT > 0)
+/// Peripherals that can trigger LDMA transfers.
+typedef enum {
+  dmadrvPeripheralSignal_NONE = LDMAXBAR_CH_REQSEL_SOURCESEL_NONE,                                                          ///< No peripheral selected for DMA triggering.
+  #if defined LDMAXBAR_CH_REQSEL_SIGSEL_TIMER0CC0
+  dmadrvPeripheralSignal_TIMER0_CC0 = LDMAXBAR_CH_REQSEL_SIGSEL_TIMER0CC0 | LDMAXBAR_CH_REQSEL_SOURCESEL_TIMER0,
+  #endif
+  #if defined LDMAXBAR_CH_REQSEL_SIGSEL_TIMER0CC1
+  dmadrvPeripheralSignal_TIMER0_CC1 = LDMAXBAR_CH_REQSEL_SIGSEL_TIMER0CC1 | LDMAXBAR_CH_REQSEL_SOURCESEL_TIMER0,
+  #endif
+  #if defined LDMAXBAR_CH_REQSEL_SIGSEL_TIMER0CC2
+  dmadrvPeripheralSignal_TIMER0_CC2 = LDMAXBAR_CH_REQSEL_SIGSEL_TIMER0CC2 | LDMAXBAR_CH_REQSEL_SOURCESEL_TIMER0,
+  #endif
+  #if defined LDMAXBAR_CH_REQSEL_SIGSEL_TIMER0UFOF
+  dmadrvPeripheralSignal_TIMER0_UFOF = LDMAXBAR_CH_REQSEL_SIGSEL_TIMER0UFOF | LDMAXBAR_CH_REQSEL_SOURCESEL_TIMER0,
+  #endif
+  #if defined LDMAXBAR_CH_REQSEL_SIGSEL_TIMER1CC0
+  dmadrvPeripheralSignal_TIMER1_CC0 = LDMAXBAR_CH_REQSEL_SIGSEL_TIMER1CC0 | LDMAXBAR_CH_REQSEL_SOURCESEL_TIMER1,
+  #endif
+  #if defined LDMAXBAR_CH_REQSEL_SIGSEL_TIMER1CC1
+  dmadrvPeripheralSignal_TIMER1_CC1 = LDMAXBAR_CH_REQSEL_SIGSEL_TIMER1CC1 | LDMAXBAR_CH_REQSEL_SOURCESEL_TIMER1,
+  #endif
+  #if defined LDMAXBAR_CH_REQSEL_SIGSEL_TIMER1CC2
+  dmadrvPeripheralSignal_TIMER1_CC2 = LDMAXBAR_CH_REQSEL_SIGSEL_TIMER1CC2 | LDMAXBAR_CH_REQSEL_SOURCESEL_TIMER1,
+  #endif
+  #if defined LDMAXBAR_CH_REQSEL_SIGSEL_TIMER1UFOF
+  dmadrvPeripheralSignal_TIMER1_UFOF = LDMAXBAR_CH_REQSEL_SIGSEL_TIMER1UFOF | LDMAXBAR_CH_REQSEL_SOURCESEL_TIMER1,
+  #endif
+  #if defined LDMAXBAR_CH_REQSEL_SIGSEL_USART0RXDATAV
+  dmadrvPeripheralSignal_USART0_RXDATAV = LDMAXBAR_CH_REQSEL_SIGSEL_USART0RXDATAV | LDMAXBAR_CH_REQSEL_SOURCESEL_USART0,
+  #endif
+  #if defined LDMAXBAR_CH_REQSEL_SIGSEL_USART0RXDATAVRIGHT
+  dmadrvPeripheralSignal_USART0_RXDATAVRIGHT = LDMAXBAR_CH_REQSEL_SIGSEL_USART0RXDATAVRIGHT | LDMAXBAR_CH_REQSEL_SOURCESEL_USART0,
+  #endif
+  #if defined LDMAXBAR_CH_REQSEL_SIGSEL_USART0TXBL
+  dmadrvPeripheralSignal_USART0_TXBL = LDMAXBAR_CH_REQSEL_SIGSEL_USART0TXBL | LDMAXBAR_CH_REQSEL_SOURCESEL_USART0,
+  #endif
+  #if defined LDMAXBAR_CH_REQSEL_SIGSEL_USART0TXBLRIGHT
+  dmadrvPeripheralSignal_USART0_TXBLRIGHT = LDMAXBAR_CH_REQSEL_SIGSEL_USART0TXBLRIGHT | LDMAXBAR_CH_REQSEL_SOURCESEL_USART0,
+  #endif
+  #if defined LDMAXBAR_CH_REQSEL_SIGSEL_USART0TXEMPTY
+  dmadrvPeripheralSignal_USART0_TXEMPTY = LDMAXBAR_CH_REQSEL_SIGSEL_USART0TXEMPTY | LDMAXBAR_CH_REQSEL_SOURCESEL_USART0,
+  #endif
+  #if defined LDMAXBAR_CH_REQSEL_SIGSEL_USART1RXDATAV
+  dmadrvPeripheralSignal_USART1_RXDATAV = LDMAXBAR_CH_REQSEL_SIGSEL_USART1RXDATAV | LDMAXBAR_CH_REQSEL_SOURCESEL_USART1,
+  #endif
+  #if defined LDMAXBAR_CH_REQSEL_SIGSEL_USART1RXDATAVRIGHT
+  dmadrvPeripheralSignal_USART1_RXDATAVRIGHT = LDMAXBAR_CH_REQSEL_SIGSEL_USART1RXDATAVRIGHT | LDMAXBAR_CH_REQSEL_SOURCESEL_USART1,
+  #endif
+  #if defined LDMAXBAR_CH_REQSEL_SIGSEL_USART1TXBL
+  dmadrvPeripheralSignal_USART1_TXBL = LDMAXBAR_CH_REQSEL_SIGSEL_USART1TXBL | LDMAXBAR_CH_REQSEL_SOURCESEL_USART1,
+  #endif
+  #if defined LDMAXBAR_CH_REQSEL_SIGSEL_USART1TXBLRIGHT
+  dmadrvPeripheralSignal_USART1_TXBLRIGHT = LDMAXBAR_CH_REQSEL_SIGSEL_USART1TXBLRIGHT | LDMAXBAR_CH_REQSEL_SOURCESEL_USART1,
+  #endif
+  #if defined LDMAXBAR_CH_REQSEL_SIGSEL_USART1TXEMPTY
+  dmadrvPeripheralSignal_USART1_TXEMPTY = LDMAXBAR_CH_REQSEL_SIGSEL_USART1TXEMPTY | LDMAXBAR_CH_REQSEL_SOURCESEL_USART1,
+  #endif
+  #if defined LDMAXBAR_CH_REQSEL_SIGSEL_USART2RXDATAV
+  dmadrvPeripheralSignal_USART2_RXDATAV = LDMAXBAR_CH_REQSEL_SIGSEL_USART2RXDATAV | LDMAXBAR_CH_REQSEL_SOURCESEL_USART2,
+  #endif
+  #if defined LDMAXBAR_CH_REQSEL_SIGSEL_USART2RXDATAVRIGHT
+  dmadrvPeripheralSignal_USART2_RXDATAVRIGHT = LDMAXBAR_CH_REQSEL_SIGSEL_USART2RXDATAVRIGHT | LDMAXBAR_CH_REQSEL_SOURCESEL_USART2,
+  #endif
+  #if defined LDMAXBAR_CH_REQSEL_SIGSEL_USART2TXBL
+  dmadrvPeripheralSignal_USART2_TXBL = LDMAXBAR_CH_REQSEL_SIGSEL_USART2TXBL | LDMAXBAR_CH_REQSEL_SOURCESEL_USART2,
+  #endif
+  #if defined LDMAXBAR_CH_REQSEL_SIGSEL_USART2TXBLRIGHT
+  dmadrvPeripheralSignal_USART2_TXBLRIGHT = LDMAXBAR_CH_REQSEL_SIGSEL_USART2TXBLRIGHT | LDMAXBAR_CH_REQSEL_SOURCESEL_USART2,
+  #endif
+  #if defined LDMAXBAR_CH_REQSEL_SIGSEL_USART2TXEMPTY
+  dmadrvPeripheralSignal_USART2_TXEMPTY = LDMAXBAR_CH_REQSEL_SIGSEL_USART2TXEMPTY | LDMAXBAR_CH_REQSEL_SOURCESEL_USART2,
+  #endif
+  #if defined LDMAXBAR_CH_REQSEL_SIGSEL_I2C0RXDATAV
+  dmadrvPeripheralSignal_I2C0_RXDATAV = LDMAXBAR_CH_REQSEL_SIGSEL_I2C0RXDATAV | LDMAXBAR_CH_REQSEL_SOURCESEL_I2C0,
+  #endif
+  #if defined LDMAXBAR_CH_REQSEL_SIGSEL_I2C0TXBL
+  dmadrvPeripheralSignal_I2C0_TXBL = LDMAXBAR_CH_REQSEL_SIGSEL_I2C0TXBL | LDMAXBAR_CH_REQSEL_SOURCESEL_I2C0,
+  #endif
+  #if defined LDMAXBAR_CH_REQSEL_SIGSEL_I2C1RXDATAV
+  dmadrvPeripheralSignal_I2C1_RXDATAV = LDMAXBAR_CH_REQSEL_SIGSEL_I2C1RXDATAV | LDMAXBAR_CH_REQSEL_SOURCESEL_I2C1,
+  #endif
+  #if defined LDMAXBAR_CH_REQSEL_SIGSEL_I2C1TXBL
+  dmadrvPeripheralSignal_I2C1_TXBL = LDMAXBAR_CH_REQSEL_SIGSEL_I2C1TXBL | LDMAXBAR_CH_REQSEL_SOURCESEL_I2C1,
+  #endif
+  #if defined LDMAXBAR_CH_REQSEL_SIGSEL_AGCRSSI
+  dmadrvPeripheralSignal_AGC_RSSI = LDMAXBAR_CH_REQSEL_SIGSEL_AGCRSSI | LDMAXBAR_CH_REQSEL_SOURCESEL_AGC,
+  #endif
+  #if defined LDMAXBAR_CH_REQSEL_SIGSEL_PROTIMERBOF
+  dmadrvPeripheralSignal_PROTIMER_BOF = LDMAXBAR_CH_REQSEL_SIGSEL_PROTIMERBOF | LDMAXBAR_CH_REQSEL_SOURCESEL_PROTIMER,
+  #endif
+  #if defined LDMAXBAR_CH_REQSEL_SIGSEL_PROTIMERCC0
+  dmadrvPeripheralSignal_PROTIMER_CC0 = LDMAXBAR_CH_REQSEL_SIGSEL_PROTIMERCC0 | LDMAXBAR_CH_REQSEL_SOURCESEL_PROTIMER,
+  #endif
+  #if defined LDMAXBAR_CH_REQSEL_SIGSEL_PROTIMERCC1
+  dmadrvPeripheralSignal_PROTIMER_CC1 = LDMAXBAR_CH_REQSEL_SIGSEL_PROTIMERCC1 | LDMAXBAR_CH_REQSEL_SOURCESEL_PROTIMER,
+  #endif
+  #if defined LDMAXBAR_CH_REQSEL_SIGSEL_PROTIMERCC2
+  dmadrvPeripheralSignal_PROTIMER_CC2 = LDMAXBAR_CH_REQSEL_SIGSEL_PROTIMERCC2 | LDMAXBAR_CH_REQSEL_SOURCESEL_PROTIMER,
+  #endif
+  #if defined LDMAXBAR_CH_REQSEL_SIGSEL_PROTIMERCC3
+  dmadrvPeripheralSignal_PROTIMER_CC3 = LDMAXBAR_CH_REQSEL_SIGSEL_PROTIMERCC3 | LDMAXBAR_CH_REQSEL_SOURCESEL_PROTIMER,
+  #endif
+  #if defined LDMAXBAR_CH_REQSEL_SIGSEL_PROTIMERCC4
+  dmadrvPeripheralSignal_PROTIMER_CC4 = LDMAXBAR_CH_REQSEL_SIGSEL_PROTIMERCC4 | LDMAXBAR_CH_REQSEL_SOURCESEL_PROTIMER,
+  #endif
+  #if defined LDMAXBAR_CH_REQSEL_SIGSEL_PROTIMERPOF
+  dmadrvPeripheralSignal_PROTIMER_POF = LDMAXBAR_CH_REQSEL_SIGSEL_PROTIMERPOF | LDMAXBAR_CH_REQSEL_SOURCESEL_PROTIMER,
+  #endif
+  #if defined LDMAXBAR_CH_REQSEL_SIGSEL_PROTIMERWOF
+  dmadrvPeripheralSignal_PROTIMER_WOF = LDMAXBAR_CH_REQSEL_SIGSEL_PROTIMERWOF | LDMAXBAR_CH_REQSEL_SOURCESEL_PROTIMER,
+  #endif
+  #if defined LDMAXBAR_CH_REQSEL_SIGSEL_MODEMDEBUG
+  dmadrvPeripheralSignal_MODEM_DEBUG = LDMAXBAR_CH_REQSEL_SIGSEL_MODEMDEBUG | LDMAXBAR_CH_REQSEL_SOURCESEL_MODEM,
+  #endif
+  #if defined LDMAXBAR_CH_REQSEL_SIGSEL_IADC0IADC_SCAN
+  dmadrvPeripheralSignal_IADC0_IADC_SCAN = LDMAXBAR_CH_REQSEL_SIGSEL_IADC0IADC_SCAN | LDMAXBAR_CH_REQSEL_SOURCESEL_IADC0,
+  #endif
+  #if defined LDMAXBAR_CH_REQSEL_SIGSEL_IADC0IADC_SINGLE
+  dmadrvPeripheralSignal_IADC0_IADC_SINGLE = LDMAXBAR_CH_REQSEL_SIGSEL_IADC0IADC_SINGLE | LDMAXBAR_CH_REQSEL_SOURCESEL_IADC0,
+  #endif
+  #if defined LDMAXBAR_CH_REQSEL_SIGSEL_IMEMWDATA
+  dmadrvPeripheralSignal_IMEM_WDATA = LDMAXBAR_CH_REQSEL_SIGSEL_IMEMWDATA | LDMAXBAR_CH_REQSEL_SOURCESEL_IMEM,
+  #endif
+  #if defined LDMAXBAR_CH_REQSEL_SIGSEL_TIMER2CC0
+  dmadrvPeripheralSignal_TIMER2_CC0 = LDMAXBAR_CH_REQSEL_SIGSEL_TIMER2CC0 | LDMAXBAR_CH_REQSEL_SOURCESEL_TIMER2,
+  #endif
+  #if defined LDMAXBAR_CH_REQSEL_SIGSEL_TIMER2CC1
+  dmadrvPeripheralSignal_TIMER2_CC1 = LDMAXBAR_CH_REQSEL_SIGSEL_TIMER2CC1 | LDMAXBAR_CH_REQSEL_SOURCESEL_TIMER2,
+  #endif
+  #if defined LDMAXBAR_CH_REQSEL_SIGSEL_TIMER2CC2
+  dmadrvPeripheralSignal_TIMER2_CC2 = LDMAXBAR_CH_REQSEL_SIGSEL_TIMER2CC2 | LDMAXBAR_CH_REQSEL_SOURCESEL_TIMER2,
+  #endif
+  #if defined LDMAXBAR_CH_REQSEL_SIGSEL_TIMER2UFOF
+  dmadrvPeripheralSignal_TIMER2_UFOF = LDMAXBAR_CH_REQSEL_SIGSEL_TIMER2UFOF | LDMAXBAR_CH_REQSEL_SOURCESEL_TIMER2,
+  #endif
+  #if defined LDMAXBAR_CH_REQSEL_SIGSEL_TIMER3CC0
+  dmadrvPeripheralSignal_TIMER3_CC0 = LDMAXBAR_CH_REQSEL_SIGSEL_TIMER3CC0 | LDMAXBAR_CH_REQSEL_SOURCESEL_TIMER3,
+  #endif
+  #if defined LDMAXBAR_CH_REQSEL_SIGSEL_TIMER3CC1
+  dmadrvPeripheralSignal_TIMER3_CC1 = LDMAXBAR_CH_REQSEL_SIGSEL_TIMER3CC1 | LDMAXBAR_CH_REQSEL_SOURCESEL_TIMER3,
+  #endif
+  #if defined LDMAXBAR_CH_REQSEL_SIGSEL_TIMER3CC2
+  dmadrvPeripheralSignal_TIMER3_CC2 = LDMAXBAR_CH_REQSEL_SIGSEL_TIMER3CC2 | LDMAXBAR_CH_REQSEL_SOURCESEL_TIMER3,
+  #endif
+  #if defined LDMAXBAR_CH_REQSEL_SIGSEL_TIMER3UFOF
+  dmadrvPeripheralSignal_TIMER3_UFOF = LDMAXBAR_CH_REQSEL_SIGSEL_TIMER3UFOF | LDMAXBAR_CH_REQSEL_SOURCESEL_TIMER3,
+  #endif
+#if defined LDMAXBAR_CH_REQSEL_SIGSEL_EUART0TXFL
+  dmadrvPeripheralSignal_EUART0_TXBL = LDMAXBAR_CH_REQSEL_SIGSEL_EUART0TXFL | LDMAXBAR_CH_REQSEL_SOURCESEL_EUART0,          ///< Trig on EUART0_TXBL.
+#endif
+#if defined LDMAXBAR_CH_REQSEL_SIGSEL_EUART0RXFL
+  dmadrvPeripheralSignal_EUART0_RXDATAV = LDMAXBAR_CH_REQSEL_SIGSEL_EUART0RXFL | LDMAXBAR_CH_REQSEL_SOURCESEL_EUART0,       ///< Trig on EUART0_RXBL.
+#endif
+} DMADRV_PeripheralSignal_t;
+
+#else
 /// Peripherals that can trigger LDMA transfers.
 typedef enum {
   dmadrvPeripheralSignal_NONE = LDMA_CH_REQSEL_SOURCESEL_NONE,                                                              ///< No peripheral selected for DMA triggering.
@@ -744,6 +903,7 @@ typedef enum {
   dmadrvPeripheralSignal_UART1_TXEMPTY = LDMA_CH_REQSEL_SIGSEL_UART1TXEMPTY | LDMA_CH_REQSEL_SOURCESEL_UART1                ///< Trig on UART1_TXEMPTY.
   #endif
 } DMADRV_PeripheralSignal_t;
+#endif
 
 /// Data size of one LDMA transfer item.
 typedef enum {

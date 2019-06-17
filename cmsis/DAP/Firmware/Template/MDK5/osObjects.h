@@ -1,37 +1,54 @@
-/******************************************************************************
- * @file     osObjects.h
- * @brief    CMSIS-DAP RTOS Objects
- * @version  V1.10
- * @date     20. Jan 2015
+/*
+ * Copyright (c) 2013-2017 ARM Limited. All rights reserved.
  *
- * @note
- * Copyright (C) 2012-2015 ARM Limited. All rights reserved.
+ * SPDX-License-Identifier: Apache-2.0
  *
- * @par
- * ARM Limited (ARM) is supplying this software for use with Cortex-M
- * processor based microcontrollers.
+ * Licensed under the Apache License, Version 2.0 (the License); you may
+ * not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * @par
- * THIS SOFTWARE IS PROVIDED "AS IS".  NO WARRANTIES, WHETHER EXPRESS, IMPLIED
- * OR STATUTORY, INCLUDING, BUT NOT LIMITED TO, IMPLIED WARRANTIES OF
- * MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE APPLY TO THIS SOFTWARE.
- * ARM SHALL NOT, IN ANY CIRCUMSTANCES, BE LIABLE FOR SPECIAL, INCIDENTAL, OR
- * CONSEQUENTIAL DAMAGES, FOR ANY REASON WHATSOEVER.
+ * www.apache.org/licenses/LICENSE-2.0
  *
- ******************************************************************************/
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an AS IS BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * ----------------------------------------------------------------------
+ *
+ * $Date:        1. December 2017
+ * $Revision:    V2.0.0
+ *
+ * Project:      CMSIS-DAP Template MDK5
+ * Title:        osObjects.h CMSIS-DAP RTOS2 Objects
+ *
+ *---------------------------------------------------------------------------*/
 
 #ifndef __osObjects_h__
 #define __osObjects_h__
 
-#include "cmsis_os.h"
+#include "cmsis_os2.h"
 
 #ifdef osObjectsExternal
-extern osThreadId HID0_ThreadId;
+extern osThreadId_t DAP_ThreadId;
+extern osThreadId_t SWO_ThreadId;
 #else
-       osThreadId HID0_ThreadId;
+const osThreadAttr_t DAP_ThreadAttr = {
+  .priority = osPriorityNormal
+};
+const osThreadAttr_t SWO_ThreadAttr = {
+  .priority = osPriorityAboveNormal
+};
+extern osThreadId_t DAP_ThreadId;
+       osThreadId_t DAP_ThreadId;
+extern osThreadId_t SWO_ThreadId;
+       osThreadId_t SWO_ThreadId;
 #endif
 
-extern void HID0_Thread (void const *arg);
-osThreadDef(HID0_Thread, osPriorityNormal, 1U, 512U);
+extern void DAP_Thread (void *argument);
+extern void SWO_Thread (void *argument);
+
+extern void app_main (void *argument);
 
 #endif  /* __osObjects_h__ */

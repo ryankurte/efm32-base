@@ -1,15 +1,17 @@
 /***************************************************************************//**
- * @file em_usbdint.c
+ * @file
  * @brief USB protocol stack library, USB device peripheral interrupt handlers.
- * @version 5.2.1
- ******************************************************************************
+ *******************************************************************************
  * # License
- * <b>(C) Copyright 2014 Silicon Labs, http://www.silabs.com</b>
+ * <b>Copyright 2018 Silicon Laboratories Inc. www.silabs.com</b>
  *******************************************************************************
  *
- * This file is licensed under the Silabs License Agreement. See the file
- * "Silabs_License_Agreement.txt" for details. Before using this software for
- * any purpose, you must agree to the terms of that agreement.
+ * The licensor of this software is Silicon Laboratories Inc.  Your use of this
+ * software is governed by the terms of Silicon Labs Master Software License
+ * Agreement (MSLA) available at
+ * www.silabs.com/about-us/legal/master-software-license-agreement.  This
+ * software is distributed to you in Source Code format and is governed by the
+ * sections of the MSLA applicable to Source Code.
  *
  ******************************************************************************/
 
@@ -27,6 +29,24 @@
 /** @cond DO_NOT_INCLUDE_WITH_DOXYGEN */
 
 #define HANDLE_INT(x) if ( status & x ) { Handle_##x(); status &= ~x; }
+
+#if defined(USB_STATUS_VBUSDETH)
+#define USB_VBUS_SENSE_STATUS USB_STATUS_VBUSDETH
+#define USB_VBUS_SENSE_IF_H   USB_IF_VBUSDETH
+#define USB_VBUS_SENSE_IF_L   USB_IF_VBUSDETL
+#define USB_VBUS_SENSE_IFC_H  USB_IFC_VBUSDETH
+#define USB_VBUS_SENSE_IFC_L  USB_IFC_VBUSDETL
+#define USB_VBUS_SENSE_IEN_H  USB_IEN_VBUSDETH
+#define USB_VBUS_SENSE_IEN_L  USB_IEN_VBUSDETL
+#else
+#define USB_VBUS_SENSE_STATUS USB_STATUS_VREGOS
+#define USB_VBUS_SENSE_IF_H   USB_IF_VREGOSH
+#define USB_VBUS_SENSE_IF_L   USB_IF_VREGOSL
+#define USB_VBUS_SENSE_IFC_H  USB_IFC_VREGOSH
+#define USB_VBUS_SENSE_IFC_L  USB_IFC_VREGOSL
+#define USB_VBUS_SENSE_IEN_H  USB_IEN_VREGOSH
+#define USB_VBUS_SENSE_IEN_L  USB_IEN_VREGOSL
+#endif
 
 static void Handle_USB_GINTSTS_ENUMDONE  (void);
 static void Handle_USB_GINTSTS_IEPINT    (void);
@@ -83,8 +103,19 @@ static uint32_t  x_USB_EP_DMAADDR[NUM_EP_USED];
 static uint32_t  x_USB_DIEPTXFS[FIFO_CNT];
 #endif
 
-#if (USB_PWRSAVE_MODE)
 static uint32_t cmuStatus = 0;
+#if defined(_SILICON_LABS_32B_SERIES_1)
+static uint32_t cmuHfclkStatus = 0;
+static const CMU_Select_TypeDef clkSelectMap[] = {
+  cmuSelect_Disabled,
+  cmuSelect_HFRCO,
+  cmuSelect_HFXO,
+  cmuSelect_LFRCO,
+  cmuSelect_LFXO,
+  cmuSelect_Error,     /* HFRCODIV2 */
+  cmuSelect_USHFRCO,
+  cmuSelect_Error      /* CLKIN0 */
+};
 #endif
 
 #endif /* if ( USB_PWRSAVE_MODE ) */
@@ -106,43 +137,66 @@ void USB_IRQHandler(void)
     /* read USB peripheral registers.                               */
     /* If we woke up from EM2, HFCLK is now HFRCO.                  */
 
-    /* Restore clock oscillators.*/
-#if defined(CMU_OSCENCMD_USHFRCOEN)
+    /* Restore clock oscillators and select correct USBC clock.*/
+#if defined(_EFM32_HAPPY_FAMILY)
     if ( (CMU->STATUS & CMU_STATUS_USHFRCOENS) == 0 ) {/*Wakeup from EM2 ?*/
       CMU->OSCENCMD = (cmuStatus
                        & (CMU_STATUS_AUXHFRCOENS | CMU_STATUS_HFXOENS) )
                       | CMU_OSCENCMD_USHFRCOEN;
     }
-#else
+    CMU->CMD = CMU_CMD_USBCCLKSEL_USHFRCO;
+    while ( (CMU->STATUS & CMU_STATUS_USBCUSHFRCOSEL) == 0 ) {
+    }
+
+#elif defined(_SILICON_LABS_32B_SERIES_0)
     if ( (CMU->STATUS & CMU_STATUS_HFXOENS) == 0 ) { /* Wakeup from EM2 ? */
       CMU->OSCENCMD = cmuStatus
                       & (CMU_STATUS_AUXHFRCOENS | CMU_STATUS_HFXOENS);
     }
-#endif
-
-    /* Select correct USBC clock.*/
-#if defined(CMU_OSCENCMD_USHFRCOEN)
-    CMU->CMD = CMU_CMD_USBCCLKSEL_USHFRCO;
-    while ( (CMU->STATUS & CMU_STATUS_USBCUSHFRCOSEL) == 0 ) {
-    }
-#else
     CMU->CMD = CMU_CMD_USBCCLKSEL_HFCLKNODIV;
     while ( (CMU->STATUS & CMU_STATUS_USBCHFCLKSEL) == 0 ) {
     }
+
+#else /* Series 1 devices */
+    if ((CMU->STATUS & (CMU_STATUS_HFRCOENS | CMU_STATUS_HFXOENS
+                        | CMU_STATUS_AUXHFRCOENS | CMU_STATUS_USHFRCOENS))
+        != (cmuStatus & (CMU_STATUS_HFRCOENS | CMU_STATUS_HFXOENS
+                         | CMU_STATUS_AUXHFRCOENS | CMU_STATUS_USHFRCOENS))) {
+      /* Wakeup from EM2 */
+      CMU->OSCENCMD = cmuStatus
+                      & (CMU_STATUS_HFRCOENS | CMU_STATUS_HFXOENS
+                         | CMU_STATUS_AUXHFRCOENS | CMU_STATUS_USHFRCOENS);
+    }
+    #if defined(USB_CLKSRC_HFXO)
+    CMU->USBCTRL = (CMU->USBCTRL & ~_CMU_USBCTRL_USBCLKSEL_MASK)
+                   | CMU_USBCTRL_USBCLKSEL_HFXO;
+
+    #elif defined(USB_CLKSRC_USHFRCO)
+    CMU->USBCTRL = (CMU->USBCTRL & ~_CMU_USBCTRL_USBCLKSEL_MASK)
+                   | CMU_USBCTRL_USBCLKSEL_USHFRCO;
+
+    #else /* USB_CLKSRC_HFRCODPLL */
+    CMU->USBCTRL = (CMU->USBCTRL & ~_CMU_USBCTRL_USBCLKSEL_MASK)
+                   | CMU_USBCTRL_USBCLKSEL_HFRCO;
+    #endif
 #endif
   }
 #endif /* if ( USB_PWRSAVE_MODE ) */
 
-  if ( USB->IF && (USB->CTRL & USB_CTRL_VREGOSEN) ) {
-    if ( USB->IF & USB_IF_VREGOSH ) {
-      USB->IFC = USB_IFC_VREGOSH;
+  /* Check VBUS sense interrupt source. */
+  if (USB->IEN && (USB_VBUS_SENSE_IEN_H | USB_VBUS_SENSE_IEN_L)) {
+    if (USB->IF & USB_VBUS_SENSE_IF_H) {
+      USB->IFC = USB_VBUS_SENSE_IFC_H;
 
-      if ( USB->STATUS & USB_STATUS_VREGOS ) {
+      if (USB->STATUS & USB_VBUS_SENSE_STATUS) {
+#if defined(_EMU_R5VOUTLEVEL_OUTLEVEL_MASK)
+        EMU->R5VOUTLEVEL = 10U << _EMU_R5VOUTLEVEL_OUTLEVEL_SHIFT;/*VREGO=5.0V*/
+#endif
         servedVbusInterrupt = true;
         DEBUG_USB_INT_LO_PUTS("\nVboN");
 
 #if (USB_PWRSAVE_MODE)
-        if ( UsbPowerUp() ) {
+        if (UsbPowerUp()) {
           USBDHAL_EnableUsbResetAndSuspendInt();
         }
         USBD_SetUsbState(USBD_STATE_POWERED);
@@ -150,16 +204,16 @@ void USB_IRQHandler(void)
       }
     }
 
-    if ( USB->IF & USB_IF_VREGOSL ) {
-      USB->IFC = USB_IFC_VREGOSL;
+    if (USB->IF & USB_VBUS_SENSE_IF_L) {
+      USB->IFC = USB_VBUS_SENSE_IFC_L;
 
-      if ( (USB->STATUS & USB_STATUS_VREGOS) == 0 ) {
+      if ((USB->STATUS & USB_VBUS_SENSE_STATUS) == 0) {
         servedVbusInterrupt = true;
         DEBUG_USB_INT_LO_PUTS("\nVboF");
 
 #if (USB_PWRSAVE_MODE)
 #if (USB_PWRSAVE_MODE & USB_PWRSAVE_MODE_ONVBUSOFF)
-        if ( !USBD_poweredDown ) {
+        if (!USBD_poweredDown) {
           USB->GINTMSK = 0;
           USB->GINTSTS = 0xFFFFFFFF;
         }
@@ -383,16 +437,20 @@ static void Handle_USB_GINTSTS_RESETDET(void)
 
 #if (USB_PWRSAVE_MODE & USB_PWRSAVE_MODE_ONVBUSOFF)
   /* Power down immediately if VBUS is off. */
-  if ( !(USB->STATUS & USB_STATUS_VREGOS) ) {
+  if ( !(USB->STATUS & USB_VBUS_SENSE_STATUS) ) {
     UsbPowerDown();
   }
 #endif
 
 #else
   USB->GINTSTS = USB_GINTSTS_RESETDET;
+#if defined(_SILICON_LABS_GECKO_INTERNAL_SDID_100) \
+  || defined(_SILICON_LABS_GECKO_INTERNAL_SDID_106)
+  USB->DATTRIM1 |= USB_DATTRIM1_ENDLYPULLUP;
+#endif
 #endif /* if ( USB_PWRSAVE_MODE ) */
 
-  if ( USB->STATUS & USB_STATUS_VREGOS ) {
+  if (USB->STATUS & USB_VBUS_SENSE_STATUS) {
     USBD_SetUsbState(USBD_STATE_DEFAULT);
   } else {
     USBD_SetUsbState(USBD_STATE_NONE);
@@ -435,6 +493,10 @@ static void Handle_USB_GINTSTS_USBRST(void)
     USB_DOUTEPS[i].INT = 0xFFFFFFFF;
   }
 
+#if defined(_SILICON_LABS_GECKO_INTERNAL_SDID_100) \
+  || defined(_SILICON_LABS_GECKO_INTERNAL_SDID_106)
+  USB->DATTRIM1 |= USB_DATTRIM1_ENDLYPULLUP;
+#endif
   USB->DAINTMSK = USB_DAINTMSK_INEPMSK0 | USB_DAINTMSK_OUTEPMSK0;
 #if defined(USB_DOEPMSK_STSPHSERCVDMSK)
   USB->DOEPMSK  = USB_DOEPMSK_SETUPMSK  | USB_DOEPMSK_XFERCOMPLMSK
@@ -481,6 +543,11 @@ static void Handle_USB_GINTSTS_USBSUSP(void)
        || (state == USBD_STATE_CONFIGURED)) {
 #if ( USB_PWRSAVE_MODE )
     UsbPowerDown();
+#else
+#if defined(_SILICON_LABS_GECKO_INTERNAL_SDID_100) \
+    || defined(_SILICON_LABS_GECKO_INTERNAL_SDID_106)
+    USB->DATTRIM1 &= ~USB_DATTRIM1_ENDLYPULLUP;
+#endif
 #endif
     USBD_SetUsbState(USBD_STATE_SUSPENDED);
   }
@@ -503,6 +570,10 @@ static void Handle_USB_GINTSTS_WKUPINT(void)
   }
 #else
   USB->GINTSTS = USB_GINTSTS_WKUPINT;
+#if defined(_SILICON_LABS_GECKO_INTERNAL_SDID_100) \
+  || defined(_SILICON_LABS_GECKO_INTERNAL_SDID_106)
+  USB->DATTRIM1 |= USB_DATTRIM1_ENDLYPULLUP;
+#endif
 #endif
 
   USBD_SetUsbState(dev->savedState);
@@ -573,27 +644,44 @@ static bool UsbPowerDown(void)
     USB->GINTMSK = USB_GINTMSK_RESETDETMSK | USB_GINTMSK_WKUPINTMSK;
 
     /* Enter partial powerdown mode. */
+#if defined(_SILICON_LABS_GECKO_INTERNAL_SDID_100) \
+    || defined(_SILICON_LABS_GECKO_INTERNAL_SDID_106)
+    USB->DATTRIM1 &= ~USB_DATTRIM1_ENDLYPULLUP;
+#endif
     USB->PCGCCTL |= USB_PCGCCTL_PWRCLMP;
     USB->PCGCCTL |= USB_PCGCCTL_RSTPDWNMODULE;
     USB->PCGCCTL |= USB_PCGCCTL_STOPPCLK;
 
     /* Record current clock settings. */
     cmuStatus = CMU->STATUS;
+#if defined(_SILICON_LABS_32B_SERIES_1)
+    cmuHfclkStatus = CMU->HFCLKSTATUS;
+#endif
 
 #if (USB_PWRSAVE_MODE & USB_PWRSAVE_MODE_ENTEREM2)
     /* Enter EM2 on interrupt exit. */
     SCB->SCR |= SCB_SCR_SLEEPDEEP_Msk | SCB_SCR_SLEEPONEXIT_Msk;
 #endif
 
-    /* Switch USBC clock to 32 kHz. */
-#if (USB_USBC_32kHz_CLK == USB_USBC_32kHz_CLK_LFXO)
+    /* Switch USBC clock to a 32 kHz source. */
+#if defined(_SILICON_LABS_32B_SERIES_0)
+  #if (USB_USBC_32kHz_CLK == USB_USBC_32kHz_CLK_LFXO)
     CMU->CMD = CMU_CMD_USBCCLKSEL_LFXO;
     while ( (CMU->STATUS & CMU_STATUS_USBCLFXOSEL) == 0 ) {
     }
-#else
+  #else
     CMU->CMD = CMU_CMD_USBCCLKSEL_LFRCO;
     while ( (CMU->STATUS & CMU_STATUS_USBCLFRCOSEL) == 0 ) {
     }
+  #endif
+#else /* Series 1 */
+  #if (USB_USBC_32kHz_CLK == USB_USBC_32kHz_CLK_LFXO)
+    CMU->USBCTRL = (CMU->USBCTRL & ~_CMU_USBCTRL_USBCLKSEL_MASK)
+                   | CMU_USBCTRL_USBCLKSEL_LFXO;
+  #else
+    CMU->USBCTRL = (CMU->USBCTRL & ~_CMU_USBCTRL_USBCLKSEL_MASK)
+                   | CMU_USBCTRL_USBCLKSEL_LFRCO;
+  #endif
 #endif
 
     return true;
@@ -614,9 +702,14 @@ static bool UsbPowerUp(void)
     USBD_poweredDown = false;
     DEBUG_USB_INT_LO_PUTCHAR('/');
 
-#if !defined(USB_CORECLK_HFRCO) || !defined(CMU_OSCENCMD_USHFRCOEN)
+#if defined(_SILICON_LABS_32B_SERIES_0)
+  #if !defined(USB_CORECLK_HFRCO) || !defined(CMU_OSCENCMD_USHFRCOEN)
     /* Switch HFCLK from HFRCO to HFXO. */
     CMU_ClockSelectSet(cmuClock_HF, cmuSelect_HFXO);
+  #endif
+#else /* Series 1 */
+    /* Switch to correct HFCLK. */
+    CMU_ClockSelectSet(cmuClock_HF, clkSelectMap[cmuHfclkStatus]);
 #endif
 
     /* Turn off HFRCO when not needed. */
@@ -627,8 +720,13 @@ static bool UsbPowerUp(void)
     /* Exit partial powerdown mode. */
     USB->PCGCCTL &= ~USB_PCGCCTL_STOPPCLK;
     USB->PCGCCTL &= ~(USB_PCGCCTL_PWRCLMP | USB_PCGCCTL_RSTPDWNMODULE);
+#if defined(_SILICON_LABS_GECKO_INTERNAL_SDID_100) \
+    || defined(_SILICON_LABS_GECKO_INTERNAL_SDID_106)
+    USB->DATTRIM1 |= USB_DATTRIM1_ENDLYPULLUP;
+#endif
 
     if ((USB->GINTSTS & (USB_GINTSTS_WKUPINT | USB_GINTSTS_RESETDET) ) == 0) {
+      /* USB IP needs to see a hi-to-lo transition of USB_DCTL_RMTWKUPSIG. */
       USB->DCTL = x_USB_DCTL | USB_DCTL_RMTWKUPSIG;
       USB->DCTL = x_USB_DCTL;
     }
@@ -676,39 +774,72 @@ void USBDINT_RemoteWakeup(void)
     USBD_poweredDown = false;
     DEBUG_USB_INT_LO_PUTCHAR('|');
 
-    // Restore HF clock if we just woke up from EM2.
-#if defined(CMU_OSCENCMD_USHFRCOEN)
-    if ( (CMU->STATUS & CMU_STATUS_USHFRCOENS) == 0 ) {
+    /* Restore clock oscillators and select correct USBC clock.*/
+#if defined(_EFM32_HAPPY_FAMILY)
+    if ( (CMU->STATUS & CMU_STATUS_USHFRCOENS) == 0 ) {/*Wakeup from EM2 ?*/
       CMU->OSCENCMD = (cmuStatus
                        & (CMU_STATUS_AUXHFRCOENS | CMU_STATUS_HFXOENS) )
                       | CMU_OSCENCMD_USHFRCOEN;
     }
-#else
-    if ( (CMU->STATUS & CMU_STATUS_HFXOENS) == 0 ) {
-      CMU->OSCENCMD = cmuStatus
-                      & (CMU_STATUS_AUXHFRCOENS | CMU_STATUS_HFXOENS);
-    }
-#endif
-
-#if !defined(USB_CORECLK_HFRCO) || !defined(CMU_OSCENCMD_USHFRCOEN)
-    // Switch HFCLK from HFRCO to HFXO.
-    CMU_ClockSelectSet(cmuClock_HF, cmuSelect_HFXO);
-#endif
-
-    // Select 48MHz for USBC clock.
-#if defined(CMU_OSCENCMD_USHFRCOEN)
     CMU->CMD = CMU_CMD_USBCCLKSEL_USHFRCO;
     while ( (CMU->STATUS & CMU_STATUS_USBCUSHFRCOSEL) == 0 ) {
     }
-#else
+
+#elif defined(_SILICON_LABS_32B_SERIES_0)
+    if ( (CMU->STATUS & CMU_STATUS_HFXOENS) == 0 ) { /* Wakeup from EM2 ? */
+      CMU->OSCENCMD = cmuStatus
+                      & (CMU_STATUS_AUXHFRCOENS | CMU_STATUS_HFXOENS);
+    }
     CMU->CMD = CMU_CMD_USBCCLKSEL_HFCLKNODIV;
     while ( (CMU->STATUS & CMU_STATUS_USBCHFCLKSEL) == 0 ) {
     }
+
+#else /* Series 1 devices */
+    if ((CMU->STATUS & (CMU_STATUS_HFRCOENS | CMU_STATUS_HFXOENS
+                        | CMU_STATUS_AUXHFRCOENS | CMU_STATUS_USHFRCOENS))
+        != (cmuStatus & (CMU_STATUS_HFRCOENS | CMU_STATUS_HFXOENS
+                         | CMU_STATUS_AUXHFRCOENS | CMU_STATUS_USHFRCOENS))) {
+      /* Wakeup from EM2 */
+      CMU->OSCENCMD = cmuStatus
+                      & (CMU_STATUS_HFRCOENS | CMU_STATUS_HFXOENS
+                         | CMU_STATUS_AUXHFRCOENS | CMU_STATUS_USHFRCOENS);
+    }
+    #if defined(USB_CLKSRC_HFXO)
+    CMU->USBCTRL = (CMU->USBCTRL & ~_CMU_USBCTRL_USBCLKSEL_MASK)
+                   | CMU_USBCTRL_USBCLKSEL_HFXO;
+
+    #elif defined(USB_CLKSRC_USHFRCO)
+    CMU->USBCTRL = (CMU->USBCTRL & ~_CMU_USBCTRL_USBCLKSEL_MASK)
+                   | CMU_USBCTRL_USBCLKSEL_USHFRCO;
+
+    #else /* USB_CLKSRC_HFRCODPLL */
+    CMU->USBCTRL = (CMU->USBCTRL & ~_CMU_USBCTRL_USBCLKSEL_MASK)
+                   | CMU_USBCTRL_USBCLKSEL_HFRCO;
+    #endif
 #endif
+
+#if defined(_SILICON_LABS_32B_SERIES_0)
+  #if !defined(USB_CORECLK_HFRCO) || !defined(CMU_OSCENCMD_USHFRCOEN)
+    /* Switch HFCLK from HFRCO to HFXO. */
+    CMU_ClockSelectSet(cmuClock_HF, cmuSelect_HFXO);
+  #endif
+#else /* Series 1 */
+    /* Switch to correct HFCLK. */
+    CMU_ClockSelectSet(cmuClock_HF, clkSelectMap[cmuHfclkStatus]);
+#endif
+
+    /* Turn off HFRCO when not needed. */
+    if ( (cmuStatus & CMU_STATUS_HFRCOENS) == 0 ) {
+      CMU->OSCENCMD = CMU_OSCENCMD_HFRCODIS;
+    }
 
     // Exit partial powerdown mode.
     USB->PCGCCTL &= ~USB_PCGCCTL_STOPPCLK;
     USB->PCGCCTL &= ~(USB_PCGCCTL_PWRCLMP | USB_PCGCCTL_RSTPDWNMODULE);
+#if defined(_SILICON_LABS_GECKO_INTERNAL_SDID_100) \
+    || defined(_SILICON_LABS_GECKO_INTERNAL_SDID_106)
+    USB->DATTRIM1 |= USB_DATTRIM1_ENDLYPULLUP;
+#endif
 
     /* Restore USB core registers. */
     USB->GUSBCFG = x_USB_GUSBCFG;
@@ -748,6 +879,12 @@ void USBDINT_RemoteWakeup(void)
     USBDHAL_Ep0Activate(dev->ep0MpsCode);
   } else {
 #endif // if (USB_PWRSAVE_MODE)
+
+#if defined(_SILICON_LABS_GECKO_INTERNAL_SDID_100) \
+  || defined(_SILICON_LABS_GECKO_INTERNAL_SDID_106)
+  USB->DATTRIM1 |= USB_DATTRIM1_ENDLYPULLUP;
+#endif
+
   USBDHAL_SetRemoteWakeup();
 
   CORE_ATOMIC_IRQ_ENABLE();

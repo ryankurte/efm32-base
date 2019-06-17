@@ -1,15 +1,17 @@
 /***************************************************************************//**
- * @file em_usbtimer.c
+ * @file
  * @brief USB protocol stack library, timer API.
- * @version 5.2.1
  *******************************************************************************
  * # License
- * <b>(C) Copyright 2014 Silicon Labs, http://www.silabs.com</b>
+ * <b>Copyright 2018 Silicon Laboratories Inc. www.silabs.com</b>
  *******************************************************************************
  *
- * This file is licensed under the Silabs License Agreement. See the file
- * "Silabs_License_Agreement.txt" for details. Before using this software for
- * any purpose, you must agree to the terms of that agreement.
+ * The licensor of this software is Silicon Laboratories Inc.  Your use of this
+ * software is governed by the terms of Silicon Labs Master Software License
+ * Agreement (MSLA) available at
+ * www.silabs.com/about-us/legal/master-software-license-agreement.  This
+ * software is distributed to you in Source Code format and is governed by the
+ * sections of the MSLA applicable to Source Code.
  *
  ******************************************************************************/
 
@@ -61,11 +63,29 @@
   #define TIMER_IRQ         TIMER2_IRQn
   #define TIMER_IRQHandler  TIMER2_IRQHandler
 
-#elif (USB_TIMER == USB_TIMER3) && (TIMER_COUNT == 4)
+#elif (USB_TIMER == USB_TIMER3) && (TIMER_COUNT >= 4)
   #define TIMER             TIMER3
   #define TIMER_CLK         cmuClock_TIMER3
   #define TIMER_IRQ         TIMER3_IRQn
   #define TIMER_IRQHandler  TIMER3_IRQHandler
+
+#elif (USB_TIMER == USB_TIMER4) && (TIMER_COUNT >= 5)
+  #define TIMER             TIMER4
+  #define TIMER_CLK         cmuClock_TIMER4
+  #define TIMER_IRQ         TIMER4_IRQn
+  #define TIMER_IRQHandler  TIMER4_IRQHandler
+
+#elif (USB_TIMER == USB_TIMER5) && (TIMER_COUNT >= 6)
+  #define TIMER             TIMER5
+  #define TIMER_CLK         cmuClock_TIMER5
+  #define TIMER_IRQ         TIMER5_IRQn
+  #define TIMER_IRQHandler  TIMER5_IRQHandler
+
+#elif (USB_TIMER == USB_TIMER6) && (TIMER_COUNT == 7)
+  #define TIMER             TIMER6
+  #define TIMER_CLK         cmuClock_TIMER6
+  #define TIMER_IRQ         TIMER6_IRQn
+  #define TIMER_IRQHandler  TIMER6_IRQHandler
 
 #else
 #error "Illegal USB TIMER definition"
@@ -240,7 +260,9 @@ void USBTIMER_Start(uint32_t id, uint32_t timeout,
   }
 
   if ( timeout == 0 ) {
-    callback();
+    if ( callback != NULL ) {
+      callback();
+    }
     CORE_EXIT_ATOMIC();
     return;
   }
@@ -336,7 +358,7 @@ static void TimerTick(void)
         head->running = false;
         head = head->next;
         /* The callback may place new items in the queue !!! */
-        if ( cb ) {
+        if ( cb != NULL ) {
           (cb)();
         }
         continue; /* There might be more than one timeout pr. tick */

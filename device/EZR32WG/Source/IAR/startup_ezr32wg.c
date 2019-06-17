@@ -1,35 +1,35 @@
-/**************************************************************************//**
- * @file startup_ezr32wg.c
+/***************************************************************************//**
+ * @file
  * @brief CMSIS Compatible EZR32WG startup file in C for IAR EWARM
- * @version 5.2.1
- ******************************************************************************
+ * @version 5.8.0
+ *******************************************************************************
  * # License
- * <b>Copyright 2017 Silicon Laboratories, Inc. http://www.silabs.com</b>
- ******************************************************************************
+ * <b>Copyright 2019 Silicon Laboratories Inc. www.silabs.com</b>
+ *******************************************************************************
+ *
+ * SPDX-License-Identifier: Zlib
+ *
+ * The licensor of this software is Silicon Laboratories Inc.
+ *
+ * This software is provided 'as-is', without any express or implied
+ * warranty. In no event will the authors be held liable for any damages
+ * arising from the use of this software.
  *
  * Permission is granted to anyone to use this software for any purpose,
  * including commercial applications, and to alter it and redistribute it
  * freely, subject to the following restrictions:
  *
  * 1. The origin of this software must not be misrepresented; you must not
- *    claim that you wrote the original software.@n
+ *    claim that you wrote the original software. If you use this software
+ *    in a product, an acknowledgment in the product documentation would be
+ *    appreciated but is not required.
  * 2. Altered source versions must be plainly marked as such, and must not be
- *    misrepresented as being the original software.@n
+ *    misrepresented as being the original software.
  * 3. This notice may not be removed or altered from any source distribution.
  *
- * DISCLAIMER OF WARRANTY/LIMITATION OF REMEDIES: Silicon Laboratories, Inc.
- * has no obligation to support this Software. Silicon Laboratories, Inc. is
- * providing the Software "AS IS", with no express or implied warranties of any
- * kind, including, but not limited to, any implied warranties of
- * merchantability or fitness for any particular purpose or warranties against
- * infringement of any proprietary rights of a third party.
- *
- * Silicon Laboratories, Inc. will not be liable for any consequential,
- * incidental, or special damages, or any other relief, or for any claim by
- * any third party, arising from your use of this Software.
- *
- *****************************************************************************/
+ ******************************************************************************/
 
+#include <stdbool.h>
 #include "em_device.h"        /* The correct device header file. */
 
 #pragma language=extended
@@ -49,302 +49,361 @@ __weak void Reset_Handler(void)
   __iar_program_start();
 }
 
+/* Provide a dummy value for the sl_app_properties symbol. */
+void sl_app_properties(void);   /* Prototype to please MISRA checkers. */
+__weak void sl_app_properties(void)
+{
+}
+
 __weak void NMI_Handler(void)
 {
-  while(1);
+  while (true) {
+  }
 }
 
 __weak void HardFault_Handler(void)
 {
-  while(1);
+  while (true) {
+  }
 }
 
 __weak void MemManage_Handler(void)
 {
-  while(1);
+  while (true) {
+  }
 }
 
 __weak void BusFault_Handler(void)
 {
-  while(1);
+  while (true) {
+  }
 }
 
 __weak void UsageFault_Handler(void)
 {
-  while(1);
+  while (true) {
+  }
 }
 
 __weak void SVC_Handler(void)
 {
-  while(1);
+  while (true) {
+  }
 }
 
 __weak void DebugMon_Handler(void)
 {
-  while(1);
+  while (true) {
+  }
 }
 
 __weak void PendSV_Handler(void)
 {
-  while(1);
+  while (true) {
+  }
 }
 
 __weak void SysTick_Handler(void)
 {
-  while(1);
+  while (true) {
+  }
 }
 
 __weak void DMA_IRQHandler(void)
 {
-  while(1);
+  while (true) {
+  }
 }
 
 __weak void GPIO_EVEN_IRQHandler(void)
 {
-  while(1);
+  while (true) {
+  }
 }
 
 __weak void TIMER0_IRQHandler(void)
 {
-  while(1);
+  while (true) {
+  }
 }
 
 __weak void USARTRF0_RX_IRQHandler(void)
 {
-  while(1);
+  while (true) {
+  }
 }
 
 __weak void USARTRF0_TX_IRQHandler(void)
 {
-  while(1);
+  while (true) {
+  }
 }
 
 __weak void USB_IRQHandler(void)
 {
-  while(1);
+  while (true) {
+  }
 }
 
 __weak void ACMP0_IRQHandler(void)
 {
-  while(1);
+  while (true) {
+  }
 }
 
 __weak void ADC0_IRQHandler(void)
 {
-  while(1);
+  while (true) {
+  }
 }
 
 __weak void DAC0_IRQHandler(void)
 {
-  while(1);
+  while (true) {
+  }
 }
 
 __weak void I2C0_IRQHandler(void)
 {
-  while(1);
+  while (true) {
+  }
 }
 
 __weak void I2C1_IRQHandler(void)
 {
-  while(1);
+  while (true) {
+  }
 }
 
 __weak void GPIO_ODD_IRQHandler(void)
 {
-  while(1);
+  while (true) {
+  }
 }
 
 __weak void TIMER1_IRQHandler(void)
 {
-  while(1);
+  while (true) {
+  }
 }
 
 __weak void TIMER2_IRQHandler(void)
 {
-  while(1);
+  while (true) {
+  }
 }
 
 __weak void TIMER3_IRQHandler(void)
 {
-  while(1);
+  while (true) {
+  }
 }
 
 __weak void USART1_RX_IRQHandler(void)
 {
-  while(1);
+  while (true) {
+  }
 }
 
 __weak void USART1_TX_IRQHandler(void)
 {
-  while(1);
+  while (true) {
+  }
 }
 
 __weak void LESENSE_IRQHandler(void)
 {
-  while(1);
+  while (true) {
+  }
 }
 
 __weak void USART2_RX_IRQHandler(void)
 {
-  while(1);
+  while (true) {
+  }
 }
 
 __weak void USART2_TX_IRQHandler(void)
 {
-  while(1);
+  while (true) {
+  }
 }
 
 __weak void UART0_RX_IRQHandler(void)
 {
-  while(1);
+  while (true) {
+  }
 }
 
 __weak void UART0_TX_IRQHandler(void)
 {
-  while(1);
+  while (true) {
+  }
 }
 
 __weak void UART1_RX_IRQHandler(void)
 {
-  while(1);
+  while (true) {
+  }
 }
 
 __weak void UART1_TX_IRQHandler(void)
 {
-  while(1);
+  while (true) {
+  }
 }
 
 __weak void LEUART0_IRQHandler(void)
 {
-  while(1);
+  while (true) {
+  }
 }
 
 __weak void LEUART1_IRQHandler(void)
 {
-  while(1);
+  while (true) {
+  }
 }
 
 __weak void LETIMER0_IRQHandler(void)
 {
-  while(1);
+  while (true) {
+  }
 }
 
 __weak void PCNT0_IRQHandler(void)
 {
-  while(1);
+  while (true) {
+  }
 }
 
 __weak void PCNT1_IRQHandler(void)
 {
-  while(1);
+  while (true) {
+  }
 }
 
 __weak void PCNT2_IRQHandler(void)
 {
-  while(1);
+  while (true) {
+  }
 }
 
 __weak void RTC_IRQHandler(void)
 {
-  while(1);
+  while (true) {
+  }
 }
 
 __weak void BURTC_IRQHandler(void)
 {
-  while(1);
+  while (true) {
+  }
 }
 
 __weak void CMU_IRQHandler(void)
 {
-  while(1);
+  while (true) {
+  }
 }
 
 __weak void VCMP_IRQHandler(void)
 {
-  while(1);
+  while (true) {
+  }
 }
 
 __weak void MSC_IRQHandler(void)
 {
-  while(1);
+  while (true) {
+  }
 }
 
 __weak void AES_IRQHandler(void)
 {
-  while(1);
+  while (true) {
+  }
 }
 
 __weak void EMU_IRQHandler(void)
 {
-  while(1);
+  while (true) {
+  }
 }
 
 __weak void FPUEH_IRQHandler(void)
 {
-  while(1);
+  while (true) {
+  }
 }
 
+typedef union {
+  void (*pFunc)(void);
+  void *topOfStack;
+} tVectorEntry;
 
-/* With IAR, the CSTACK is defined via project options settings */
+extern const tVectorEntry __vector_table[];
+
 #pragma data_alignment=256
 #pragma location = ".intvec"
-const void * const __vector_table[]=  {
-    &CSTACK$$Limit,
-    (void *) Reset_Handler,           /*  1 - Reset (start instruction) */
-    (void *) NMI_Handler,             /*  2 - NMI */
-    (void *) HardFault_Handler,       /*  3 - HardFault */
-    (void *) MemManage_Handler,
-    (void *) BusFault_Handler,
-    (void *) UsageFault_Handler,
-    (void *) 0,
-    (void *) 0,
-    (void *) 0,
-    (void *) 0,
-    (void *) SVC_Handler,
-    (void *) DebugMon_Handler,
-    (void *) 0,
-    (void *) PendSV_Handler,
-    (void *) SysTick_Handler,
+const tVectorEntry __vector_table[] = {
+  { .topOfStack = &CSTACK$$Limit },  /* With IAR, the CSTACK is defined via */
+                                     /* project options settings */
 
-    (void *) DMA_IRQHandler,  /* 0 - DMA */
-    (void *) GPIO_EVEN_IRQHandler,  /* 1 - GPIO_EVEN */
-    (void *) TIMER0_IRQHandler,  /* 2 - TIMER0 */
-    (void *) USARTRF0_RX_IRQHandler,  /* 3 - USARTRF0_RX */
-    (void *) USARTRF0_TX_IRQHandler,  /* 4 - USARTRF0_TX */
-    (void *) USB_IRQHandler,  /* 5 - USB */
-    (void *) ACMP0_IRQHandler,  /* 6 - ACMP0 */
-    (void *) ADC0_IRQHandler,  /* 7 - ADC0 */
-    (void *) DAC0_IRQHandler,  /* 8 - DAC0 */
-    (void *) I2C0_IRQHandler,  /* 9 - I2C0 */
-    (void *) I2C1_IRQHandler,  /* 10 - I2C1 */
-    (void *) GPIO_ODD_IRQHandler,  /* 11 - GPIO_ODD */
-    (void *) TIMER1_IRQHandler,  /* 12 - TIMER1 */
-    (void *) TIMER2_IRQHandler,  /* 13 - TIMER2 */
-    (void *) TIMER3_IRQHandler,  /* 14 - TIMER3 */
-    (void *) USART1_RX_IRQHandler,  /* 15 - USART1_RX */
-    (void *) USART1_TX_IRQHandler,  /* 16 - USART1_TX */
-    (void *) LESENSE_IRQHandler,  /* 17 - LESENSE */
-    (void *) USART2_RX_IRQHandler,  /* 18 - USART2_RX */
-    (void *) USART2_TX_IRQHandler,  /* 19 - USART2_TX */
-    (void *) UART0_RX_IRQHandler,  /* 20 - UART0_RX */
-    (void *) UART0_TX_IRQHandler,  /* 21 - UART0_TX */
-    (void *) UART1_RX_IRQHandler,  /* 22 - UART1_RX */
-    (void *) UART1_TX_IRQHandler,  /* 23 - UART1_TX */
-    (void *) LEUART0_IRQHandler,  /* 24 - LEUART0 */
-    (void *) LEUART1_IRQHandler,  /* 25 - LEUART1 */
-    (void *) LETIMER0_IRQHandler,  /* 26 - LETIMER0 */
-    (void *) PCNT0_IRQHandler,  /* 27 - PCNT0 */
-    (void *) PCNT1_IRQHandler,  /* 28 - PCNT1 */
-    (void *) PCNT2_IRQHandler,  /* 29 - PCNT2 */
-    (void *) RTC_IRQHandler,  /* 30 - RTC */
-    (void *) BURTC_IRQHandler,  /* 31 - BURTC */
-    (void *) CMU_IRQHandler,  /* 32 - CMU */
-    (void *) VCMP_IRQHandler,  /* 33 - VCMP */
-    (void *) 0,                /* 34 - Reserved */
-    (void *) MSC_IRQHandler,  /* 35 - MSC */
-    (void *) AES_IRQHandler,  /* 36 - AES */
-    (void *) 0,                /* 37 - Reserved */
-    (void *) EMU_IRQHandler,  /* 38 - EMU */
-    (void *) FPUEH_IRQHandler,  /* 39 - FPUEH */
+  { Reset_Handler             },
+  { NMI_Handler               },
+  { HardFault_Handler         },
+  { MemManage_Handler         },
+  { BusFault_Handler          },
+  { UsageFault_Handler        },
+  { 0                         },
+  { 0                         },
+  { 0                         },
+  { 0                         },
+  { SVC_Handler               },
+  { DebugMon_Handler          },
+  { sl_app_properties         },
+  { PendSV_Handler            },
+  { SysTick_Handler           },
 
+  { DMA_IRQHandler            },              /* 0 */
+  { GPIO_EVEN_IRQHandler      },              /* 1 */
+  { TIMER0_IRQHandler         },              /* 2 */
+  { USARTRF0_RX_IRQHandler    },              /* 3 */
+  { USARTRF0_TX_IRQHandler    },              /* 4 */
+  { USB_IRQHandler            },              /* 5 */
+  { ACMP0_IRQHandler          },              /* 6 */
+  { ADC0_IRQHandler           },              /* 7 */
+  { DAC0_IRQHandler           },              /* 8 */
+  { I2C0_IRQHandler           },              /* 9 */
+  { I2C1_IRQHandler           },              /* 10 */
+  { GPIO_ODD_IRQHandler       },              /* 11 */
+  { TIMER1_IRQHandler         },              /* 12 */
+  { TIMER2_IRQHandler         },              /* 13 */
+  { TIMER3_IRQHandler         },              /* 14 */
+  { USART1_RX_IRQHandler      },              /* 15 */
+  { USART1_TX_IRQHandler      },              /* 16 */
+  { LESENSE_IRQHandler        },              /* 17 */
+  { USART2_RX_IRQHandler      },              /* 18 */
+  { USART2_TX_IRQHandler      },              /* 19 */
+  { UART0_RX_IRQHandler       },              /* 20 */
+  { UART0_TX_IRQHandler       },              /* 21 */
+  { UART1_RX_IRQHandler       },              /* 22 */
+  { UART1_TX_IRQHandler       },              /* 23 */
+  { LEUART0_IRQHandler        },              /* 24 */
+  { LEUART1_IRQHandler        },              /* 25 */
+  { LETIMER0_IRQHandler       },              /* 26 */
+  { PCNT0_IRQHandler          },              /* 27 */
+  { PCNT1_IRQHandler          },              /* 28 */
+  { PCNT2_IRQHandler          },              /* 29 */
+  { RTC_IRQHandler            },              /* 30 */
+  { BURTC_IRQHandler          },              /* 31 */
+  { CMU_IRQHandler            },              /* 32 */
+  { VCMP_IRQHandler           },              /* 33 */
+  { 0                         },              /* 34 - Reserved */
+  { MSC_IRQHandler            },              /* 35 */
+  { AES_IRQHandler            },              /* 36 */
+  { 0                         },              /* 37 - Reserved */
+  { EMU_IRQHandler            },              /* 38 */
+  { FPUEH_IRQHandler          },              /* 39 */
 };

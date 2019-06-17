@@ -1,15 +1,17 @@
 /***************************************************************************//**
- * @file dmadrv_config.h
+ * @file
  * @brief DMADRV configuration file.
- * @version 5.2.1
  *******************************************************************************
  * # License
- * <b>(C) Copyright 2015 Silicon Labs, http://www.silabs.com</b>
+ * <b>Copyright 2018 Silicon Laboratories Inc. www.silabs.com</b>
  *******************************************************************************
  *
- * This file is licensed under the Silabs License Agreement. See the file
- * "Silabs_License_Agreement.txt" for details. Before using this software for
- * any purpose, you must agree to the terms of that agreement.
+ * The licensor of this software is Silicon Laboratories Inc.  Your use of this
+ * software is governed by the terms of Silicon Labs Master Software License
+ * Agreement (MSLA) available at
+ * www.silabs.com/about-us/legal/master-software-license-agreement.  This
+ * software is distributed to you in Source Code format and is governed by the
+ * sections of the MSLA applicable to Source Code.
  *
  ******************************************************************************/
 #ifndef __SILICON_LABS_DMADRV_CONFIG_H__
@@ -30,7 +32,11 @@
 /// DMADRV DMA interrupt priority configuration option.
 /// Set DMA interrupt priority. Range is 0..7, 0 is highest priority.
 #ifndef EMDRV_DMADRV_DMA_IRQ_PRIORITY
+#if (__NVIC_PRIO_BITS == 2)
+#define EMDRV_DMADRV_DMA_IRQ_PRIORITY 3
+#else
 #define EMDRV_DMADRV_DMA_IRQ_PRIORITY 4
+#endif
 #endif
 
 /// DMADRV DMA channel priority configuration option.

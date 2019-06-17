@@ -1,32 +1,17 @@
 /***************************************************************************//**
- * @file tempdrv.c
+ * @file
  * @brief TEMPDRV API implementation.
- * @version 5.2.1
  *******************************************************************************
  * # License
- * <b>(C) Copyright 2014 Silicon Labs, http://www.silabs.com</b>
+ * <b>Copyright 2018 Silicon Laboratories Inc. www.silabs.com</b>
  *******************************************************************************
  *
- * Permission is granted to anyone to use this software for any purpose,
- * including commercial applications, and to alter it and redistribute it
- * freely, subject to the following restrictions:
- *
- * 1. The origin of this software must not be misrepresented; you must not
- *    claim that you wrote the original software.
- * 2. Altered source versions must be plainly marked as such, and must not be
- *    misrepresented as being the original software.
- * 3. This notice may not be removed or altered from any source distribution.
- *
- * DISCLAIMER OF WARRANTY/LIMITATION OF REMEDIES: Silicon Labs has no
- * obligation to support this Software. Silicon Labs is providing the
- * Software "AS IS", with no express or implied warranties of any kind,
- * including, but not limited to, any implied warranties of merchantability
- * or fitness for any particular purpose or warranties against infringement
- * of any proprietary rights of a third party.
- *
- * Silicon Labs will not be liable for any consequential, incidental, or
- * special damages, or any other relief, or for any claim by any third party,
- * arising from your use of this Software.
+ * The licensor of this software is Silicon Laboratories Inc.  Your use of this
+ * software is governed by the terms of Silicon Labs Master Software License
+ * Agreement (MSLA) available at
+ * www.silabs.com/about-us/legal/master-software-license-agreement.  This
+ * software is distributed to you in Source Code format and is governed by the
+ * sections of the MSLA applicable to Source Code.
  *
  ******************************************************************************/
 
@@ -56,6 +41,16 @@ typedef struct {
 #define TEMPDRV_CALLBACK_DEPTH (TEMPDRV_INT_CALLBACK_DEPTH + TEMPDRV_CUSTOM_CALLBACK_DEPTH)
 #define TEMPDRV_CUSTOM_CALLBACK_INDEX TEMPDRV_INT_CALLBACK_DEPTH
 
+#if defined(_SILICON_LABS_32B_SERIES_1)
+// On Series-1 devices the temperature code is inverted. (high value = low temperature)
+#define INCREASING_TEMPERATURE_FLAG   EMU_IF_TEMPLOW
+#define DECREASING_TEMPERATURE_FLAG   EMU_IF_TEMPHIGH
+#else
+// On Series-2 devices the temperature code is normal. (high value = high temperature)
+#define INCREASING_TEMPERATURE_FLAG   EMU_IF_TEMPHIGH
+#define DECREASING_TEMPERATURE_FLAG   EMU_IF_TEMPLOW
+#endif
+
 static TEMPDRV_CallbackSet_t tempdrvHighCallbacks[TEMPDRV_CALLBACK_DEPTH];
 static TEMPDRV_CallbackSet_t tempdrvLowCallbacks[TEMPDRV_CALLBACK_DEPTH];
 static TEMPDRV_CallbackSet_t nullCallback = { NULL, 0 };
@@ -65,16 +60,18 @@ static TEMPDRV_CallbackSet_t *lowCallback;
 static bool TEMPDRV_InitState = false;
 static bool TEMPDRV_EnableState = false;
 
-static int8_t convertToTemp(uint8_t emu);
-static uint8_t convertToEmu(int8_t temp);
+static int convertToTemp(uint32_t emu);
+static uint32_t convertToEmu(int temp);
 static void updateInterrupts(void);
 
+#if defined(_DEVINFO_CAL_TEMP_MASK)
 // Calibration values to be initialized in TEMPDRV_Init
-static int32_t calibrationEMU;
-static int32_t calibrationTEMP;
+static int calibrationEMU;
+static int calibrationTEMP;
 // Fallback calibration values in case DI calibration data not present
 static uint8_t fallbackEMU = 0x90;
 static uint8_t fallbackTEMP = 25;
+#endif
 
 #if (EMU_CUSTOM_IRQ_HANDLER == false)
 /***************************************************************************//**
@@ -108,24 +105,23 @@ void TEMPDRV_IRQHandler(void)
 {
   uint32_t flags = EMU_IntGetEnabled();
   TEMPDRV_Callback_t activeCallback;
-  // High EMU value means a decreasing temperature
-  if (flags & EMU_IF_TEMPHIGH) {
-    // High EMU interrupt = Low temp limit
+
+  if (flags & DECREASING_TEMPERATURE_FLAG) {
     if (lowCallback->callback != NULL) {
       activeCallback = lowCallback->callback;
       memset(lowCallback, 0, sizeof(TEMPDRV_CallbackSet_t));
       activeCallback(TEMPDRV_GetTemp(), TEMPDRV_LIMIT_LOW);
     }
-    EMU_IntClear(EMU_IFC_TEMPHIGH);
-  } else if (flags & EMU_IF_TEMPLOW) {
-    // Low EMU interrupt = high temp limit
+    EMU_IntClear(DECREASING_TEMPERATURE_FLAG);
+  } else if (flags & INCREASING_TEMPERATURE_FLAG) {
     if (highCallback->callback != NULL) {
       activeCallback = highCallback->callback;
       memset(highCallback, 0, sizeof(TEMPDRV_CallbackSet_t));
       activeCallback(TEMPDRV_GetTemp(), TEMPDRV_LIMIT_HIGH);
     }
-    EMU_IntClear(EMU_IFC_TEMPLOW);
+    EMU_IntClear(INCREASING_TEMPERATURE_FLAG);
   }
+
   updateInterrupts();
 }
 
@@ -377,9 +373,12 @@ static bool checkForDuplicates(TEMPDRV_CallbackSet_t *set, int8_t temp)
  * @return
  *    temperature in degrees Celsius
  ******************************************************************************/
-static int8_t convertToTemp(uint8_t emu)
+static int convertToTemp(uint32_t emu)
 {
-  int32_t res = (int32_t) calibrationTEMP - ((emu * 8) / 5);
+#if defined(_SILICON_LABS_32B_SERIES_2)
+  return (int)emu - 273; // Convert from Kelvin to Celsius
+#else
+  int res = (int) calibrationTEMP - ((emu * 8) / 5);
   // Cap conversion results at int8_t bounds
   if (res < -128) {
     res = -128;
@@ -388,6 +387,7 @@ static int8_t convertToTemp(uint8_t emu)
   }
 
   return (int8_t) res;
+#endif
 }
 
 /***************************************************************************//**
@@ -400,8 +400,11 @@ static int8_t convertToTemp(uint8_t emu)
  * @return
  *   EMU temperature sensor value that represents the given temperature
  ******************************************************************************/
-static uint8_t convertToEmu(int8_t temp)
+static uint32_t convertToEmu(int temp)
 {
+#if defined(_SILICON_LABS_32B_SERIES_2)
+  return (uint32_t)(temp + 273); // Convert from Celsius to Kelvin
+#else
   int32_t res = (int32_t) calibrationEMU -  ((temp * 5) >> 3);
   // Cap conversion results at uint8_t bounds
   if (res > 255) {
@@ -410,6 +413,7 @@ static uint8_t convertToEmu(int8_t temp)
     res = 0;
   }
   return (uint8_t) res;
+#endif
 }
 
 /***************************************************************************//**
@@ -418,8 +422,8 @@ static uint8_t convertToEmu(int8_t temp)
  ******************************************************************************/
 static void disableInterrupts(void)
 {
-  EMU_IntClear(EMU_IFC_TEMPLOW | EMU_IFC_TEMPHIGH);
-  EMU_IntDisable(EMU_IFC_TEMPLOW | EMU_IFC_TEMPHIGH);
+  EMU_IntClear(EMU_IF_TEMPLOW | EMU_IF_TEMPHIGH);
+  EMU_IntDisable(EMU_IF_TEMPLOW | EMU_IF_TEMPHIGH);
 }
 
 /***************************************************************************//**
@@ -435,8 +439,9 @@ static void disableInterrupts(void)
  ******************************************************************************/
 static void updateInterrupts(void)
 {
+  int index;
+
   // Find lowest temperature active high callback
-  uint8_t index;
   for (index = 0; index < TEMPDRV_CALLBACK_DEPTH; index++) {
     // filter out only entries with valid callbacks
     if (tempdrvHighCallbacks[index].callback != NULL) {
@@ -448,15 +453,6 @@ static void updateInterrupts(void)
         }
       }
     }
-  }
-  // If active callback, set and enable interrupt
-  if (highCallback->callback != NULL) {
-    // EMU and TEMP are inversely proportional
-    EMU->TEMPLIMITS &= ~_EMU_TEMPLIMITS_TEMPLOW_MASK;
-    EMU->TEMPLIMITS |= highCallback->temp << _EMU_TEMPLIMITS_TEMPLOW_SHIFT;
-    EMU_IntEnable(EMU_IEN_TEMPLOW);
-  } else {
-    EMU_IntDisable(EMU_IEN_TEMPLOW);
   }
 
   // Find highest temperature active low callback
@@ -472,15 +468,66 @@ static void updateInterrupts(void)
       }
     }
   }
-  // If active callback, set and enable interrupt
+
+#if defined(_SILICON_LABS_32B_SERIES_1)
+  // On Series-1 devices the temperature code is inverted (high value = low temperature)
+  if (highCallback->callback != NULL) {
+    EMU->TEMPLIMITS = (EMU->TEMPLIMITS & ~_EMU_TEMPLIMITS_TEMPLOW_MASK)
+                      | (highCallback->temp << _EMU_TEMPLIMITS_TEMPLOW_SHIFT);
+    EMU_IntEnable(EMU_IEN_TEMPLOW);
+  } else {
+    EMU_IntDisable(EMU_IEN_TEMPLOW);
+  }
   if (lowCallback->callback != NULL) {
-    // EMU and TEMP are inversely proportional
-    EMU->TEMPLIMITS &= ~_EMU_TEMPLIMITS_TEMPHIGH_MASK;
-    EMU->TEMPLIMITS |= lowCallback->temp << _EMU_TEMPLIMITS_TEMPHIGH_SHIFT;
+    EMU->TEMPLIMITS = (EMU->TEMPLIMITS & ~_EMU_TEMPLIMITS_TEMPHIGH_MASK)
+                      | (lowCallback->temp << _EMU_TEMPLIMITS_TEMPHIGH_SHIFT);
     EMU_IntEnable(EMU_IEN_TEMPHIGH);
   } else {
     EMU_IntDisable(EMU_IEN_TEMPHIGH);
   }
+#else
+  // On Series-2 devices the temperature code is normal (high value = high temperature)
+  if (highCallback->callback != NULL) {
+    EMU->TEMPLIMITS = (EMU->TEMPLIMITS & ~_EMU_TEMPLIMITS_TEMPHIGH_MASK)
+                      | (highCallback->temp << _EMU_TEMPLIMITS_TEMPHIGH_SHIFT);
+    EMU_IntEnable(EMU_IEN_TEMPHIGH);
+  } else {
+    EMU_IntDisable(EMU_IEN_TEMPHIGH);
+  }
+  if (lowCallback->callback != NULL) {
+    EMU->TEMPLIMITS = (EMU->TEMPLIMITS & ~_EMU_TEMPLIMITS_TEMPLOW_MASK)
+                      | (lowCallback->temp << _EMU_TEMPLIMITS_TEMPLOW_SHIFT);
+    EMU_IntEnable(EMU_IEN_TEMPLOW);
+  } else {
+    EMU_IntDisable(EMU_IEN_TEMPLOW);
+  }
+#endif
+}
+
+/***************************************************************************//**
+ * @brief
+ *   Prepare calibration values for temperature conversion.
+ ******************************************************************************/
+static void calibration(void)
+{
+#if defined(_DEVINFO_CAL_TEMP_MASK)
+  uint32_t DItemp, DIemu;
+
+  // Retrieve calibration data from DI page
+  DItemp = ((DEVINFO->CAL & _DEVINFO_CAL_TEMP_MASK) >> _DEVINFO_CAL_TEMP_SHIFT);
+  DIemu = ((DEVINFO->EMUTEMP & _DEVINFO_EMUTEMP_EMUTEMPROOM_MASK) >> _DEVINFO_EMUTEMP_EMUTEMPROOM_SHIFT);
+
+  if ((DItemp == (_DEVINFO_CAL_TEMP_MASK >> _DEVINFO_CAL_TEMP_SHIFT))
+      || (DIemu == (_DEVINFO_EMUTEMP_EMUTEMPROOM_MASK >> _DEVINFO_EMUTEMP_EMUTEMPROOM_SHIFT))) {
+    // Missing DI page calibration data, substitute fixed values
+    DItemp = fallbackTEMP;
+    DIemu = fallbackEMU;
+  }
+
+  // calculate conversion offsets. Based on assumed slope of 5/8
+  calibrationEMU = (DIemu) + ((5 * (DItemp)) / 8);
+  calibrationTEMP = (DItemp) + (8 * (DIemu) / 5);
+#endif
 }
 
 /* Official API */
@@ -498,8 +545,6 @@ static void updateInterrupts(void)
  ******************************************************************************/
 Ecode_t TEMPDRV_Init(void)
 {
-  uint32_t DItemp, DIemu;
-
   // Flag up
   TEMPDRV_InitState = true;
 
@@ -509,23 +554,8 @@ Ecode_t TEMPDRV_Init(void)
   highCallback = &nullCallback;
   lowCallback = &nullCallback;
 
-  // Retrieve calibration data from DI page
-  DItemp = ((DEVINFO->CAL & _DEVINFO_CAL_TEMP_MASK) >> _DEVINFO_CAL_TEMP_SHIFT);
-  DIemu = ((DEVINFO->EMUTEMP & _DEVINFO_EMUTEMP_EMUTEMPROOM_MASK) >> _DEVINFO_EMUTEMP_EMUTEMPROOM_SHIFT);
-
-  if ((DItemp == (_DEVINFO_CAL_TEMP_MASK >> _DEVINFO_CAL_TEMP_SHIFT))
-      || (DIemu == (_DEVINFO_EMUTEMP_EMUTEMPROOM_MASK >> _DEVINFO_EMUTEMP_EMUTEMPROOM_SHIFT))) {
-    // Missing DI page calibration data, substitute fixed values
-    DItemp = fallbackTEMP;
-    DIemu = fallbackEMU;
-  }
-
-  // calculate conversion offsets. Based on assumed slope of 5/8
-  calibrationEMU = (DIemu) + ((5 * (DItemp)) / 8);
-  calibrationTEMP = (DItemp) + (8 * (DIemu) / 5);
-
+  calibration();
   errataInit();
-
   disableInterrupts();
   NVIC_ClearPendingIRQ(EMU_IRQn);
   NVIC_EnableIRQ(EMU_IRQn);
@@ -622,7 +652,9 @@ uint8_t TEMPDRV_GetActiveCallbacks(TEMPDRV_LimitType_t limit)
  ******************************************************************************/
 int8_t TEMPDRV_GetTemp(void)
 {
-  return convertToTemp(EMU->TEMP);
+  uint32_t val = (EMU->TEMP & _EMU_TEMP_TEMP_MASK)
+                 >> _EMU_TEMP_TEMP_SHIFT;
+  return convertToTemp(val);
 }
 
 /***************************************************************************//**

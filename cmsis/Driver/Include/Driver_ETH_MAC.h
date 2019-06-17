@@ -1,33 +1,30 @@
-/* -----------------------------------------------------------------------------
- * Copyright (c) 2013-2014 ARM Ltd.
+/*
+ * Copyright (c) 2013-2017 ARM Limited. All rights reserved.
  *
- * This software is provided 'as-is', without any express or implied warranty.
- * In no event will the authors be held liable for any damages arising from
- * the use of this software. Permission is granted to anyone to use this
- * software for any purpose, including commercial applications, and to alter
- * it and redistribute it freely, subject to the following restrictions:
+ * SPDX-License-Identifier: Apache-2.0
  *
- * 1. The origin of this software must not be misrepresented; you must not
- *    claim that you wrote the original software. If you use this software in
- *    a product, an acknowledgment in the product documentation would be
- *    appreciated but is not required.
+ * Licensed under the Apache License, Version 2.0 (the License); you may
+ * not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * 2. Altered source versions must be plainly marked as such, and must not be
- *    misrepresented as being the original software.
+ * www.apache.org/licenses/LICENSE-2.0
  *
- * 3. This notice may not be removed or altered from any source distribution.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an AS IS BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  *
- *
- * $Date:        30. May 2014
- * $Revision:    V2.01
+ * $Date:        2. Feb 2017
+ * $Revision:    V2.1
  *
  * Project:      Ethernet MAC (Media Access Control) Driver definitions
- * -------------------------------------------------------------------------- */
+ */
 
 /* History:
- *  Version 2.01
+ *  Version 2.1
  *    Added ARM_ETH_MAC_SLEEP Control
- *  Version 2.00
+ *  Version 2.0
  *    Changed MAC Address handling:
  *      moved from ARM_ETH_MAC_Initialize
  *      to new functions ARM_ETH_MAC_GetMacAddress and ARM_ETH_MAC_SetMacAddress
@@ -52,12 +49,17 @@
  *    Initial release
  */
 
-#ifndef __DRIVER_ETH_MAC_H
-#define __DRIVER_ETH_MAC_H
+#ifndef DRIVER_ETH_MAC_H_
+#define DRIVER_ETH_MAC_H_
+
+#ifdef  __cplusplus
+extern "C"
+{
+#endif
 
 #include "Driver_ETH.h"
 
-#define ARM_ETH_MAC_API_VERSION ARM_DRIVER_VERSION_MAJOR_MINOR(2,01)  /* API version */
+#define ARM_ETH_MAC_API_VERSION ARM_DRIVER_VERSION_MAJOR_MINOR(2,1)  /* API version */
 
 
 #define _ARM_Driver_ETH_MAC_(n)      Driver_ETH_MAC##n
@@ -272,6 +274,7 @@ typedef struct _ARM_ETH_MAC_CAPABILITIES {
   uint32_t event_tx_frame           : 1;        ///< 1 = callback event \ref ARM_ETH_MAC_EVENT_TX_FRAME generated
   uint32_t event_wakeup             : 1;        ///< 1 = wakeup event \ref ARM_ETH_MAC_EVENT_WAKEUP generated
   uint32_t precision_timer          : 1;        ///< 1 = Precision Timer supported
+  uint32_t reserved                 : 15;       ///< Reserved (must be zero)
 } ARM_ETH_MAC_CAPABILITIES;
 
 
@@ -298,4 +301,8 @@ typedef struct _ARM_DRIVER_ETH_MAC {
   int32_t                  (*PHY_Write)       (uint8_t phy_addr, uint8_t reg_addr, uint16_t  data);  ///< Pointer to \ref ARM_ETH_MAC_PHY_Write : Write Ethernet PHY Register through Management Interface.
 } const ARM_DRIVER_ETH_MAC;
 
-#endif /* __DRIVER_ETH_MAC_H */
+#ifdef  __cplusplus
+}
+#endif
+
+#endif /* DRIVER_ETH_MAC_H_ */

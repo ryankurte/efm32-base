@@ -1,8 +1,20 @@
 /***************************************************************************//**
- * @file lbt_ci.c
+ * @file
  * @brief This file implements the LBT commands for RAIL test applications.
- * @copyright Copyright 2015 Silicon Laboratories, Inc. http://www.silabs.com
+ *******************************************************************************
+ * # License
+ * <b>Copyright 2018 Silicon Laboratories Inc. www.silabs.com</b>
+ *******************************************************************************
+ *
+ * The licensor of this software is Silicon Laboratories Inc. Your use of this
+ * software is governed by the terms of Silicon Labs Master Software License
+ * Agreement (MSLA) available at
+ * www.silabs.com/about-us/legal/master-software-license-agreement. This
+ * software is distributed to you in Source Code format and is governed by the
+ * sections of the MSLA applicable to Source Code.
+ *
  ******************************************************************************/
+
 #include <string.h>
 
 #include "command_interpreter.h"
@@ -11,8 +23,9 @@
 #include "rail.h"
 #include "app_common.h"
 
-RAIL_PreTxOp_t txPreTxOp = NULL;
-void* txPreTxOpArgs = NULL;
+RailTxType_t txType = TX_TYPE_NORMAL;
+RAIL_LbtConfig_t *lbtConfig = NULL;
+RAIL_CsmaConfig_t *csmaConfig = NULL;
 
 static RAIL_LbtConfig_t lbtParams = RAIL_CSMA_CONFIG_802_15_4_2003_2p4_GHz_OQPSK_CSMA;
 
@@ -20,24 +33,23 @@ void setLbtMode(int argc, char **argv)
 {
   if (argc > 1) {
     if (memcmp(argv[1], "off", 3) == 0) {
-      txPreTxOp = NULL;
-      txPreTxOpArgs = NULL;
+      txType = TX_TYPE_NORMAL;
     } else if (memcmp(argv[1], "csma", 4) == 0) {
-      txPreTxOp = &RAIL_CcaCsma;
-      txPreTxOpArgs = &lbtParams; // Used for CSMA and LBT
+      txType = TX_TYPE_CSMA;
+      csmaConfig = (RAIL_CsmaConfig_t*)&lbtParams;
     } else if (memcmp(argv[1], "lbt", 3) == 0) {
-      txPreTxOp = &RAIL_CcaLbt;
-      txPreTxOpArgs = &lbtParams;
+      txType = TX_TYPE_LBT;
+      lbtConfig = &lbtParams; // Used for CSMA and LBT
     } else {
       responsePrintError(argv[0], 0x70, "Unknown LBT mode specified.");
       return;
     }
   }
-  if (txPreTxOp == NULL) {
+  if (txType == TX_TYPE_NORMAL) {
     responsePrint(argv[0], "LbtMode:off");
-  } else if (txPreTxOp == &RAIL_CcaCsma) {
+  } else if (txType == TX_TYPE_CSMA) {
     responsePrint(argv[0], "LbtMode:CSMA");
-  } else if (txPreTxOp == &RAIL_CcaLbt) {
+  } else if (txType == TX_TYPE_LBT) {
     responsePrint(argv[0], "LbtMode:LBT");
   }
 }

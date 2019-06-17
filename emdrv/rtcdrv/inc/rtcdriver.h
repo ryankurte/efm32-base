@@ -1,15 +1,17 @@
 /***************************************************************************//**
- * @file rtcdriver.h
+ * @file
  * @brief RTCDRV timer API definition.
- * @version 5.2.1
  *******************************************************************************
  * # License
- * <b>(C) Copyright 2014 Silicon Labs, http://www.silabs.com</b>
+ * <b>Copyright 2018 Silicon Laboratories Inc. www.silabs.com</b>
  *******************************************************************************
  *
- * This file is licensed under the Silabs License Agreement. See the file
- * "Silabs_License_Agreement.txt" for details. Before using this software for
- * any purpose, you must agree to the terms of that agreement.
+ * The licensor of this software is Silicon Laboratories Inc.  Your use of this
+ * software is governed by the terms of Silicon Labs Master Software License
+ * Agreement (MSLA) available at
+ * www.silabs.com/about-us/legal/master-software-license-agreement.  This
+ * software is distributed to you in Source Code format and is governed by the
+ * sections of the MSLA applicable to Source Code.
  *
  ******************************************************************************/
 
@@ -36,12 +38,13 @@ extern "C" {
  * @{
  ******************************************************************************/
 
-#define ECODE_EMDRV_RTCDRV_OK                   (ECODE_OK)                               ///< Success return value.
+#define ECODE_EMDRV_RTCDRV_OK                   (ECODE_OK)                               ///< A successful return value.
 #define ECODE_EMDRV_RTCDRV_ALL_TIMERS_USED      (ECODE_EMDRV_RTCDRV_BASE | 0x00000001)   ///< No timers available.
-#define ECODE_EMDRV_RTCDRV_ILLEGAL_TIMER_ID     (ECODE_EMDRV_RTCDRV_BASE | 0x00000002)   ///< Illegal timer id.
-#define ECODE_EMDRV_RTCDRV_TIMER_NOT_ALLOCATED  (ECODE_EMDRV_RTCDRV_BASE | 0x00000003)   ///< Timer is not allocated.
-#define ECODE_EMDRV_RTCDRV_PARAM_ERROR          (ECODE_EMDRV_RTCDRV_BASE | 0x00000004)   ///< Illegal input parameter.
-#define ECODE_EMDRV_RTCDRV_TIMER_NOT_RUNNING    (ECODE_EMDRV_RTCDRV_BASE | 0x00000005)   ///< Timer is not running.
+#define ECODE_EMDRV_RTCDRV_ILLEGAL_TIMER_ID     (ECODE_EMDRV_RTCDRV_BASE | 0x00000002)   ///< An illegal timer ID.
+#define ECODE_EMDRV_RTCDRV_TIMER_NOT_ALLOCATED  (ECODE_EMDRV_RTCDRV_BASE | 0x00000003)   ///< A timer is not allocated.
+#define ECODE_EMDRV_RTCDRV_PARAM_ERROR          (ECODE_EMDRV_RTCDRV_BASE | 0x00000004)   ///< An illegal input parameter.
+#define ECODE_EMDRV_RTCDRV_TIMER_NOT_RUNNING    (ECODE_EMDRV_RTCDRV_BASE | 0x00000005)   ///< A timer is not running.
+#define ECODE_EMDRV_RTCDRV_NOT_INITIALIZED      (ECODE_EMDRV_RTCDRV_BASE | 0x00000006)   ///< The driver is not initialized.
 
 /// @brief Timer ID.
 typedef uint32_t RTCDRV_TimerID_t;
@@ -49,16 +52,16 @@ typedef uint32_t RTCDRV_TimerID_t;
 /***************************************************************************//**
  * @brief
  *  Typedef for the user supplied callback function which is called when
- *  a timer elapse.
+ *  a timer elapses.
  *
  * @note This callback is called from within an interrupt handler with
  *       interrupts disabled.
  *
  * @param[in] id
- *   The timer id.
+ *   The timer ID.
  *
  * @param[in] user
- *   Extra parameter for user application.
+ *   An extra parameter for the user application.
  ******************************************************************************/
 typedef void (*RTCDRV_Callback_t)(RTCDRV_TimerID_t id, void *user);
 
@@ -90,6 +93,7 @@ uint64_t  RTCDRV_MsecsToTicks(uint32_t ms);
 uint64_t  RTCDRV_SecsToTicks(uint32_t secs);
 Ecode_t   RTCDRV_SetWallClock(uint32_t secs);
 uint32_t  RTCDRV_TicksToMsec(uint64_t ticks);
+uint64_t  RTCDRV_TicksToMsec64(uint64_t ticks);
 uint32_t  RTCDRV_TicksToSec(uint64_t ticks);
 #endif
 

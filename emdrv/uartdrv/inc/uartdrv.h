@@ -1,15 +1,17 @@
 /***************************************************************************//**
- * @file uartdrv.h
+ * @file
  * @brief UARTDRV API definition.
- * @version 5.2.1
  *******************************************************************************
  * # License
- * <b>Copyright 2016 Silicon Laboratories, Inc, http://www.silabs.com</b>
+ * <b>Copyright 2018 Silicon Laboratories Inc. www.silabs.com</b>
  *******************************************************************************
  *
- * This file is licensed under the Silabs License Agreement. See the file
- * "Silabs_License_Agreement.txt" for details. Before using this software for
- * any purpose, you must agree to the terms of that agreement.
+ * The licensor of this software is Silicon Laboratories Inc.  Your use of this
+ * software is governed by the terms of Silicon Labs Master Software License
+ * Agreement (MSLA) available at
+ * www.silabs.com/about-us/legal/master-software-license-agreement.  This
+ * software is distributed to you in Source Code format and is governed by the
+ * sections of the MSLA applicable to Source Code.
  *
  ******************************************************************************/
 
@@ -19,6 +21,7 @@
 #include "em_device.h"
 #include "em_usart.h"
 #include "em_leuart.h"
+#include "em_eusart.h"
 #include "em_gpio.h"
 #include "em_cmu.h"
 #include "ecode.h"
@@ -39,48 +42,51 @@ extern "C" {
  * @{
  ******************************************************************************/
 
-#define ECODE_EMDRV_UARTDRV_OK                (ECODE_OK)                              ///< Success return value.
-#define ECODE_EMDRV_UARTDRV_WAITING           (ECODE_EMDRV_UARTDRV_BASE | 0x00000001) ///< Operation is waiting in queue.
-#define ECODE_EMDRV_UARTDRV_ILLEGAL_HANDLE    (ECODE_EMDRV_UARTDRV_BASE | 0x00000002) ///< Illegal UART handle.
-#define ECODE_EMDRV_UARTDRV_PARAM_ERROR       (ECODE_EMDRV_UARTDRV_BASE | 0x00000003) ///< Illegal input parameter.
+#define ECODE_EMDRV_UARTDRV_OK                (ECODE_OK)                              ///< A successful return value.
+#define ECODE_EMDRV_UARTDRV_WAITING           (ECODE_EMDRV_UARTDRV_BASE | 0x00000001) ///< An operation is waiting in queue.
+#define ECODE_EMDRV_UARTDRV_ILLEGAL_HANDLE    (ECODE_EMDRV_UARTDRV_BASE | 0x00000002) ///< An illegal UART handle.
+#define ECODE_EMDRV_UARTDRV_PARAM_ERROR       (ECODE_EMDRV_UARTDRV_BASE | 0x00000003) ///< An illegal input parameter.
 #define ECODE_EMDRV_UARTDRV_BUSY              (ECODE_EMDRV_UARTDRV_BASE | 0x00000004) ///< The UART port is busy.
-#define ECODE_EMDRV_UARTDRV_ILLEGAL_OPERATION (ECODE_EMDRV_UARTDRV_BASE | 0x00000005) ///< Illegal operation on UART port.
-#define ECODE_EMDRV_UARTDRV_IDLE              (ECODE_EMDRV_UARTDRV_BASE | 0x00000008) ///< No UART transfer in progress.
-#define ECODE_EMDRV_UARTDRV_ABORTED           (ECODE_EMDRV_UARTDRV_BASE | 0x00000009) ///< UART transfer has been aborted.
-#define ECODE_EMDRV_UARTDRV_QUEUE_FULL        (ECODE_EMDRV_UARTDRV_BASE | 0x0000000A) ///< UART operation queue is full.
-#define ECODE_EMDRV_UARTDRV_QUEUE_EMPTY       (ECODE_EMDRV_UARTDRV_BASE | 0x0000000B) ///< UART operation queue is empty.
-#define ECODE_EMDRV_UARTDRV_PARITY_ERROR      (ECODE_EMDRV_UARTDRV_BASE | 0x0000000C) ///< UART parity error frame. Data is ignored.
-#define ECODE_EMDRV_UARTDRV_FRAME_ERROR       (ECODE_EMDRV_UARTDRV_BASE | 0x0000000D) ///< UART frame error. Data is ignored.
-#define ECODE_EMDRV_UARTDRV_DMA_ALLOC_ERROR   (ECODE_EMDRV_UARTDRV_BASE | 0x0000000E) ///< Unable to allocated DMA channels.
-#define ECODE_EMDRV_UARTDRV_CLOCK_ERROR       (ECODE_EMDRV_UARTDRV_BASE | 0x0000000F) ///< Unable to set desired baudrate.
+#define ECODE_EMDRV_UARTDRV_ILLEGAL_OPERATION (ECODE_EMDRV_UARTDRV_BASE | 0x00000005) ///< An illegal operation on the UART port.
+#define ECODE_EMDRV_UARTDRV_IDLE              (ECODE_EMDRV_UARTDRV_BASE | 0x00000008) ///< No UART transfer is in progress.
+#define ECODE_EMDRV_UARTDRV_ABORTED           (ECODE_EMDRV_UARTDRV_BASE | 0x00000009) ///< A UART transfer has been aborted.
+#define ECODE_EMDRV_UARTDRV_QUEUE_FULL        (ECODE_EMDRV_UARTDRV_BASE | 0x0000000A) ///< A UART operation queue is full.
+#define ECODE_EMDRV_UARTDRV_QUEUE_EMPTY       (ECODE_EMDRV_UARTDRV_BASE | 0x0000000B) ///< A UART operation queue is empty.
+#define ECODE_EMDRV_UARTDRV_PARITY_ERROR      (ECODE_EMDRV_UARTDRV_BASE | 0x0000000C) ///< A UART parity error frame. Data is ignored.
+#define ECODE_EMDRV_UARTDRV_FRAME_ERROR       (ECODE_EMDRV_UARTDRV_BASE | 0x0000000D) ///< A UART frame error. Data is ignored.
+#define ECODE_EMDRV_UARTDRV_DMA_ALLOC_ERROR   (ECODE_EMDRV_UARTDRV_BASE | 0x0000000E) ///< Unable to allocate DMA channels.
+#define ECODE_EMDRV_UARTDRV_CLOCK_ERROR       (ECODE_EMDRV_UARTDRV_BASE | 0x0000000F) ///< Unable to set a desired baudrate.
 
 // UARTDRV status codes
-#define UARTDRV_STATUS_RXEN     (1 << 0)  ///< Receiver is enabled
-#define UARTDRV_STATUS_TXEN     (1 << 1)  ///< Transmitter is enabled
-#define UARTDRV_STATUS_RXBLOCK  (1 << 3)  ///< Receiver is blocked; incoming frames will be discarded
-#define UARTDRV_STATUS_TXTRI    (1 << 4)  ///< Transmitter is tristated
-#define UARTDRV_STATUS_TXC      (1 << 5)  ///< Transmit operation is complete, no more data is available in the transmit buffer and shift register
-#define UARTDRV_STATUS_TXBL     (1 << 6)  ///< Transmit buffer is empty
-#define UARTDRV_STATUS_RXDATAV  (1 << 7)  ///< Data is available in receive buffer
-#define UARTDRV_STATUS_RXFULL   (1 << 8)  ///< Receive buffer is full
-#define UARTDRV_STATUS_TXIDLE   (1 << 13) ///< Transmitter is idle
+#define UARTDRV_STATUS_RXEN     (1 << 0)  ///< The receiver is enabled.
+#define UARTDRV_STATUS_TXEN     (1 << 1)  ///< The transmitter is enabled.
+#define UARTDRV_STATUS_RXBLOCK  (1 << 3)  ///< The receiver is blocked; incoming frames will be discarded.
+#define UARTDRV_STATUS_TXTRI    (1 << 4)  ///< The transmitter is tristated.
+#define UARTDRV_STATUS_TXC      (1 << 5)  ///< A transmit operation is complete. No more data is available in the transmit buffer and shift register.
+#define UARTDRV_STATUS_TXBL     (1 << 6)  ///< The transmit buffer is empty.
+#define UARTDRV_STATUS_RXDATAV  (1 << 7)  ///< Data is available in the receive buffer.
+#define UARTDRV_STATUS_RXFULL   (1 << 8)  ///< The receive buffer is full.
+#define UARTDRV_STATUS_TXIDLE   (1 << 13) ///< The transmitter is idle.
+#if defined(EUART_COUNT) && (EUART_COUNT > 0)
+#define UARTDRV_STATUS_RXIDLE   (1 << 12) ///< The Receiver is idle.
+#endif
 
-typedef uint32_t UARTDRV_Count_t;     ///< UART transfer count
-typedef uint32_t UARTDRV_Status_t;    ///< UART status return type. Bitfield of UARTDRV_STATUS_* values.
+typedef uint32_t UARTDRV_Count_t;     ///< A UART transfer count
+typedef uint32_t UARTDRV_Status_t;    ///< A UART status return type. Bitfield of UARTDRV_STATUS_* values.
 
 /// Flow Control method
 typedef enum UARTDRV_FlowControlType{
   uartdrvFlowControlNone   = 0,   ///< None
   uartdrvFlowControlSw     = 1,   ///< Software XON/XOFF
   uartdrvFlowControlHw     = 2,   ///< nRTS/nCTS hardware handshake
-  uartdrvFlowControlHwUart = 3    ///< The UART peripheral controls nRTS/nCTS
+  uartdrvFlowControlHwUart = 3    ///< UART peripheral controls nRTS/nCTS
 } UARTDRV_FlowControlType_t;
 
 /// Flow Control state
 typedef enum UARTDRV_FlowControlState{
   uartdrvFlowControlOn = 0,         ///< XON or nRTS/nCTS low
   uartdrvFlowControlOff = 1,        ///< XOFF or nRTS/nCTS high
-  uartdrvFlowControlAuto = 2        ///< This driver controls the state
+  uartdrvFlowControlAuto = 2        ///< This driver controls the state.
 } UARTDRV_FlowControlState_t;
 
 /// Transfer abort type
@@ -91,10 +97,14 @@ typedef enum UARTDRV_AbortType{
 } UARTDRV_AbortType_t;
 
 /// @cond DO_NOT_INCLUDE_WITH_DOXYGEN
-/// Type of UART peripheral
+/// Type of a UART peripheral
 typedef enum UARTDRV_UartType{
   uartdrvUartTypeUart = 0,         ///< USART/UART peripheral
+#if defined(LEUART_COUNT) && (LEUART_COUNT > 0)
   uartdrvUartTypeLeuart = 1         ///< LEUART peripheral
+#elif defined(EUART_COUNT) && (EUART_COUNT > 0)
+  uartdrvUartTypeEuart = 2         ///< EUART peripheral
+#endif
 } UARTDRV_UartType_t;
 /// @endcond
 
@@ -105,7 +115,7 @@ struct UARTDRV_HandleData;
  *  UARTDRV transfer completion callback function.
  *
  * @details
- *  The callback function is called when a transfer has completed. An
+ *  Called when a transfer is complete. An
  *  application should check the transferStatus and itemsTransferred values.
  *
  * @param[in] handle
@@ -115,10 +125,10 @@ struct UARTDRV_HandleData;
  *   Completion status of the transfer operation.
  *
  * @param[in] data
- *   Pointer to transfer data buffer.
+ *   A pointer to the transfer data buffer.
  *
  * @param[in] transferCount
- *   Number of bytes transferred.
+ *   A number of bytes transferred.
  ******************************************************************************/
 typedef void (*UARTDRV_Callback_t)(struct UARTDRV_HandleData *handle,
                                    Ecode_t transferStatus,
@@ -131,20 +141,20 @@ typedef struct {
   UARTDRV_Count_t transferCount;           ///< Transfer item count
   volatile UARTDRV_Count_t itemsRemaining; ///< Transfer items remaining
   UARTDRV_Callback_t callback;             ///< Completion callback
-  Ecode_t transferStatus;                  ///< Completion status of transfer operation
+  Ecode_t transferStatus;                  ///< Completion status of the transfer operation
 } UARTDRV_Buffer_t;
 
 /// Transfer operation FIFO queue typedef
 typedef struct {
-  volatile uint16_t head;                  ///< Index of next byte to send.
-  volatile uint16_t tail;                  ///< Index of where to enqueue next message.
-  volatile uint16_t used;                  ///< Number of bytes queued.
-  const uint16_t size;                     ///< Size of FIFO.
-  UARTDRV_Buffer_t fifo[];                 ///< FIFO of queue data.
+  volatile uint16_t head;                  ///< An index of the next byte to send.
+  volatile uint16_t tail;                  ///< An index of the location to enqueue the next message.
+  volatile uint16_t used;                  ///< A number of bytes queued.
+  const uint16_t size;                     ///< FIFO size.
+  UARTDRV_Buffer_t fifo[1];                ///< FIFO of queued data. Actual size varies.
 } UARTDRV_Buffer_FifoQueue_t;
 
-/// Macros to define fifo and buffer queues, can't use a typedef becuase the size
-/// of the fifo array in the queues can change.
+/// Macros to define FIFO and buffer queues. typedef can't be used becuase the size
+/// of the FIFO array in the queues can change.
 #define DEFINE_BUF_QUEUE(qSize, qName) \
   typedef struct {                     \
     uint16_t head;                     \
@@ -161,49 +171,56 @@ typedef struct {
     .size = qSize,                     \
   }
 
-/// UART driver instance initialization structure.
-/// This data structure contains a number of UARTDRV configuration options
-/// required for driver instance initialization.
-/// This struct is passed to @ref UARTDRV_Init() when initializing a UARTDRV
+/// A UART driver instance initialization structure.
+/// Contains a number of UARTDRV configuration options.
+/// It is required for driver instance initialization.
+/// This structure is passed to @ref UARTDRV_Init() when initializing a UARTDRV
 /// instance.
 typedef struct {
   USART_TypeDef              *port;             ///< The peripheral used for UART
   uint32_t                   baudRate;          ///< UART baud rate
 #if defined(_USART_ROUTELOC0_MASK)
-  uint8_t                    portLocationTx;    ///< Location number for UART Tx pin.
-  uint8_t                    portLocationRx;    ///< Location number for UART Rx pin.
-#else
-  uint8_t                    portLocation;      ///< Location number for UART pins
+  uint8_t                    portLocationTx;    ///< A location number for UART Tx pin.
+  uint8_t                    portLocationRx;    ///< A location number for UART Rx pin.
+#elif defined(_USART_ROUTE_MASK)
+  uint8_t                    portLocation;      ///< A location number for UART pins.
+#elif defined(_GPIO_USART_ROUTEEN_MASK)
+  GPIO_Port_TypeDef          txPort;            ///< Port for UART Tx pin.
+  GPIO_Port_TypeDef          rxPort;            ///< Port for UART Rx pin.
+  uint8_t                    txPin;             ///< Pin number for UART Tx.
+  uint8_t                    rxPin;             ///< Pin number for UART Rx.
+  uint8_t                    uartNum;           ///< UART instance number.
 #endif
-  USART_Stopbits_TypeDef     stopBits;          ///< Number of stop bits
-  USART_Parity_TypeDef       parity;            ///< Parity configuration
-  USART_OVS_TypeDef          oversampling;      ///< Oversampling mode
+  USART_Stopbits_TypeDef     stopBits;          ///< A number of stop bits.
+  USART_Parity_TypeDef       parity;            ///< Parity configuration.
+  USART_OVS_TypeDef          oversampling;      ///< Oversampling mode.
 #if defined(USART_CTRL_MVDIS)
-  bool                       mvdis;             ///< Majority Vote Disable for 16x, 8x and 6x oversampling modes
+  bool                       mvdis;             ///< Majority Vote Disable for 16x, 8x and 6x oversampling modes.
 #endif
-  UARTDRV_FlowControlType_t  fcType;            ///< Flow control mode
-  GPIO_Port_TypeDef          ctsPort;           ///< CTS pin port number
-  uint8_t                    ctsPin;            ///< CTS pin number
-  GPIO_Port_TypeDef          rtsPort;           ///< RTS pin port number
-  uint8_t                    rtsPin;            ///< RTS pin number
-  UARTDRV_Buffer_FifoQueue_t *rxQueue;          ///< Receive operation queue
-  UARTDRV_Buffer_FifoQueue_t *txQueue;          ///< Transmit operation queue
+  UARTDRV_FlowControlType_t  fcType;            ///< Flow control mode.
+  GPIO_Port_TypeDef          ctsPort;           ///< A CTS pin port number.
+  uint8_t                    ctsPin;            ///< A CTS pin number.
+  GPIO_Port_TypeDef          rtsPort;           ///< An RTS pin port number.
+  uint8_t                    rtsPin;            ///< An RTS pin number.
+  UARTDRV_Buffer_FifoQueue_t *rxQueue;          ///< A receive operation queue.
+  UARTDRV_Buffer_FifoQueue_t *txQueue;          ///< T transmit operation queue.
 #if defined(_USART_ROUTELOC1_MASK)
-  uint8_t                    portLocationCts;   ///< Location number for UART CTS pin.
-  uint8_t                    portLocationRts;   ///< Location number for UART RTS pin.
+  uint8_t                    portLocationCts;   ///< A location number for the UART CTS pin.
+  uint8_t                    portLocationRts;   ///< A location number for the UART RTS pin.
 #endif
 } UARTDRV_InitUart_t;
 
 /// @cond DO_NOT_INCLUDE_WITH_DOXYGEN
-/// Deprecated UART driver instance initialization structure alias
-/// @deprecated This struct is deprecated. Use UARTDRV_InitUart_t instead.
+/// Deprecated UART driver instance initialization structure alias.
+/// @deprecated This structure is deprecated. Use UARTDRV_InitUart_t instead.
 typedef UARTDRV_InitUart_t UARTDRV_Init_t;
 /// @endcond
 
+#if defined(LEUART_COUNT) && (LEUART_COUNT > 0) && !defined(_SILICON_LABS_32B_SERIES_2)
 /// LEUART driver instance initialization structure.
-/// This data structure contains a number of UARTDRV configuration options
-/// required for driver instance initialization.
-/// This struct is passed to @ref UARTDRV_InitLeuart() when initializing a UARTDRV
+/// Contains a number of UARTDRV configuration options.
+/// It is required to initialize a driver instance.
+/// This structure is passed to @ref UARTDRV_InitLeuart() when initializing a UARTDRV
 /// instance.
 typedef struct {
   LEUART_TypeDef             *port;             ///< The peripheral used for LEUART
@@ -224,42 +241,79 @@ typedef struct {
   UARTDRV_Buffer_FifoQueue_t *rxQueue;          ///< Receive operation queue
   UARTDRV_Buffer_FifoQueue_t *txQueue;          ///< Transmit operation queue
 } UARTDRV_InitLeuart_t;
+#endif
 
-/// UART driver instance handle data structure.
-/// The handle is allocated by the application using UARTDRV. There may be
-/// several concurrent driver instances in an application. The application must
-/// not modify the contents of this handle, and should not depend on its values.
+#if defined(EUART_COUNT) && (EUART_COUNT > 0)
+/// UART driver instance initialization structure.
+/// Contains a number of UARTDRV configuration options.
+/// It is required to initialize a driver instance.
+/// This structure is passed to @ref UARTDRV_InitEuart() when initializing a UARTDRV
+typedef struct {
+  EUSART_TypeDef              *port;                ///< The peripheral used for EUART
+  bool                        useLowFrequencyMode;  ///< Clock configuration of the EUART
+  uint32_t                    baudRate;             ///< EUART baud rate
+  GPIO_Port_TypeDef           txPort;               ///< Port for UART Tx pin.
+  GPIO_Port_TypeDef           rxPort;               ///< Port for UART Rx pin.
+  uint8_t                     txPin;                ///< Pin number for UART Tx.
+  uint8_t                     rxPin;                ///< Pin number for UART Rx.
+  uint8_t                     uartNum;              ///< EUART instance number.
+  EUSART_Stopbits_TypeDef     stopBits;             ///< Number of stop bits
+  EUSART_Parity_TypeDef       parity;               ///< Parity configuration
+  EUSART_OVS_TypeDef          oversampling;         ///< Oversampling mode.
+  EUSART_MajorityVote_TypeDef mvdis;                ///< Majority Vote Disable for 16x, 8x and 6x oversampling modes.
+  UARTDRV_FlowControlType_t   fcType;               ///< Flow control mode
+  GPIO_Port_TypeDef           ctsPort;              ///< CTS pin port number
+  uint8_t                     ctsPin;               ///< CTS pin number
+  GPIO_Port_TypeDef           rtsPort;              ///< RTS pin port number
+  uint8_t                     rtsPin;               ///< RTS pin number
+  UARTDRV_Buffer_FifoQueue_t  *rxQueue;             ///< Receive operation queue
+  UARTDRV_Buffer_FifoQueue_t  *txQueue;             ///< Transmit operation queue
+} UARTDRV_InitEuart_t;
+#endif
+
+/// A UART driver instance handle data structure.
+/// Allocated by the application using UARTDRV.
+/// Several concurrent driver instances may exist in an application. The application must
+/// not modify the contents of this handle and should not depend on its values.
 typedef struct UARTDRV_HandleData{
   /// @cond DO_NOT_INCLUDE_WITH_DOXYGEN
-  union peripheral {
+  union {
     USART_TypeDef * uart;
+#if defined(LEUART_COUNT) && (LEUART_COUNT > 0) && !defined(_SILICON_LABS_32B_SERIES_2)
     LEUART_TypeDef * leuart;
+#endif
+#if defined(EUART_COUNT) && (EUART_COUNT > 0)
+    EUSART_TypeDef * euart;
+#endif
   } peripheral;
-  unsigned int               txDmaCh;           // DMA ch assigned to Tx
-  unsigned int               rxDmaCh;           // DMA ch assigned to Rx
-  DMADRV_PeripheralSignal_t  txDmaSignal;       // DMA Tx trigger source signal
-  DMADRV_PeripheralSignal_t  rxDmaSignal;       // DMA Rx trigger source signal
-  UARTDRV_FlowControlState_t fcSelfState;       // Current flow control state of self
-  UARTDRV_FlowControlState_t fcSelfCfg;         // Flow control override configuration of self
-  UARTDRV_FlowControlState_t fcPeerState;       // Current flow control state of peer
-  GPIO_Port_TypeDef          txPort;            // TX pin port number
-  GPIO_Port_TypeDef          rxPort;            // RX pin port number
-  GPIO_Port_TypeDef          ctsPort;           // CTS pin port number
-  GPIO_Port_TypeDef          rtsPort;           // RTS pin port number
-  uint8_t                    txPin;             // TX pin number
-  uint8_t                    rxPin;             // RX pin number
-  uint8_t                    ctsPin;            // CTS pin number
-  uint8_t                    rtsPin;            // RTS pin number
-  CMU_Clock_TypeDef          uartClock;         // Clock source select
-  UARTDRV_Buffer_FifoQueue_t *rxQueue;          // Receive operation queue
-  UARTDRV_Buffer_FifoQueue_t *txQueue;          // Transmit operation queue
-  volatile bool              rxDmaActive;       // Receive DMA is currently active
-  volatile bool              txDmaActive;       // Transmit DMA is currently active
-  volatile uint8_t           txDmaPaused;       // Transmit DMA pause counter
-  bool                       IgnoreRestrain;    // Transmit does not respect uartdrvFlowControlOff
-  bool                       hasTransmitted;    // Whether the handle has transmitted data
-  UARTDRV_FlowControlType_t  fcType;            // Flow control mode
-  UARTDRV_UartType_t         type;              // Type of UART
+#if defined(_GPIO_USART_ROUTEEN_MASK) || defined(_GPIO_EUART_ROUTEEN_MASK)
+  uint8_t                    uartNum;           // UART instance number
+#endif
+  unsigned int               txDmaCh;           // A DMA ch assigned to Tx
+  unsigned int               rxDmaCh;           // A DMA ch assigned to Rx
+  DMADRV_PeripheralSignal_t  txDmaSignal;       // A DMA Tx trigger source signal
+  DMADRV_PeripheralSignal_t  rxDmaSignal;       // A DMA Rx trigger source signal
+  UARTDRV_FlowControlState_t fcSelfState;       // A current self flow control state
+  UARTDRV_FlowControlState_t fcSelfCfg;         // A self flow control override configuration
+  UARTDRV_FlowControlState_t fcPeerState;       // A current peer flow control state
+  GPIO_Port_TypeDef          txPort;            // A Tx pin port number
+  GPIO_Port_TypeDef          rxPort;            // An Rx pin port number
+  GPIO_Port_TypeDef          ctsPort;           // A CTS pin port number
+  GPIO_Port_TypeDef          rtsPort;           // An RTS pin port number
+  uint8_t                    txPin;             // A Tx pin number
+  uint8_t                    rxPin;             // An Tx pin number
+  uint8_t                    ctsPin;            // A CTS pin number
+  uint8_t                    rtsPin;            // An RTS pin number
+  CMU_Clock_TypeDef          uartClock;         // A clock source select
+  UARTDRV_Buffer_FifoQueue_t *rxQueue;          // A receive operation queue
+  UARTDRV_Buffer_FifoQueue_t *txQueue;          // A transmit operation queue
+  volatile bool              rxDmaActive;       // A receive DMA is currently active
+  volatile bool              txDmaActive;       // A transmit DMA is currently active
+  volatile uint8_t           txDmaPaused;       // A transmit DMA pause counter
+  bool                       IgnoreRestrain;    // A transmit does not respect uartdrvFlowControlOff
+  bool                       hasTransmitted;    // Indicates whether the handle has transmitted data
+  UARTDRV_FlowControlType_t  fcType;            // A flow control mode
+  UARTDRV_UartType_t         type;              // A type of UART
   /// @endcond
 } UARTDRV_HandleData_t;
 
@@ -269,9 +323,15 @@ typedef UARTDRV_HandleData_t * UARTDRV_Handle_t;
 Ecode_t UARTDRV_InitUart(UARTDRV_Handle_t handle,
                          const UARTDRV_InitUart_t * initData);
 
+#if defined(LEUART_COUNT) && (LEUART_COUNT > 0) && !defined(_SILICON_LABS_32B_SERIES_2)
 Ecode_t UARTDRV_InitLeuart(UARTDRV_Handle_t handle,
                            const UARTDRV_InitLeuart_t * initData);
+#endif
 
+#if defined(EUART_COUNT) && (EUART_COUNT > 0)
+Ecode_t UARTDRV_InitEuart(UARTDRV_Handle_t handle,
+                          const UARTDRV_InitEuart_t * initData);
+#endif
 Ecode_t UARTDRV_DeInit(UARTDRV_Handle_t handle);
 
 UARTDRV_Status_t UARTDRV_GetPeripheralStatus(UARTDRV_Handle_t handle);
@@ -340,16 +400,16 @@ Ecode_t UARTDRV_FlowControlIgnoreRestrain(UARTDRV_Handle_t handle);
  *    Initialize a U(S)ART driver instance.
  *
  * @deprecated
- *    This function is deprecated. Use @ref UARTDRV_InitUart() instead.
+ *    Deprecated; Use @ref UARTDRV_InitUart() instead.
  *
- * @param[out] handle  Pointer to a UARTDRV handle, refer to @ref
+ * @param[out] handle  A pointer to a UARTDRV handle, refer to @ref
  *                     UARTDRV_Handle_t.
  *
- * @param[in] initData Pointer to an initialization data structure,
+ * @param[in] initData A pointer to an initialization data structure,
  *                     refer to @ref UARTDRV_InitUart_t.
  *
  * @return
- *    @ref ECODE_EMDRV_UARTDRV_OK on success. On failure an appropriate
+ *    @ref ECODE_EMDRV_UARTDRV_OK on success. On failure, an appropriate
  *    UARTDRV @ref Ecode_t is returned.
  ******************************************************************************/
 __STATIC_INLINE Ecode_t UARTDRV_Init(UARTDRV_Handle_t handle, UARTDRV_InitUart_t *initData)

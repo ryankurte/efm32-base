@@ -1,35 +1,34 @@
-/* -----------------------------------------------------------------------------
- * Copyright (c) 2013-2014 ARM Ltd.
+/*
+ * Copyright (c) 2013-2017 ARM Limited. All rights reserved.
  *
- * This software is provided 'as-is', without any express or implied warranty.
- * In no event will the authors be held liable for any damages arising from
- * the use of this software. Permission is granted to anyone to use this
- * software for any purpose, including commercial applications, and to alter
- * it and redistribute it freely, subject to the following restrictions:
+ * SPDX-License-Identifier: Apache-2.0
  *
- * 1. The origin of this software must not be misrepresented; you must not
- *    claim that you wrote the original software. If you use this software in
- *    a product, an acknowledgment in the product documentation would be
- *    appreciated but is not required.
+ * Licensed under the Apache License, Version 2.0 (the License); you may
+ * not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * 2. Altered source versions must be plainly marked as such, and must not be
- *    misrepresented as being the original software.
+ * www.apache.org/licenses/LICENSE-2.0
  *
- * 3. This notice may not be removed or altered from any source distribution.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an AS IS BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  *
- *
- * $Date:        9. May 2014
- * $Revision:    V2.02
+ * $Date:        2. Feb 2017
+ * $Revision:    V2.3
  *
  * Project:      I2C (Inter-Integrated Circuit) Driver definitions
- * -------------------------------------------------------------------------- */
+ */
 
 /* History:
- *  Version 2.02
+ *  Version 2.3
+ *    ARM_I2C_STATUS made volatile
+ *  Version 2.2
  *    Removed function ARM_I2C_MasterTransfer in order to simplify drivers
  *      and added back parameter "xfer_pending" to functions
  *      ARM_I2C_MasterTransmit and ARM_I2C_MasterReceive
- *  Version 2.01
+ *  Version 2.1
  *    Added function ARM_I2C_MasterTransfer and removed parameter "xfer_pending"
  *      from functions ARM_I2C_MasterTransmit and ARM_I2C_MasterReceive
  *    Added function ARM_I2C_GetDataCount
@@ -38,7 +37,7 @@
  *      with event ARM_I2C_EVENT_TRANSFER_DONE
  *    Added event ARM_I2C_EVENT_TRANSFER_INCOMPLETE
  *    Removed parameter "arg" from function ARM_I2C_SignalEvent
- *  Version 2.00
+ *  Version 2.0
  *    New simplified driver:
  *      complexity moved to upper layer (especially data handling)
  *      more unified API for different communication interfaces
@@ -51,12 +50,17 @@
  *    Initial release
  */
 
-#ifndef __DRIVER_I2C_H
-#define __DRIVER_I2C_H
+#ifndef DRIVER_I2C_H_
+#define DRIVER_I2C_H_
+
+#ifdef  __cplusplus
+extern "C"
+{
+#endif
 
 #include "Driver_Common.h"
 
-#define ARM_I2C_API_VERSION ARM_DRIVER_VERSION_MAJOR_MINOR(2,02)  /* API version */
+#define ARM_I2C_API_VERSION ARM_DRIVER_VERSION_MAJOR_MINOR(2,3)  /* API version */
 
 
 /****** I2C Control Codes *****/
@@ -75,20 +79,21 @@
 
 /****** I2C Address Flags *****/
 
-#define ARM_I2C_ADDRESS_10BIT           0x0400      ///< 10-bit address flag
-#define ARM_I2C_ADDRESS_GC              0x8000      ///< General Call flag
+#define ARM_I2C_ADDRESS_10BIT           (0x0400)    ///< 10-bit address flag
+#define ARM_I2C_ADDRESS_GC              (0x8000)    ///< General Call flag
 
 
 /**
 \brief I2C Status
 */
-typedef struct _ARM_I2C_STATUS {
+typedef volatile struct _ARM_I2C_STATUS {
   uint32_t busy             : 1;        ///< Busy flag
   uint32_t mode             : 1;        ///< Mode: 0=Slave, 1=Master
   uint32_t direction        : 1;        ///< Direction: 0=Transmitter, 1=Receiver
   uint32_t general_call     : 1;        ///< General Call indication (cleared on start of next Slave operation)
   uint32_t arbitration_lost : 1;        ///< Master lost arbitration (cleared on start of next Master operation)
   uint32_t bus_error        : 1;        ///< Bus error detected (cleared on start of next Master/Slave operation)
+  uint32_t reserved         : 26;
 } ARM_I2C_STATUS;
 
 
@@ -183,6 +188,7 @@ typedef void (*ARM_I2C_SignalEvent_t) (uint32_t event);  ///< Pointer to \ref AR
 */
 typedef struct _ARM_I2C_CAPABILITIES {
   uint32_t address_10_bit : 1;          ///< supports 10-bit addressing
+  uint32_t reserved       : 31;         ///< Reserved (must be zero)
 } ARM_I2C_CAPABILITIES;
 
 
@@ -204,4 +210,8 @@ typedef struct _ARM_DRIVER_I2C {
   ARM_I2C_STATUS       (*GetStatus)      (void);                                                                ///< Pointer to \ref ARM_I2C_GetStatus : Get I2C status.
 } const ARM_DRIVER_I2C;
 
-#endif /* __DRIVER_I2C_H */
+#ifdef  __cplusplus
+}
+#endif
+
+#endif /* DRIVER_I2C_H_ */

@@ -1,43 +1,43 @@
-/*
- * @file startup_efm32g.c
+/***************************************************************************//**
+ * @file
  * @brief CMSIS Compatible EFM32G startup file in C.
  *        Should be used with GCC 'GNU Tools ARM Embedded'
- * @version 5.2.1
- * Date:    12 June 2014
+ * @version 5.8.0
+ *******************************************************************************
+ * # License
  *
+ * The licensor of this software is Silicon Laboratories Inc. Your use of this
+ * software is governed by the terms of Silicon Labs Master Software License
+ * Agreement (MSLA) available at
+ * www.silabs.com/about-us/legal/master-software-license-agreement. This
+ * software is Third Party Software licensed by Silicon Labs from a third party
+ * and is governed by the sections of the MSLA applicable to Third Party
+ * Software and the additional terms set forth below.
+ *
+ ******************************************************************************/
+/*
+ * Copyright (c) 2009-2018 Arm Limited. All rights reserved.
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ * Licensed under the Apache License, Version 2.0 (the License); you may
+ * not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an AS IS BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
-/* Copyright (c) 2011 - 2014 ARM LIMITED
-
-   All rights reserved.
-   Redistribution and use in source and binary forms, with or without
-   modification, are permitted provided that the following conditions are met:
-   - Redistributions of source code must retain the above copyright
-     notice, this list of conditions and the following disclaimer.
-   - Redistributions in binary form must reproduce the above copyright
-     notice, this list of conditions and the following disclaimer in the
-     documentation and/or other materials provided with the distribution.
-   - Neither the name of ARM nor the names of its contributors may be used
-     to endorse or promote products derived from this software without
-     specific prior written permission.
-   *
-   THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-   AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-   IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
-   ARE DISCLAIMED. IN NO EVENT SHALL COPYRIGHT HOLDERS AND CONTRIBUTORS BE
-   LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
-   CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
-   SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
-   INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
-   CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
-   ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
-   POSSIBILITY OF SUCH DAMAGE.
-   ---------------------------------------------------------------------------*/
-
 
 #include <stdint.h>
+#include <stdbool.h>
 
 /*----------------------------------------------------------------------------
-  Linker generated Symbols
+ * Linker generated Symbols
  *----------------------------------------------------------------------------*/
 extern uint32_t __etext;
 extern uint32_t __data_start__;
@@ -51,13 +51,15 @@ extern uint32_t __bss_end__;
 extern uint32_t __StackTop;
 
 /*----------------------------------------------------------------------------
-  Exception / Interrupt Handler Function Prototype
+ * Exception / Interrupt Handler Function Prototype
  *----------------------------------------------------------------------------*/
-typedef void( *pFunc )( void );
-
+typedef union {
+  void (*pFunc)(void);
+  void *topOfStack;
+} tVectorEntry;
 
 /*----------------------------------------------------------------------------
-  External References
+ * External References
  *----------------------------------------------------------------------------*/
 #ifndef __START
 extern void  _start(void) __attribute__((noreturn));    /* Pre Main (C library entry point) */
@@ -66,146 +68,146 @@ extern int  __START(void) __attribute__((noreturn));    /* main entry point */
 #endif
 
 #ifndef __NO_SYSTEM_INIT
-extern void SystemInit (void);            /* CMSIS System Initialization      */
+extern void SystemInit(void);             /* CMSIS System Initialization      */
 #endif
 
-
 /*----------------------------------------------------------------------------
-  Internal References
+ * Internal References
  *----------------------------------------------------------------------------*/
 void Default_Handler(void);                          /* Default empty handler */
 void Reset_Handler(void);                            /* Reset Handler */
 
-
 /*----------------------------------------------------------------------------
-  User Initial Stack & Heap
+ * User Initial Stack & Heap
  *----------------------------------------------------------------------------*/
 #ifndef __STACK_SIZE
-#define __STACK_SIZE  0x00000400
+#define __STACK_SIZE    0x00000400
 #endif
 static uint8_t stack[__STACK_SIZE] __attribute__ ((aligned(8), used, section(".stack")));
 
 #ifndef __HEAP_SIZE
-#define __HEAP_SIZE   0x00000C00
+#define __HEAP_SIZE    0x00000C00
 #endif
 #if __HEAP_SIZE > 0
 static uint8_t heap[__HEAP_SIZE]   __attribute__ ((aligned(8), used, section(".heap")));
 #endif
 
-
 /*----------------------------------------------------------------------------
-  Exception / Interrupt Handler
+ * Exception / Interrupt Handler
  *----------------------------------------------------------------------------*/
 /* Cortex-M Processor Exceptions */
-void NMI_Handler         (void) __attribute__ ((weak, alias("Default_Handler")));
-void HardFault_Handler   (void) __attribute__ ((weak, alias("Default_Handler")));
-void MemManage_Handler   (void) __attribute__ ((weak, alias("Default_Handler")));
-void BusFault_Handler    (void) __attribute__ ((weak, alias("Default_Handler")));
-void UsageFault_Handler  (void) __attribute__ ((weak, alias("Default_Handler")));
-void DebugMon_Handler    (void) __attribute__ ((weak, alias("Default_Handler")));
-void SVC_Handler         (void) __attribute__ ((weak, alias("Default_Handler")));
-void PendSV_Handler      (void) __attribute__ ((weak, alias("Default_Handler")));
-void SysTick_Handler     (void) __attribute__ ((weak, alias("Default_Handler")));
+void NMI_Handler(void)               __attribute__ ((weak, alias("Default_Handler")));
+void HardFault_Handler(void)         __attribute__ ((weak, alias("Default_Handler")));
+void MemManage_Handler(void)         __attribute__ ((weak, alias("Default_Handler")));
+void BusFault_Handler(void)          __attribute__ ((weak, alias("Default_Handler")));
+void UsageFault_Handler(void)        __attribute__ ((weak, alias("Default_Handler")));
+void DebugMon_Handler(void)          __attribute__ ((weak, alias("Default_Handler")));
+void SVC_Handler(void)               __attribute__ ((weak, alias("Default_Handler")));
+void PendSV_Handler(void)            __attribute__ ((weak, alias("Default_Handler")));
+void SysTick_Handler(void)           __attribute__ ((weak, alias("Default_Handler")));
+/* Provide a dummy value for the sl_app_properties symbol. */
+void sl_app_properties(void);     /* Prototype to please MISRA checkers. */
+void sl_app_properties(void)         __attribute__ ((weak, alias("Default_Handler")));
 
 /* Part Specific Interrupts */
-void DMA_IRQHandler(void) __attribute__ ((weak, alias("Default_Handler")));
-void GPIO_EVEN_IRQHandler(void) __attribute__ ((weak, alias("Default_Handler")));
-void TIMER0_IRQHandler(void) __attribute__ ((weak, alias("Default_Handler")));
-void USART0_RX_IRQHandler(void) __attribute__ ((weak, alias("Default_Handler")));
-void USART0_TX_IRQHandler(void) __attribute__ ((weak, alias("Default_Handler")));
-void ACMP0_IRQHandler(void) __attribute__ ((weak, alias("Default_Handler")));
-void ADC0_IRQHandler(void) __attribute__ ((weak, alias("Default_Handler")));
-void DAC0_IRQHandler(void) __attribute__ ((weak, alias("Default_Handler")));
-void I2C0_IRQHandler(void) __attribute__ ((weak, alias("Default_Handler")));
-void GPIO_ODD_IRQHandler(void) __attribute__ ((weak, alias("Default_Handler")));
-void TIMER1_IRQHandler(void) __attribute__ ((weak, alias("Default_Handler")));
-void TIMER2_IRQHandler(void) __attribute__ ((weak, alias("Default_Handler")));
-void USART1_RX_IRQHandler(void) __attribute__ ((weak, alias("Default_Handler")));
-void USART1_TX_IRQHandler(void) __attribute__ ((weak, alias("Default_Handler")));
-void USART2_RX_IRQHandler(void) __attribute__ ((weak, alias("Default_Handler")));
-void USART2_TX_IRQHandler(void) __attribute__ ((weak, alias("Default_Handler")));
-void UART0_RX_IRQHandler(void) __attribute__ ((weak, alias("Default_Handler")));
-void UART0_TX_IRQHandler(void) __attribute__ ((weak, alias("Default_Handler")));
-void LEUART0_IRQHandler(void) __attribute__ ((weak, alias("Default_Handler")));
-void LEUART1_IRQHandler(void) __attribute__ ((weak, alias("Default_Handler")));
-void LETIMER0_IRQHandler(void) __attribute__ ((weak, alias("Default_Handler")));
-void PCNT0_IRQHandler(void) __attribute__ ((weak, alias("Default_Handler")));
-void PCNT1_IRQHandler(void) __attribute__ ((weak, alias("Default_Handler")));
-void PCNT2_IRQHandler(void) __attribute__ ((weak, alias("Default_Handler")));
-void RTC_IRQHandler(void) __attribute__ ((weak, alias("Default_Handler")));
-void CMU_IRQHandler(void) __attribute__ ((weak, alias("Default_Handler")));
-void VCMP_IRQHandler(void) __attribute__ ((weak, alias("Default_Handler")));
-void LCD_IRQHandler(void) __attribute__ ((weak, alias("Default_Handler")));
-void MSC_IRQHandler(void) __attribute__ ((weak, alias("Default_Handler")));
-void AES_IRQHandler(void) __attribute__ ((weak, alias("Default_Handler")));
-
-
+void DMA_IRQHandler(void)            __attribute__ ((weak, alias("Default_Handler")));
+void GPIO_EVEN_IRQHandler(void)      __attribute__ ((weak, alias("Default_Handler")));
+void TIMER0_IRQHandler(void)         __attribute__ ((weak, alias("Default_Handler")));
+void USART0_RX_IRQHandler(void)      __attribute__ ((weak, alias("Default_Handler")));
+void USART0_TX_IRQHandler(void)      __attribute__ ((weak, alias("Default_Handler")));
+void ACMP0_IRQHandler(void)          __attribute__ ((weak, alias("Default_Handler")));
+void ADC0_IRQHandler(void)           __attribute__ ((weak, alias("Default_Handler")));
+void DAC0_IRQHandler(void)           __attribute__ ((weak, alias("Default_Handler")));
+void I2C0_IRQHandler(void)           __attribute__ ((weak, alias("Default_Handler")));
+void GPIO_ODD_IRQHandler(void)       __attribute__ ((weak, alias("Default_Handler")));
+void TIMER1_IRQHandler(void)         __attribute__ ((weak, alias("Default_Handler")));
+void TIMER2_IRQHandler(void)         __attribute__ ((weak, alias("Default_Handler")));
+void USART1_RX_IRQHandler(void)      __attribute__ ((weak, alias("Default_Handler")));
+void USART1_TX_IRQHandler(void)      __attribute__ ((weak, alias("Default_Handler")));
+void USART2_RX_IRQHandler(void)      __attribute__ ((weak, alias("Default_Handler")));
+void USART2_TX_IRQHandler(void)      __attribute__ ((weak, alias("Default_Handler")));
+void UART0_RX_IRQHandler(void)       __attribute__ ((weak, alias("Default_Handler")));
+void UART0_TX_IRQHandler(void)       __attribute__ ((weak, alias("Default_Handler")));
+void LEUART0_IRQHandler(void)        __attribute__ ((weak, alias("Default_Handler")));
+void LEUART1_IRQHandler(void)        __attribute__ ((weak, alias("Default_Handler")));
+void LETIMER0_IRQHandler(void)       __attribute__ ((weak, alias("Default_Handler")));
+void PCNT0_IRQHandler(void)          __attribute__ ((weak, alias("Default_Handler")));
+void PCNT1_IRQHandler(void)          __attribute__ ((weak, alias("Default_Handler")));
+void PCNT2_IRQHandler(void)          __attribute__ ((weak, alias("Default_Handler")));
+void RTC_IRQHandler(void)            __attribute__ ((weak, alias("Default_Handler")));
+void CMU_IRQHandler(void)            __attribute__ ((weak, alias("Default_Handler")));
+void VCMP_IRQHandler(void)           __attribute__ ((weak, alias("Default_Handler")));
+void LCD_IRQHandler(void)            __attribute__ ((weak, alias("Default_Handler")));
+void MSC_IRQHandler(void)            __attribute__ ((weak, alias("Default_Handler")));
+void AES_IRQHandler(void)            __attribute__ ((weak, alias("Default_Handler")));
 
 /*----------------------------------------------------------------------------
-  Exception / Interrupt Vector table
+ * Exception / Interrupt Vector table
  *----------------------------------------------------------------------------*/
-const pFunc __Vectors[] __attribute__ ((section(".vectors"))) = {
+extern const tVectorEntry __Vectors[];
+const tVectorEntry        __Vectors[] __attribute__ ((section(".vectors"))) = {
   /* Cortex-M Exception Handlers */
-  (pFunc)&__StackTop,                       /*      Initial Stack Pointer     */
-  Reset_Handler,                            /*      Reset Handler             */
-  NMI_Handler,                              /*      NMI Handler               */
-  HardFault_Handler,                        /*      Hard Fault Handler        */
-  MemManage_Handler,                        /*      MPU Fault Handler         */
-  BusFault_Handler,                         /*      Bus Fault Handler         */
-  UsageFault_Handler,                       /*      Usage Fault Handler       */
-  Default_Handler,                          /*      Reserved                  */
-  Default_Handler,                          /*      Reserved                  */
-  Default_Handler,                          /*      Reserved                  */
-  Default_Handler,                          /*      Reserved                  */
-  SVC_Handler,                              /*      SVCall Handler            */
-  DebugMon_Handler,                         /*      Debug Monitor Handler     */
-  Default_Handler,                          /*      Reserved                  */
-  PendSV_Handler,                           /*      PendSV Handler            */
-  SysTick_Handler,                          /*      SysTick Handler           */
+  { .topOfStack = &__StackTop },              /* Initial Stack Pointer */
+  { Reset_Handler             },              /* Reset Handler */
+  { NMI_Handler               },              /* NMI Handler */
+  { HardFault_Handler         },              /* Hard Fault Handler */
+  { MemManage_Handler         },              /* MPU Fault Handler */
+  { BusFault_Handler          },              /* Bus Fault Handler */
+  { UsageFault_Handler        },              /* Usage Fault Handler */
+  { Default_Handler           },              /* Reserved */
+  { Default_Handler           },              /* Reserved */
+  { Default_Handler           },              /* Reserved */
+  { Default_Handler           },              /* Reserved */
+  { SVC_Handler               },              /* SVCall Handler */
+  { DebugMon_Handler          },              /* Debug Monitor Handler */
+  { sl_app_properties         },              /* Application properties*/
+  { PendSV_Handler            },              /* PendSV Handler */
+  { SysTick_Handler           },              /* SysTick Handler */
 
   /* External interrupts */
 
-  DMA_IRQHandler,                       /*  0 - DMA       */
-  GPIO_EVEN_IRQHandler,                       /*  1 - GPIO_EVEN       */
-  TIMER0_IRQHandler,                       /*  2 - TIMER0       */
-  USART0_RX_IRQHandler,                       /*  3 - USART0_RX       */
-  USART0_TX_IRQHandler,                       /*  4 - USART0_TX       */
-  ACMP0_IRQHandler,                       /*  5 - ACMP0       */
-  ADC0_IRQHandler,                       /*  6 - ADC0       */
-  DAC0_IRQHandler,                       /*  7 - DAC0       */
-  I2C0_IRQHandler,                       /*  8 - I2C0       */
-  GPIO_ODD_IRQHandler,                       /*  9 - GPIO_ODD       */
-  TIMER1_IRQHandler,                       /*  10 - TIMER1       */
-  TIMER2_IRQHandler,                       /*  11 - TIMER2       */
-  USART1_RX_IRQHandler,                       /*  12 - USART1_RX       */
-  USART1_TX_IRQHandler,                       /*  13 - USART1_TX       */
-  USART2_RX_IRQHandler,                       /*  14 - USART2_RX       */
-  USART2_TX_IRQHandler,                       /*  15 - USART2_TX       */
-  UART0_RX_IRQHandler,                       /*  16 - UART0_RX       */
-  UART0_TX_IRQHandler,                       /*  17 - UART0_TX       */
-  LEUART0_IRQHandler,                       /*  18 - LEUART0       */
-  LEUART1_IRQHandler,                       /*  19 - LEUART1       */
-  LETIMER0_IRQHandler,                       /*  20 - LETIMER0       */
-  PCNT0_IRQHandler,                       /*  21 - PCNT0       */
-  PCNT1_IRQHandler,                       /*  22 - PCNT1       */
-  PCNT2_IRQHandler,                       /*  23 - PCNT2       */
-  RTC_IRQHandler,                       /*  24 - RTC       */
-  CMU_IRQHandler,                       /*  25 - CMU       */
-  VCMP_IRQHandler,                       /*  26 - VCMP       */
-  LCD_IRQHandler,                       /*  27 - LCD       */
-  MSC_IRQHandler,                       /*  28 - MSC       */
-  AES_IRQHandler,                       /*  29 - AES       */
-  Default_Handler,                          /*  30 - Reserved      */
-
+  { DMA_IRQHandler            },              /* 0 */
+  { GPIO_EVEN_IRQHandler      },              /* 1 */
+  { TIMER0_IRQHandler         },              /* 2 */
+  { USART0_RX_IRQHandler      },              /* 3 */
+  { USART0_TX_IRQHandler      },              /* 4 */
+  { ACMP0_IRQHandler          },              /* 5 */
+  { ADC0_IRQHandler           },              /* 6 */
+  { DAC0_IRQHandler           },              /* 7 */
+  { I2C0_IRQHandler           },              /* 8 */
+  { GPIO_ODD_IRQHandler       },              /* 9 */
+  { TIMER1_IRQHandler         },              /* 10 */
+  { TIMER2_IRQHandler         },              /* 11 */
+  { USART1_RX_IRQHandler      },              /* 12 */
+  { USART1_TX_IRQHandler      },              /* 13 */
+  { USART2_RX_IRQHandler      },              /* 14 */
+  { USART2_TX_IRQHandler      },              /* 15 */
+  { UART0_RX_IRQHandler       },              /* 16 */
+  { UART0_TX_IRQHandler       },              /* 17 */
+  { LEUART0_IRQHandler        },              /* 18 */
+  { LEUART1_IRQHandler        },              /* 19 */
+  { LETIMER0_IRQHandler       },              /* 20 */
+  { PCNT0_IRQHandler          },              /* 21 */
+  { PCNT1_IRQHandler          },              /* 22 */
+  { PCNT2_IRQHandler          },              /* 23 */
+  { RTC_IRQHandler            },              /* 24 */
+  { CMU_IRQHandler            },              /* 25 */
+  { VCMP_IRQHandler           },              /* 26 */
+  { LCD_IRQHandler            },              /* 27 */
+  { MSC_IRQHandler            },              /* 28 */
+  { AES_IRQHandler            },              /* 29 */
+  { Default_Handler           },              /* 30 - Reserved */
 };
 
-
 /*----------------------------------------------------------------------------
-  Reset Handler called on controller reset
+ * Reset Handler called on controller reset
  *----------------------------------------------------------------------------*/
-void Reset_Handler(void) {
+void Reset_Handler(void)
+{
   uint32_t *pSrc, *pDest;
-  uint32_t *pTable __attribute__((unused));
+  uint32_t start, end;
+  uint32_t tableStart __attribute__((unused));
+  uint32_t tableEnd   __attribute__((unused));
 
 #ifndef __NO_SYSTEM_INIT
   SystemInit();
@@ -228,14 +230,15 @@ void Reset_Handler(void) {
  *
  *  All addresses must be aligned to 4 bytes boundary.
  */
-  pTable = &__copy_table_start__;
+  tableStart = (uint32_t) &__copy_table_start__;
+  tableEnd   = (uint32_t) &__copy_table_end__;
 
-  for (; pTable < &__copy_table_end__; pTable = pTable + 3)
-  {
-    pSrc  = (uint32_t*)*(pTable + 0);
-    pDest = (uint32_t*)*(pTable + 1);
-    for (; pDest < (uint32_t*)(*(pTable + 1) + *(pTable + 2)) ; )
-    {
+  for (; tableStart < tableEnd; tableStart += 12U) {
+    pSrc  = (uint32_t *) (*(uint32_t *) tableStart);
+    start = *(uint32_t *) (tableStart + 4U);
+    end   = *(uint32_t *) (tableStart + 8U) + start;
+    pDest = (uint32_t *) start;
+    for (; start < end; start += 4U) {
       *pDest++ = *pSrc++;
     }
   }
@@ -251,9 +254,10 @@ void Reset_Handler(void) {
  */
   pSrc  = &__etext;
   pDest = &__data_start__;
+  start = (uint32_t) &__data_start__;
+  end   = (uint32_t) &__data_end__;
 
-  for ( ; pDest < &__data_end__ ; )
-  {
+  for (; start < end; start += 4U) {
     *pDest++ = *pSrc++;
   }
 #endif /*__STARTUP_COPY_MULTIPLE */
@@ -276,14 +280,15 @@ void Reset_Handler(void) {
  *    offset 0: Start of a BSS section
  *    offset 4: Size of this BSS section. Must be multiply of 4
  */
-  pTable = &__zero_table_start__;
+  tableStart = (uint32_t) &__zero_table_start__;
+  tableEnd   = (uint32_t) &__zero_table_end__;
 
-  for (; pTable < &__zero_table_end__; pTable = pTable + 2)
-  {
-    pDest = (uint32_t*)*(pTable + 0);
-    for (; pDest < (uint32_t*)(*(pTable + 0) + *(pTable + 1)) ; )
-    {
-      *pDest++ = 0;
+  for (; tableStart < tableEnd; tableStart += 8U) {
+    start = *(uint32_t *) tableStart;
+    end   = *(uint32_t *) (tableStart + 4U) + start;
+    pDest = (uint32_t *) start;
+    for (; start < end; start += 4U) {
+      *pDest++ = 0UL;
     }
   }
 #elif defined (__STARTUP_CLEAR_BSS)
@@ -296,25 +301,25 @@ void Reset_Handler(void) {
  *  Both addresses must be aligned to 4 bytes boundary.
  */
   pDest = &__bss_start__;
+  start = (uint32_t) &__bss_start__;
+  end   = (uint32_t) &__bss_end__;
 
-  for ( ; pDest < &__bss_end__ ; )
-  {
-    *pDest++ = 0ul;
+  for (; start < end; start += 4U) {
+    *pDest++ = 0UL;
   }
 #endif /* __STARTUP_CLEAR_BSS_MULTIPLE || __STARTUP_CLEAR_BSS */
 
 #ifndef __START
-#define __START _start
+#define __START    _start
 #endif
   __START();
 }
 
-
 /*----------------------------------------------------------------------------
-  Default Handler for Exceptions / Interrupts
+ * Default Handler for Exceptions / Interrupts
  *----------------------------------------------------------------------------*/
 void Default_Handler(void)
 {
-  while(1);
+  while (true) {
+  }
 }
-

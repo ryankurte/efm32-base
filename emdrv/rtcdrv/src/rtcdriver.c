@@ -1,15 +1,17 @@
 /***************************************************************************//**
- * @file rtcdriver.c
+ * @file
  * @brief RTCDRV timer API implementation.
- * @version 5.2.1
  *******************************************************************************
  * # License
- * <b>(C) Copyright 2014 Silicon Labs, http://www.silabs.com</b>
+ * <b>Copyright 2018 Silicon Laboratories Inc. www.silabs.com</b>
  *******************************************************************************
  *
- * This file is licensed under the Silabs License Agreement. See the file
- * "Silabs_License_Agreement.txt" for details. Before using this software for
- * any purpose, you must agree to the terms of that agreement.
+ * The licensor of this software is Silicon Laboratories Inc.  Your use of this
+ * software is governed by the terms of Silicon Labs Master Software License
+ * Agreement (MSLA) available at
+ * www.silabs.com/about-us/legal/master-software-license-agreement.  This
+ * software is distributed to you in Source Code format and is governed by the
+ * sections of the MSLA applicable to Source Code.
  *
  ******************************************************************************/
 
@@ -54,7 +56,7 @@
 #endif
 
 //
-// Various #define's to enable use of both RTC and RTCC.
+// Various #defines to enable use of both RTC and RTCC.
 //
 #if defined(RTCDRV_USE_RTCC)
 #define TIMEDIFF(a, b)              ((a) - (b))
@@ -75,11 +77,15 @@
 #define NVIC_CLEARPENDINGIRQ()      NVIC_ClearPendingIRQ(RTCC_IRQn)
 #define NVIC_DISABLEIRQ()           NVIC_DisableIRQ(RTCC_IRQn)
 #define NVIC_ENABLEIRQ()            NVIC_EnableIRQ(RTCC_IRQn)
+#if defined(_SILICON_LABS_32B_SERIES_2)
+#define RTC_ONESHOT_TICK_ADJUST     1
+#else
 #define RTC_ONESHOT_TICK_ADJUST     0
+#endif
 
 #else
-// To get the math correct we must have the MSB of the underlying 24bit
-// counter in the MSB position of a uint32_t datatype.
+// To get the math correct MSB of the underlying 24bit
+// counter must be in the MSB position of a uint32_t datatype.
 #define TIMEDIFF(a, b)              ((( (a) << 8) - ((b) << 8) ) >> 8)
 #define RTC_COUNTERGET()            RTC_CounterGet()
 #define RTC_COUNTER_BITS            24
@@ -107,32 +113,32 @@
 #define RTC_CLOSE_TO_MAX_VALUE        (RTC_MAX_VALUE - 100UL)
 
 #if defined(_EFM32_GECKO_FAMILY)
-// Assume 32kHz RTC/RTCC clock, cmuClkDiv_2 prescaler, 16 ticks per millisecond
+// Assume 32 kHz RTC/RTCC clock, cmuClkDiv_2 prescaler, 16 ticks per millisecond
 #define RTC_DIVIDER                   (cmuClkDiv_2)
 #else
-// Assume 32kHz RTC/RTCC clock, cmuClkDiv_8 prescaler, 4 ticks per millisecond
-#define RTC_DIVIDER                   (cmuClkDiv_8)
+// Assume 32 kHz RTC/RTCC clock, cmuClkDiv_1 prescaler, 32 ticks per millisecond
+#define RTC_DIVIDER                   (1U)
 #endif
 
 #define RTC_CLOCK                     (32768U)
 #define MSEC_TO_TICKS_DIVIDER         (1000U * RTC_DIVIDER)
-#define MSEC_TO_TICKS_ROUNDING_FACTOR (MSEC_TO_TICKS_DIVIDER / 2)
+#define MSEC_TO_TICKS_ROUNDING_FACTOR (MSEC_TO_TICKS_DIVIDER / 2U)
 #define MSEC_TO_TICKS(ms)             ((((uint64_t)(ms) * RTC_CLOCK)     \
                                         + MSEC_TO_TICKS_ROUNDING_FACTOR) \
                                        / MSEC_TO_TICKS_DIVIDER)
 
-#define TICKS_TO_MSEC_ROUNDING_FACTOR (RTC_CLOCK / 2)
+#define TICKS_TO_MSEC_ROUNDING_FACTOR (RTC_CLOCK / 2U)
 #define TICKS_TO_MSEC(ticks)          ((((uint64_t)(ticks)               \
                                          * RTC_DIVIDER * 1000U)          \
                                         + TICKS_TO_MSEC_ROUNDING_FACTOR) \
                                        / RTC_CLOCK)
 
-#define TICKS_TO_SEC_ROUNDING_FACTOR  (RTC_CLOCK / 2)
+#define TICKS_TO_SEC_ROUNDING_FACTOR  (RTC_CLOCK / 2U)
 #define TICKS_TO_SEC(ticks)           ((((uint64_t)(ticks)              \
                                          * RTC_DIVIDER)                 \
                                         + TICKS_TO_SEC_ROUNDING_FACTOR) \
                                        / RTC_CLOCK)
-#define TICK_TIME_USEC                (1000000 * RTC_DIVIDER / RTC_CLOCK)
+#define TICK_TIME_USEC                (1000000U * RTC_DIVIDER / RTC_CLOCK)
 
 typedef struct Timer{
   uint64_t            remaining;
@@ -165,44 +171,42 @@ static uint32_t           wallClockTimeBase;
 #if defined(RTCDRV_USE_RTC)
 static const RTC_Init_TypeDef initRTC =
 {
-  true,  // Start counting when init completed.
+  true,  // Start counting when the initialization is complete.
   false, // Disable updating RTC during debug halt.
-  false  // Count until max. to wrap around.
+  false  // Count to maximum to wrap around.
 };
 
 #elif defined(RTCDRV_USE_RTCC)
 static RTCC_Init_TypeDef initRTCC =
 {
-  true,                 /* Start counting when init completed. */
+  true,                 /* Start counting when the initialization is complete. */
   false,                /* Disable updating RTC during debug halt. */
-  false,                /* Prescaler counts until max. before wrap around. */
-  false,                /* Counter counts until max. before wrap around. */
-  rtccCntPresc_8,       /* Set RTCC prescaler to 8 */
-  rtccCntTickPresc,     /* Count according to prescaler configuration */
+  false,                /* Prescaler counts to maximum before wrapping around. */
+  false,                /* Counter counts to maximum before wrapping around. */
+  rtccCntPresc_1,       /* Set RTCC prescaler to 1. */
+  rtccCntTickPresc,     /* Count according to the prescaler configuration. */
 #if defined(_RTCC_CTRL_BUMODETSEN_MASK)
   false,                /* Disable storing RTCC counter value in RTCC_CCV2 upon backup mode entry. */
 #endif
+#if defined(_RTCC_CTRL_OSCFDETEN_MASK)
   false,                /* LFXO fail detection disabled */
+#endif
+#if defined (_RTCC_CTRL_CNTMODE_MASK)
   rtccCntModeNormal,    /* Use RTCC in normal mode and not in calender mode */
+#endif
+#if defined (_RTCC_CTRL_LYEARCORRDIS_MASK)
   false                 /* No leap year correction. */
+#endif
 };
 
 static RTCC_CCChConf_TypeDef initRTCCCompareChannel =
-{
-  rtccCapComChModeCompare,    /* Use Compare mode */
-  rtccCompMatchOutActionPulse,/* Don't care */
-  rtccPRSCh0,                 /* PRS not used */
-  rtccInEdgeNone,             /* Capture Input not used */
-  rtccCompBaseCnt,            /* Compare with Base CNT register */
-  0,                          /* Compare mask */
-  rtccDayCompareModeMonth     /* Don't care */
-};
+  RTCC_CH_INIT_COMPARE_DEFAULT;
 #endif
 
-// default to LFXO unless specifically directed to use LFRCO or PLFRCO
+// Default to LFXO unless configured for LFRCO.
 #if defined(EMDRV_RTCDRV_USE_LFRCO)
   #define RTCDRV_OSC cmuSelect_LFRCO
-#elif defined(EMDRV_RTCDRV_USE_PLFRCO)
+#elif defined(EMDRV_RTCDRV_USE_PLFRCO) && defined(PLFRCO_PRESENT)
   #define RTCDRV_OSC cmuSelect_PLFRCO
 #else
   #define RTCDRV_OSC cmuSelect_LFXO
@@ -212,6 +216,9 @@ static void checkAllTimers(uint32_t timeElapsed);
 static void delayTicks(uint32_t ticks);
 static void executeTimerCallbacks(void);
 static void rescheduleRtc(uint32_t rtcCnt);
+#if defined(EMDRV_RTCDRV_WALLCLOCK_CONFIG)
+static void handleOverflow(void);
+#endif
 
 /// @endcond
 
@@ -222,12 +229,13 @@ static void rescheduleRtc(uint32_t rtcCnt);
  * @details
  *    Reserve a timer instance.
  *
- * @param[out] id The id of the reserved timer.
+ * @param[out] id The ID of the reserved timer.
  *
  * @return
  *    @ref ECODE_EMDRV_RTCDRV_OK on success.@n
  *    @ref ECODE_EMDRV_RTCDRV_ALL_TIMERS_USED when no timers are available.@n
- *    @ref ECODE_EMDRV_RTCDRV_PARAM_ERROR if an invalid id pointer was supplied.
+ *    @ref ECODE_EMDRV_RTCDRV_PARAM_ERROR if an invalid ID pointer was supplied.@n
+ *    @ref ECODE_EMDRV_RTCDRV_NOT_INITIALIZED if the driver is not initialized.
  ******************************************************************************/
 Ecode_t RTCDRV_AllocateTimer(RTCDRV_TimerID_t *id)
 {
@@ -235,13 +243,18 @@ Ecode_t RTCDRV_AllocateTimer(RTCDRV_TimerID_t *id)
   int i      = 0;
   Ecode_t retVal = 0;
 
+  // Check if driver is initialized.
+  if ( rtcdrvIsInitialized == false ) {
+    return ECODE_EMDRV_RTCDRV_NOT_INITIALIZED;
+  }
+
   CORE_ENTER_ATOMIC();
   // Iterate through the table of the timers until the first available.
   while ( (i < EMDRV_RTCDRV_NUM_TIMERS) && (timer[i].allocated) ) {
     i++;
   }
 
-  // Check if we reached the end of the table.
+  // Check if the end of the table is reached.
   if ( i == EMDRV_RTCDRV_NUM_TIMERS ) {
     retVal = ECODE_EMDRV_RTCDRV_ALL_TIMERS_USED;
   } else {
@@ -266,11 +279,17 @@ Ecode_t RTCDRV_AllocateTimer(RTCDRV_TimerID_t *id)
  * @param[in] ms Milliseconds to stay in the delay function.
  *
  * @return
- *    @ref ECODE_EMDRV_RTCDRV_OK.
+ *    @ref ECODE_EMDRV_RTCDRV_OK on success.@n
+ *    @ref ECODE_EMDRV_RTCDRV_NOT_INITIALIZED if the driver is not initialized.
  ******************************************************************************/
 Ecode_t RTCDRV_Delay(uint32_t ms)
 {
   uint64_t totalTicks;
+
+  // Check if driver is initialized.
+  if ( rtcdrvIsInitialized == false ) {
+    return ECODE_EMDRV_RTCDRV_NOT_INITIALIZED;
+  }
 
   totalTicks = MSEC_TO_TICKS(ms);
 
@@ -290,11 +309,11 @@ Ecode_t RTCDRV_Delay(uint32_t ms)
  * @details
  *    Release a reserved timer.
  *
- * @param[out] id The id of the timer to release.
+ * @param[out] id The ID of the timer to release.
  *
  * @return
  *    @ref ECODE_EMDRV_RTCDRV_OK on success.@n
- *    @ref ECODE_EMDRV_RTCDRV_ILLEGAL_TIMER_ID if id has an illegal value.
+ *    @ref ECODE_EMDRV_RTCDRV_ILLEGAL_TIMER_ID if the ID has an illegal value.
  ******************************************************************************/
 Ecode_t RTCDRV_FreeTimer(RTCDRV_TimerID_t id)
 {
@@ -313,10 +332,10 @@ Ecode_t RTCDRV_FreeTimer(RTCDRV_TimerID_t id)
 
 /***************************************************************************//**
  * @brief
- *    Initialize RTCDRV driver.
+ *    Initialize the RTCDRV driver.
  *
  * @details
- *    Will enable all necessary clocks. Initializes internal datastructures
+ *    Will enable all necessary clocks. Initializes internal data structures
  *    and configures the underlying hardware timer.
  *
  * @return
@@ -327,17 +346,22 @@ Ecode_t RTCDRV_Init(void)
   if ( rtcdrvIsInitialized == true ) {
     return ECODE_EMDRV_RTCDRV_OK;
   }
-  rtcdrvIsInitialized = true;
 
+#if defined(cmuClock_CORELE)
   // Ensure LE modules are clocked.
   CMU_ClockEnable(cmuClock_CORELE, true);
+#endif
 
 #if defined(CMU_LFECLKEN0_RTCC)
   // Enable LFECLK in CMU (will also enable oscillator if not enabled).
   CMU_ClockSelectSet(cmuClock_LFE, RTCDRV_OSC);
 #else
+#if defined(_SILICON_LABS_32B_SERIES_2)
+  CMU_ClockSelectSet(cmuClock_RTCC, RTCDRV_OSC);
+#else
   // Enable LFACLK in CMU (will also enable oscillator if not enabled).
   CMU_ClockSelectSet(cmuClock_LFA, RTCDRV_OSC);
+#endif
 #endif
 
 #if defined(RTCDRV_USE_RTC)
@@ -352,7 +376,11 @@ Ecode_t RTCDRV_Init(void)
 
 #elif defined(RTCDRV_USE_RTCC)
   // Set clock divider.
+#if defined(_SILICON_LABS_32B_SERIES_2)
+  initRTCC.presc = (RTCC_CntPresc_TypeDef)(31UL - __CLZ(RTC_DIVIDER));
+#else
   initRTCC.presc = (RTCC_CntPresc_TypeDef)CMU_DivToLog2(RTC_DIVIDER);
+#endif
 
   // Enable RTCC module clock.
   CMU_ClockEnable(cmuClock_RTCC, true);
@@ -360,7 +388,7 @@ Ecode_t RTCDRV_Init(void)
   // Initialize RTCC.
   RTCC_Init(&initRTCC);
 
-  // Set up Compare channel.
+  // Set up compare channel.
   RTCC_ChannelInit(1, &initRTCCCompareChannel);
 #endif
 
@@ -399,24 +427,31 @@ Ecode_t RTCDRV_Init(void)
 
 #endif
 
+  rtcdrvIsInitialized = true;
+#if defined(_SILICON_LABS_32B_SERIES_2)
+  RTCC_SyncWait();
+#endif
   return ECODE_EMDRV_RTCDRV_OK;
 }
 
 /***************************************************************************//**
  * @brief
- *    Deinitialize RTCDRV driver.
+ *    Deinitialize the RTCDRV driver.
  *
  * @details
  *    Will disable interrupts and turn off the clock to the underlying hardware
  *    timer.
- *    If integration with SLEEP module is enabled it will remove any
- *    restriction that are set on energy mode usage.
+ *    If the integration with the SLEEP module is enabled, it will remove any
+ *    restrictions that are set on energy mode usage.
  *
  * @return
  *    @ref ECODE_EMDRV_RTCDRV_OK.
  ******************************************************************************/
 Ecode_t RTCDRV_DeInit(void)
 {
+  // Mark the driver as uninitialized.
+  rtcdrvIsInitialized = false;
+
   // Disable and clear all interrupt sources.
   NVIC_DISABLEIRQ();
   RTC_INTDISABLE(RTC_ALL_INTS);
@@ -444,9 +479,6 @@ Ecode_t RTCDRV_DeInit(void)
   }
 #endif
 
-  // Mark the driver as uninitialized.
-  rtcdrvIsInitialized = false;
-
   return ECODE_EMDRV_RTCDRV_OK;
 }
 
@@ -454,21 +486,27 @@ Ecode_t RTCDRV_DeInit(void)
  * @brief
  *    Check if a given timer is running.
  *
- * @param[in] id The id of the timer to query.
+ * @param[in] id The ID of the timer to query.
  *
- * @param[out] isRunning True if timer is running. False if not running.
+ * @param[out] isRunning True if the timer is running. False if not running.
  *                       Only valid if return status is ECODE_EMDRV_RTCDRV_OK.
  *
  * @return
  *    @ref ECODE_EMDRV_RTCDRV_OK on success.@n
- *    @ref ECODE_EMDRV_RTCDRV_ILLEGAL_TIMER_ID if id has an illegal value. @n
+ *    @ref ECODE_EMDRV_RTCDRV_ILLEGAL_TIMER_ID if the ID has an illegal value. @n
  *    @ref ECODE_EMDRV_RTCDRV_TIMER_NOT_ALLOCATED if the timer is not reserved.@n
  *    @ref ECODE_EMDRV_RTCDRV_PARAM_ERROR if an invalid isRunning pointer was
- *         supplied.
+ *         supplied.@n
+ *    @ref ECODE_EMDRV_RTCDRV_NOT_INITIALIZED if the driver is not initialized.
  ******************************************************************************/
 Ecode_t RTCDRV_IsRunning(RTCDRV_TimerID_t id, bool *isRunning)
 {
   CORE_DECLARE_IRQ_STATE;
+
+  // Check if driver is initialized.
+  if ( rtcdrvIsInitialized == false ) {
+    return ECODE_EMDRV_RTCDRV_NOT_INITIALIZED;
+  }
 
   // Check if valid timer ID.
   if ( id >= EMDRV_RTCDRV_NUM_TIMERS ) {
@@ -481,7 +519,7 @@ Ecode_t RTCDRV_IsRunning(RTCDRV_TimerID_t id, bool *isRunning)
   }
 
   CORE_ENTER_ATOMIC();
-  // Check if timer is reserved.
+  // Check if the timer is reserved.
   if ( !timer[id].allocated ) {
     CORE_EXIT_ATOMIC();
     return ECODE_EMDRV_RTCDRV_TIMER_NOT_ALLOCATED;
@@ -499,19 +537,20 @@ Ecode_t RTCDRV_IsRunning(RTCDRV_TimerID_t id, bool *isRunning)
  * @note
  *    It is legal to start an already running timer.
  *
- * @param[in] id The id of the timer to start.
+ * @param[in] id The ID of the timer to start.
  * @param[in] type Timer type, oneshot or periodic. See @ref RTCDRV_TimerType_t.
  * @param[in] timeout Timeout expressed in milliseconds. If the timeout value
- *            is 0, the callback function will be called immediately and
+ *            is 0, the callback function is called immediately and
  *            the timer will not be started.
- * @param[in] callback Function to call on timer expiry. See @ref
+ * @param[in] callback Function to call when the timer expires. See @ref
  *            RTCDRV_Callback_t. NULL is a legal value.
- * @param[in] user Extra callback function parameter for user application.
+ * @param[in] user Extra callback function parameter for the user application.
  *
  * @return
  *    @ref ECODE_EMDRV_RTCDRV_OK on success.@n
- *    @ref ECODE_EMDRV_RTCDRV_ILLEGAL_TIMER_ID if id has an illegal value.@n
- *    @ref ECODE_EMDRV_RTCDRV_TIMER_NOT_ALLOCATED if the timer is not reserved.
+ *    @ref ECODE_EMDRV_RTCDRV_ILLEGAL_TIMER_ID if the ID has an illegal value.@n
+ *    @ref ECODE_EMDRV_RTCDRV_TIMER_NOT_ALLOCATED if the timer is not reserved.@n
+ *    @ref ECODE_EMDRV_RTCDRV_NOT_INITIALIZED if the driver is not initialized.
  ******************************************************************************/
 Ecode_t RTCDRV_StartTimer(RTCDRV_TimerID_t id,
                           RTCDRV_TimerType_t type,
@@ -523,6 +562,11 @@ Ecode_t RTCDRV_StartTimer(RTCDRV_TimerID_t id,
 
   uint32_t timeElapsed, cnt, compVal, loopCnt = 0;
   uint32_t timeToNextTimerCompletion;
+
+  // Check if driver is initialized.
+  if ( rtcdrvIsInitialized == false ) {
+    return ECODE_EMDRV_RTCDRV_NOT_INITIALIZED;
+  }
 
   // Check if valid timer ID.
   if ( id >= EMDRV_RTCDRV_NUM_TIMERS ) {
@@ -551,13 +595,13 @@ Ecode_t RTCDRV_StartTimer(RTCDRV_TimerID_t id,
     // Calculate compensation value for periodic timers.
     timer[id].periodicCompensationUsec = 1000 * timeout
                                          - (timer[id].ticks * TICK_TIME_USEC);
-    timer[id].periodicDriftUsec = TICK_TIME_USEC / 2;
+    timer[id].periodicDriftUsec = TICK_TIME_USEC / 2U;
   } else {
     // Compensate for the fact that CNT is normally COMP0+1 after a
     // compare match event on some devices.
     timer[id].ticks -= RTC_ONESHOT_TICK_ADJUST;
   }
-  // Add one tick in order to compensate if RTC is close to an increment event.
+  // Add one tick to compensate if RTC is close to an increment event.
   timer[id].remaining = timer[id].ticks + 1;
   timer[id].running   = true;
   timer[id].timerType = type;
@@ -590,7 +634,7 @@ Ecode_t RTCDRV_StartTimer(RTCDRV_TimerID_t id,
     RTC_INTENABLE(RTC_COMP_INT);
 
 #if defined(EMODE_DYNAMIC)
-    // When RTC is running, we can not allow EM3 or EM4.
+    // When RTC is running, EM3 or EM4 is not allowed.
     if ( sleepBlocked == false ) {
       sleepBlocked = true;
       SLEEP_SleepBlockBegin(sleepEM3);
@@ -599,10 +643,10 @@ Ecode_t RTCDRV_StartTimer(RTCDRV_TimerID_t id,
 
     rtcRunning = true;
   } else {
-    // The timer system is running. We must stop, update timers with the time
-    // elapsed so far, find the timer with the shortest timeout and then restart.
-    // As StartTimer() may be called from the callbacks we only do this
-    // processing at the first nesting level.
+    // The timer system is running. It must stop, timers must be updated with the time
+    // elapsed so far, the timer with the shortest timeout must be found, and the system restarted.
+    // As StartTimer() may be called from the callbacks. This
+    // processing is only done at the first nesting level.
     if ( startTimerNestingLevel == 1  ) {
       timer[id].running = false;
       // This loop is repeated if CNT is incremented while processing.
@@ -630,17 +674,17 @@ Ecode_t RTCDRV_StartTimer(RTCDRV_TimerID_t id,
         }
         loopCnt++;
 
-        // Restart RTC according to next timeout.
+        // Restart RTC according to the next timeout.
         rescheduleRtc(cnt);
 
         cnt = RTC_COUNTERGET();
         timeElapsed = TIMEDIFF(cnt, lastStart);
         timeToNextTimerCompletion = TIMEDIFF(RTC_COMPAREGET(), lastStart);
 
-        /* If the counter has passed the COMP(ARE) register value since we
-           checked the timers, then we should recheck the timers and reschedule
-           again. */
-      } while ( rtcRunning && (timeElapsed > timeToNextTimerCompletion));
+        /* If the counter has passed the COMP(ARE) register value since
+           the timers were checked, recheck the timers and
+           reschedule. */
+      } while ( rtcRunning && (timeElapsed >= timeToNextTimerCompletion));
     }
   }
 
@@ -656,16 +700,22 @@ Ecode_t RTCDRV_StartTimer(RTCDRV_TimerID_t id,
  * @brief
  *    Stop a given timer.
  *
- * @param[in] id The id of the timer to stop.
+ * @param[in] id The ID of the timer to stop.
  *
  * @return
  *    @ref ECODE_EMDRV_RTCDRV_OK on success.@n
- *    @ref ECODE_EMDRV_RTCDRV_ILLEGAL_TIMER_ID if id has an illegal value. @n
- *    @ref ECODE_EMDRV_RTCDRV_TIMER_NOT_ALLOCATED if the timer is not reserved.
+ *    @ref ECODE_EMDRV_RTCDRV_ILLEGAL_TIMER_ID if the ID has an illegal value. @n
+ *    @ref ECODE_EMDRV_RTCDRV_TIMER_NOT_ALLOCATED if the timer is not reserved.@n
+ *    @ref ECODE_EMDRV_RTCDRV_NOT_INITIALIZED if the driver is not initialized.
  ******************************************************************************/
 Ecode_t RTCDRV_StopTimer(RTCDRV_TimerID_t id)
 {
   CORE_DECLARE_IRQ_STATE;
+
+  // Check if driver is initialized.
+  if ( rtcdrvIsInitialized == false ) {
+    return ECODE_EMDRV_RTCDRV_NOT_INITIALIZED;
+  }
 
   // Check if valid timer ID.
   if ( id >= EMDRV_RTCDRV_NUM_TIMERS ) {
@@ -688,23 +738,29 @@ Ecode_t RTCDRV_StopTimer(RTCDRV_TimerID_t id)
  * @brief
  *    Get time left before a given timer expires.
  *
- * @param[in] id The id of the timer to query.
+ * @param[in] id The ID of the timer to query.
  *
  * @param[out] timeRemaining Time left expressed in milliseconds.
- *                        Only valid if return status is ECODE_EMDRV_RTCDRV_OK.
+ *                        Only valid if the return status is ECODE_EMDRV_RTCDRV_OK.
  * @return
  *    @ref ECODE_EMDRV_RTCDRV_OK on success.@n
- *    @ref ECODE_EMDRV_RTCDRV_ILLEGAL_TIMER_ID if id has an illegal value. @n
+ *    @ref ECODE_EMDRV_RTCDRV_ILLEGAL_TIMER_ID if the ID has an illegal value. @n
  *    @ref ECODE_EMDRV_RTCDRV_TIMER_NOT_ALLOCATED if the timer is not reserved.@n
  *    @ref ECODE_EMDRV_RTCDRV_TIMER_NOT_RUNNING if the timer is not running.@n
  *    @ref ECODE_EMDRV_RTCDRV_PARAM_ERROR if an invalid timeRemaining pointer
- *         was supplied.
+ *         was supplied.@n
+ *    @ref ECODE_EMDRV_RTCDRV_NOT_INITIALIZED if the driver is not initialized.
  ******************************************************************************/
 Ecode_t RTCDRV_TimeRemaining(RTCDRV_TimerID_t id, uint32_t *timeRemaining)
 {
   CORE_DECLARE_IRQ_STATE;
   uint64_t ticksLeft;
   uint32_t currentCnt, lastRtcStart;
+
+  // Check if driver is initialized.
+  if ( rtcdrvIsInitialized == false ) {
+    return ECODE_EMDRV_RTCDRV_NOT_INITIALIZED;
+  }
 
   // Check if valid timer ID.
   if ( id >= EMDRV_RTCDRV_NUM_TIMERS ) {
@@ -767,25 +823,34 @@ uint32_t RTCDRV_GetWallClock(void)
 /***************************************************************************//**
  * @brief
  *    Get wallclock tick count as a 32bit value. At 4 ticks per millisecond,
- *    overflow occurs after approximately 12.5 days
+ *    overflow occurs after approximately 12.5 days.
+ *
+ * @detail
+ *    The return value of this function is in counter ticks. Use
+ *    @ref RTCDRV_TicksToMsec() or @ref RTCDRV_TicksToSec() to convert ticks
+ *    to the desired time unit.
  *
  * @return
- *    Wallclock tick counter.
+ *    A wallclock tick counter.
  ******************************************************************************/
 uint32_t RTCDRV_GetWallClockTicks32(void)
 {
+#if (RTC_COUNTER_BITS == 32)
+  return RTC_COUNTERGET();
+#else
+  CORE_DECLARE_IRQ_STATE;
   uint32_t overflows, ticks;
 
   /* Need to re-read data in case overflow cnt is incremented while we read. */
+  CORE_ENTER_ATOMIC();
   do {
     overflows = wallClockOverflowCnt;
     ticks     = RTC_COUNTERGET();
+    handleOverflow();
   } while ( overflows != wallClockOverflowCnt );
+  CORE_EXIT_ATOMIC();
 
-#if (RTC_COUNTER_BITS < 32)
   return (overflows << RTC_COUNTER_BITS) + ticks;
-#else
-  return ticks;
 #endif
 }
 #endif
@@ -793,20 +858,29 @@ uint32_t RTCDRV_GetWallClockTicks32(void)
 #if defined(EMDRV_RTCDRV_WALLCLOCK_CONFIG)
 /***************************************************************************//**
  * @brief
- *    Get wallclock tick count as a 64 bit value. This will never overflow.
+ *    Get a wallclock tick count as a 64 bit value.
+ *
+ * @detail
+ *    The return value of this function is in counter ticks. Use
+ *    @ref RTCDRV_TicksToMsec64() or @ref RTCDRV_TicksToSec() to convert ticks
+ *    to the desired time unit.
  *
  * @return
- *    Wallclock tick counter.
+ *    A wallclock tick counter.
  ******************************************************************************/
 uint64_t RTCDRV_GetWallClockTicks64(void)
 {
+  CORE_DECLARE_IRQ_STATE;
   uint64_t overflows, ticks;
 
-  /* Need to re-read data in case overflow cnt is incremented while we read. */
+  /* Need to re-read data if the overflow cnt is incremented while reading. */
+  CORE_ENTER_ATOMIC();
   do {
     overflows = wallClockOverflowCnt;
     ticks     = RTC_COUNTERGET();
+    handleOverflow();
   } while ( overflows != wallClockOverflowCnt );
+  CORE_EXIT_ATOMIC();
 
   return (overflows << RTC_COUNTER_BITS) + ticks;
 }
@@ -817,7 +891,7 @@ uint64_t RTCDRV_GetWallClockTicks64(void)
  * @brief
  *    Set wallclock time.
  *
- * @param[in] secs Value to set (seconds).
+ * @param[in] secs A value to set (seconds).
  *
  * @return
  *    @ref ECODE_EMDRV_RTCDRV_OK
@@ -837,7 +911,7 @@ Ecode_t RTCDRV_SetWallClock(uint32_t secs)
  * @param[in] ms Millisecond value to convert.
  *
  * @return
- *    Number of ticks.
+ *    A number of ticks.
  ******************************************************************************/
 uint64_t  RTCDRV_MsecsToTicks(uint32_t ms)
 {
@@ -853,7 +927,7 @@ uint64_t  RTCDRV_MsecsToTicks(uint32_t ms)
  * @param[in] secs Second value to convert.
  *
  * @return
- *    Number of ticks.
+ *    A number of ticks.
  ******************************************************************************/
 uint64_t  RTCDRV_SecsToTicks(uint32_t secs)
 {
@@ -869,9 +943,23 @@ uint64_t  RTCDRV_SecsToTicks(uint32_t secs)
  * @param[in] ticks Number of ticks to convert.
  *
  * @return
- *    Number of milliseconds.
+ *   A number of milliseconds.
  ******************************************************************************/
 uint32_t  RTCDRV_TicksToMsec(uint64_t ticks)
+{
+  return TICKS_TO_MSEC(ticks);
+}
+
+/***************************************************************************//**
+ * @brief
+ *    Convert from RTC/RTCC ticks to milliseconds with 64-bit resolution.
+ *
+ * @param[in] ticks Number of ticks to convert.
+ *
+ * @return
+ *   A number of milliseconds as a 64-bit value.
+ ******************************************************************************/
+uint64_t  RTCDRV_TicksToMsec64(uint64_t ticks)
 {
   return TICKS_TO_MSEC(ticks);
 }
@@ -885,7 +973,7 @@ uint32_t  RTCDRV_TicksToMsec(uint64_t ticks)
  * @param[in] ticks Number of ticks to convert.
  *
  * @return
- *    Number of seconds.
+ *    A number of seconds.
  ******************************************************************************/
 uint32_t  RTCDRV_TicksToSec(uint64_t ticks)
 {
@@ -912,7 +1000,7 @@ void RTCC_IRQHandler(void)
   flags = RTC_INTGET();
 
   // Acknowledge all RTC interrupts that are enabled which aren't processed
-  // below to prevent looping in the IRQ handler if these become enabled
+  // below to prevent looping in the IRQ handler if these become enabled.
   RTC_INTCLEAR(flags & ~(RTC_COMP_INT | RTC_OF_INT));
 
   if ( flags & RTC_COMP_INT ) {
@@ -943,18 +1031,15 @@ void RTCC_IRQHandler(void)
       cnt = RTC_COUNTERGET();
       timeElapsed = TIMEDIFF(cnt, lastStart);
       timeToNextTimerCompletion = TIMEDIFF(RTC_COMPAREGET(), lastStart);
-      /* If the counter has passed the COMP(ARE) register value since we
-         checked the timers, then we should recheck the timers and reschedule
-         again. */
-    } while ( rtcRunning && (timeElapsed > timeToNextTimerCompletion));
+      /* If the counter has passed the COMP(ARE) register value since
+         the timers were checked, recheck the timers and
+         reschedule. */
+    } while ( rtcRunning && (timeElapsed >= timeToNextTimerCompletion));
     inTimerIRQ = false;
   }
 
 #if defined(EMDRV_RTCDRV_WALLCLOCK_CONFIG)
-  if ( flags & RTC_OF_INT ) {
-    RTC_INTCLEAR(RTC_OF_INT);
-    wallClockOverflowCnt++;
-  }
+  handleOverflow();
 #endif
 
   CORE_EXIT_ATOMIC();
@@ -987,7 +1072,7 @@ static void checkAllTimers(uint32_t timeElapsed)
 #endif
         } else {
           // Compensate overdue periodic timers to avoid accumlating errors.
-          // Note that in some cases the timer can be held up more than twice the time
+          // Note that, in some cases, the timer can be held up more than twice the time
           // of the periodic timer. This can happen on flash erase for instance or
           // when long interrupt handlers are blocking the RTC interrupt.
           uint64_t previousTick = timeElapsed - timer[i].remaining;
@@ -1019,7 +1104,7 @@ static void checkAllTimers(uint32_t timeElapsed)
   }
 
 #if defined(EMODE_DYNAMIC)
-  // If no timers are running, we can remove block on EM3 and EM4 sleep modes.
+  // If no timers are running, remove block on EM3 and EM4 sleep modes.
   if ( (numOfTimersRunning == 0) && (sleepBlocked == true) ) {
     sleepBlocked = false;
     SLEEP_SleepBlockEnd(sleepEM3);
@@ -1080,7 +1165,7 @@ static void rescheduleRtc(uint32_t rtcCnt)
     RTC_COMPARESET(rtcCnt + min);
 
 #if defined(EMODE_DYNAMIC)
-    // When RTC is running, we can not allow EM3 or EM4.
+    // When RTC is running, EM3 or EM4 are not allowed.
     if ( sleepBlocked == false ) {
       sleepBlocked = true;
       SLEEP_SleepBlockBegin(sleepEM3);
@@ -1093,6 +1178,24 @@ static void rescheduleRtc(uint32_t rtcCnt)
     RTC_INTENABLE(RTC_COMP_INT);
   }
 }
+
+#if defined(EMDRV_RTCDRV_WALLCLOCK_CONFIG)
+/***************************************************************************//**
+ * @brief
+ *    Handle counter overflow
+ *
+ * @note
+ *    This function must only be called inside an atomic section.
+ ******************************************************************************/
+static void handleOverflow(void)
+{
+  if (RTC_INTGET() & RTC_OF_INT) {
+    RTC_INTCLEAR(RTC_OF_INT);
+    wallClockOverflowCnt++;
+  }
+}
+#endif
+
 /// @endcond
 
 /* *INDENT-OFF* */
@@ -1104,8 +1207,8 @@ static void rescheduleRtc(uint32_t rtcCnt)
  * @{
 
    @details
-   The source files for the RTCDRV device driver library resides in the
-   emdrv/rtcdrv folder, and are named rtcdriver.c and rtcdriver.h.
+   The rtcdriver.c and rtcdriver.h source files for the RTCDRV device driver library are in the
+   emdrv/rtcdrv folder.
 
    @li @ref rtcdrv_intro
    @li @ref rtcdrv_conf
@@ -1114,50 +1217,56 @@ static void rescheduleRtc(uint32_t rtcCnt)
 
    @n @section rtcdrv_intro Introduction
 
-   The RTCDRV driver use the RTC peripheral of a device in Silicon Laboratories
-   Gecko microcontroller family to provide a user configurable number of software
+   The RTCDRV driver uses the RTC peripheral of a device in Silicon Laboratories
+   Gecko microcontroller family to provide a user-configurable number of software
    millisecond timers.
-   Two kinds of timers are supported; oneshot timers and periodic timers.
-   Timers will, when their timeout period has expired, call a user supplied
+   Oneshot timers and periodic timers are supported.
+   Timers will, when their timeout period has expired, call a user-supplied
    callback function.
    @note The callback function is called from within an interrupt handler with
    interrupts disabled.
 
    In addition to the timers, RTCDRV also offers an optional wallclock
    functionality. The wallclock keeps track of the number of seconds elapsed
-   since RTCDRV was initialized.
+   since RTCDRV initialization.
+
+   RTCDRV resolution is 1 ms with 244 us accuracy. On the EFM32G family (classic
+   Gecko), the accuracy is 61 us.
+   Since RTCDRV is interrupt-driven using the default RTC interrupt priority
+   level, timeout accuracy will be affected by the interrupt latency of the
+   system.
 
    @n @section rtcdrv_conf Configuration Options
 
    Some properties of the RTCDRV driver are compile-time configurable. These
-   properties are stored in a file named @ref rtcdrv_config.h. A template for this
-   file, containing default values, resides in the emdrv/config folder.
-   Currently the configuration options are:
+   properties are stored in the @ref rtcdrv_config.h file. A template for this
+   file, containing default values, is in the emdrv/config folder.
+   Currently the configuration options are as follows:
    @li The number of timers that RTCDRV provides.
    @li Inclusion of the wallclock functionality.
-   @li Integration with SLEEP driver.
+   @li Integration with the SLEEP driver.
 
-   When integration with the SLEEP driver is enabled, RTCDRV will keep the
-   SLEEP driver updated with regards to which energy mode that can be
+   When the integration with the SLEEP driver is enabled, RTCDRV will
+   notify the SLEEP driver which energy mode can be
    safely used.
 
-   To configure RTCDRV, provide your own configuration file. Here is a
-   sample @ref rtcdrv_config.h file:
+   To configure RTCDRV, provide a custom configuration file. This is an
+   example @ref rtcdrv_config.h file:
    @verbatim
 #ifndef SILICON_LABS_RTCDRV_CONFIG_H
 #define SILICON_LABS_RTCDRV_CONFIG_H
 
-// Define how many timers RTCDRV provide.
+// Define how many timers RTCDRV provides.
 #define EMDRV_RTCDRV_NUM_TIMERS     (4)
 
-// Uncomment the following line to include wallclock functionality.
+// Uncomment the following line to include the wallclock functionality.
 //#define EMDRV_RTCDRV_WALLCLOCK_CONFIG
 
-// Uncomment the following line to enable integration with SLEEP driver.
+// Uncomment the following line to enable integration with the SLEEP driver.
 //#define EMDRV_RTCDRV_SLEEPDRV_INTEGRATION
 
-// Uncomment one of the following lines to let RTCDRV clock on LFRCO or PLFRCO,
-// the default is LFXO.
+// Uncomment the following line to let the RTCDRV clock on LFRCO or PLFRCO.
+// The default is LFXO.
 //#define EMDRV_RTCDRV_USE_LFRCO
 //#define EMDRV_RTCDRV_USE_PLFRCO
 
@@ -1166,35 +1275,35 @@ static void rescheduleRtc(uint32_t rtcCnt)
 
    @n @section rtcdrv_api The API
 
-   This section contain brief descriptions of the functions in the API. You will
-   find detailed information on input and output parameters and return values by
-   clicking on the hyperlinked function names. Most functions return an error
+   This section contains brief descriptions of the API functions. For
+   more information about input and output parameters and return values,
+   click on the hyperlinked function names. Most functions return an error
    code, @ref ECODE_EMDRV_RTCDRV_OK is returned on success,
    see @ref ecode.h and @ref rtcdriver.h for other error codes.
 
-   Your application code must include one header file: @em rtcdriver.h.
+   The application code must include the @em rtcdriver.h header file.
 
-   All functions defined in the API can be called from within interrupt handlers.
+   All API functions can be called from within interrupt handlers.
 
    @ref RTCDRV_Init(), @ref RTCDRV_DeInit() @n
-    These functions initializes or deinitializes the RTCDRV driver. Typically
-    @htmlonly RTCDRV_Init() @endhtmlonly is called once in your startup code.
+    These functions initialize or deinitialize the RTCDRV driver. Typically,
+    @htmlonly RTCDRV_Init() @endhtmlonly is called once in the startup code.
 
    @ref RTCDRV_StartTimer(), @ref RTCDRV_StopTimer() @n
-    Start/Stop a timer. When a timer expire, a user supplied callback function
+    Start/Stop a timer. When a timer expires, a user-supplied callback function
     is called. A pointer to this function is passed to @htmlonly
-    RTCDRV_StartTimer()@endhtmlonly. Refer to @ref TimerCallback for details of
+    RTCDRV_StartTimer()@endhtmlonly. See @ref TimerCallback for details of
     the callback prototype.
-    Note that it is legal to start an already started timer, it will then just
-    be restarted with the new timeout value.
+    Note that it is legal to start an already started timer, which is
+    restarted with the new timeout value.
 
    @ref RTCDRV_AllocateTimer(), @ref RTCDRV_FreeTimer() @n
     Reserve/release a timer. Many functions in the API require a timer ID as
-    input parameter. Use @htmlonly RTCDRV_AllocateTimer() @endhtmlonly to
-    aquire such a reference.
+    an input parameter. Use @htmlonly RTCDRV_AllocateTimer() @endhtmlonly to
+    aquire this reference.
 
    @ref RTCDRV_TimeRemaining() @n
-    Get time left to timer expiry.
+    Get time left to the timer expiration.
 
    @ref RTCDRV_Delay() @n
     Millisecond delay function. This is an "active wait" delay function.
@@ -1211,19 +1320,19 @@ static void rescheduleRtc(uint32_t rtcCnt)
 
    @ref RTCDRV_MsecsToTicks(), @ref RTCDRV_SecsToTicks(),
    @ref RTCDRV_TicksToMsec(), @ref RTCDRV_TicksToSec() @n
-    Conversion functions between seconds, milliseconds and RTC/RTCC
+    Conversion functions between seconds, milliseconds, and RTC/RTCC
     counter ticks.
 
    @n @anchor TimerCallback <b>The timer expiry callback function:</b> @n
    The callback function, prototyped as @ref RTCDRV_Callback_t(), is called from
-   within the RTC peripheral interrupt handler on timer expiry.
+   within the RTC peripheral interrupt handler on timer expiration.
    @htmlonly RTCDRV_Callback_t( RTCDRV_TimerID_t id )@endhtmlonly is called with
-   the timer id as input parameter.
+   the timer ID as an input parameter.
 
    @n <b>The timer type:</b> @n
-   Timers are either of oneshot type or of periodic type.
-   @li Oneshot timer run only once toward their expiry.
-   @li Periodic timers will be automatically restartet when they expire.
+   Timers are either oneshot or periodic.
+   @li Oneshot timers run only once toward their expiration.
+   @li Periodic timers will be automatically restarted when they expire.
 
    The timer type is an enumeration, see @ref RTCDRV_TimerType_t for details.
 
@@ -1249,13 +1358,13 @@ void myCallback( RTCDRV_TimerID_t id, void * user )
 
 int main( void )
 {
-  // Initialization of RTCDRV driver
+  // Initialization of the RTCDRV driver.
   RTCDRV_Init();
 
-  // Reserve a timer
+  // Reserve a timer.
   RTCDRV_AllocateTimer( &id );
 
-  // Start a oneshot timer with 100 millisecond timeout
+  // Start a oneshot timer with 100 millisecond timeout.
   RTCDRV_StartTimer( id, rtcdrvTimerTypeOneshot, 100, myCallback, NULL );
 
   return 0;

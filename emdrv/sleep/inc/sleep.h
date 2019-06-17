@@ -1,34 +1,19 @@
 /***************************************************************************//**
- * @file sleep.h
+ * @file
  * @brief Energy Modes management driver
- * @version 5.2.1
- * @details
- * This is a energy modes management module consisting of sleep.c and sleep.h
- * source files. The main purpose of the module is to ease energy
- * optimization with a simple API. The module allows the system to always sleep
- * in the lowest possible energy mode. Users could set up callbacks that are
- * being called before and after each and every sleep. A counting semaphore is
- * available for each low energy mode (EM2/EM3) to protect certain system
- * states from being corrupted. This semaphore has limit set to maximum 255 locks.
- *
- * The module provides the following public API to the users:
- * SLEEP_Init()
- * SLEEP_Sleep()
- * SLEEP_SleepBlockBegin()
- * SLEEP_SleepBlockEnd()
- * SLEEP_ForceSleepInEM4()
- *
  *******************************************************************************
  * # License
- * <b>Copyright 2016 Silicon Laboratories, Inc. http://www.silabs.com</b>
+ * <b>Copyright 2018 Silicon Laboratories Inc. www.silabs.com</b>
  *******************************************************************************
  *
- * This file is licensed under the Silabs License Agreement. See the file
- * "Silabs_License_Agreement.txt" for details. Before using this software for
- * any purpose, you must agree to the terms of that agreement.
+ * The licensor of this software is Silicon Laboratories Inc.  Your use of this
+ * software is governed by the terms of Silicon Labs Master Software License
+ * Agreement (MSLA) available at
+ * www.silabs.com/about-us/legal/master-software-license-agreement.  This
+ * software is distributed to you in Source Code format and is governed by the
+ * sections of the MSLA applicable to Source Code.
  *
  ******************************************************************************/
-
 #ifndef SLEEP_H
 #define SLEEP_H
 
@@ -49,15 +34,82 @@ extern "C" {
 
 /***************************************************************************//**
  * @addtogroup SLEEP
- * @brief Energy Modes management driver.
+ * @brief
+ *   Sleep Management Driver.
+ *
  * @details
- * This is a energy modes management module consisting of sleep.c and sleep.h
- * source files. The main purpose of the module is to ease energy
- * optimization with a simple API. The module allows the system to always sleep
- * in the lowest possible energy mode. Users could set up callbacks that are
- * being called before and after each and every sleep. A counting semaphore is
- * available for each low energy mode (EM2/EM3) to protect certain system
- * states from being corrupted. This semaphore has limit set to maximum 255 locks.
+ *
+ *   @n @section sleepdrv_intro Introduction
+ *   This is a sleep management module consisting of sleep.c and sleep.h
+ *   source files. The main purpose of the module is to make it easy for an
+ *   application to always enter the lowest possible energy mode using a simple
+ *   API.
+ *
+ *   The module works by providing an API for defining "sleep blocks" in the
+ *   application code. A "sleep block" will block the MCU from entering a certain
+ *   energy mode. A "sleep block" can for instance block EM2 entry because an
+ *   EM1 only peripheral is in use. These "sleep blocks" are created by the calls to
+ *   @ref SLEEP_SleepBlockBegin() and end with @ref SLEEP_SleepBlockEnd().
+ *
+ *   When an application wants to enter a low energy mode it can call
+ *   @ref SLEEP_Sleep() to enter the lowest possible energy mode. This module
+ *   will use the "sleep blocks" to figure out the lowest possible energy mode.
+ *
+ *   Here is an example of how the sleep driver is initialized and how it can
+ *   be used to enter EM2.
+ *
+ * @code
+ *   SLEEP_Init_t sleepConfig = {0};
+ *   SLEEP_InitEx(&sleepConfig);
+ *   SLEEP_SleepBlockBegin(sleepEM3); // Block EM3 entry
+ *   SLEEP_Sleep();
+ *   SLEEP_SleepBlockEnd(sleepEM3);
+ * @endcode
+ *
+ *   @n @section sleepdrv_callbacks Sleep and Wakeup Events/Callbacks
+ *
+ *   This module also provides a way to add application callbacks to notify
+ *   the application that the MCU is entering sleep, or waking up from sleep.
+ *   These callbacks can be provided to the driver when calling
+ *   @ref SLEEP_InitEx().
+ *
+ *   The sleepCallback function is called before entering sleep and the
+ *   wakeupCallback is called after waking up from sleep. The sleepCallback
+ *   function has a bool return value. This return value can be used to control
+ *   if the MCU should really go to sleep or not. Returning true will make
+ *   the MCU enter the selected energy mode, while returning false will force
+ *   the sleep driver to return without entering a sleep.
+ *
+ *   Here is an example of how the sleep and wakeup callbacks are used.
+ *
+ *   @code
+ *   static bool beforeSleep(SLEEP_EnergyMode_t mode)
+ *   {
+ *     printf("sleep\n");
+ *     return true;
+ *   }
+ *
+ *   static void afterWakeup(SLEEP_EnergyMode_t mode)
+ *   {
+ *     printf("wakeup\n");
+ *     (void) mode;
+ *   }
+ *
+ *   void main(void)
+ *   {
+ *     SLEEP_Init_t sleepConfig = {
+ *       .sleepCallback = beforeSleep,
+ *       .wakeupCallback = afterWakeup
+ *     };
+ *     SLEEP_InitEx(&sleepConfig);
+ *     SLEEP_SleepBlockBegin(sleepEM3); // Block EM3 entry
+ *     while (true) {
+ *       SLEEP_Sleep();
+ *     }
+ *     SLEEP_SleepBlockEnd(sleepEM3);
+ *   }
+ *   @endcode
+ *
  * @{
  ******************************************************************************/
 
@@ -65,14 +117,27 @@ extern "C" {
  *******************************   MACROS   ************************************
  ******************************************************************************/
 
+/**
+ * This flag can be returned from the @ref restoreCallback function in order to
+ * signal that the sleep driver should continue as normal. */
+#define SLEEP_FLAG_NONE              0x0
+
+/**
+ * This flag can be returned from the @ref restoreCallback function in order to
+ * signal to the sleep driver that HF clocks should not be restored and that
+ * the sleep driver should go right back to sleep again. */
+#define SLEEP_FLAG_NO_CLOCK_RESTORE  0x1u
+
 /*******************************************************************************
  ****************************   CONFIGURATION   ********************************
  ******************************************************************************/
 
 /** Enable/disable the HW block for protecting accidental setting of low energy
- *  modes (recommended to be set to true). */
+ *  modes. Note that some devices do not support blocking energy mode entry in
+ *  hardware, on these devices SLEEP_HW_LOW_ENERGY_BLOCK_ENABLED will have no
+ *  effect. */
 #ifndef SLEEP_HW_LOW_ENERGY_BLOCK_ENABLED
-#define SLEEP_HW_LOW_ENERGY_BLOCK_ENABLED    true
+#define SLEEP_HW_LOW_ENERGY_BLOCK_ENABLED    false
 #endif
 
 /** Enable/disable calling wakeup callback after EM4 reset. */
@@ -115,132 +180,65 @@ typedef enum {
 /** Callback function pointer type. */
 typedef void (*SLEEP_CbFuncPtr_t)(SLEEP_EnergyMode_t);
 
+/**
+ * Initialization structure for the sleep driver. This includes optional
+ * callback functions that can be used by the application to get notified
+ * about sleep related events and that can be used to control the MCU
+ * behavior when waking up from sleep.
+ */
+typedef struct {
+  /**
+   * Pointer to the callback function that is being called before the device
+   * is going to sleep. This function is optional, if no sleep callback is
+   * needed by the application then this field must be set to NULL.
+   *
+   * This callback function has a return value that can be used to force the
+   * sleep driver to not enter a sleep mode. This can be used in applications
+   * where for instance timing of events will make it inefficient to enter
+   * sleep at a certain point in time.
+   */
+  bool (*sleepCallback)(SLEEP_EnergyMode_t emode);
+
+  /**
+   * Pointer to the callback function that is being called after wake up. This
+   * function is optional, if no wake up callback is needed by the application
+   * then this field must be set to NULL.
+   */
+  void (*wakeupCallback)(SLEEP_EnergyMode_t emode);
+
+  /**
+   * Pointer to the callback function that is being called after wake up and
+   * before the HF clock is restored. This function can be used by the
+   * application to signal that the sleep driver should wakeup normally or if
+   * it should skip restoring the HF clock and go back to sleep. Delaying HF
+   * clock restore is an advanced functionality that can be used to save
+   * power in a system with frequent interrupts.
+   *
+   * These are the supported flags that can be returned from the callback
+   * function.
+   *
+   * @ref SLEEP_FLAG_NONE
+   * @ref SLEEP_FLAG_NO_CLOCK_RESTORE
+   */
+  uint32_t (*restoreCallback)(SLEEP_EnergyMode_t emode);
+} SLEEP_Init_t;
+
 /*******************************************************************************
  ******************************   PROTOTYPES   *********************************
  ******************************************************************************/
 
-/***************************************************************************//**
- * @brief
- *   Initialize the Sleep module.
- *
- * @details
- *   Use this function to initialize the Sleep module, should be called
- *   only once! Pointers to sleep and wake-up callback functions shall be
- *   provided when calling this function.
- *   If SLEEP_EM4_WAKEUP_CALLBACK_ENABLED is set to true, this function checks
- *   for the cause of the reset that implicitly called it and calls the wakeup
- *   callback if the reset was a wakeup from EM4 (does not work on Gecko MCU).
- *
- * @param[in] pSleepCb
- *   Pointer to the callback function that is being called before the device is
- *   going to sleep.
- *
- * @param[in] pWakeUpCb
- *   Pointer to the callback function that is being called after wake up.
- ******************************************************************************/
 void SLEEP_Init(SLEEP_CbFuncPtr_t pSleepCb, SLEEP_CbFuncPtr_t pWakeUpCb);
 
-/***************************************************************************//**
- * @brief
- *   Gets the lowest energy mode that the system is allowed to be set to.
- *
- * @details
- *   This function uses the low energy mode block counters to determine the
- *   lowest possible that the system is allowed to be set to.
- *
- * @return
- *   Lowest energy mode that the system can be set to. Possible values:
- *   @li sleepEM2
- *   @li sleepEM3
- ******************************************************************************/
+void SLEEP_InitEx(const SLEEP_Init_t * init);
+
 SLEEP_EnergyMode_t SLEEP_LowestEnergyModeGet(void);
 
-/***************************************************************************//**
- * @brief
- *   Sets the system to sleep into the lowest possible energy mode.
- *
- * @details
- *   This function takes care of the system states protected by the sleep block
- *   provided by SLEEP_SleepBlockBegin() / SLEEP_SleepBlockEnd(). It allows
- *   the system to go into the lowest possible energy mode that the device can
- *   be set into at the time of the call of this function.
- *   This function will not go lower than EM3 because leaving EM4 requires
- *   resetting MCU. To enter into EM4 call SLEEP_ForceSleepInEM4().
- *
- * @return
- *   Energy Mode that was entered. Possible values:
- *   @li sleepEM2
- *   @li sleepEM3
- ******************************************************************************/
 SLEEP_EnergyMode_t SLEEP_Sleep(void);
 
-/***************************************************************************//**
- * @brief
- *   Force the device to go to EM4 without doing any checks.
- *
- * @details
- *   This function unblocks the low energy sleep block then goes to EM4.
- *
- * @note
- *   Regular RAM is not retained in EM4 and the wake up causes a reset.
- *   If the configuration option SLEEP_EM4_WAKEUP_CALLBACK_ENABLED is set to
- *   true, the SLEEP_Init() function checks for the reset cause and calls the
- *   EM4 wakeup callback.
- ******************************************************************************/
 void SLEEP_ForceSleepInEM4(void);
 
-/***************************************************************************//**
- * @brief
- *   Begin sleep block in the requested energy mode.
- *
- * @details
- *   Blocking a critical system state from a certain energy mode makes sure that
- *   the system is not set to that energy mode while the block is not being
- *   released.
- *   Every SLEEP_SleepBlockBegin() increases the corresponding counter and
- *   every SLEEP_SleepBlockEnd() decreases it.
- *
- *   Example:\code
- *      SLEEP_SleepBlockBegin(sleepEM2);  // do not allow EM2 or higher
- *      // do some stuff that requires EM1 at least, like ADC sampling
- *      SLEEP_SleepBlockEnd(sleepEM2);    // remove restriction for EM2\endcode
- *
- * @note
- *   Be aware that there is a limit of maximum block nesting set to 255.
- *
- * @param[in] eMode
- *   Energy mode to begin to block. Possible values:
- *   @li sleepEM2 - Begin to block the system from being set to EM2/EM3/EM4.
- *   @li sleepEM3 - Begin to block the system from being set to EM3/EM4.
- ******************************************************************************/
 void SLEEP_SleepBlockBegin(SLEEP_EnergyMode_t eMode);
 
-/***************************************************************************//**
- * @brief
- *   End sleep block in the requested energy mode.
- *
- * @details
- *   Release restriction for entering certain energy mode. Every call of this
- *   function reduce the blocking counter by 1. Once the counter for specific
- *   energy mode is 0 and all counters for lower energy modes are 0 as well,
- *   using a particular energy mode is allowed.
- *   Every SLEEP_SleepBlockBegin() increases the corresponding counter and
- *   every SLEEP_SleepBlockEnd() decreases it.
- *
- *   Example:\code
- *      // at start all energy modes are allowed
- *      SLEEP_SleepBlockBegin(sleepEM3); // EM3 and EM4 are blocked
- *      SLEEP_SleepBlockBegin(sleepEM2); // EM2, EM3 and EM4 are blocked
- *      SLEEP_SleepBlockBegin(sleepEM2); // EM2, EM3 and EM4 are blocked
- *      SLEEP_SleepBlockEnd(sleepEM3);   // EM2, EM3 and EM4 are still blocked
- *      SLEEP_SleepBlockEnd(sleepEM2);   // EM2, EM3 and EM4 are still blocked
- *      SLEEP_SleepBlockEnd(sleepEM2);   // all energy modes are allowed now\endcode
- *
- * @param[in] eMode
- *   Energy mode to end to block. Possible values:
- *   @li sleepEM2 - End to block the system from being set to EM2/EM3/EM4.
- *   @li sleepEM3 - End to block the system from being set to EM3/EM4.
- ******************************************************************************/
 void SLEEP_SleepBlockEnd(SLEEP_EnergyMode_t eMode);
 
 /** @} (end addtogroup SLEEP) */

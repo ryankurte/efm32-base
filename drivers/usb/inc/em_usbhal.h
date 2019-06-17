@@ -1,15 +1,17 @@
 /***************************************************************************//**
- * @file em_usbhal.h
+ * @file
  * @brief USB protocol stack library, low level USB peripheral access.
- * @version 5.2.1
  *******************************************************************************
  * # License
- * <b>(C) Copyright 2014 Silicon Labs, http://www.silabs.com</b>
+ * <b>Copyright 2018 Silicon Laboratories Inc. www.silabs.com</b>
  *******************************************************************************
  *
- * This file is licensed under the Silabs License Agreement. See the file
- * "Silabs_License_Agreement.txt" for details. Before using this software for
- * any purpose, you must agree to the terms of that agreement.
+ * The licensor of this software is Silicon Laboratories Inc.  Your use of this
+ * software is governed by the terms of Silicon Labs Master Software License
+ * Agreement (MSLA) available at
+ * www.silabs.com/about-us/legal/master-software-license-agreement.  This
+ * software is distributed to you in Source Code format and is governed by the
+ * sections of the MSLA applicable to Source Code.
  *
  ******************************************************************************/
 
@@ -167,7 +169,11 @@ __STATIC_INLINE uint32_t USBHAL_GetCoreInts(void)
 
 __STATIC_INLINE bool USBHAL_VbusIsOn(void)
 {
+#if defined(USB_STATUS_VBUSDETH)
+  return (USB->STATUS & USB_STATUS_VBUSDETH) != 0;
+#else
   return (USB->STATUS & USB_STATUS_VREGOS) != 0;
+#endif
 }
 
 #if defined(USB_DEVICE)
@@ -220,6 +226,9 @@ __STATIC_INLINE void USBDHAL_ActivateEp(USBD_Ep_TypeDef *ep, bool forceIdle)
     }
     USB_DOUTEPS[ep->num].CTL = depctl;
   }
+#if defined(USB_DOEP0INT_STUPPKTRCVD)
+  ep->nextIsoFrame = 0;
+#endif
 
   /* Enable interrupt for this EP */
   USB->DAINTMSK |= daintmask;
@@ -497,7 +506,7 @@ __STATIC_INLINE void USBDHAL_StartEp0Setup(USBD_Device_TypeDef *dev)
 
 __STATIC_INLINE void USBDHAL_StartEpIn(USBD_Ep_TypeDef *ep)
 {
-  uint32_t pktcnt, xfersize;
+  uint32_t pktcnt, xfersize, pidmask = 0;
 
   if ( ep->remaining == 0 ) {   /* ZLP ? */
     pktcnt = 1;
@@ -514,15 +523,28 @@ __STATIC_INLINE void USBDHAL_StartEpIn(USBD_Ep_TypeDef *ep)
     | (pktcnt   << _USB_DIEP_TSIZ_PKTCNT_SHIFT);
 
   USB_DINEPS[ep->num].DMAADDR = (uint32_t)ep->buf;
+
+#if defined(USB_DOEP0INT_STUPPKTRCVD)
+  if (ep->type == USB_EPTYPE_ISOC) {
+    if (ep->nextIsoFrame & 1U) {
+      pidmask = USB_DIEP_CTL_SETD1PIDOF;
+    } else {
+      pidmask = USB_DIEP_CTL_SETD0PIDEF;
+    }
+    ep->nextIsoFrame += ep->isointerval;
+  }
+#endif
+
   USB_DINEPS[ep->num].CTL =
     (USB_DINEPS[ep->num].CTL & ~DEPCTL_WO_BITMASK)
     | USB_DIEP_CTL_CNAK
-    | USB_DIEP_CTL_EPENA;
+    | USB_DIEP_CTL_EPENA
+    | pidmask;
 }
 
 __STATIC_INLINE void USBDHAL_StartEpOut(USBD_Ep_TypeDef *ep)
 {
-  uint32_t pktcnt, xfersize;
+  uint32_t pktcnt, xfersize, pidmask = 0;
 
   if ( ep->remaining == 0 ) {   /* ZLP ? */
     pktcnt = 1;
@@ -540,11 +562,24 @@ __STATIC_INLINE void USBDHAL_StartEpOut(USBD_Ep_TypeDef *ep)
 
   ep->hwXferSize = xfersize;
   USB_DOUTEPS[ep->num].DMAADDR = (uint32_t)ep->buf;
+
+#if defined(USB_DOEP0INT_STUPPKTRCVD)
+  if (ep->type == USB_EPTYPE_ISOC) {
+    if (ep->nextIsoFrame & 1U) {
+      pidmask = USB_DOEP_CTL_SETD1PIDOF;
+    } else {
+      pidmask = USB_DOEP_CTL_SETD0PIDEF;
+    }
+    ep->nextIsoFrame += ep->isointerval;
+  }
+#endif
+
   USB_DOUTEPS[ep->num].CTL =
     (USB_DOUTEPS[ep->num].CTL
      & ~DEPCTL_WO_BITMASK)
     | USB_DOEP_CTL_CNAK
-    | USB_DOEP_CTL_EPENA;
+    | USB_DOEP_CTL_EPENA
+    | pidmask;
 }
 
 __STATIC_INLINE USB_Status_TypeDef USBDHAL_UnStallEp(USBD_Ep_TypeDef *ep)

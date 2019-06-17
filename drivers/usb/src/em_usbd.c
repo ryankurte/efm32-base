@@ -1,15 +1,17 @@
 /***************************************************************************//**
- * @file em_usbd.c
+ * @file
  * @brief USB protocol stack library API for EFM32/EZR32.
- * @version 5.2.1
- ******************************************************************************
+ *******************************************************************************
  * # License
- * <b>(C) Copyright 2014 Silicon Labs, http://www.silabs.com</b>
+ * <b>Copyright 2018 Silicon Laboratories Inc. www.silabs.com</b>
  *******************************************************************************
  *
- * This file is licensed under the Silabs License Agreement. See the file
- * "Silabs_License_Agreement.txt" for details. Before using this software for
- * any purpose, you must agree to the terms of that agreement.
+ * The licensor of this software is Silicon Laboratories Inc.  Your use of this
+ * software is governed by the terms of Silicon Labs Master Software License
+ * Agreement (MSLA) available at
+ * www.silabs.com/about-us/legal/master-software-license-agreement.  This
+ * software is distributed to you in Source Code format and is governed by the
+ * sections of the MSLA applicable to Source Code.
  *
  ******************************************************************************/
 
@@ -225,7 +227,7 @@ int USBD_Init(const USBD_Init_TypeDef *p)
   USBD_Ep_TypeDef *ep;
   uint8_t txFifoNum;
   uint8_t *conf, *confEnd;
-#if defined(CMU_OSCENCMD_USHFRCOEN)
+#if defined(_EFM32_HAPPY_FAMILY)
   SYSTEM_ChipRevision_TypeDef chipRev;
 #endif
   USB_EndpointDescriptor_TypeDef *epd;
@@ -233,29 +235,99 @@ int USBD_Init(const USBD_Init_TypeDef *p)
   uint32_t totalRxFifoSize, totalTxFifoSize, numInEps, numOutEps;
   CORE_DECLARE_IRQ_STATE;
 
-#if !defined(USB_CORECLK_HFRCO) || !defined(CMU_OSCENCMD_USHFRCOEN)
-  /* Devices supporting crystal-less USB can use HFRCO or HFXO as core clock. */
-  /* All other devices must use HFXO as core clock.                           */
+// ---------- Enable oscillators. ----------------------------------------------
+#if (USB_PWRSAVE_MODE)
+  /* Select a clock source for clocking USB peripheral in "power-down" mode. */
+  #if (USB_USBC_32kHz_CLK == USB_USBC_32kHz_CLK_LFXO)
+  CMU_OscillatorEnable(cmuOsc_LFXO, true, false);
+  #else
+  CMU_OscillatorEnable(cmuOsc_LFRCO, true, false);
+  #endif
+#endif
+
+#if !defined(USB_PRESENT)
+#error "No USB support on this device."
+
+#elif defined(_SILICON_LABS_32B_SERIES_0) && !defined(_EFM32_HAPPY_FAMILY)
+// ------- Series 0, Giant, Leopard and Wonder Geckos --------------------------
+
+  /* HFXO is the only possible core/usb oscillator. */
+  if (CMU_ClockSelectGet(cmuClock_HF) != cmuSelect_HFXO) {
+    CMU_ClockSelectSet(cmuClock_HF, cmuSelect_HFXO);
+  }
+
+#elif defined(_EFM32_HAPPY_FAMILY)
+// ------- Series 0, Happy Gecko -----------------------------------------------
+
+  /* Happy Gecko can use HFRCO or HFXO but not USHFRCO as core clock. */
+  /* (This restriction applies if using EM2 energy mode).             */
+  /* USHFRCO is the only possible usb oscillator.                     */
+
+  #if !defined(USB_CORECLK_HFRCO)
   if ( CMU_ClockSelectGet(cmuClock_HF) != cmuSelect_HFXO ) {
     CMU_ClockSelectSet(cmuClock_HF, cmuSelect_HFXO);
   }
-#endif
+  #endif
 
-#if !defined(CMU_OSCENCMD_USHFRCOEN)
-#if (USB_USBC_32kHz_CLK == USB_USBC_32kHz_CLK_LFXO)
-  CMU_OscillatorEnable(cmuOsc_LFXO, true, false);
-#else
-  CMU_OscillatorEnable(cmuOsc_LFRCO, true, false);
-#endif
-
-#else
-  CMU_ClockEnable(cmuClock_CORELE, true);
   /* LFC clock is needed to detect USB suspend when LEMIDLE is activated. */
-#if (USB_USBC_32kHz_CLK == USB_USBC_32kHz_CLK_LFXO)
+  CMU_ClockEnable(cmuClock_CORELE, true);
+  #if (USB_USBC_32kHz_CLK == USB_USBC_32kHz_CLK_LFXO) \
+  || (USB_USBLEM_CLK == USB_USBLEM_CLK_LFXO)
   CMU_ClockSelectSet(cmuClock_LFC, cmuSelect_LFXO);
-#else
+  #else
   CMU_ClockSelectSet(cmuClock_LFC, cmuSelect_LFRCO);
-#endif
+  #endif
+  CMU_ClockEnable(cmuClock_USBLE, true);
+
+#elif defined(_SILICON_LABS_32B_SERIES_1) && defined(_EFM32_GIANT_FAMILY)
+// ------- Series 1, Giant Gecko -----------------------------------------------
+
+  /* USB can be clocked by HFXO, USHFRCO or HFRCO+DPLL. */
+
+  #if defined(USB_CLKSRC_HFXO)
+  if (SystemHFXOClockGet() != 48000000UL) {
+    DEBUG_USB_API_PUTS("\nUSBD_Init(), Illegal HFXO clock frequency");
+    EFM_ASSERT(false);
+    return USB_STATUS_ILLEGAL;
+  }
+  CMU_ClockSelectSet(cmuClock_USBR, cmuSelect_HFXO);
+
+  #elif defined(USB_CLKSRC_USHFRCO)
+  CMU_USHFRCOBandSet(cmuUSHFRCOFreq_48M0Hz);
+  CMU_ClockSelectSet(cmuClock_USBR, cmuSelect_USHFRCO);
+  /* Enable USHFRCO Clock Recovery mode. */
+  CMU->USBCRCTRL |= CMU_USBCRCTRL_USBCREN;
+
+  #elif defined(USB_CLKSRC_HFRCODPLL)
+  CMU_DPLLInit_TypeDef init = CMU_DPLL_LFXO_TO_40MHZ;
+  init.frequency = USB_DPLL_FREQUENCY;
+  init.m = USB_DPLL_M;
+  init.n = USB_DPLL_N;
+  init.refClk = (CMU_DPLLClkSel_TypeDef)USB_DPLL_SRC;
+  #if (USB_DPLL_SRC == USB_DPLL_SRC_LFXO)
+  init.refClk = cmuDPLLClkSel_Lfxo;
+  CMU_OscillatorEnable(cmuOsc_LFXO, true, true);
+  #else
+  init.refClk = cmuDPLLClkSel_Hfxo;
+  CMU_OscillatorEnable(cmuOsc_HFXO, true, true);
+  #endif
+  CMU_ClockSelectSet(cmuClock_USBR, cmuSelect_HFRCO);
+  if (!CMU_DPLLLock(&init)) {
+    DEBUG_USB_API_PUTS("\nUSBD_Init(), DPLL could not lock");
+    EFM_ASSERT(false);
+    return USB_STATUS_ILLEGAL;
+  }
+
+  #else
+  #error "Illegal USB clock selection."
+  #endif
+
+  /* LFC clock is needed to detect USB suspend when LEMIDLE is activated. */
+  #if (USB_USBLEM_CLK == USB_USBLEM_CLK_LFXO)
+  CMU_ClockSelectSet(cmuClock_LFC, cmuSelect_LFXO);
+  #else /* (USB_USBLEM_CLK == USB_USBLEM_CLK_LFRCO) */
+  CMU_ClockSelectSet(cmuClock_LFC, cmuSelect_LFRCO);
+  #endif
   CMU_ClockEnable(cmuClock_USBLE, true);
 #endif
 
@@ -370,6 +442,9 @@ int USBD_Init(const USBD_Init_TypeDef *p)
       ep->remaining      = 0;
       ep->xferred        = 0;
       ep->state          = D_EP_IDLE;
+#if defined(USB_DOEP0INT_STUPPKTRCVD)
+      ep->isointerval    = 1 << (epd->bInterval - 1);
+#endif
       ep->xferCompleteCb = NULL;
 
       if ( p->bufferingMultiplier[numEps] == 0 ) {
@@ -450,34 +525,41 @@ int USBD_Init(const USBD_Init_TypeDef *p)
 
   CORE_ENTER_ATOMIC();
 
-  /* Enable USB clock */
+  /* Enable USB clocks. */
+#if defined(_SILICON_LABS_32B_SERIES_0)
   CMU->HFCORECLKEN0 |= CMU_HFCORECLKEN0_USB | CMU_HFCORECLKEN0_USBC;
+#else
+  CMU->HFBUSCLKEN0  |= CMU_HFBUSCLKEN0_USB;
+  CMU->USBCTRL      |= CMU_USBCTRL_USBCLKEN;
+#endif
 
-#if defined(CMU_OSCENCMD_USHFRCOEN)
-  CMU->USHFRCOCONF = CMU_USHFRCOCONF_BAND_48MHZ;
+  /* Perform final USB clock selection. */
+#if defined(_SILICON_LABS_32B_SERIES_0) && !defined(_EFM32_HAPPY_FAMILY)
+  CMU_ClockSelectSet(cmuClock_USBC, cmuSelect_HFCLK);
+#elif defined(_EFM32_HAPPY_FAMILY)
+  CMU_USHFRCOBandSet(cmuUSHFRCOBand_48MHz);
   CMU_ClockSelectSet(cmuClock_USBC, cmuSelect_USHFRCO);
-
   /* Enable USHFRCO Clock Recovery mode. */
   CMU->USBCRCTRL |= CMU_USBCRCTRL_EN;
+#endif
 
   /* Turn on Low Energy Mode (LEM) features. */
+#if defined(_USB_LEMCTRL_TIMEBASE_MASK)
+  /* Number of LFC clock cycles (32768Hz) per 3 ms. */
+  USB->LEMCTRL = (USB->LEMCTRL & ~_USB_LEMCTRL_TIMEBASE_MASK)
+                 | USB_LEMCTRL_TIMEBASE_DEFAULT;
+#endif
+#if defined(USB_CTRL_LEMPHYCTRL)
+  USB->CTRL = USB_CTRL_LEMOSCCTRL_GATE | USB_CTRL_LEMIDLEEN
+              | USB_CTRL_LEMPHYCTRL;
+#endif
+
+#if defined(_EFM32_HAPPY_FAMILY)
   SYSTEM_ChipRevisionGet(&chipRev);
-  if ((chipRev.family == 5)
-      && (chipRev.major == 1)
-      && (chipRev.minor == 0)) {
+  if (!((chipRev.major == 1) && (chipRev.minor == 0))) {
     /* First Happy Gecko chip revision did not have all LEM features enabled. */
-    USB->CTRL = USB_CTRL_LEMOSCCTRL_GATE
-                | USB_CTRL_LEMIDLEEN
-                | USB_CTRL_LEMPHYCTRL;
-  } else {
-    USB->CTRL = USB_CTRL_LEMOSCCTRL_GATE
-                | USB_CTRL_LEMIDLEEN
-                | USB_CTRL_LEMPHYCTRL
-                | USB_CTRL_LEMNAKEN
-                | USB_CTRL_LEMADDRMEN;
+    USB->CTRL |= USB_CTRL_LEMNAKEN | USB_CTRL_LEMADDRMEN;
   }
-#else
-  CMU_ClockSelectSet(cmuClock_USBC, cmuSelect_HFCLK);
 #endif
 
   USBHAL_DisableGlobalInt();
@@ -731,7 +813,13 @@ void USBD_Stop(void)
   USBHAL_DisablePhyPins();
   USBD_SetUsbState(USBD_STATE_NONE);
   /* Turn off USB clocks. */
+#if defined(_SILICON_LABS_32B_SERIES_0)
   CMU->HFCORECLKEN0 &= ~(CMU_HFCORECLKEN0_USB | CMU_HFCORECLKEN0_USBC);
+#else
+  USB->DATTRIM1     &= ~USB_DATTRIM1_ENDLYPULLUP;
+  CMU->HFBUSCLKEN0  &= ~CMU_HFBUSCLKEN0_USB;
+  CMU->USBCTRL      &= ~CMU_USBCTRL_USBCLKEN;
+#endif
 }
 
 /***************************************************************************//**
@@ -1120,8 +1208,11 @@ extern int RETARGET_WriteChar(char c);
 
 #define USB_VBUS_SWITCH_NOT_PRESENT  // Hardware does not have a VBUS switch
 
-#define USB_CORECLK_HFRCO   // Devices supporting crystal-less USB can use
-                            // HFRCO as core clock, default is HFXO
+#define USB_CORECLK_HFRCO   // Devices in the Happy family use USHFRCO as USB
+                            // clock thus supporting crystal-less USB operation.
+                            // The Cortex core can be clocked from HFRCO or
+                            // HFXO. Define this macros to use HFRCO as core
+                            // clock, default is HFXO.
 @endverbatim
 
   @n You are strongly encouraged to start application development with DEBUG_USB_API
@@ -1131,11 +1222,36 @@ extern int RETARGET_WriteChar(char c);
   in both @em emlib and in the USB stack. If asserts are enabled and
   USER_PUTCHAR defined, assert texts will be output on the serial port.
 
-  You application must include @em retargetserial.c if DEBUG_USB_API is defined
+  Your application must include @em retargetserial.c if DEBUG_USB_API is defined
   and @em retargetio.c if USB_USE_PRINTF is defined.
   These files reside in the @em drivers
   directory in the software package for your development board. Refer to
   @ref usb_device_powersave for energy-saving mode configurations.
+
+  @n Giant GG11 Gecko's are very flexible in terms of using different clock
+  sources to clock the USB peripheral. The clock source selected must be 48MHz
+  (2500 ppm). Select one of the following macros: @n
+  @verbatim
+In usbconfig.h:
+
+#define   USB_CLKSRC_HFXO        // Use HFXO as USB clock (must be 48MHz)
+#define   USB_CLKSRC_USHFRCO     // Use USHFRCO as USB clock
+#define   USB_CLKSRC_HFRCODPLL   // Use HFRCO and DPLL as USB clock
+
+// If DPLL is selected, additional settings are required. Here are two examples:
+
+// Using DPLL with 32 kHz LFXO as reference clock:
+#define USB_DPLL_FREQUENCY    48005120UL
+#define USB_DPLL_M            0U
+#define USB_DPLL_N            1464U
+#define USB_DPLL_SRC          USB_DPLL_SRC_LFXO
+
+// Using DPLL with 50 MHz HFXO as reference clock:
+#define USB_DPLL_FREQUENCY    48000000UL
+#define USB_DPLL_M            349U
+#define USB_DPLL_N            335U
+#define USB_DPLL_SRC          USB_DPLL_SRC_HFXO
+  @endverbatim
 
 @n @section usb_device_powersave Energy-saving modes
 
@@ -1172,7 +1288,7 @@ extern int RETARGET_WriteChar(char c);
   @verbatim
 #define USB_USBC_32kHz_CLK   USB_USBC_32kHz_CLK_LFXO @endverbatim
   Two flags are available, <b>USB_USBC_32kHz_CLK_LFXO</b> and
-  <b>USB_USBC_32kHz_CLK_LFRCO</b>. <b>USB_USBC_32kHz_CLK_LFXO</b> is selected
+  <b>USB_USBC_32kHz_CLK_LFRCO</b>. <b>USB_USBC_32kHz_CLK_LFRCO</b> is selected
   by default.
 
   The USB HID keyboard and Mass Storage device example projects demonstrate
@@ -1200,8 +1316,20 @@ In application code:
 if ( USBD_SafeToEnterEM2() ) {
   EMU_EnterEM2(true);
 } else {
-  EMU_EnterEM1(); @endverbatim
-}
+  EMU_EnterEM1();
+} @endverbatim
+
+  @n Giant GG11 and Happy Gecko's have further energy saving modes (LEM). These
+  are activated by default, but the clocksource of the LEM module is
+  configurable. @n
+  @verbatim
+In usbconfig.h:
+
+#define USB_USBLEM_CLK    USB_USBLEM_CLK_LFXO
+  @endverbatim
+  Two clock sources are available, <b>USB_USBLEM_CLK_LFXO</b> and
+  <b>USB_USBLEM_CLK_LFRCO</b>. Clock source <b>USB_USBLEM_CLK_LFRCO</b>
+  is selected by default.
 
 @n @section usb_device_example1 Vendor unique device example application
 
