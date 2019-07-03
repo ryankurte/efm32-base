@@ -30,8 +30,8 @@
 
 MEMORY
 {
-  FLASH (rx) : ORIGIN = 0x00000000, LENGTH = 1048576
-  RAM (rwx)  : ORIGIN = 0x20000000, LENGTH = 131072
+  FLASH (rx) : ORIGIN = DEFINED(flash_origin) ? flash_origin : 0x00000000, LENGTH = DEFINED(flash_length) ? flash_length : 1048576
+  RAM (rwx)  : ORIGIN = DEFINED(ram_origin) ? ram_origin : 0x20000000, LENGTH = DEFINED(ram_length) ? ram_length : 131072
 }
 
 /* Linker script to place sections and symbol values. Should be used together

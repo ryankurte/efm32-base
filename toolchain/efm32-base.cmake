@@ -21,11 +21,6 @@ string(REGEX MATCH "^((EFM|EZR|EFR)32[A-Z]+([0-9]([0-9])?[A-Z])?)" CPU_FAMILY_U 
 string(TOLOWER ${CPU_FAMILY_U} CPU_FAMILY_L)
 message("Family: ${CPU_FAMILY_U}")
 
-if(NOT DEFINED FLASH_START)
-set(FLASH_START 0x00000000)
-message("No FLASH_START defined. Using default: ${FLASH_START}")
-endif(NOT DEFINED FLASH_START)
-
 # Determine core type
 # TODO: find a neater (array based) way of doing this
 if(CPU_FAMILY_U STREQUAL "EFM32ZG" OR CPU_FAMILY_U STREQUAL "EFM32HG")

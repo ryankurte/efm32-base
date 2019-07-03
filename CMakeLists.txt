@@ -59,6 +59,31 @@ set(SOURCES
 
 # Generate executable and link
 add_executable(${TARGET} ${SOURCES})
+
+if(FLASH_ORIGIN)
+target_link_options(${TARGET}
+    PRIVATE "LINKER:--defsym=flash_origin=${FLASH_ORIGIN}"
+)
+endif()
+
+if(FLASH_LENGTH)
+target_link_options(${TARGET}
+    PRIVATE "LINKER:--defsym=flash_length=${FLASH_LENGTH}"
+)
+endif()
+
+if(RAM_ORIGIN)
+target_link_options(${TARGET}
+    PRIVATE "LINKER:--defsym=ram_origin=${RAM_ORIGIN}"
+)
+endif()
+
+if(RAM_LENGTH)
+target_link_options(${TARGET}
+    PRIVATE "LINKER:--defsym=ram_length=${RAM_LENGTH}"
+)
+endif()
+
 target_link_libraries(${TARGET} ${LIBS})
 
 ##### Post build #####
