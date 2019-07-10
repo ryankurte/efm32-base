@@ -12,13 +12,11 @@
 
 # Set minimum CMake version
 cmake_minimum_required(VERSION 2.8.4)
-set(CMAKE_VERBOSE_MAKEFILE ON)
 
 # Set efm32-base project location
 set(BASE_LOCATION .)
 
 # Set the compiler (must be prior to project setup)
-set(COMPILER_PREFIX "/home/andrew/opt/SimplicityStudio_v4/developer/toolchains/gnu_arm/7.2_2017q4/bin/")
 include(${BASE_LOCATION}/toolchain/arm-gcc.cmake)
 
 ##### Project Setup #####
@@ -32,9 +30,8 @@ project(${TARGET} C CXX ASM)
 # Set device
 if(NOT DEVICE)
 	set(DEVICE BGM13P22F512GA)
+	set(BOARD BRD4306A)
 endif()
-
-set(BOARD BRD4306A)
 
 # Set build
 if(NOT CMAKE_BUILD_TYPE)
@@ -72,16 +69,3 @@ include(${BASE_LOCATION}/toolchain/post-build.cmake)
 
 # Add JLink commands
 include(${BASE_LOCATION}/toolchain/jlink.cmake)
-
-message(CMAKE_SOURCE_DIR =${CMAKE_SOURCE_DIR})
-message(CMAKE_C_COMPILER =${CMAKE_C_COMPILER})
-message(CMAKE_C_FLAGS =${CMAKE_C_FLAGS})
-message(CMAKE_C_LINK_EXECUTABLE =${CMAKE_C_LINK_EXECUTABLE})
-message(CMAKE_EXE_LINKER_FLAGS =${CMAKE_EXE_LINKER_FLAGS})
-message(CMAKE_AR =${CMAKE_AR})
-
-get_property(dirs DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY INCLUDE_DIRECTORIES)
-message("Includes: ")
-foreach(dir ${dirs})
-	message(STATUS "dir='${dir}'")
-endforeach()
