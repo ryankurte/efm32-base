@@ -29,7 +29,8 @@ project(${TARGET} C CXX ASM)
 
 # Set device
 if(NOT DEVICE)
-set(DEVICE EFM32GG990F1024)
+	set(DEVICE BGM13P22F512GA)
+	set(BOARD BRD4306A)
 endif()
 
 # Set build
@@ -68,4 +69,3 @@ include(${BASE_LOCATION}/toolchain/post-build.cmake)
 
 # Add JLink commands
 include(${BASE_LOCATION}/toolchain/jlink.cmake)
-
