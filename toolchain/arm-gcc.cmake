@@ -12,6 +12,9 @@ set(CMAKE_SYSTEM_NAME Generic)
 set(CMAKE_SYSTEM_PROCESSOR arm)
 
 # Set compiler paths. We force set so it doesn't run tests
+# TODO: Figure out a fix for using set over force
+#set(CMAKE_C_COMPILER ${COMPILER_PREFIX}arm-none-eabi-gcc GNU)
+#set(CMAKE_CXX_COMPILER ${COMPILER_PREFIX}arm-none-eabi-g++ GNU)
 CMAKE_FORCE_C_COMPILER(${COMPILER_PREFIX}arm-none-eabi-gcc GNU)
 CMAKE_FORCE_CXX_COMPILER(${COMPILER_PREFIX}arm-none-eabi-g++ GNU)
 set(CMAKE_ASM_COMPILER ${COMPILER_PREFIX}arm-none-eabi-g++)
