@@ -14,10 +14,30 @@ message("Device: ${DEVICE}")
 string(TOUPPER ${DEVICE} DEVICE_U)
 message("Processor: ${DEVICE_U}")
 
-# Determine device family
-# Ideally this regex would be ^((EFM|EZR|EFR)32[A-Z]{1,2}([0-9]{1,2}[A-Z])?), but it appears to be
-# too complex for CMake...
-string(REGEX MATCH "^((EFM|EZR|EFR)32[A-Z]+([0-9]([0-9])?[A-Z])?)" CPU_FAMILY_U "${DEVICE_U}")
+# Determine device family by searching for an appropriate device directory
+set(DEVICE_FOUND FALSE)
+set(TEMP_DEVICE "${DEVICE_U}")
+
+while(NOT DEVICE_FOUND)
+	if (EXISTS "${CMAKE_CURRENT_LIST_DIR}/../device/${TEMP_DEVICE}")
+		set(DEVICE_FOUND TRUE)
+	else()
+		string(LENGTH ${TEMP_DEVICE} TEMP_DEVICE_LEN)
+		math(EXPR TEMP_DEVICE_LEN "${TEMP_DEVICE_LEN}-1")
+		string(SUBSTRING ${TEMP_DEVICE} 0 ${TEMP_DEVICE_LEN} TEMP_DEVICE)
+	endif()
+
+	if (${TEMP_DEVICE_LEN} EQUAL "0")
+		break()
+	endif()
+endwhile()
+
+# Quit generating if we couldn't find a device
+if (NOT DEVICE_FOUND)
+	message(FATAL_ERROR "failed to find device")
+endif()
+
+set(CPU_FAMILY_U ${TEMP_DEVICE})
 string(TOLOWER ${CPU_FAMILY_U} CPU_FAMILY_L)
 message("Family: ${CPU_FAMILY_U}")
 
@@ -32,11 +52,12 @@ if(CPU_FAMILY_U STREQUAL "EFM32ZG" OR CPU_FAMILY_U STREQUAL "EFM32HG")
 	message("Architecture: cortex-m0plus")
 	set(CPU_TYPE "m0plus")
 	set(CPU_FIX "")
-elseif(CPU_FAMILY_U STREQUAL "EFM32WG" OR CPU_FAMILY_U STREQUAL "EZR32WG" 
+elseif(CPU_FAMILY_U STREQUAL "EFM32WG" OR CPU_FAMILY_U STREQUAL "EZR32WG"
 		OR CPU_FAMILY_U STREQUAL "EFM32PG1B" OR CPU_FAMILY_U STREQUAL "EFR32FG1B"
 		OR CPU_FAMILY_U STREQUAL "EFM32PG12B" OR CPU_FAMILY_U STREQUAL "EFR32FG12B"
 		OR CPU_FAMILY_U STREQUAL "EFM32PG13B" OR CPU_FAMILY_U STREQUAL "EFR32FG13B"
-		OR CPU_FAMILY_U STREQUAL "EFR32MG12P" OR CPU_FAMILY_U STREQUAL "EFR32MG13P")
+		OR CPU_FAMILY_U STREQUAL "EFR32MG12P" OR CPU_FAMILY_U STREQUAL "EFR32MG13P"
+		OR CPU_FAMILY_U STREQUAL "BGM13")
 	message("Architecture: cortex-m4")
 	set(CPU_TYPE "m4")
 set(CPU_FIX "")
@@ -52,6 +73,8 @@ include(${CMAKE_CURRENT_LIST_DIR}/../cmsis/cmsis.cmake)
 if(NOT DEFINED NO_EMLIB)
 include(${CMAKE_CURRENT_LIST_DIR}/../emlib/emlib.cmake)
 endif()
+include(${CMAKE_CURRENT_LIST_DIR}/../hardware/hardware.cmake)
+include(${CMAKE_CURRENT_LIST_DIR}/../protocol/protocol.cmake)
 
 # Set compiler flags
 # Common arguments
