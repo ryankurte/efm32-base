@@ -12,31 +12,28 @@
 
 # Set minimum CMake version
 cmake_minimum_required(VERSION 2.8.4)
-
-# Set efm32-base project location
-set(BASE_LOCATION .)
+set(CMAKE_VERBOSE_MAKEFILE ON)
 
 # Set the compiler (must be prior to project setup)
-include(${BASE_LOCATION}/toolchain/arm-gcc.cmake)
+include(${CMAKE_CURRENT_LIST_DIR}/toolchain/arm-gcc.cmake)
 
 ##### Project Setup #####
 
-# Set our output target
-set(TARGET efm32-test)
-
 # Configure project and languages
-project(${TARGET} C CXX ASM)
+project(efm32-test C CXX ASM)
 
 # Set device
-if(NOT DEVICE)
-	set(DEVICE BGM13P22F512GA)
-	set(BOARD BRD4306A)
-endif()
+if (NOT DEVICE)
+    #    set(DEVICE EFM32G210F128)
+    set(DEVICE BGM13P22F512GA)
+    set(BOARD BRD4306A)
+    set(BLE_LIB EFR32BG13P)
+endif ()
 
 # Set build
-if(NOT CMAKE_BUILD_TYPE)
-set(CMAKE_BUILD_TYPE DEBUG)
-endif()
+if (NOT CMAKE_BUILD_TYPE)
+    set(CMAKE_BUILD_TYPE DEBUG)
+endif ()
 
 ##### Modules #####
 
@@ -44,28 +41,69 @@ endif()
 # or manually included here.
 
 # Add base libs (emlib, CMSIS, device files)
-include(${BASE_LOCATION}/toolchain/efm32-base.cmake)
+include(${PROJECT_SOURCE_DIR}/toolchain/efm32-base.cmake)
+
+add_subdirectory(cmsis)
+add_subdirectory(emlib)
+add_subdirectory(device)
+add_subdirectory(protocol)
+add_subdirectory(hardware)
+
+# this is normally set in efm32-base.cmake, but libraries may modify it so set
+# it after libraries/subdirectories have been added
+set(CMAKE_EXE_LINKER_FLAGS "${COMMON_DEFINITIONS} -Xlinker -T${LINKER_SCRIPT} -Wl,-Map=${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_PROJECT_NAME}.map -Wl,--gc-sections -Wl,-v")
 
 ##### Files #####
 
 # Add project headers
-include_directories(${BASE_LOCATION}/include)
-
-# Add project sources
-set(SOURCES
-	source/main.c
-)
-
-##### Outputs #####
+include_directories(${PROJECT_SOURCE_DIR}/include)
 
 # Generate executable and link
-add_executable(${TARGET} ${SOURCES})
-target_link_libraries(${TARGET} ${LIBS})
+add_executable(${PROJECT_NAME}
+        source/main.c)
+
+target_link_libraries(${PROJECT_NAME} ${LIBS} emlib cmsis device)
+
+# link optional libraries if available
+if (${HAS_HARDWARE})
+    target_link_libraries(${PROJECT_NAME} hardware)
+endif ()
+
+if (${HAS_PROTOCOL})
+    target_link_libraries(${PROJECT_NAME} protocol)
+endif ()
 
 ##### Post build #####
 
 # Add post build commands
-include(${BASE_LOCATION}/toolchain/post-build.cmake)
+include(${PROJECT_SOURCE_DIR}/toolchain/post-build.cmake)
 
 # Add JLink commands
-include(${BASE_LOCATION}/toolchain/jlink.cmake)
+include(${PROJECT_SOURCE_DIR}/toolchain/jlink.cmake)
+
+##### CMake debug prints #####
+message("COMPILER_PREFIX =${COMPILER_PREFIX}")
+message("CMAKE_SOURCE_DIR =${CMAKE_SOURCE_DIR}")
+message("CMAKE_C_COMPILER =${CMAKE_C_COMPILER}")
+message("CMAKE_C_FLAGS =${CMAKE_C_FLAGS}")
+message("CMAKE_C_LINK_EXECUTABLE =${CMAKE_C_LINK_EXECUTABLE}")
+message("CMAKE_EXE_LINKER_FLAGS =${CMAKE_EXE_LINKER_FLAGS}")
+message("CMAKE_AR =${CMAKE_AR}")
+
+message("Definitions: ")
+get_directory_property(defs DIRECTORY ${CMAKE_SOURCE_DIR} COMPILE_DEFINITIONS)
+foreach (def ${defs})
+    message(STATUS "-D${def}")
+endforeach ()
+
+get_property(dirs TARGET ${PROJECT_NAME} PROPERTY INCLUDE_DIRECTORIES)
+message("Includes: ")
+foreach (dir ${dirs})
+    message(STATUS "${dir}")
+endforeach ()
+
+get_property(libs TARGET ${PROJECT_NAME} PROPERTY LINK_LIBRARIES)
+message("Libraries:")
+foreach (libs ${libs})
+    message(STATUS "${libs}")
+endforeach ()
