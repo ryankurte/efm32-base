@@ -13,15 +13,15 @@ set(CMAKE_SYSTEM_NAME Generic)
 set(CMAKE_SYSTEM_PROCESSOR arm)
 
 # Set compiler paths
-set(CMAKE_C_COMPILER ${COMPILER_PREFIX}/arm-none-eabi-gcc)
-set(CMAKE_CXX_COMPILER ${COMPILER_PREFIX}/arm-none-eabi-g++)
-set(CMAKE_ASM_COMPILER ${COMPILER_PREFIX}/arm-none-eabi-g++)
+set(CMAKE_C_COMPILER ${COMPILER_PREFIX}arm-none-eabi-gcc)
+set(CMAKE_CXX_COMPILER ${COMPILER_PREFIX}arm-none-eabi-g++)
+set(CMAKE_ASM_COMPILER ${COMPILER_PREFIX}arm-none-eabi-g++)
 
 # Set other tools
-set(OBJSIZE ${COMPILER_PREFIX}/arm-none-eabi-size)
-set(OBJCOPY ${COMPILER_PREFIX}/arm-none-eabi-objcopy)
-set(OBJDUMP ${COMPILER_PREFIX}/arm-none-eabi-objdump)
-set(DEBUGGER ${COMPILER_PREFIX}/arm-none-eabi-gdb)
+set(OBJSIZE ${COMPILER_PREFIX}arm-none-eabi-size)
+set(OBJCOPY ${COMPILER_PREFIX}arm-none-eabi-objcopy)
+set(OBJDUMP ${COMPILER_PREFIX}arm-none-eabi-objdump)
+set(DEBUGGER ${COMPILER_PREFIX}arm-none-eabi-gdb)
 
 # Remove preset linker flags
 set(CMAKE_SHARED_LIBRARY_LINK_C_FLAGS "") 
