@@ -13,9 +13,10 @@
 # Set minimum CMake version
 cmake_minimum_required(VERSION 2.8.4)
 set(CMAKE_VERBOSE_MAKEFILE ON)
+set(BASE_LOCATION .)
 
 # Set the compiler (must be prior to project setup)
-include(${CMAKE_CURRENT_LIST_DIR}/toolchain/arm-gcc.cmake)
+include(${BASE_LOCATION}/toolchain/arm-gcc.cmake)
 
 ##### Project Setup #####
 
@@ -41,7 +42,7 @@ endif ()
 # or manually included here.
 
 # Add base libs (emlib, CMSIS, device files)
-include(${PROJECT_SOURCE_DIR}/toolchain/efm32-base.cmake)
+include(${BASE_LOCATION}/toolchain/efm32-base.cmake)
 
 add_subdirectory(cmsis)
 add_subdirectory(emlib)
@@ -56,7 +57,7 @@ set(CMAKE_EXE_LINKER_FLAGS "${COMMON_DEFINITIONS} -Xlinker -T${LINKER_SCRIPT} -W
 ##### Files #####
 
 # Add project headers
-include_directories(${PROJECT_SOURCE_DIR}/include)
+include_directories(${BASE_LOCATION}/include)
 
 # Generate executable and link
 add_executable(${PROJECT_NAME}
@@ -76,10 +77,10 @@ endif ()
 ##### Post build #####
 
 # Add post build commands
-include(${PROJECT_SOURCE_DIR}/toolchain/post-build.cmake)
+include(${BASE_LOCATION}/toolchain/post-build.cmake)
 
 # Add JLink commands
-include(${PROJECT_SOURCE_DIR}/toolchain/jlink.cmake)
+include(${BASE_LOCATION}/toolchain/jlink.cmake)
 
 ##### CMake debug prints #####
 message("COMPILER_PREFIX =${COMPILER_PREFIX}")
