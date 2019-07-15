@@ -12,7 +12,10 @@
 
 # Set minimum CMake version
 cmake_minimum_required(VERSION 2.8.4)
-set(CMAKE_VERBOSE_MAKEFILE ON)
+
+# optional verbose mode, uncomment or pass in -DCMAKE_VERBOSE_MAKEFILE=ON
+# set(CMAKE_VERBOSE_MAKEFILE ON)
+
 set(BASE_LOCATION .)
 
 # Set the compiler (must be prior to project setup)
@@ -83,28 +86,6 @@ include(${BASE_LOCATION}/toolchain/post-build.cmake)
 include(${BASE_LOCATION}/toolchain/jlink.cmake)
 
 ##### CMake debug prints #####
-message("COMPILER_PREFIX =${COMPILER_PREFIX}")
-message("CMAKE_SOURCE_DIR =${CMAKE_SOURCE_DIR}")
-message("CMAKE_C_COMPILER =${CMAKE_C_COMPILER}")
-message("CMAKE_C_FLAGS =${CMAKE_C_FLAGS}")
-message("CMAKE_C_LINK_EXECUTABLE =${CMAKE_C_LINK_EXECUTABLE}")
-message("CMAKE_EXE_LINKER_FLAGS =${CMAKE_EXE_LINKER_FLAGS}")
-message("CMAKE_AR =${CMAKE_AR}")
-
-message("Definitions: ")
-get_directory_property(defs DIRECTORY ${CMAKE_SOURCE_DIR} COMPILE_DEFINITIONS)
-foreach (def ${defs})
-    message(STATUS "-D${def}")
-endforeach ()
-
-get_property(dirs TARGET ${PROJECT_NAME} PROPERTY INCLUDE_DIRECTORIES)
-message("Includes: ")
-foreach (dir ${dirs})
-    message(STATUS "${dir}")
-endforeach ()
-
-get_property(libs TARGET ${PROJECT_NAME} PROPERTY LINK_LIBRARIES)
-message("Libraries:")
-foreach (libs ${libs})
-    message(STATUS "${libs}")
-endforeach ()
+if (CMAKE_VERBOSE_MAKEFILE)
+    print_debug_info()
+endif()
