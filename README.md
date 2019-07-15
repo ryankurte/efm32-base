@@ -58,7 +58,7 @@ Once you have integrated this project with your project, you can build in the st
 4. `make` to execute the build
 5. `make flash` to flash to a device
 
-When configuring the build, you may want to define using the `-D` flag the variables `DEVICE`, `FLASH_ORIGIN`, `FLASH_LENGTH`, `RAM_ORIGIN` and `RAM_LENGTH`. If not defined, the build will use the default memory adresses and sizes for the FLASH and RAM regions defined in the Silicon Labs provided linker script for your device (these are usually `0x00000000` and `0x20000000` for flash start and RAM start, respectively).
+When configuring the build, you may want to define (either in `CMakeLists.txt`or using the `-D` flag) the variables `DEVICE`, `FLASH_ORIGIN`, `FLASH_LENGTH`, `RAM_ORIGIN` and `RAM_LENGTH`. If not defined, the build will use the default memory addresses and sizes for the FLASH and RAM regions defined in the Silicon Labs provided linker script for your device (these are usually `0x00000000` and `0x20000000` for flash start and RAM start, respectively).
 
 ## Debugging
 
