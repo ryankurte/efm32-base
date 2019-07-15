@@ -5,6 +5,32 @@
 # Copyright (c) 2016 Ryan Kurte
 # This file is covered under the MIT license available at: https://opensource.org/licenses/MIT
 
+function(efm32_configure_linker_addresses target)
+    if(FLASH_ORIGIN)
+        target_link_options(${target}
+            PRIVATE "LINKER:--defsym=flash_origin=${FLASH_ORIGIN}"
+            )
+    endif()
+
+    if(FLASH_LENGTH)
+        target_link_options(${target}
+            PRIVATE "LINKER:--defsym=flash_length=${FLASH_LENGTH}"
+            )
+    endif()
+
+    if(RAM_ORIGIN)
+        target_link_options(${target}
+            PRIVATE "LINKER:--defsym=ram_origin=${RAM_ORIGIN}"
+            )
+    endif()
+
+    if(RAM_LENGTH)
+        target_link_options(${target}
+            PRIVATE "LINKER:--defsym=ram_length=${RAM_LENGTH}"
+            )
+    endif()
+endfunction(efm32_configure_linker_addresses)
+
 if(NOT DEFINED DEVICE)
 message(FATAL_ERROR "No processor defined")
 endif(NOT DEFINED DEVICE)
