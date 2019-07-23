@@ -3,7 +3,8 @@
 # This file is covered under the MIT license available at: https://opensource.org/licenses/MIT
 
 # We are cross compiling so we don't want compiler tests to run, as they will fail
-include(CMakeForceCompiler)
+set(CMAKE_C_COMPILER_WORKS TRUE)
+set(CMAKE_CXX_COMPILER_WORKS TRUE)
 
 # Indicate we aren't compiling for an OS
 set(CMAKE_SYSTEM_NAME Generic)
@@ -11,9 +12,9 @@ set(CMAKE_SYSTEM_NAME Generic)
 # Set processor type
 set(CMAKE_SYSTEM_PROCESSOR arm)
 
-# Set compiler paths. We force set so it doesn't run tests
-CMAKE_FORCE_C_COMPILER(${COMPILER_PREFIX}arm-none-eabi-gcc GNU)
-CMAKE_FORCE_CXX_COMPILER(${COMPILER_PREFIX}arm-none-eabi-g++ GNU)
+# Set compiler paths
+set(CMAKE_C_COMPILER ${COMPILER_PREFIX}arm-none-eabi-gcc)
+set(CMAKE_CXX_COMPILER ${COMPILER_PREFIX}arm-none-eabi-g++)
 set(CMAKE_ASM_COMPILER ${COMPILER_PREFIX}arm-none-eabi-g++)
 
 # Set other tools
