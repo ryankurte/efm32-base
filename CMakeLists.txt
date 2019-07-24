@@ -13,7 +13,7 @@
 # Set minimum CMake version
 cmake_minimum_required(VERSION 2.8.4)
 
-# optional verbose mode, uncomment or pass in -DCMAKE_VERBOSE_MAKEFILE=ON
+# Optional verbose mode, uncomment or pass in -DCMAKE_VERBOSE_MAKEFILE=ON
 # set(CMAKE_VERBOSE_MAKEFILE ON)
 
 set(BASE_LOCATION .)
@@ -28,10 +28,10 @@ project(efm32-test C CXX ASM)
 
 # Set device
 if (NOT DEVICE)
-    #    set(DEVICE EFM32G210F128)
-    set(DEVICE BGM13P22F512GA)
-    set(BOARD BRD4306A)
-    set(BLE_LIB EFR32BG13P)
+    set(DEVICE EFM32G210F128)
+    # set(DEVICE BGM13P22F512GA)
+    # set(BOARD BRD4306A)
+    # set(BLE_LIB EFR32BG13P)
 endif ()
 
 # Set build
@@ -53,7 +53,7 @@ add_subdirectory(device)
 add_subdirectory(protocol)
 add_subdirectory(hardware)
 
-# this is normally set in efm32-base.cmake, but libraries may modify it so set
+# This is normally set in efm32-base.cmake, but libraries may modify it so set
 # it after libraries/subdirectories have been added
 set(CMAKE_EXE_LINKER_FLAGS "${COMMON_DEFINITIONS} -Xlinker -T${LINKER_SCRIPT} -Wl,-Map=${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_PROJECT_NAME}.map -Wl,--gc-sections -Wl,-v")
 
@@ -66,9 +66,11 @@ include_directories(${BASE_LOCATION}/include)
 add_executable(${PROJECT_NAME}
         source/main.c)
 
+efm32_configure_linker_addresses(${PROJECT_NAME})
+
 target_link_libraries(${PROJECT_NAME} ${LIBS} emlib cmsis device)
 
-# link optional libraries if available
+# Link optional libraries if available
 if (${HAS_HARDWARE})
     target_link_libraries(${PROJECT_NAME} hardware)
 endif ()

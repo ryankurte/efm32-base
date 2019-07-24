@@ -5,6 +5,32 @@
 # Copyright (c) 2016 Ryan Kurte
 # This file is covered under the MIT license available at: https://opensource.org/licenses/MIT
 
+function(efm32_configure_linker_addresses target)
+    if(FLASH_ORIGIN)
+        target_link_options(${target}
+            PRIVATE "LINKER:--defsym=flash_origin=${FLASH_ORIGIN}"
+            )
+    endif()
+
+    if(FLASH_LENGTH)
+        target_link_options(${target}
+            PRIVATE "LINKER:--defsym=flash_length=${FLASH_LENGTH}"
+            )
+    endif()
+
+    if(RAM_ORIGIN)
+        target_link_options(${target}
+            PRIVATE "LINKER:--defsym=ram_origin=${RAM_ORIGIN}"
+            )
+    endif()
+
+    if(RAM_LENGTH)
+        target_link_options(${target}
+            PRIVATE "LINKER:--defsym=ram_length=${RAM_LENGTH}"
+            )
+    endif()
+endfunction(efm32_configure_linker_addresses)
+
 if (NOT DEFINED DEVICE)
     message(FATAL_ERROR "No processor defined")
 endif ()
@@ -40,11 +66,6 @@ endif ()
 set(CPU_FAMILY_U ${TEMP_DEVICE})
 string(TOLOWER ${CPU_FAMILY_U} CPU_FAMILY_L)
 message("Family: ${CPU_FAMILY_U}")
-
-if (NOT DEFINED FLASH_START)
-    set(FLASH_START 0x00000000)
-    message("No FLASH_START defined. Using default: ${FLASH_START}")
-endif (NOT DEFINED FLASH_START)
 
 # Determine core type
 # TODO: find a neater (array based) way of doing this
@@ -100,7 +121,7 @@ set(CMAKE_C_FLAGS_RELEASE "${COMMON_RELEASE_FLAGS}")
 set(CMAKE_CXX_FLAGS_RELEASE "${COMMON_RELEASE_FLAGS}")
 set(CMAKE_ASM_FLAGS_RELEASE "${COMMON_RELEASE_FLAGS}")
 
-# print debug info helper function
+# Print debug info helper function
 function(print_debug_info)
     message("COMPILER_PREFIX =${COMPILER_PREFIX}")
     message("CMAKE_SOURCE_DIR =${CMAKE_SOURCE_DIR}")
