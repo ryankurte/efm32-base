@@ -28,10 +28,10 @@ project(efm32-test C CXX ASM)
 
 # Set device
 if (NOT DEVICE)
-    #    set(DEVICE EFM32G210F128)
-    set(DEVICE BGM13P22F512GA)
-    set(BOARD BRD4306A)
-    set(BLE_LIB EFR32BG13P)
+    set(DEVICE EFM32G210F128)
+    # set(DEVICE BGM13P22F512GA)
+    # set(BOARD BRD4306A)
+    # set(BLE_LIB EFR32BG13P)
 endif ()
 
 # Set build
@@ -66,7 +66,7 @@ include_directories(${BASE_LOCATION}/include)
 add_executable(${PROJECT_NAME}
         source/main.c)
 
-efm32_configure_linker_addresses(${TARGET})
+efm32_configure_linker_addresses(${PROJECT_NAME})
 
 target_link_libraries(${PROJECT_NAME} ${LIBS} emlib cmsis device)
 
