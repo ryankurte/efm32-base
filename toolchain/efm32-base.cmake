@@ -10,6 +10,10 @@ function(efm32_configure_linker_addresses target)
         target_link_options(${target}
             PRIVATE "LINKER:--defsym=flash_origin=${FLASH_ORIGIN}"
             )
+    else()
+        # We always need to set FLASH_ORIGIN so that the script
+        # toolchain/flash.in gets configured correctly.
+        set(FLASH_ORIGIN 0x00000000 PARENT_SCOPE)
     endif()
 
     if(FLASH_LENGTH)
