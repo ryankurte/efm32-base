@@ -88,7 +88,7 @@ elseif (CPU_FAMILY_U STREQUAL "EFM32WG" OR CPU_FAMILY_U STREQUAL "EZR32WG"
     set(CPU_TYPE "m4")
     set(CPU_FIX "")
 elseif (CPU_FAMILY_U STREQUAL "EFR32MG21" OR CPU_FAMILY_U STREQUAL "EFR32BG21"
-        OR CPU_FAMILY_U STREQUAL "EFR32MG22")
+        OR CPU_FAMILY_U STREQUAL "EFR32MG22" OR CPU_FAMILY_U STREQUAL "EFR32BG22")
     message("Architecture: cortex-m33")
     set(CPU_TYPE "m33")
     set(CPU_FIX "-march=armv8-m.main+dsp -mcmse -mfpu=fpv5-sp-d16 -mfloat-abi=hard -falign-functions=2")
