@@ -73,7 +73,7 @@ message("Family: ${CPU_FAMILY_U}")
 
 # Determine core type
 # TODO: find a neater (array based) way of doing this
-if (CPU_FAMILY_U STREQUAL "EFM32ZG" OR CPU_FAMILY_U STREQUAL "EFM32HG")
+if (CPU_FAMILY_U STREQUAL "EFM32ZG" OR CPU_FAMILY_U STREQUAL "EFM32HG" OR CPU_FAMILY_U STREQUAL "EFM32TG11B")
     message("Architecture: cortex-m0plus")
     set(CPU_TYPE "m0plus")
     set(CPU_FIX "")
