@@ -26,13 +26,19 @@ include(${BASE_LOCATION}/toolchain/arm-gcc.cmake)
 # Configure project and languages
 project(efm32-test C CXX ASM)
 
-# Set device
+# ${DEVICE} sets the target specific model name
 if (NOT DEVICE)
     set(DEVICE EFM32G210F128)
     # set(DEVICE BGM13P22F512GA)
     # set(BOARD BRD4306A)
     # set(BLE_LIB EFR32BG13P)
 endif ()
+
+# ${JLINK_DEVICE} device model setting specifically for JLink. (Defaults to ${DEVICE} when not set)
+# set(JLINK_DEVICE EFM32TG11BXXXF128)
+
+# When ${JLINK_SERVER_IP} is set, JLink will try to connect over IP to a JLink server
+# set(JLINK_SERVER_IP 127.0.0.1)
 
 # Set build
 if (NOT CMAKE_BUILD_TYPE)

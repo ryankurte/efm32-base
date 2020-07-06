@@ -1,4 +1,4 @@
-device ${DEVICE}
+device ${JLINK_DEVICE}
 h
 loadbin ${BINARY}, ${FLASH_ORIGIN}
 verifybin ${BINARY}, ${FLASH_ORIGIN}
