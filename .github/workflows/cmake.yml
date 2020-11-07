@@ -37,7 +37,7 @@ jobs:
       
     - name: Install toolchain
       run: |
-        apt install -y gcc-arm-none-eabi binutils-arm-none-eabi
+        sudo apt install -y gcc-arm-none-eabi binutils-arm-none-eabi
 
     - name: Configure CMake
       shell: bash
