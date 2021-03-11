@@ -1,5 +1,7 @@
 project(protocol)
 
+if(USE_PROTOCOL)
+
 string(TOLOWER ${DEVICE} DEVICE_L)
 
 set(BLE_LINKER_SCRIPT "${CMAKE_CURRENT_SOURCE_DIR}/bluetooth/ble_stack/linker/GCC/${DEVICE_L}.ld")
@@ -21,3 +23,5 @@ add_library(${PROJECT_NAME} INTERFACE)
 target_include_directories(${PROJECT_NAME} INTERFACE
         bluetooth/ble_stack/inc/common
         protocol/bluetooth/ble_stack/inc/soc)
+
+endif()

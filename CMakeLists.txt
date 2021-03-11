@@ -28,8 +28,8 @@ project(efm32-test C CXX ASM)
 
 # ${DEVICE} sets the target specific model name
 if (NOT DEVICE)
-    set(DEVICE EFM32G210F128)
-    # set(DEVICE BGM13P22F512GA)
+    set(DEVICE EFR32MG21A010F1024IM32)  # Sets device / used to locate HAL files
+    set(FLASH_ORIGIN 0x00000000)        # Used to specify application start address
     # set(BOARD BRD4306A)
     # set(BLE_LIB EFR32BG13P)
 endif ()
@@ -52,6 +52,10 @@ endif ()
 
 # Add base libs (emlib, CMSIS, device files)
 include(${BASE_LOCATION}/toolchain/efm32-base.cmake)
+
+# Enable protocols / BLE if desired
+# Note this will overwrite the default linker files / may not behave in the manner you expect
+#set(USE_PROTOCOL 1)
 
 add_subdirectory(${BASE_LOCATION}/cmsis)
 add_subdirectory(${BASE_LOCATION}/emlib)
